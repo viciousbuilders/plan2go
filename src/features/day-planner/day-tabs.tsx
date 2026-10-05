@@ -60,10 +60,11 @@ function stopLine(day: DayPlan): string {
  * strip keeps the room for it.
  *
  * On a phone a day is a card of its own, the way design 1b of "PlanToGo
- * iPhone app" draws the strip: its number over its date over its city, laid
- * from the card's left edge, on raised paper inside a hairline and rounded at
- * the panel's radius. At least eighty wide, so the strip reads as a row of
- * days, and wider for a city with a longer name.
+ * iPhone app" draws the strip, though without the dot it puts ahead of the
+ * number: its number over its date over its city, laid from the card's left
+ * edge, on raised paper inside a hairline and rounded at the panel's radius.
+ * At least eighty wide, so the strip reads as a row of days, and wider for a
+ * city with a longer name.
  */
 const TAB =
   "group/tab relative flex shrink-0 flex-col items-center rounded-pill border-0 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-11 lg:min-w-[82px] lg:justify-center lg:gap-1 lg:px-[15px] max-lg:min-w-20 max-lg:items-start max-lg:gap-[5px] max-lg:rounded-panel max-lg:border-[1.5px] max-lg:px-[13px] max-lg:pt-[10px] max-lg:pb-[11px]";
@@ -86,7 +87,7 @@ const TAB_DATE = "text-small/none font-semibold tabular-nums";
  * drawn. A ring rather than a border, so it takes no room and the pill is the
  * same size as the tab it stands under. Drawn by the strip's sliding pill,
  * and by the chosen tab itself until that pill has been laid; on a desk only,
- * since on a phone the chosen day is its filled circle.
+ * since on a phone the chosen day is its filled card.
  */
 const RAISED = "bg-paper-raised shadow-sm ring-1 ring-rule";
 
@@ -106,19 +107,6 @@ function dayCard(selected: boolean, isToday: boolean): string {
   return isToday
     ? "max-lg:border-sage-200 max-lg:bg-sage-100 max-lg:text-sage-800 max-lg:hover:bg-sage-200"
     : "max-lg:border-rule max-lg:bg-paper-raised max-lg:text-ink max-lg:hover:bg-paper-sunken";
-}
-
-/**
- * The dot ahead of a card's number, which says whether anything is planned
- * on the day: the accent, or paper on the chosen day's brown, and a faint ink
- * dot on a day with nothing on it yet, so every card's number starts at the
- * same place.
- */
-function plannedDot(selected: boolean, planned: boolean): string {
-  if (!planned) {
-    return "bg-current opacity-25";
-  }
-  return selected ? "bg-paper" : "bg-terracotta";
 }
 
 export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProps) {
@@ -318,19 +306,12 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                   {formatDayTab(day.date)}
                 </span>
 
-                {/* The phone's card: the dot that says whether anything is
-                    planned on the day ahead of the day's number, the date at
-                    the body step in bold under them, and the city under the
-                    date, quieter. The number and the city are drawn at the
-                    card's own colour, a little faded, so they read as said
-                    about the date. */}
-                <span
-                  aria-hidden="true"
-                  className={`flex items-center gap-[5px] ${TAB_NUMBER} opacity-80 lg:hidden`}
-                >
-                  <span
-                    className={`h-[6px] w-[6px] shrink-0 rounded-pill ${plannedDot(selected, day.stops.length > 0)}`}
-                  />
+                {/* The phone's card: the day's number, the date at the body
+                    step in bold under it, and the city under the date,
+                    quieter. The number and the city are drawn at the card's
+                    own colour, a little faded, so they read as said about the
+                    date. */}
+                <span aria-hidden="true" className={`${TAB_NUMBER} opacity-80 lg:hidden`}>
                   {`Day ${String(index + 1)}`}
                 </span>
                 <span aria-hidden="true" className="text-body/none font-bold tabular-nums lg:hidden">

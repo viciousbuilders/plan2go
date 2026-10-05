@@ -267,8 +267,8 @@ utility fighting the first. There is one exception, and it is only ever a field'
 .pdf after a file's name, is 16px, because iOS zooms the whole page into any field set
 smaller as it takes the cursor and leaves it zoomed. Lead is the heading of what opens over the page: the place
 open in the sheet, and the question asked before a trip is deleted; and on a phone, which
-gives a stop a line of the window rather than a card, a stop's name on the rail and the
-date in a day's circle in the strip. Small is the tier the interface is mostly made of,
+gives a stop a line of the window rather than a card, a stop's name on the rail.
+Small is the tier the interface is mostly made of,
 tab labels, menu rows, the words on a leg, which used to be a scatter of 13px and 13.5px
 chosen one component at a time. A number that is not on the scale is a number that has
 not been thought about, and the marketing page, which the scale does not govern, is the
@@ -370,11 +370,11 @@ Under them the strip of days runs out to the window's edges, scrolling the days 
 them, 20px in at either end, so the first day stands under the trip's name. A day is a
 card at least 80px wide, 6px from the next and all as tall as the tallest, on
 `paper-raised` inside a 1.5px `rule` edge, rounded at the `panel` radius, its words laid
-from its left: a 6px dot and "DAY 1" at the micro step in 600 capitals, its date, "Sat
-10", at the body step in bold, and its city at the micro step, the number and the city
-a little faded. The dot is terracotta when anything is planned on the day and a faint
-dot of the card's own ink when nothing is. The chosen day's card is filled in
-`terracotta-800` with its words and its dot in `paper`, the way a chosen chip is
+from its left: "DAY 1" at the micro step in 600 capitals, its date, "Sat 10", at the
+body step in bold, and its city at the micro step, the number and the city a little
+faded. No dot leads the number, neither the city's nor one for whether anything is
+planned on the day. The chosen day's card is filled in `terracotta-800` with its words
+in `paper`, the way a chosen chip is
 anywhere in the product; today, when it is not chosen, is in sage 100 inside a sage 200
 edge with its words in sage 800. On a trip that goes to more than one city, the line
 under the strip names the open day's city as well. After the last day, centred on the
