@@ -446,12 +446,13 @@ with a tick in `sheet` once the place is on the day. Choosing a row opens the pl
 the page, as anywhere, and adding it leaves the page up for the next. Done puts it away.
 
 Map is the map over the whole window, with nothing of Google's drawn on it and none of
-ours but its rows. At the top, for someone who may edit, the search bar: a 48px pill
-the window's width less 14px at each side, on `paper-raised` inside a `rule` hairline
-under `shadow-md`, the search glyph and "Search for a place in Sydney" at the body step
-in 500 `ink-muted`. It is the field's shape and words, not the field: pressed, it brings
-the search up as a page of its own with the cursor in the field, as **Add a place**
-does. Under it, 8px clear, a chip for every day, a pill at the small step in bold
+ours but its rows. At the top, for someone who may edit, the search bar itself, the
+one the page has: the city pill with its dot, the field and its turning words, 12px down
+and 14px in at either side, on the chips' edge. Over the map it keeps the lift it has
+over a desk's map, since here too it floats over one. Pressed, the page comes up around
+it: the bar stays where it is and **Done** comes in beside it, with the cursor and the
+keyboard in the field when the field was pressed, and the cities open when the pill
+was. Done puts the page away and leaves the bar over the map. Under it, 8px clear, a chip for every day, a pill at the small step in bold
 on `paper-raised` under `shadow-sm`, the open day filled in `terracotta-800`, so the map
 goes from day to day without the list. Along the foot, 12px over the bar, a card 250px
 wide for every stop on the day, on `paper-raised` rounded at the `card` radius under

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowRightIcon, SearchIcon } from "@/ui/icons";
+import { ArrowRightIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
 import { formatDayDate } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
@@ -15,8 +15,11 @@ interface MapDayProps {
   readonly onPick: (stopId: string) => void;
   /** Opens the stop that is already picked out, to see what the place is like. */
   readonly onOpen: (stopId: string) => void;
-  /** Brings the search up as a page of its own. Null for a reader who cannot edit. */
-  readonly onFindPlace: (() => void) | null;
+  /**
+   * Whether the search bar is laid over the map's top, which it is for
+   * someone who may edit, so the days stand under it rather than behind it.
+   */
+  readonly searchOnTop: boolean;
 }
 
 /** Laid over the map rather than on paper, so each thing stands on a floating control's shadow. */
@@ -25,14 +28,13 @@ const CHIP =
 
 /**
  * What a phone's map view carries over the map, as design 1b of "PlanToGo
- * iPhone" draws it. At the top, for someone who may edit, the search bar: the
- * field's shape and words, pressed to bring the search up as a page of its
- * own, as "Add a place" does, since a phone searches on a page rather than in
- * a bar over the map. Under it, a chip for every day, the open one filled
- * in the accent's deepest brown, so the map can go from day to day without
- * going back to the list. Along the foot, a card for every stop on the day,
- * its number on the disc the map marks it with, its name, and when it is
- * reached and left, in a row that scrolls sideways over the map.
+ * iPhone" draws it. Across the top, under the search bar where there is one, a
+ * chip for every day, the open one filled in the accent's deepest brown, so
+ * the map can go from day to day without going back to the list. The bar is
+ * the page's own, laid over the map by whoever holds the search. Along the
+ * foot, a card for every stop on the day, its number on the disc the map
+ * marks it with, its name, and when it is reached and left, in a row that
+ * scrolls sideways over the map.
  *
  * A card pressed picks its stop out: the card takes the accent's edge and its
  * marker on the map is drawn large, as a marker under the pointer is on a
@@ -49,7 +51,7 @@ export function MapDay({
   picked,
   onPick,
   onOpen,
-  onFindPlace,
+  searchOnTop,
 }: MapDayProps) {
   const selected = days[selectedIndex] ?? days[0];
   const cards = useRef<HTMLDivElement | null>(null);
@@ -69,59 +71,39 @@ export function MapDay({
   }
   return (
     <>
-      <div className="absolute inset-x-0 top-0 z-[2] lg:hidden">
-        {/* The field's height and its words, on the raised paper and under the
-            shadow of the stop cards at the foot, the other wide thing over the
-            map. Its button opens the page, where the field itself takes the
-            cursor and the keyboard comes up. */}
-        {onFindPlace === null ? null : (
-          <div className="px-[14px] pt-[max(12px,env(safe-area-inset-top))]">
+      {/* Under the search bar, the bar's 48 down from where it stands and
+          8 clear of it, kept inside the row rather than above it, so the
+          sideways scroll does not cut the chips' shadow off at the top. */}
+      <div
+        role="group"
+        aria-label="Days of this trip"
+        className={`absolute inset-x-0 z-[2] flex gap-[6px] overflow-x-auto px-[14px] pb-2 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden ${
+          searchOnTop
+            ? "top-[calc(max(12px,env(safe-area-inset-top))+48px)] pt-2"
+            : "top-0 pt-[max(12px,env(safe-area-inset-top))]"
+        }`}
+      >
+        {days.map((day, index) => {
+          const on = index === selectedIndex;
+          return (
             <button
+              key={day.plan.id}
               type="button"
-              onClick={onFindPlace}
-              className="flex h-12 w-full items-center gap-[10px] rounded-pill border border-rule bg-paper-raised px-4 text-left shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              aria-pressed={on}
+              aria-label={`Day ${String(index + 1)}, ${formatDayDate(day.plan.date)}`}
+              onClick={() => {
+                onSelect(index);
+              }}
+              className={`${CHIP} ${
+                on
+                  ? "border-terracotta-800 bg-terracotta-800 text-paper"
+                  : "border-rule bg-paper-raised text-ink hover:bg-paper-sunken"
+              }`}
             >
-              <SearchIcon size={17} strokeWidth={2.75} className="shrink-0 text-ink-muted" />
-              <span className="truncate text-body/none font-medium text-ink-muted">
-                {selected.plan.city === null
-                  ? "Search for a place"
-                  : `Search for a place in ${selected.plan.city.name}`}
-              </span>
+              {`Day ${String(index + 1)}`}
             </button>
-          </div>
-        )}
-
-        {/* Room above the chips inside the row, rather than over it, so the
-            sideways scroll does not cut their shadow off at the top. */}
-        <div
-          role="group"
-          aria-label="Days of this trip"
-          className={`flex gap-[6px] overflow-x-auto px-[14px] pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-            onFindPlace === null ? "pt-[max(12px,env(safe-area-inset-top))]" : "pt-2"
-          }`}
-        >
-          {days.map((day, index) => {
-            const on = index === selectedIndex;
-            return (
-              <button
-                key={day.plan.id}
-                type="button"
-                aria-pressed={on}
-                aria-label={`Day ${String(index + 1)}, ${formatDayDate(day.plan.date)}`}
-                onClick={() => {
-                  onSelect(index);
-                }}
-                className={`${CHIP} ${
-                  on
-                    ? "border-terracotta-800 bg-terracotta-800 text-paper"
-                    : "border-rule bg-paper-raised text-ink hover:bg-paper-sunken"
-                }`}
-              >
-                {`Day ${String(index + 1)}`}
-              </button>
-            );
-          })}
-        </div>
+          );
+        })}
       </div>
 
       <div

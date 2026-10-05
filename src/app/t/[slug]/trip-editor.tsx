@@ -321,10 +321,9 @@ export function TripEditor({
   const [exportOpen, setExportOpen] = useState(false);
   /**
    * The search field over the map, for the empty day and the last card to
-   * send the reader to, and on a phone the bar over the map view as well,
-   * which only looks like the field. Focusing it is what opens its panel, so
-   * the reader lands on the city's best known places with the cursor already
-   * in the field.
+   * send the reader to. Focusing it is what opens its panel, so the reader
+   * lands on the city's best known places with the cursor already in the
+   * field.
    *
    * A field that already has focus is let go of first. Focusing it again
    * would otherwise be nothing at all: no focus event, so no panel, and the
@@ -376,6 +375,23 @@ export function TripEditor({
   const closeSearch = (): void => {
     setSearching(false);
     searchField.current?.blur();
+  };
+  /**
+   * The search bar laid over a phone's map, at the top, over the days: the
+   * page's own bar, there whenever the map view is and the page is not.
+   */
+  const searchOnMap = view === "map" && !searching;
+  /**
+   * The bar over the map pressed, or reached with the keyboard: the page comes
+   * up around it, the bar staying where it is, so a press on the field lands
+   * in the field and its keyboard comes up, and a press on the city pill opens
+   * the cities on the page. On a click as well as on focus, because a button
+   * pressed is not given focus by every browser.
+   */
+  const searchFromMap = (): void => {
+    if (searchOnMap) {
+      setSearching(true);
+    }
   };
 
   const recording = <T extends { readonly error: string | null }>(
@@ -579,7 +595,7 @@ export function TripEditor({
             picked={picked}
             onPick={setPicked}
             onOpen={openStop}
-            onFindPlace={editKey === null ? null : findPlace}
+            searchOnTop={editKey !== null}
           />
         </div>
       </section>
@@ -595,9 +611,12 @@ export function TripEditor({
           over the map alone it is the same field in the same place.
 
           On a phone it is a page of its own over the whole window, put up by
-          "Add a place" or by the search bar over the map view, and put away
-          by Done beside the field, as design 1b has it. Out of the page while
-          it is not up. */}
+          "Add a place" and put away by Done beside the field, as design 1b
+          has it. On the map view the same bar lies over the map's top, with
+          the days under it, on the chips' 14px edge and with its lift, since
+          it floats over the map as it does on a desk; pressed, the page comes
+          up around it. Under every sheet and above the map. Out of the page
+          anywhere else. */}
       {editKey !== null && selected !== undefined ? (
         <div
           onKeyDown={(event) => {
@@ -605,11 +624,23 @@ export function TripEditor({
               closeSearch();
             }
           }}
+          onFocus={searchFromMap}
+          onClickCapture={searchFromMap}
           className={`print:hidden lg:absolute lg:top-[28px] lg:left-[24px] lg:z-40 lg:w-[376px] ${
-            searching ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:bg-paper" : "max-lg:hidden"
+            searching
+              ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:bg-paper"
+              : searchOnMap
+                ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-0 max-lg:z-30"
+                : "max-lg:hidden"
           }`}
         >
-          <div className="flex items-center gap-2 max-lg:px-4 max-lg:pt-3">
+          <div
+            className={`flex items-center gap-2 ${
+              searching
+                ? "max-lg:px-4 max-lg:pt-3"
+                : "max-lg:px-[14px] max-lg:pt-[max(12px,env(safe-area-inset-top))]"
+            }`}
+          >
             <div className="min-w-0 flex-1">
               <PlaceSearch
                 slug={slug}
@@ -651,13 +682,15 @@ export function TripEditor({
                 page={searching}
               />
             </div>
-            <button
-              type="button"
-              onClick={closeSearch}
-              className="shrink-0 rounded-pill px-1 py-3 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:hidden"
-            >
-              Done
-            </button>
+            {searching ? (
+              <button
+                type="button"
+                onClick={closeSearch}
+                className="shrink-0 rounded-pill px-1 py-3 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:hidden"
+              >
+                Done
+              </button>
+            ) : null}
           </div>
         </div>
       ) : null}
