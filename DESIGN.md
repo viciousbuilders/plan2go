@@ -386,8 +386,9 @@ in the first, 50px wide and set to its right edge so they read as one column; th
 on the rail in the second, 26px; and the words in the rest, 10px between each.
 
 - A stop: when it is reached in the display face at the place step, over when it is
-  left at the micro step in `ink-faint`; its number on a 26px terracotta disc with a 2px
-  line of terracotta at 35 percent running on down from it; and beside them its name in
+  left at the micro step in `ink-faint`; its number on a 26px terracotta disc with the
+  dotted thread running on down from it, the one a desk draws over the page, so the day
+  hangs on one line from the first stop to the last; and beside them its name in
   the display face at the lead step, its address at the meta step in `ink-muted`, and
   how long is spent there, "1 hr 15 min here", at the meta step in 600
   `terracotta-800`. The name, the address and the stay are one button, which opens the

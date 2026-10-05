@@ -177,7 +177,7 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
   return (
     <div className={`${RAIL_ROW} min-h-14 items-center`}>
       <span aria-hidden="true" />
-      <span aria-hidden="true" className="thread justify-self-center self-stretch [--thread-ink:25%]" />
+      <span aria-hidden="true" className="thread justify-self-center self-stretch" />
       {/* A button for a reader too: the sheet is where the ways compare,
           and where the leg's live times are linked from. */}
       <button

@@ -200,9 +200,11 @@ function EndLine({
 /**
  * A stop on the rail, as design 1b draws it. In the column of times, when it
  * is reached, in the display face, over when it is left, small and quiet; on
- * the rail, its number on a terracotta disc with a line of the accent running
- * on down from it; and beside them its name in the display face, its address,
- * and how long is spent there, in the accent's brown.
+ * the rail, its number on a terracotta disc with the dotted thread running on
+ * down from it, as a desk draws it, so the day hangs on one line from the
+ * first stop to the last rather than a line of the accent broken by a dotted
+ * one at every leg; and beside them its name in the display face, its
+ * address, and how long is spent there, in the accent's brown.
  *
  * The whole of the words is one button that opens the place, where the stay,
  * the note and the stop's place in the day are changed and the stop is taken
@@ -257,7 +259,7 @@ function TimelineStop({
           <span aria-hidden="true">{position}</span>
           <span className="sr-only">Stop {position}</span>
         </span>
-        <span aria-hidden="true" className="mt-1 w-[2px] flex-1 rounded-pill bg-terracotta/35" />
+        <span aria-hidden="true" className="thread mt-1 flex-1" />
       </div>
 
       <div className="flex min-w-0 flex-col gap-2 pb-4">
