@@ -51,6 +51,12 @@ const FIT_PADDING = 56;
 const PHONE_FIT_PADDING = { top: 84, right: 40, bottom: 196, left: 40 } as const;
 
 /**
+ * What the search bar over the days takes of a phone's map as well, for
+ * someone who may edit: the field's 48, and the 8 between it and the days.
+ */
+const PHONE_SEARCH_ROW = 56;
+
+/**
  * Tailwind's lg, from which the planner is two panes side by side and a sheet
  * is a panel over the map's edge rather than the whole window; globals.css
  * stops the window scrolling at the same width. Below it nothing laid over
@@ -166,6 +172,11 @@ interface TripMapProps {
    * put aside, so the map holds its view for it to come back to.
    */
   readonly covered: number;
+  /**
+   * Whether a phone's map carries the search bar over the days across its
+   * top, which it does for someone who may edit. The day is framed under both.
+   */
+  readonly searchOnTop: boolean;
 }
 
 interface RouteLeg {
@@ -368,6 +379,7 @@ export function TripMap({
   centre,
   candidate,
   covered,
+  searchOnTop,
 }: TripMapProps) {
   const container = useRef<HTMLDivElement | null>(null);
   /**
@@ -723,9 +735,12 @@ export function TripMap({
       bounds,
       window.matchMedia(WIDE_WINDOW).matches
         ? { top: FIT_PADDING, right: FIT_PADDING, bottom: FIT_PADDING, left: FIT_PADDING + seen }
-        : PHONE_FIT_PADDING,
+        : {
+            ...PHONE_FIT_PADDING,
+            top: PHONE_FIT_PADDING.top + (searchOnTop ? PHONE_SEARCH_ROW : 0),
+          },
     );
-  }, [state, start, end, stops, centre, candidate, covered]);
+  }, [state, start, end, stops, centre, candidate, covered, searchOnTop]);
 
   const drawnLegs = routeLegs(start, end, stops, endTravelMode).length;
 

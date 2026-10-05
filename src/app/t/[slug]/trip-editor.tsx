@@ -173,8 +173,8 @@ interface TripEditorProps {
  * The two panes. Map left and list right on a desktop. On a phone, design 1b
  * of "PlanToGo iPhone": the list is the page, the map is a view of its own over
  * the whole window, and a bar of views floating at the foot of the window goes
- * between them and opens the export. "Add a place" there brings the search up
- * as a page of its own.
+ * between them and opens the export. "Add a place" there, or the search bar
+ * over the map, brings the search up as a page of its own.
  *
  * The selected day is held here because both panes show it and neither feature
  * may reach into the other. It is also the day the search on the map adds to,
@@ -321,9 +321,10 @@ export function TripEditor({
   const [exportOpen, setExportOpen] = useState(false);
   /**
    * The search field over the map, for the empty day and the last card to
-   * send the reader to. Focusing it is what opens its panel, so the reader
-   * lands on the city's best known places with the cursor already in the
-   * field.
+   * send the reader to, and on a phone the bar over the map view as well,
+   * which only looks like the field. Focusing it is what opens its panel, so
+   * the reader lands on the city's best known places with the cursor already
+   * in the field.
    *
    * A field that already has focus is let go of first. Focusing it again
    * would otherwise be nothing at all: no focus event, so no panel, and the
@@ -564,11 +565,13 @@ export function TripEditor({
               endTravelMode={selected.plan.endTravelMode}
               legPaths={legPaths}
               centre={selected.plan.city?.position ?? centre}
+              searchOnTop={editKey !== null}
             />
           )}
-          {/* A phone's map view carries the days across its top and the
-              day's stops along its foot. Never on a desk, where both are in
-              the planner beside the map. */}
+          {/* A phone's map view carries the search bar and the days across
+              its top and the day's stops along its foot. Never on a desk,
+              where the search is in the map's corner and the rest is in the
+              planner beside the map. */}
           <MapDay
             days={days}
             selectedIndex={selectedIndex}
@@ -576,6 +579,7 @@ export function TripEditor({
             picked={picked}
             onPick={setPicked}
             onOpen={openStop}
+            onFindPlace={editKey === null ? null : findPlace}
           />
         </div>
       </section>
@@ -591,8 +595,9 @@ export function TripEditor({
           over the map alone it is the same field in the same place.
 
           On a phone it is a page of its own over the whole window, put up by
-          "Add a place" and put away by Done beside the field, as design 1b
-          has it. Out of the page while it is not up. */}
+          "Add a place" or by the search bar over the map view, and put away
+          by Done beside the field, as design 1b has it. Out of the page while
+          it is not up. */}
       {editKey !== null && selected !== undefined ? (
         <div
           onKeyDown={(event) => {

@@ -435,8 +435,9 @@ the note; and two pills that move the stop one place earlier or later in the day
 on a desk is done by dragging its card. The stepper writes once its presses stop, so an
 hour more is one write rather than four.
 
-**Add a place** brings the search up as a page of its own over the whole window, the bar
-at its top with **Done** beside it in bold `terracotta-800`, the quick searches under
+**Add a place**, or the search bar over the map, brings the search up as a page of its
+own over the whole window, the bar at its top with **Done** beside it in bold
+`terracotta-800`, the quick searches under
 the bar, and under them the list at the window's whole width, headed "Popular in Sydney
 · adding to Day 1". There the bar keeps its edge and loses its lift, nothing is dimmed,
 and a row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
@@ -445,7 +446,12 @@ with a tick in `sheet` once the place is on the day. Choosing a row opens the pl
 the page, as anywhere, and adding it leaves the page up for the next. Done puts it away.
 
 Map is the map over the whole window, with nothing of Google's drawn on it and none of
-ours but two rows. Across the top a chip for every day, a pill at the small step in bold
+ours but its rows. At the top, for someone who may edit, the search bar: a 48px pill
+the window's width less 14px at each side, on `paper-raised` inside a `rule` hairline
+under `shadow-md`, the search glyph and "Search for a place in Sydney" at the body step
+in 500 `ink-muted`. It is the field's shape and words, not the field: pressed, it brings
+the search up as a page of its own with the cursor in the field, as **Add a place**
+does. Under it, 8px clear, a chip for every day, a pill at the small step in bold
 on `paper-raised` under `shadow-sm`, the open day filled in `terracotta-800`, so the map
 goes from day to day without the list. Along the foot, 12px over the bar, a card 250px
 wide for every stop on the day, on `paper-raised` rounded at the `card` radius under
@@ -453,7 +459,7 @@ wide for every stop on the day, on `paper-raised` rounded at the `card` radius u
 and when it is reached and left. A card pressed picks its stop out, its edge taking the
 accent and its marker drawn large; pressed again it opens the place. A marker pressed
 picks its card out the same way, rather than opening the place as it does on a desk. The
-day is framed in what the two rows leave of the window. One finger moves the map and two
+day is framed in what the rows leave of the window. One finger moves the map and two
 zoom it, and there is no zoom pair and no route key: every leg says its way in words on
 Plan.
 
