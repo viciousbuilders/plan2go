@@ -7,7 +7,7 @@ import type { DayCity } from "@/core/model/day";
 import type { CityIdentity } from "@/core/model/day-city";
 import type { PlaceKind } from "@/core/model/place-kind";
 import type { LatLng, Place } from "@/core/model/place";
-import { ChevronLeftIcon, CloseIcon, SearchIcon } from "@/ui/icons";
+import { CloseIcon, SearchIcon } from "@/ui/icons";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import { Notice } from "@/ui/notice";
 import { useOutsidePress } from "@/ui/use-outside-press";
@@ -134,19 +134,20 @@ interface PlaceSearchProps {
    */
   readonly onAnnounce: (message: string) => void;
   /**
-   * Drawn as a page of its own rather than as a bar over the map: on a phone,
-   * where "Add a place" opens the search over the whole window, as design 1b
-   * of "PlanToGo iPhone" has it. The list is open for as long as the page is,
-   * under the bar at the window's whole width, and says which day it adds to.
+   * Laid over a phone's map, as design 1b of "PlanToGo iPhone app" draws its
+   * search, rather than in a desk's map corner. The quick searches stand on
+   * the map under the bar whether or not it is in use, and a press on one
+   * opens the list; the list says which day it adds to, since the days are
+   * out of sight while it is open; and the cross is there for as long as the
+   * search is open, and closes it rather than only emptying the field.
    */
-  readonly page?: boolean;
+  readonly phone: boolean;
   /**
-   * The way off the page, back to wherever it was opened from: a chevron at
-   * the front of the bar, where a map search on a phone keeps it. Null
-   * wherever the bar is not a page, since a bar over a map is not somewhere
-   * the reader has gone to.
+   * Told whenever the search opens or closes, its places or its cities, for
+   * whoever lays out what it stands over: on a phone's map the day's rows at
+   * its foot make way for it.
    */
-  readonly onBack: (() => void) | null;
+  readonly onOpenChange: (open: boolean) => void;
 }
 
 /**
@@ -187,7 +188,8 @@ function typingIn(target: EventTarget | null): boolean {
  *
  * While the bar is in use it glows, and the page under it is dimmed a shade;
  * a press anywhere on the dimmed page closes it, as does Escape, and "/" from
- * anywhere that is not a field brings the cursor back to it.
+ * anywhere that is not a field brings the cursor back to it. Over a phone's
+ * map nothing is dimmed, and a press on the map closes it all the same.
  */
 export function PlaceSearch({
   slug,
@@ -206,8 +208,8 @@ export function PlaceSearch({
   onClear,
   onAdd,
   onAnnounce,
-  page = false,
-  onBack,
+  phone,
+  onOpenChange,
 }: PlaceSearchProps) {
   const [query, setQuery] = useState(showing ?? "");
   /** The name the field was last given to hold, so a new one is told from a re-render. */
@@ -285,8 +287,10 @@ export function PlaceSearch({
    */
   const words = showing !== null && trimmed === showing.trim() ? "" : trimmed;
   const holding = words === "" && trimmed !== "";
-  /** The place panel is up: asked for, or the whole of a page that has nothing else open. */
-  const placesOpen = panel === "places" || (page && panel === null);
+  /** The place panel is up. */
+  const placesOpen = panel === "places";
+  /** Anything hangs from the bar, its places or its cities. */
+  const open = panel !== null;
 
   const typed = useTypedSearch(
     words,
@@ -378,6 +382,11 @@ export function PlaceSearch({
     };
   }, [panel, field]);
 
+  /** Whoever lays the search out is told as it opens and closes. */
+  useEffect(() => {
+    onOpenChange(open);
+  }, [open, onOpenChange]);
+
   useOutsidePress(container, placesOpen, () => {
     setPanel(null);
   });
@@ -394,12 +403,21 @@ export function PlaceSearch({
     setLookingUp(null);
   };
 
+  /**
+   * The cross. On a desk it empties the field and leaves the cursor in it for
+   * the next search; over a phone's map it closes the search as well, the
+   * list and the keyboard with it, so the map is seen again.
+   */
   const clear = (): void => {
     leaveLook();
     typed.reset();
     setQuery("");
     onClear();
-    field.current?.focus();
+    if (phone) {
+      closeAll();
+    } else {
+      field.current?.focus();
+    }
   };
 
   /**
@@ -529,10 +547,10 @@ export function PlaceSearch({
   const cityWords = cityListWords(picked, cityLabel);
   const listWords = typed.searched ? "Matching places" : cityWords.heading;
   /**
-   * On a page the heading also says which day the plus adds to, since the
-   * day is no longer in sight beside the search.
+   * Over a phone's map the heading also says which day the plus adds to,
+   * since the days make way for the list while it is open.
    */
-  const heading = page ? `${listWords} · adding to ${dayName}` : listWords;
+  const heading = phone ? `${listWords} · adding to ${dayName}` : listWords;
 
   /**
    * Clamped, because the list under the field is swapped for a shorter one the
@@ -604,23 +622,23 @@ export function PlaceSearch({
   const listed = visible.length > 0;
   /** The quick searches, on an empty field, where there is a city to find them in. */
   const chips = !typed.searched && dayCity !== null;
+  /**
+   * Whether they are out: with the places on a desk, and over a phone's map
+   * whenever the cities are not, which hang where they stand.
+   */
+  const kindsOut = chips && (placesOpen || (phone && !open));
   /** Whether the panel under the quick searches has anything to hold. */
   const panelled = listed || line !== null || addError !== null;
   const busy = typed.searching || lookingUp !== null;
 
   return (
-    <div className="place-search relative" ref={container} data-page={page ? "" : undefined}>
-      {/* The page under the bar, dimmed while it is in use; a press on it
-          closes the bar rather than landing on the map. */}
-      {panel === null ? null : <div aria-hidden="true" className="search-scrim" onClick={closeAll} />}
+    <div className="place-search relative" ref={container}>
+      {/* The page under the bar, dimmed while it is in use, and over a
+          phone's map left clear; a press on it closes the bar rather than
+          landing on the map. */}
+      {open ? <div aria-hidden="true" className="search-scrim" onClick={closeAll} /> : null}
 
-      <div className="search-bar" data-active={focused || panel !== null ? "" : undefined}>
-        {onBack === null ? null : (
-          <button type="button" onClick={onBack} aria-label="Back" className="search-back">
-            <ChevronLeftIcon size={18} strokeWidth={2.75} />
-          </button>
-        )}
-
+      <div className="search-bar" data-active={focused || open ? "" : undefined}>
         {/* Which city the search is in comes first, since a place is looked
             for in it. */}
         <CityPicker
@@ -714,12 +732,12 @@ export function PlaceSearch({
         </div>
 
         {busy ? <span aria-hidden="true" className="search-spinner" /> : null}
-        {query === "" ? null : (
+        {query === "" && !(phone && open) ? null : (
           <button
             type="button"
             onClick={clear}
-            title="Clear"
-            aria-label="Clear the search"
+            title={phone ? "Close" : "Clear"}
+            aria-label={phone ? "Close the search" : "Clear the search"}
             className="search-clear"
           >
             <CloseIcon size={14} strokeWidth={2.75} />
@@ -728,21 +746,24 @@ export function PlaceSearch({
 
         {/* Hung from the bar itself, as the city panel is, so all of it is
             the bar's width: the quick searches first, standing on the map on
-            their own rather than in the panel, and the panel under them. */}
-        {placesOpen && (chips || panelled) ? (
+            their own rather than in the panel, and the panel under them. A
+            quick search pressed while the panel is shut, over a phone's map,
+            opens it on that kind. */}
+        {kindsOut || (placesOpen && panelled) ? (
           <div className="search-under">
-            {chips ? (
+            {kindsOut ? (
               <QuickSearches
                 chosen={picked}
                 onChoose={(next) => {
                   setPicked(next);
                   setActive(0);
                   setLookError(null);
+                  setPanel("places");
                 }}
               />
             ) : null}
 
-            {panelled ? (
+            {placesOpen && panelled ? (
               <div className="search-panel">
                 <div ref={watchList} className="search-list scroll-line">
                   {line === null ? null : <p className="search-line">{line}</p>}

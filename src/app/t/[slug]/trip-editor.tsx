@@ -173,8 +173,8 @@ interface TripEditorProps {
  * The two panes. Map left and list right on a desktop. On a phone, design 1b
  * of "PlanToGo iPhone": the list is the page, the map is a view of its own over
  * the whole window, and a bar of views floating at the foot of the window goes
- * between them and opens the export. "Add a place" there, or the search bar
- * over the map, brings the search up as a page of its own.
+ * between them and opens the export. The search is on the map, as the design
+ * has it, and "Add a place" goes there with the cursor in the field.
  *
  * The selected day is held here because both panes show it and neither feature
  * may reach into the other. It is also the day the search on the map adds to,
@@ -193,7 +193,11 @@ export function TripEditor({
   const [expanded, setExpanded] = useState(false);
   /** Which view a phone is showing. A desk shows both, and never reads this. */
   const [view, setView] = useState<View>("plan");
-  /** Whether a phone has the search up as a page of its own, over everything else. */
+  /**
+   * Whether the search is open, its places or its cities hanging from the
+   * bar, as the search says. On a phone's map the day's rows at its foot make
+   * way for it.
+   */
   const [searching, setSearching] = useState(false);
   /**
    * The stop picked out on a phone's map, by its card along the map's foot or
@@ -334,13 +338,14 @@ export function TripEditor({
    */
   const searchField = useRef<HTMLInputElement | null>(null);
   const findPlace = (): void => {
-    // On a phone the field is on a page that is not up yet. It is put up
-    // before the field is focused, and at once rather than on the next
-    // render, because a phone only brings its keyboard up for a field
-    // focused inside the press itself.
+    // On a phone the field is over the map, which is not the view showing
+    // yet. The map is put up before the field is focused, and at once rather
+    // than on the next render, because a phone only brings its keyboard up
+    // for a field focused inside the press itself.
     if (narrowWindow()) {
       flushSync(() => {
-        setSearching(true);
+        setView("map");
+        setPicked(null);
       });
     }
     const field = searchField.current;
@@ -353,16 +358,14 @@ export function TripEditor({
     field.focus();
   };
   /**
-   * A window widened past a phone's puts away what only a phone has: the
-   * search up as a page, which on a desk is the bar in the map's corner, and
-   * a view other than the day's, since a desk shows the map and the day side
-   * by side and exports from a dialog.
+   * A window widened past a phone's puts away what only a phone has: a view
+   * other than the day's, since a desk shows the map and the day side by side
+   * and exports from a dialog.
    */
   useEffect(() => {
     const wide = window.matchMedia(WIDE_WINDOW);
     const widened = (): void => {
       if (wide.matches) {
-        setSearching(false);
         setView("plan");
       }
     };
@@ -371,28 +374,6 @@ export function TripEditor({
       wide.removeEventListener("change", widened);
     };
   }, []);
-  /** The phone's search page put away, back to whatever it was opened from. */
-  const closeSearch = (): void => {
-    setSearching(false);
-    searchField.current?.blur();
-  };
-  /**
-   * The search bar laid over a phone's map, at the top, over the days: the
-   * page's own bar, there whenever the map view is and the page is not.
-   */
-  const searchOnMap = view === "map" && !searching;
-  /**
-   * The bar over the map pressed, or reached with the keyboard: the page comes
-   * up around it, the bar staying where it is, so a press on the field lands
-   * in the field and its keyboard comes up, and a press on the city pill opens
-   * the cities on the page. On a click as well as on focus, because a button
-   * pressed is not given focus by every browser.
-   */
-  const searchFromMap = (): void => {
-    if (searchOnMap) {
-      setSearching(true);
-    }
-  };
 
   const recording = <T extends { readonly error: string | null }>(
     change: Promise<T>,
@@ -526,14 +507,14 @@ export function TripEditor({
           // under the bar of views. It is kept in the page at that size
           // while the day's list is shown, only not seen, so the day is
           // framed for the window it will be seen in whenever the map view
-          // is chosen. Not while the search is up as a page over it.
+          // is chosen.
           //
           // On a desk the section has no z-index: a grid item with one is a
           // stacking context of its own, and the search field in the map's
           // corner has to be able to float over the sheet, which is laid
           // over the map from outside it.
           `bg-paper-sunken max-lg:fixed max-lg:inset-0 max-lg:z-20 ${
-            view === "map" && !searching ? "" : "max-lg:invisible"
+            view === "map" ? "" : "max-lg:invisible"
           } ${expanded ? "lg:fixed lg:inset-0 lg:z-40" : "lg:static lg:h-full lg:min-h-0"}`
         }
       >
@@ -584,10 +565,9 @@ export function TripEditor({
               searchOnTop={editKey !== null}
             />
           )}
-          {/* A phone's map view carries the search bar and the days across
-              its top and the day's stops along its foot. Never on a desk,
-              where the search is in the map's corner and the rest is in the
-              planner beside the map. */}
+          {/* A phone's map view carries the days and the day's stops along
+              its foot, under the search at its top. Never on a desk, where
+              both are in the planner beside the map. */}
           <MapDay
             days={days}
             selectedIndex={selectedIndex}
@@ -595,7 +575,7 @@ export function TripEditor({
             picked={picked}
             onPick={setPicked}
             onOpen={openStop}
-            searchOnTop={editKey !== null}
+            searching={searching}
           />
         </div>
       </section>
@@ -610,79 +590,61 @@ export function TripEditor({
           at each side, 376px, so over the sheet it sits centred in it, and
           over the map alone it is the same field in the same place.
 
-          On a phone it is a page of its own over the whole window, put up by
-          "Add a place" and put away by the chevron at the front of the bar,
-          where a map search on a phone keeps its way back, or by Escape. On
-          the map view the same bar lies over the map's top, with the days
-          under it, on the chips' 14px edge and with its lift, since it floats
-          over the map as it does on a desk; pressed, the page comes up around
-          it. Under every sheet and above the map. Out of the page anywhere
-          else. */}
+          On a phone it is on the map view, as design 1b of "PlanToGo iPhone
+          app" has it: over the map's top, 12px down and 14px in at either
+          side, with its lift, since it floats over the map as it does on a
+          desk, and its quick searches standing on the map under it. Its list
+          opens over the map, and the day's rows at the map's foot make way.
+          Under every sheet, above the map, and out of the page on any other
+          view. */}
       {editKey !== null && selected !== undefined ? (
         <div
-          onKeyDown={(event) => {
-            if (event.key === "Escape" && searching) {
-              closeSearch();
-            }
-          }}
-          onFocus={searchFromMap}
-          onClickCapture={searchFromMap}
           className={`print:hidden lg:absolute lg:top-[28px] lg:left-[24px] lg:z-40 lg:w-[376px] ${
-            searching
-              ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:bg-paper"
-              : searchOnMap
-                ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-0 max-lg:z-30"
-                : "max-lg:hidden"
+            view === "map"
+              ? "max-lg:fixed max-lg:inset-x-0 max-lg:top-0 max-lg:z-30 max-lg:px-[14px] max-lg:pt-[max(12px,env(safe-area-inset-top))]"
+              : "max-lg:hidden"
           }`}
         >
-          <div
-            className={
-              searching
-                ? "max-lg:px-4 max-lg:pt-3"
-                : "max-lg:px-[14px] max-lg:pt-[max(12px,env(safe-area-inset-top))]"
-            }
-          >
-            <PlaceSearch
-              slug={slug}
-              editKey={editKey}
-              dayId={selected.plan.id}
-              dayName={`Day ${String(selectedIndex + 1)}`}
-              field={searchField}
-              near={searchBias(
+          <PlaceSearch
+            slug={slug}
+            editKey={editKey}
+            dayId={selected.plan.id}
+            dayName={`Day ${String(selectedIndex + 1)}`}
+            field={searchField}
+            near={searchBias(
+              days.map((day) => day.plan),
+              selectedIndex,
+            )}
+            dayCity={selected.plan.city}
+            cities={citiesOf(days.map((day) => day.plan))}
+            cityColorFor={(city) =>
+              colorAfterMove(
                 days.map((day) => day.plan),
-                selectedIndex,
-              )}
-              dayCity={selected.plan.city}
-              cities={citiesOf(days.map((day) => day.plan))}
-              cityColorFor={(city) =>
-                colorAfterMove(
-                  days.map((day) => day.plan),
-                  selected.plan.id,
-                  city,
-                )
-              }
-              onChangeCity={(providerPlaceId) =>
-                recording(
-                  setDayCityAction({
-                    slug,
-                    editKey,
-                    dayId: selected.plan.id,
-                    providerPlaceId,
-                  }),
-                )
-              }
-              onTheTrip={placesOnTheTrip(days.map((day) => day.plan))}
-              showing={openedPlace?.name ?? null}
-              onChoose={(place) => {
-                open({ kind: "candidate", place });
-              }}
-              onClear={dismiss}
-              onAdd={(input) => recording(addStopAction({ ...input, editKey }))}
-              onAnnounce={setAnnounced}
-              page={searching}
-              onBack={searching ? closeSearch : null}
-            />
-          </div>
+                selected.plan.id,
+                city,
+              )
+            }
+            onChangeCity={(providerPlaceId) =>
+              recording(
+                setDayCityAction({
+                  slug,
+                  editKey,
+                  dayId: selected.plan.id,
+                  providerPlaceId,
+                }),
+              )
+            }
+            onTheTrip={placesOnTheTrip(days.map((day) => day.plan))}
+            showing={openedPlace?.name ?? null}
+            onChoose={(place) => {
+              open({ kind: "candidate", place });
+            }}
+            onClear={dismiss}
+            onAdd={(input) => recording(addStopAction({ ...input, editKey }))}
+            onAnnounce={setAnnounced}
+            phone={view === "map"}
+            onOpenChange={setSearching}
+          />
         </div>
       ) : null}
 
@@ -693,7 +655,7 @@ export function TripEditor({
           it. */}
       <section
         className={`relative flex min-h-0 flex-col border-rule bg-paper-sunken lg:h-full lg:min-h-0 lg:border-l max-lg:mx-auto max-lg:w-full max-lg:max-w-[640px] max-lg:bg-transparent ${
-          view !== "plan" || searching ? "max-lg:invisible" : ""
+          view !== "plan" ? "max-lg:invisible" : ""
         }`}
       >
         <PaneHandle shell={shell} />
@@ -821,17 +783,16 @@ export function TripEditor({
         />
       </section>
 
-      {/* Not while the search is up as a page over everything. */}
-      {searching ? null : (
-        <ViewTabs
-          view={view}
-          onView={(next) => {
-            setView(next);
-            setPicked(null);
-          }}
-          exportDisabled={nothingToExport}
-        />
-      )}
+      {/* Over the search's clear page as well, so a view can be chosen
+          while the search is open; the press closes the search on its way. */}
+      <ViewTabs
+        view={view}
+        onView={(next) => {
+          setView(next);
+          setPicked(null);
+        }}
+        exportDisabled={nothingToExport}
+      />
 
       {/* A phone's Export view, under the bar of views. It lays out the
           sheets it is choosing, unseen, and they are what the printer gets

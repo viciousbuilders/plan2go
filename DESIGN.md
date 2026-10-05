@@ -435,39 +435,37 @@ the note; and two pills that move the stop one place earlier or later in the day
 on a desk is done by dragging its card. The stepper writes once its presses stop, so an
 hour more is one write rather than four.
 
-**Add a place**, or the search bar over the map, brings the search up as a page of its
-own over the whole window, the bar at its top the window's width less 16px at each
-side, the way a map search on a phone has it: at its front the way back, a chevron in
-`ink` on a 36px round button in the bar's padding, and at its end, once anything is
-typed, the cross that empties the field; the keyboard's own key says "search" and opens
-the row picked out, as Enter does. The quick searches are under
-the bar, and under them the list at the window's whole width, headed "Popular in Sydney
-· adding to Day 1". There the bar keeps its edge and loses its lift, nothing is dimmed,
-and a row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
-body step over the address at the meta step, the plus on a disc the same size, sage 600
-with a tick in `sheet` once the place is on the day. Choosing a row opens the place over
-the page, as anywhere, and adding it leaves the page up for the next. The chevron, or
-Escape, puts the page away, back to whatever it was opened from.
+The search is on the map, as design 1b of "PlanToGo iPhone app" draws it, and **Add a
+place** goes there with the cursor in the field and the keyboard up.
 
 Map is the map over the whole window, with nothing of Google's drawn on it and none of
-ours but its rows. At the top, for someone who may edit, the search bar itself, the
-one the page has: the city pill with its dot, the field and its turning words, 12px down
-and 14px in at either side, on the chips' edge. Over the map it keeps the lift it has
-over a desk's map, since here too it floats over one. Pressed, the page comes up around
-it: the bar stays where it is and the chevron comes in at its front, with the cursor
-and the keyboard in the field when the field was pressed, and the cities open when the
-pill was. The chevron puts the page away and leaves the bar over the map. Under it, 8px
-clear, a chip for every day, a pill at the small step in bold
-on `paper-raised` under `shadow-sm`, the open day filled in `terracotta-800`, so the map
-goes from day to day without the list. Along the foot, 12px over the bar, a card 250px
-wide for every stop on the day, on `paper-raised` rounded at the `card` radius under
-`shadow-md`: its number on the disc the map marks it with, its name in the display face,
-and when it is reached and left. A card pressed picks its stop out, its edge taking the
-accent and its marker drawn large; pressed again it opens the place. A marker pressed
-picks its card out the same way, rather than opening the place as it does on a desk. The
-day is framed in what the rows leave of the window. One finger moves the map and two
-zoom it, and there is no zoom pair and no route key: every leg says its way in words on
-Plan.
+ours but its rows. At the top, for someone who may edit, the search bar, the desk's own:
+the city pill with its dot, the field and its turning words, 12px down and 14px in at
+either side, keeping the lift it has over a desk's map since here too it floats over
+one. Under it, 8px clear, the quick searches stand on the map whether or not the search
+is in use. A press on the field, or on a quick search, opens the search, and it opens as
+on a desk: the list hangs under the quick searches over the map, the bar's width, headed
+"Popular in Sydney · adding to Day 1", since the days are out of sight while it is open.
+Nothing is dimmed. A press on the map closes the search and does nothing else, and the
+cross at the bar's end, there for as long as the search is open or anything is typed,
+closes it and empties the field. While it is open the day's rows at the foot make way
+for it. A row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
+body step over the address at the meta step, the plus on a disc the same size, sage 600
+with a tick in `sheet` once the place is on the day. Choosing a row opens the place, as
+anywhere, and adding it leaves the list open for the next. The keyboard's own key says
+"search" and opens the row picked out, as Enter does.
+
+Along the foot, 12px over the bar of views, the day's rows. First a chip for every day,
+"Day 1 · Sat 10", a pill at the small step in bold on `paper-raised` under `shadow-sm`,
+the open day filled in `terracotta-800`, so the map goes from day to day without the
+list. Under the days, 8px clear, a card 250px wide for every stop on the day, on
+`paper-raised` rounded at the `card` radius under `shadow-md`: its number on the disc
+the map marks it with, its name in the display face, and when it is reached and left.
+A card pressed picks its stop out, its edge taking the accent and its marker drawn
+large; pressed again it opens the place. A marker pressed picks its card out the same
+way, rather than opening the place as it does on a desk. The day is framed in what the
+rows leave of the window. One finger moves the map and two zoom it, and there is no
+zoom pair and no route key: every leg says its way in words on Plan.
 
 Everything on a phone is pressed with a finger: what is drawn smaller than 40px answers a
 finger over the room around it and is drawn no larger, and nothing that answers a finger

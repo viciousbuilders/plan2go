@@ -44,17 +44,18 @@ const CITY_ZOOM = 12;
 const FIT_PADDING = 56;
 
 /**
- * The same room on a phone, where the map is its own view with the days laid
- * over its top and the day's stops and the bar of views over its foot: the
- * day is framed in what those leave of the window, so no marker is under them.
+ * The same room on a phone, where the map is its own view with the days, the
+ * day's stops and the bar of views over its foot: the day is framed in what
+ * those leave of the window, so no marker is under them.
  */
-const PHONE_FIT_PADDING = { top: 84, right: 40, bottom: 196, left: 40 } as const;
+const PHONE_FIT_PADDING = { top: 40, right: 40, bottom: 240, left: 40 } as const;
 
 /**
- * What the search bar over the days takes of a phone's map as well, for
- * someone who may edit: the field's 48, and the 8 between it and the days.
+ * The top of a phone's map for someone who may edit, which has the search
+ * and its quick searches over it: 12 down, the bar's 48, 8 under it and the
+ * chips' 38, and room for a marker under those.
  */
-const PHONE_SEARCH_ROW = 56;
+const PHONE_TOP_UNDER_SEARCH = 134;
 
 /**
  * Tailwind's lg, from which the planner is two panes side by side and a sheet
@@ -173,8 +174,8 @@ interface TripMapProps {
    */
   readonly covered: number;
   /**
-   * Whether a phone's map carries the search bar over the days across its
-   * top, which it does for someone who may edit. The day is framed under both.
+   * Whether a phone's map carries the search and its quick searches over its
+   * top, which it does for someone who may edit. The day is framed under them.
    */
   readonly searchOnTop: boolean;
 }
@@ -735,10 +736,7 @@ export function TripMap({
       bounds,
       window.matchMedia(WIDE_WINDOW).matches
         ? { top: FIT_PADDING, right: FIT_PADDING, bottom: FIT_PADDING, left: FIT_PADDING + seen }
-        : {
-            ...PHONE_FIT_PADDING,
-            top: PHONE_FIT_PADDING.top + (searchOnTop ? PHONE_SEARCH_ROW : 0),
-          },
+        : { ...PHONE_FIT_PADDING, top: searchOnTop ? PHONE_TOP_UNDER_SEARCH : PHONE_FIT_PADDING.top },
     );
   }, [state, start, end, stops, centre, candidate, covered, searchOnTop]);
 

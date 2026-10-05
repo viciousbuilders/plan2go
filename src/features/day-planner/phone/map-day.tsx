@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowRightIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
-import { formatDayDate } from "../format-day-date";
+import { formatDayDate, formatDayTab } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
 
 interface MapDayProps {
@@ -15,11 +15,8 @@ interface MapDayProps {
   readonly onPick: (stopId: string) => void;
   /** Opens the stop that is already picked out, to see what the place is like. */
   readonly onOpen: (stopId: string) => void;
-  /**
-   * Whether the search bar is laid over the map's top, which it is for
-   * someone who may edit, so the days stand under it rather than behind it.
-   */
-  readonly searchOnTop: boolean;
+  /** Whether the search over the map's top is open, which these rows make way for. */
+  readonly searching: boolean;
 }
 
 /** Laid over the map rather than on paper, so each thing stands on a floating control's shadow. */
@@ -28,13 +25,13 @@ const CHIP =
 
 /**
  * What a phone's map view carries over the map, as design 1b of "PlanToGo
- * iPhone" draws it. Across the top, under the search bar where there is one, a
- * chip for every day, the open one filled in the accent's deepest brown, so
- * the map can go from day to day without going back to the list. The bar is
- * the page's own, laid over the map by whoever holds the search. Along the
- * foot, a card for every stop on the day, its number on the disc the map
- * marks it with, its name, and when it is reached and left, in a row that
- * scrolls sideways over the map.
+ * iPhone app" draws it, along its foot: a chip for every day, "Day 1 · Sat
+ * 10", the open one filled in the accent's deepest brown, so the map can go
+ * from day to day without going back to the list; and under the days a card
+ * for every stop on the day, its number on the disc the map marks it with, its
+ * name, and when it is reached and left. Each row scrolls sideways over the
+ * map. The search stands over the map's top, laid there by whoever holds it,
+ * and while it is open both rows make way for its list.
  *
  * A card pressed picks its stop out: the card takes the accent's edge and its
  * marker on the map is drawn large, as a marker under the pointer is on a
@@ -51,7 +48,7 @@ export function MapDay({
   picked,
   onPick,
   onOpen,
-  searchOnTop,
+  searching,
 }: MapDayProps) {
   const selected = days[selectedIndex] ?? days[0];
   const cards = useRef<HTMLDivElement | null>(null);
@@ -66,22 +63,18 @@ export function MapDay({
       ?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [picked]);
 
-  if (selected === undefined) {
+  if (selected === undefined || searching) {
     return null;
   }
   return (
-    <>
-      {/* Under the search bar, the bar's 48 down from where it stands and
-          8 clear of it, kept inside the row rather than above it, so the
-          sideways scroll does not cut the chips' shadow off at the top. */}
+    /* One column twelve clear of the bar of views: the days, and under them
+       the day's stops, 8px apart. Each row keeps room inside it for its
+       shadows, which a row that scrolls would otherwise cut off. */
+    <div className="absolute inset-x-0 bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] z-[2] flex flex-col lg:hidden">
       <div
         role="group"
         aria-label="Days of this trip"
-        className={`absolute inset-x-0 z-[2] flex gap-[6px] overflow-x-auto px-[14px] pb-2 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden ${
-          searchOnTop
-            ? "top-[calc(max(12px,env(safe-area-inset-top))+48px)] pt-2"
-            : "top-0 pt-[max(12px,env(safe-area-inset-top))]"
-        }`}
+        className="flex gap-[6px] overflow-x-auto px-4 pt-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {days.map((day, index) => {
           const on = index === selectedIndex;
@@ -100,7 +93,7 @@ export function MapDay({
                   : "border-rule bg-paper-raised text-ink hover:bg-paper-sunken"
               }`}
             >
-              {`Day ${String(index + 1)}`}
+              {`Day ${String(index + 1)} · ${formatDayTab(day.plan.date)}`}
             </button>
           );
         })}
@@ -110,7 +103,7 @@ export function MapDay({
         ref={cards}
         role="group"
         aria-label={`Stops on Day ${String(selectedIndex + 1)}`}
-        className="absolute inset-x-0 bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] z-[2] flex gap-[10px] overflow-x-auto px-4 pt-2 pb-3 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden"
+        className="flex gap-[10px] overflow-x-auto px-4 pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {selected.computed.stops.map((stop, index) => {
           const on = stop.stopId === picked;
@@ -160,6 +153,6 @@ export function MapDay({
           </p>
         ) : null}
       </div>
-    </>
+    </div>
   );
 }
