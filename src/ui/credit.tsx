@@ -35,14 +35,14 @@ export function Credit({
       <span className="sr-only">love</span>
       <span>by</span>
       <a
-        href="https://vietbrosinaus.com"
+        href="https://viciousbuilders.com"
         target="_blank"
         rel="noopener noreferrer"
         className={
           quiet ? "text-inherit" : "font-semibold text-terracotta-700 underline underline-offset-2"
         }
       >
-        vietbrosinaus
+        viciousbuilders
       </a>
     </span>
   );
