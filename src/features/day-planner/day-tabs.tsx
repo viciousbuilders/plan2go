@@ -8,7 +8,7 @@ import { CityDot } from "@/ui/city-dot";
 import { FINGER_ROOM } from "@/ui/finger-room";
 import { PlusIcon } from "@/ui/icons";
 import type { EditOutcome } from "./day-actions";
-import { formatDayChip, formatDayDate, formatDayTab } from "./format-day-date";
+import { formatDayDate, formatDayTab } from "./format-day-date";
 import { formatStops } from "./format-stops";
 import { useLocalToday } from "@/ui/use-local-today";
 import "./day-tabs.css";
@@ -59,14 +59,14 @@ function stopLine(day: DayPlan): string {
  * it was terracotta on the chosen day's dark pill, and hard to find. The
  * strip keeps the room for it.
  *
- * On a phone a day is a column of its own, the way design 1b of "PlanToGo
- * iPhone" draws the strip: the weekday, the date in a circle forty four
- * across, and under it a dot when anything is planned on the day. Fifty four
- * wide, so a week fits a phone and the circles stand fourteen apart. What a
- * day stands on is the circle, so nothing is drawn behind the column.
+ * On a phone a day is a card of its own, the way design 1b of "PlanToGo
+ * iPhone app" draws the strip: its number over its date over its city, laid
+ * from the card's left edge, on raised paper inside a hairline and rounded at
+ * the panel's radius. At least eighty wide, so the strip reads as a row of
+ * days, and wider for a city with a longer name.
  */
 const TAB =
-  "group/tab relative flex shrink-0 flex-col items-center rounded-pill border-0 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-11 lg:min-w-[82px] lg:justify-center lg:gap-1 lg:px-[15px] max-lg:w-[54px] max-lg:gap-[6px] max-lg:py-1";
+  "group/tab relative flex shrink-0 flex-col items-center rounded-pill border-0 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-11 lg:min-w-[82px] lg:justify-center lg:gap-1 lg:px-[15px] max-lg:min-w-20 max-lg:items-start max-lg:gap-[5px] max-lg:rounded-panel max-lg:border-[1.5px] max-lg:px-[13px] max-lg:pt-[10px] max-lg:pb-[11px]";
 
 /**
  * The day's number: the one uppercase label in the product, at the micro
@@ -93,18 +93,32 @@ const RAISED = "bg-paper-raised shadow-sm ring-1 ring-rule";
 const RAISED_ON_A_DESK = "lg:bg-paper-raised lg:shadow-sm lg:ring-1 lg:ring-rule";
 
 /**
- * The date's circle on a phone. The chosen day is filled in the accent's
- * deepest brown with its date in paper, as a chosen chip is anywhere in the
- * product; today, when it is not chosen, is in sage, the strip's second
- * voice for it on a desk too.
+ * A day's card on a phone. The chosen day is filled in the accent's deepest
+ * brown with its words in paper, as a chosen chip is anywhere in the product;
+ * today, when it is not chosen, is in sage, the strip's second voice for it
+ * on a desk too; any other day is on raised paper inside a hairline, and
+ * takes the step every control on paper takes under the pointer.
  */
-function dateCircle(selected: boolean, isToday: boolean): string {
+function dayCard(selected: boolean, isToday: boolean): string {
   if (selected) {
-    return "bg-terracotta-800 text-paper";
+    return "max-lg:border-terracotta-800 max-lg:bg-terracotta-800 max-lg:text-paper";
   }
   return isToday
-    ? "bg-sage-100 text-sage-800 group-hover/tab:bg-sage-200"
-    : "text-ink group-hover/tab:bg-paper-sunken";
+    ? "max-lg:border-sage-200 max-lg:bg-sage-100 max-lg:text-sage-800 max-lg:hover:bg-sage-200"
+    : "max-lg:border-rule max-lg:bg-paper-raised max-lg:text-ink max-lg:hover:bg-paper-sunken";
+}
+
+/**
+ * The dot ahead of a card's number, which says whether anything is planned
+ * on the day: the accent, or paper on the chosen day's brown, and a faint ink
+ * dot on a day with nothing on it yet, so every card's number starts at the
+ * same place.
+ */
+function plannedDot(selected: boolean, planned: boolean): string {
+  if (!planned) {
+    return "bg-current opacity-25";
+  }
+  return selected ? "bg-paper" : "bg-terracotta";
 }
 
 export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProps) {
@@ -217,16 +231,18 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
 
           On a phone the strip runs out to the window's edges, scrolling the
           days under them rather than cutting them off at the page's gutter,
-          with fourteen at either end of the row. */}
+          with the page's twenty at either end of the row, so the first card
+          stands under the trip's name. The cards are six apart, all as tall
+          as the tallest. */}
       <div
         ref={watchStrip}
-        className="day-tabs scroll-line scroll-shy -mx-[4px] flex scroll-px-[4px] items-center gap-2 px-[4px] pt-[4px] pb-[7px] max-lg:-mx-5 max-lg:scroll-px-[14px] max-lg:items-start max-lg:gap-1 max-lg:px-[14px] max-lg:pb-1"
+        className="day-tabs scroll-line scroll-shy -mx-[4px] flex scroll-px-[4px] items-center gap-2 px-[4px] pt-[4px] pb-[7px] max-lg:-mx-5 max-lg:scroll-px-5 max-lg:gap-[6px] max-lg:px-5 max-lg:pb-1"
       >
         <div
           ref={list}
           role="tablist"
           aria-label="Days of this trip"
-          className="group/days relative flex shrink-0 items-center gap-1"
+          className="group/days relative flex shrink-0 items-center gap-1 max-lg:items-stretch max-lg:gap-[6px]"
         >
           {/* The chosen day's pill, one for the strip rather than one per
               tab, so choosing a day slides it there instead of one pill
@@ -243,9 +259,8 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
              * chosen day's pill, and a screen reader is told both.
              */
             const isToday = day.date === today;
-            /** A day's words, the same whether or not it is the one chosen. */
-            const words = isToday ? "text-sage-800" : "text-ink-muted hover:text-ink";
-            const chip = formatDayChip(day.date);
+            /** A day's words on a desk, the same whether or not it is the one chosen. */
+            const words = isToday ? "lg:text-sage-800" : "lg:text-ink-muted lg:hover:text-ink";
             return (
               <button
                 key={day.id}
@@ -269,8 +284,8 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                 // every control on paper takes, paper-sunken, and its words
                 // go to ink. The chosen day paints the pill itself until the
                 // strip's own pill has been laid under it. All of it on a desk:
-                // on a phone what changes is the date's circle.
-                className={`${TAB} ${words} ${
+                // on a phone what changes is the day's card.
+                className={`${TAB} ${words} ${dayCard(selected, isToday)} ${
                   selected
                     ? `${RAISED_ON_A_DESK} lg:group-data-[placed]/days:bg-transparent lg:group-data-[placed]/days:shadow-none lg:group-data-[placed]/days:ring-0`
                     : isToday
@@ -303,30 +318,29 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                   {formatDayTab(day.date)}
                 </span>
 
-                {/* The phone's column: the weekday over the date's circle,
-                    and the dot that says something is planned on the day, in
-                    the accent, and in the chosen day's brown under its
-                    circle. A day with nothing on it keeps the dot's room, so
-                    every circle stands on one line. */}
-                <span aria-hidden="true" className="text-micro/none font-semibold text-ink-muted lg:hidden">
-                  {chip.weekday}
-                </span>
+                {/* The phone's card: the dot that says whether anything is
+                    planned on the day ahead of the day's number, the date at
+                    the body step in bold under them, and the city under the
+                    date, quieter. The number and the city are drawn at the
+                    card's own colour, a little faded, so they read as said
+                    about the date. */}
                 <span
                   aria-hidden="true"
-                  className={`grid h-11 w-11 place-items-center rounded-pill font-display text-lead/none font-semibold tabular-nums lg:hidden ${dateCircle(selected, isToday)}`}
+                  className={`flex items-center gap-[5px] ${TAB_NUMBER} opacity-80 lg:hidden`}
                 >
-                  {chip.day}
+                  <span
+                    className={`h-[6px] w-[6px] shrink-0 rounded-pill ${plannedDot(selected, day.stops.length > 0)}`}
+                  />
+                  {`Day ${String(index + 1)}`}
                 </span>
-                <span
-                  aria-hidden="true"
-                  className={`h-[5px] w-[5px] rounded-pill lg:hidden ${
-                    day.stops.length === 0
-                      ? "bg-transparent"
-                      : selected
-                        ? "bg-terracotta-800"
-                        : "bg-terracotta"
-                  }`}
-                />
+                <span aria-hidden="true" className="text-body/none font-bold tabular-nums lg:hidden">
+                  {formatDayTab(day.date)}
+                </span>
+                {day.city === null ? null : (
+                  <span aria-hidden="true" className="text-micro/none font-medium opacity-75 lg:hidden">
+                    {day.city.name}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -347,10 +361,10 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
             // words are in, since the ring already says it is only an offer.
             // Under the pointer the dash takes the whole accent, as every
             // dashed control's does, over the same sunken paper a day takes.
-            // On a phone it is the size of a date's circle and stands on the
-            // circles' line, as far from the last as they are from each
-            // other: the next day, not drawn yet.
-            className={`grid h-8 w-8 shrink-0 place-items-center rounded-pill border-[1.5px] border-dashed border-rule-strong text-ink-muted hover:border-terracotta hover:bg-paper-sunken hover:text-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:mt-[21.5px] max-lg:ml-[5px] max-lg:h-11 max-lg:w-11 ${FINGER_ROOM}`}
+            // On a phone it is a finger's 44 across, centred on the cards and
+            // as far from the last as they are from each other: the next day,
+            // not drawn yet.
+            className={`grid h-8 w-8 shrink-0 place-items-center rounded-pill border-[1.5px] border-dashed border-rule-strong text-ink-muted hover:border-terracotta hover:bg-paper-sunken hover:text-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:h-11 max-lg:w-11 ${FINGER_ROOM}`}
           >
             <PlusIcon size={15} strokeWidth={2.75} />
           </button>

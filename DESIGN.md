@@ -367,15 +367,19 @@ who may edit, the calendar that opens the dates, and the trip's menu. A reader h
 neither, and exports from the bar.
 
 Under them the strip of days runs out to the window's edges, scrolling the days under
-them, 14px in at either end. A day is a column 54px wide: its weekday at the micro step
-in `ink-muted`, its date in a circle 44px across in the display face at the lead step,
-and under the circle a 5px dot when anything is planned on the day, terracotta, and
-`terracotta-800` under the chosen day. The chosen day's circle is filled in
-`terracotta-800` with its date in `paper`, the way a chosen chip is anywhere in the
-product; today, when it is not chosen, is in sage 100 with its date in sage 800. The
-strip names no city, so on a trip that goes to more than one, the line under the strip
-does. After the last day, on the circles' line and as far from them as they are from
-each other, the button that adds a day, a 44px dashed ring.
+them, 20px in at either end, so the first day stands under the trip's name. A day is a
+card at least 80px wide, 6px from the next and all as tall as the tallest, on
+`paper-raised` inside a 1.5px `rule` edge, rounded at the `panel` radius, its words laid
+from its left: a 6px dot and "DAY 1" at the micro step in 600 capitals, its date, "Sat
+10", at the body step in bold, and its city at the micro step, the number and the city
+a little faded. The dot is terracotta when anything is planned on the day and a faint
+dot of the card's own ink when nothing is. The chosen day's card is filled in
+`terracotta-800` with its words and its dot in `paper`, the way a chosen chip is
+anywhere in the product; today, when it is not chosen, is in sage 100 inside a sage 200
+edge with its words in sage 800. On a trip that goes to more than one city, the line
+under the strip names the open day's city as well. After the last day, centred on the
+cards and as far from them as they are from each other, the button that adds a day, a
+44px dashed ring.
 
 Then a line saying what the day comes to, at the small step in 600 `ink-muted`: "Day 1
 · 3 stops · done by 12:38", the day being over in the words the printed day uses, done,
