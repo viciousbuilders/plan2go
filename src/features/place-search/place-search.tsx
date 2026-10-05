@@ -137,17 +137,12 @@ interface PlaceSearchProps {
    * Laid over a phone's map, as design 1b of "PlanToGo iPhone app" draws its
    * search, rather than in a desk's map corner. The quick searches stand on
    * the map under the bar whether or not it is in use, and a press on one
-   * opens the list; the list says which day it adds to, since the days are
-   * out of sight while it is open; and the cross is there for as long as the
-   * search is open, and closes it rather than only emptying the field.
+   * opens the list; the list says which day it adds to, since it opens over
+   * the days at the map's foot rather than beside them; and the cross is
+   * there for as long as the search is open, and closes it rather than only
+   * emptying the field.
    */
   readonly phone: boolean;
-  /**
-   * Told whenever the search opens or closes, its places or its cities, for
-   * whoever lays out what it stands over: on a phone's map the day's rows at
-   * its foot make way for it.
-   */
-  readonly onOpenChange: (open: boolean) => void;
 }
 
 /**
@@ -209,7 +204,6 @@ export function PlaceSearch({
   onAdd,
   onAnnounce,
   phone,
-  onOpenChange,
 }: PlaceSearchProps) {
   const [query, setQuery] = useState(showing ?? "");
   /** The name the field was last given to hold, so a new one is told from a re-render. */
@@ -382,11 +376,6 @@ export function PlaceSearch({
     };
   }, [panel, field]);
 
-  /** Whoever lays the search out is told as it opens and closes. */
-  useEffect(() => {
-    onOpenChange(open);
-  }, [open, onOpenChange]);
-
   useOutsidePress(container, placesOpen, () => {
     setPanel(null);
   });
@@ -548,7 +537,7 @@ export function PlaceSearch({
   const listWords = typed.searched ? "Matching places" : cityWords.heading;
   /**
    * Over a phone's map the heading also says which day the plus adds to,
-   * since the days make way for the list while it is open.
+   * since the list opens over the days at the map's foot.
    */
   const heading = phone ? `${listWords} · adding to ${dayName}` : listWords;
 

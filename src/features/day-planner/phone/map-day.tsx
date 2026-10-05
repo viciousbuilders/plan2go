@@ -15,8 +15,6 @@ interface MapDayProps {
   readonly onPick: (stopId: string) => void;
   /** Opens the stop that is already picked out, to see what the place is like. */
   readonly onOpen: (stopId: string) => void;
-  /** Whether the search over the map's top is open, which these rows make way for. */
-  readonly searching: boolean;
 }
 
 /** Laid over the map rather than on paper, so each thing stands on a floating control's shadow. */
@@ -31,7 +29,7 @@ const CHIP =
  * for every stop on the day, its number on the disc the map marks it with, its
  * name, and when it is reached and left. Each row scrolls sideways over the
  * map. The search stands over the map's top, laid there by whoever holds it,
- * and while it is open both rows make way for its list.
+ * and its list opens over these rows, which stay where they are under it.
  *
  * A card pressed picks its stop out: the card takes the accent's edge and its
  * marker on the map is drawn large, as a marker under the pointer is on a
@@ -41,15 +39,7 @@ const CHIP =
  * Over the map, under the bar of views at the foot of the window: the cards
  * stand twelve clear of the bar. On a phone only.
  */
-export function MapDay({
-  days,
-  selectedIndex,
-  onSelect,
-  picked,
-  onPick,
-  onOpen,
-  searching,
-}: MapDayProps) {
+export function MapDay({ days, selectedIndex, onSelect, picked, onPick, onOpen }: MapDayProps) {
   const selected = days[selectedIndex] ?? days[0];
   const cards = useRef<HTMLDivElement | null>(null);
 
@@ -63,7 +53,7 @@ export function MapDay({
       ?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [picked]);
 
-  if (selected === undefined || searching) {
+  if (selected === undefined) {
     return null;
   }
   return (

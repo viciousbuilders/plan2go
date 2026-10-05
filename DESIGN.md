@@ -445,11 +445,12 @@ either side, keeping the lift it has over a desk's map since here too it floats 
 one. Under it, 8px clear, the quick searches stand on the map whether or not the search
 is in use. A press on the field, or on a quick search, opens the search, and it opens as
 on a desk: the list hangs under the quick searches over the map, the bar's width, headed
-"Popular in Sydney · adding to Day 1", since the days are out of sight while it is open.
-Nothing is dimmed. A press on the map closes the search and does nothing else, and the
-cross at the bar's end, there for as long as the search is open or anything is typed,
-closes it and empties the field. While it is open the day's rows at the foot make way
-for it. A row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
+"Popular in Sydney · adding to Day 1", since it opens over the days rather than beside
+them. It stands over everything on the map, the day's rows at the foot included, which
+stay where they are under it. Nothing is dimmed. A press anywhere outside the search,
+the map or the rows at its foot, closes the search and does nothing else, and the cross
+at the bar's end, there for as long as the search is open or anything is typed, closes
+it and empties the field. A row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
 body step over the address at the meta step, the plus on a disc the same size, sage 600
 with a tick in `sheet` once the place is on the day. Choosing a row opens the place, as
 anywhere, and adding it leaves the list open for the next. The keyboard's own key says

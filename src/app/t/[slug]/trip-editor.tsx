@@ -194,12 +194,6 @@ export function TripEditor({
   /** Which view a phone is showing. A desk shows both, and never reads this. */
   const [view, setView] = useState<View>("plan");
   /**
-   * Whether the search is open, its places or its cities hanging from the
-   * bar, as the search says. On a phone's map the day's rows at its foot make
-   * way for it.
-   */
-  const [searching, setSearching] = useState(false);
-  /**
    * The stop picked out on a phone's map, by its card along the map's foot or
    * by its marker: its card takes the accent's edge and its marker is drawn
    * large, and pressing the card again opens the place. A desk has the
@@ -575,7 +569,6 @@ export function TripEditor({
             picked={picked}
             onPick={setPicked}
             onOpen={openStop}
-            searching={searching}
           />
         </div>
       </section>
@@ -594,9 +587,9 @@ export function TripEditor({
           app" has it: over the map's top, 12px down and 14px in at either
           side, with its lift, since it floats over the map as it does on a
           desk, and its quick searches standing on the map under it. Its list
-          opens over the map, and the day's rows at the map's foot make way.
-          Under every sheet, above the map, and out of the page on any other
-          view. */}
+          opens over everything on the map, the day's rows at its foot
+          included, which stay where they are under it. Under every sheet,
+          above the map, and out of the page on any other view. */}
       {editKey !== null && selected !== undefined ? (
         <div
           className={`print:hidden lg:absolute lg:top-[28px] lg:left-[24px] lg:z-40 lg:w-[376px] ${
@@ -643,7 +636,6 @@ export function TripEditor({
             onAdd={(input) => recording(addStopAction({ ...input, editKey }))}
             onAnnounce={setAnnounced}
             phone={view === "map"}
-            onOpenChange={setSearching}
           />
         </div>
       ) : null}
