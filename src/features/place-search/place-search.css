@@ -168,6 +168,7 @@
 }
 
 .search-pill:focus-visible,
+.search-back:focus-visible,
 .search-clear:focus-visible {
   outline: 2px solid var(--color-terracotta);
   outline-offset: 2px;
@@ -316,6 +317,29 @@
 .search-clear:hover {
   background: var(--search-disc);
   color: var(--color-ink);
+}
+
+/* The way off the page, at the front of the bar as a map search on a phone
+   has it, opposite the clear at its end: round in the bar's padding, in ink,
+   since it goes somewhere rather than being one of the bar's own words, and
+   taking the clear's fill under the pointer. */
+.search-back {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.search-back:hover {
+  background: var(--search-disc);
 }
 
 /* The panels under the bar, the places and the cities: on the bar's own
@@ -677,7 +701,9 @@
  * row, the quick searches and the arrows along them. The field and the city
  * pill answer a finger over the bar's whole height, though neither is drawn
  * any taller: the field fills the box its words stand in, and the pill's room
- * reaches over the bar's padding round it.
+ * reaches over the bar's padding round it. So do the way back at the bar's
+ * front and the clear at its end, out to the bar's edge and no further in
+ * than the field or the pill's own room beside them.
  *
  * And a panel is never taller than the window has room for under the bar and
  * the quick searches, so on a phone on its side its last rows are still in
@@ -698,6 +724,22 @@
     content: "";
     position: absolute;
     inset: -7px -3px;
+  }
+
+  .search-back::after {
+    content: "";
+    position: absolute;
+    inset: -6px 0 -6px -6px;
+  }
+
+  .search-clear {
+    position: relative;
+  }
+
+  .search-clear::after {
+    content: "";
+    position: absolute;
+    inset: -8px -7px -8px 0;
   }
 
   .search-row-end {

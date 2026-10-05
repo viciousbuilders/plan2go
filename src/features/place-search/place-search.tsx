@@ -7,7 +7,7 @@ import type { DayCity } from "@/core/model/day";
 import type { CityIdentity } from "@/core/model/day-city";
 import type { PlaceKind } from "@/core/model/place-kind";
 import type { LatLng, Place } from "@/core/model/place";
-import { CloseIcon, SearchIcon } from "@/ui/icons";
+import { ChevronLeftIcon, CloseIcon, SearchIcon } from "@/ui/icons";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import { Notice } from "@/ui/notice";
 import { useOutsidePress } from "@/ui/use-outside-press";
@@ -140,6 +140,13 @@ interface PlaceSearchProps {
    * under the bar at the window's whole width, and says which day it adds to.
    */
   readonly page?: boolean;
+  /**
+   * The way off the page, back to wherever it was opened from: a chevron at
+   * the front of the bar, where a map search on a phone keeps it. Null
+   * wherever the bar is not a page, since a bar over a map is not somewhere
+   * the reader has gone to.
+   */
+  readonly onBack: (() => void) | null;
 }
 
 /**
@@ -200,6 +207,7 @@ export function PlaceSearch({
   onAdd,
   onAnnounce,
   page = false,
+  onBack,
 }: PlaceSearchProps) {
   const [query, setQuery] = useState(showing ?? "");
   /** The name the field was last given to hold, so a new one is told from a re-render. */
@@ -607,6 +615,12 @@ export function PlaceSearch({
       {panel === null ? null : <div aria-hidden="true" className="search-scrim" onClick={closeAll} />}
 
       <div className="search-bar" data-active={focused || panel !== null ? "" : undefined}>
+        {onBack === null ? null : (
+          <button type="button" onClick={onBack} aria-label="Back" className="search-back">
+            <ChevronLeftIcon size={18} strokeWidth={2.75} />
+          </button>
+        )}
+
         {/* Which city the search is in comes first, since a place is looked
             for in it. */}
         <CityPicker
@@ -645,6 +659,9 @@ export function PlaceSearch({
             type="text"
             role="combobox"
             autoComplete="off"
+            // The keyboard's own key says "search" rather than "return". It
+            // does what Enter does: opens the row picked out, the first.
+            enterKeyHint="search"
             aria-keyshortcuts="/"
             aria-expanded={placesOpen && listed}
             aria-controls={listId}

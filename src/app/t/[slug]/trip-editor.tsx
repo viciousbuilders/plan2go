@@ -611,12 +611,13 @@ export function TripEditor({
           over the map alone it is the same field in the same place.
 
           On a phone it is a page of its own over the whole window, put up by
-          "Add a place" and put away by Done beside the field, as design 1b
-          has it. On the map view the same bar lies over the map's top, with
-          the days under it, on the chips' 14px edge and with its lift, since
-          it floats over the map as it does on a desk; pressed, the page comes
-          up around it. Under every sheet and above the map. Out of the page
-          anywhere else. */}
+          "Add a place" and put away by the chevron at the front of the bar,
+          where a map search on a phone keeps its way back, or by Escape. On
+          the map view the same bar lies over the map's top, with the days
+          under it, on the chips' 14px edge and with its lift, since it floats
+          over the map as it does on a desk; pressed, the page comes up around
+          it. Under every sheet and above the map. Out of the page anywhere
+          else. */}
       {editKey !== null && selected !== undefined ? (
         <div
           onKeyDown={(event) => {
@@ -635,62 +636,52 @@ export function TripEditor({
           }`}
         >
           <div
-            className={`flex items-center gap-2 ${
+            className={
               searching
                 ? "max-lg:px-4 max-lg:pt-3"
                 : "max-lg:px-[14px] max-lg:pt-[max(12px,env(safe-area-inset-top))]"
-            }`}
+            }
           >
-            <div className="min-w-0 flex-1">
-              <PlaceSearch
-                slug={slug}
-                editKey={editKey}
-                dayId={selected.plan.id}
-                dayName={`Day ${String(selectedIndex + 1)}`}
-                field={searchField}
-                near={searchBias(
+            <PlaceSearch
+              slug={slug}
+              editKey={editKey}
+              dayId={selected.plan.id}
+              dayName={`Day ${String(selectedIndex + 1)}`}
+              field={searchField}
+              near={searchBias(
+                days.map((day) => day.plan),
+                selectedIndex,
+              )}
+              dayCity={selected.plan.city}
+              cities={citiesOf(days.map((day) => day.plan))}
+              cityColorFor={(city) =>
+                colorAfterMove(
                   days.map((day) => day.plan),
-                  selectedIndex,
-                )}
-                dayCity={selected.plan.city}
-                cities={citiesOf(days.map((day) => day.plan))}
-                cityColorFor={(city) =>
-                  colorAfterMove(
-                    days.map((day) => day.plan),
-                    selected.plan.id,
-                    city,
-                  )
-                }
-                onChangeCity={(providerPlaceId) =>
-                  recording(
-                    setDayCityAction({
-                      slug,
-                      editKey,
-                      dayId: selected.plan.id,
-                      providerPlaceId,
-                    }),
-                  )
-                }
-                onTheTrip={placesOnTheTrip(days.map((day) => day.plan))}
-                showing={openedPlace?.name ?? null}
-                onChoose={(place) => {
-                  open({ kind: "candidate", place });
-                }}
-                onClear={dismiss}
-                onAdd={(input) => recording(addStopAction({ ...input, editKey }))}
-                onAnnounce={setAnnounced}
-                page={searching}
-              />
-            </div>
-            {searching ? (
-              <button
-                type="button"
-                onClick={closeSearch}
-                className="shrink-0 rounded-pill px-1 py-3 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:hidden"
-              >
-                Done
-              </button>
-            ) : null}
+                  selected.plan.id,
+                  city,
+                )
+              }
+              onChangeCity={(providerPlaceId) =>
+                recording(
+                  setDayCityAction({
+                    slug,
+                    editKey,
+                    dayId: selected.plan.id,
+                    providerPlaceId,
+                  }),
+                )
+              }
+              onTheTrip={placesOnTheTrip(days.map((day) => day.plan))}
+              showing={openedPlace?.name ?? null}
+              onChoose={(place) => {
+                open({ kind: "candidate", place });
+              }}
+              onClear={dismiss}
+              onAdd={(input) => recording(addStopAction({ ...input, editKey }))}
+              onAnnounce={setAnnounced}
+              page={searching}
+              onBack={searching ? closeSearch : null}
+            />
           </div>
         </div>
       ) : null}

@@ -436,23 +436,28 @@ on a desk is done by dragging its card. The stepper writes once its presses stop
 hour more is one write rather than four.
 
 **Add a place**, or the search bar over the map, brings the search up as a page of its
-own over the whole window, the bar at its top with **Done** beside it in bold
-`terracotta-800`, the quick searches under
+own over the whole window, the bar at its top the window's width less 16px at each
+side, the way a map search on a phone has it: at its front the way back, a chevron in
+`ink` on a 36px round button in the bar's padding, and at its end, once anything is
+typed, the cross that empties the field; the keyboard's own key says "search" and opens
+the row picked out, as Enter does. The quick searches are under
 the bar, and under them the list at the window's whole width, headed "Popular in Sydney
 · adding to Day 1". There the bar keeps its edge and loses its lift, nothing is dimmed,
 and a row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
 body step over the address at the meta step, the plus on a disc the same size, sage 600
 with a tick in `sheet` once the place is on the day. Choosing a row opens the place over
-the page, as anywhere, and adding it leaves the page up for the next. Done puts it away.
+the page, as anywhere, and adding it leaves the page up for the next. The chevron, or
+Escape, puts the page away, back to whatever it was opened from.
 
 Map is the map over the whole window, with nothing of Google's drawn on it and none of
 ours but its rows. At the top, for someone who may edit, the search bar itself, the
 one the page has: the city pill with its dot, the field and its turning words, 12px down
 and 14px in at either side, on the chips' edge. Over the map it keeps the lift it has
 over a desk's map, since here too it floats over one. Pressed, the page comes up around
-it: the bar stays where it is and **Done** comes in beside it, with the cursor and the
-keyboard in the field when the field was pressed, and the cities open when the pill
-was. Done puts the page away and leaves the bar over the map. Under it, 8px clear, a chip for every day, a pill at the small step in bold
+it: the bar stays where it is and the chevron comes in at its front, with the cursor
+and the keyboard in the field when the field was pressed, and the cities open when the
+pill was. The chevron puts the page away and leaves the bar over the map. Under it, 8px
+clear, a chip for every day, a pill at the small step in bold
 on `paper-raised` under `shadow-sm`, the open day filled in `terracotta-800`, so the map
 goes from day to day without the list. Along the foot, 12px over the bar, a card 250px
 wide for every stop on the day, on `paper-raised` rounded at the `card` radius under
