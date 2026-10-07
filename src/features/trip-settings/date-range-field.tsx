@@ -3,12 +3,20 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
-import { addDays, daysBetween, isoDateAsUtc, parseIsoDate, weekdayOf } from "@/core/time/zoned";
-import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon } from "@/ui/icons";
+import { addDays, isoDateAsUtc, parseIsoDate } from "@/core/time/zoned";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
-import { formatDateRange, formatTripDates } from "@/features/day-planner/format-day-date";
-
-const DAYS_IN_WEEK = 7;
+import { formatDateRange } from "@/features/day-planner/format-day-date";
+import {
+  DAYS_IN_WEEK,
+  MONTH_AND_YEAR,
+  READABLE,
+  WEEKDAYS,
+  firstOfMonth,
+  gridStart,
+  shiftMonths,
+  weeksIn,
+} from "./month-grid";
 
 /** Two at once, so a trip that crosses the end of a month is one gesture. */
 const MONTHS_SHOWN = 2;
@@ -18,23 +26,6 @@ const PANEL_WIDTH = 600;
 
 /** Room to keep between the panel and the edge of the window. Matches the 2rem in its width class. */
 const EDGE_GAP = 16;
-
-/** Monday first, because that is how a week reads here. */
-const WEEKDAYS = [
-  { short: "M", full: "Monday" },
-  { short: "T", full: "Tuesday" },
-  { short: "W", full: "Wednesday" },
-  { short: "T", full: "Thursday" },
-  { short: "F", full: "Friday" },
-  { short: "S", full: "Saturday" },
-  { short: "S", full: "Sunday" },
-];
-
-const MONTH_AND_YEAR = new Intl.DateTimeFormat("en-AU", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
 
 const DAY_MONTH = new Intl.DateTimeFormat("en-AU", {
   day: "numeric",
@@ -49,70 +40,26 @@ const DAY_MONTH_YEAR = new Intl.DateTimeFormat("en-AU", {
   timeZone: "UTC",
 });
 
-const READABLE = new Intl.DateTimeFormat("en-AU", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-function iso(year: number, month: number, day: number): IsoDate {
-  const pad = (value: number, width: number): string =>
-    String(value).padStart(width, "0");
-  return `${pad(year, 4)}-${pad(month, 2)}-${pad(day, 2)}`;
-}
-
-function firstOfMonth(date: IsoDate): IsoDate {
-  const { year, month } = parseIsoDate(date);
-  return iso(year, month, 1);
-}
-
-/** Month arithmetic on the first of a month, which never overflows a short month. */
-function shiftMonths(first: IsoDate, delta: number): IsoDate {
-  const { year, month } = parseIsoDate(first);
-  const index = year * 12 + (month - 1) + delta;
-  return iso(Math.floor(index / 12), (index % 12) + 1, 1);
-}
-
-/** The Monday on or before the first of the month the grid is showing. */
-function gridStart(first: IsoDate): IsoDate {
-  return addDays(first, -((weekdayOf(first) + 6) % DAYS_IN_WEEK));
-}
-
-/** How many rows of seven it takes to show every day of the month. */
-function weeksIn(first: IsoDate): number {
-  const days = daysBetween(gridStart(first), shiftMonths(first, 1));
-  return Math.ceil(days / DAYS_IN_WEEK);
-}
-
-/** The pill the dates are written in, before anything about pressing it. */
-const PILL =
-  "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink";
-
-const TRIGGER = `${PILL} hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`;
+const TRIGGER =
+  "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 /**
- * Three homes, three shapes of the same control.
+ * Two homes, two shapes of the same control.
  *
  * On the starter page it is one of the stacked questions, and it answers with
  * both ends of the trip written out in full, each under its own name with an
  * arrow between them, because a person opening a trip is being asked two
- * things and should see both answers. On the trip's own name row on a desk it
- * is one control among several on a 34px line: no label and no box. The dates
- * sit beside the trip's name as a fact about it, and a row that reads "Hanoi,
- * five days 10-15 Sept Change" spends its last word on the mechanism rather
- * than on the trip.
+ * things and should see both answers. On the trip's own name row it is one
+ * control among several on a 34px line: no label and no box. The dates sit
+ * beside the trip's name as a fact about it, and a row that reads "Hanoi, five
+ * days 10-15 Sept Change" spends its last word on the mechanism rather than
+ * on the trip.
  *
- * On a phone it is not on the name's row at all. The dates are written under
- * the name there and set under Edit trip, in the sheet the trip's menu comes
- * up as, where the calendar is the page: open from the start, in the sheet
- * rather than over it, and never put away, under a pill with a calendar on it
- * that reads out the dates and how many days they come to as they are drawn.
- * With nothing to open, the pill is not something to press.
+ * Not on a phone, where the dates are written under the trip's name and set
+ * on Edit trip's page, from the trip's menu, on a calendar of its own.
  *
- * No home shows the word that opens it. The word is still there for anybody
- * who cannot see the pill light up under the pointer.
+ * Neither home shows the word that opens it. The word is still there for
+ * anybody who cannot see the pill light up under the pointer.
  *
  * The starter page's numbers are those of the fields beside it, from
  * field-styles, rather than the type scale that governs the planner. DESIGN.md
@@ -124,31 +71,18 @@ const SIZES = {
     trigger:
       "w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700",
     change: "sr-only",
-    // Not on a phone, where the dates are set under Edit trip in the trip's
-    // menu instead.
     stack: "shrink-0 max-lg:hidden",
-    panel: "absolute top-full z-30 w-[min(600px,calc(100vw-2rem))] bg-paper-raised shadow-md",
-    stays: false,
+    panel: "",
   },
   large: {
     trigger: "gap-2 px-5 py-[14px]",
     change: "sr-only",
     // The starter page is an ordinary page that scrolls, so the calendar is
     // as long as it is.
-    panel: "absolute top-full z-30 w-[min(600px,calc(100vw-2rem))] bg-paper-raised shadow-md",
+    panel: "",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
     stack: "@container flex flex-col",
-    stays: false,
-  },
-  sheet: {
-    trigger: "gap-[10px] px-4 py-3 text-body/none font-semibold",
-    change: "sr-only",
-    stack: "",
-    // A card in the sheet, on its paper as the menu's rows are, with no
-    // shadow, since it is in the sheet rather than over anything.
-    panel: "bg-sheet",
-    stays: true,
   },
 } as const;
 
@@ -157,12 +91,9 @@ const STEP =
 
 interface DateRangeFieldProps {
   readonly id: string;
-  /**
-   * Submitted with the form. The visible control is a button, not these. Left
-   * out where the dates are saved by hand rather than by the form round them.
-   */
-  readonly startName?: string;
-  readonly endName?: string;
+  /** Submitted with the form. The visible control is a button, not these. */
+  readonly startName: string;
+  readonly endName: string;
   readonly label: string;
   readonly start: IsoDate;
   readonly end: IsoDate;
@@ -295,8 +226,7 @@ export function DateRangeField({
   size = "inline",
 }: DateRangeFieldProps) {
   const dressed = SIZES[size];
-  /** Open from the start where the calendar is the page, and never put away there. */
-  const [open, setOpen] = useState<boolean>(dressed.stays);
+  const [open, setOpen] = useState(false);
   /** The left of the two months on show. */
   const [leftMonth, setLeftMonth] = useState<IsoDate>(firstOfMonth(start));
   /**
@@ -327,24 +257,16 @@ export function DateRangeField({
     closing.current = onClose;
   });
 
-  /**
-   * Whether the focus is the calendar's to move. A calendar that is open from
-   * the start waits for the arrow keys before it takes the focus, so it does
-   * not take it from wherever the page has put it.
-   */
-  const steered = useRef(!dressed.stays);
-
   // The roving focus follows the arrow keys, so the focused cell has to be the
   // one the browser is actually on.
   useEffect(() => {
-    if (!open || !steered.current) {
+    if (!open) {
       return;
     }
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
   }, [open, focused]);
 
-  // Not where the calendar stays open: there is nothing to put away.
-  useOutsidePress(container, open && !dressed.stays, () => {
+  useOutsidePress(container, open, () => {
     setOpen(false);
     setDrawingFrom(null);
     closing.current?.();
@@ -402,7 +324,6 @@ export function DateRangeField({
 
   /** Keeps the focused day on show, stepping the months when it walks off. */
   const moveFocus = (date: IsoDate): void => {
-    steered.current = true;
     setFocused(date);
     if (date < leftMonth) {
       setLeftMonth(firstOfMonth(date));
@@ -430,8 +351,7 @@ export function DateRangeField({
       setLeftMonth(shiftMonths(leftMonth, event.key === "PageUp" ? -1 : 1));
       return;
     }
-    // Where the calendar stays open, Escape is left to whatever holds it.
-    if (event.key === "Escape" && !dressed.stays) {
+    if (event.key === "Escape") {
       event.preventDefault();
       close();
     }
@@ -440,78 +360,57 @@ export function DateRangeField({
   const before = shiftMonths(leftMonth, -1);
   const after = shiftMonths(leftMonth, MONTHS_SHOWN);
 
-  /** What the pill says: both ends of the trip, as they are drawn while the calendar is open. */
-  const face =
-    size === "large" ? (
-      <>
-        <End name="First day" date={open ? shownStart : start} />
-        <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
-        <End name="Last day" date={open ? shownEnd : end} />
-      </>
-    ) : size === "sheet" ? (
-      <>
-        <CalendarIcon size={18} strokeWidth={2.4} className="shrink-0 text-ink-muted" />
-        <span className="truncate tabular-nums">
-          {formatTripDates(open ? shownStart : start, open ? shownEnd : end)}
-        </span>
-      </>
-    ) : (
-      <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
-    );
-
   return (
     <div className={`relative ${dressed.stack}`} ref={container}>
-      {startName === undefined ? null : <input type="hidden" name={startName} value={start} />}
-      {endName === undefined ? null : <input type="hidden" name={endName} value={end} />}
+      <label className="sr-only" htmlFor={id}>
+        {label}
+      </label>
+      <input type="hidden" name={startName} value={start} />
+      <input type="hidden" name={endName} value={end} />
 
-      {dressed.stays ? (
-        // Nothing to press where the calendar is always open: the pill reads
-        // out to the eye what the calendar's own line says to a screen reader.
-        <div aria-hidden="true" className={`${PILL} ${dressed.trigger}`}>
-          {face}
-        </div>
-      ) : (
-        <>
-          <label className="sr-only" htmlFor={id}>
-            {label}
-          </label>
-          <button
-            id={id}
-            ref={trigger}
-            type="button"
-            aria-haspopup="dialog"
-            aria-expanded={open}
-            onClick={() => {
-              if (open) {
-                close();
-                return;
-              }
-              const box = trigger.current?.getBoundingClientRect();
-              if (box !== undefined) {
-                const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
-                const centred = box.left + box.width / 2 - width / 2;
-                const furthestLeft = window.innerWidth - EDGE_GAP - width;
-                setShift(Math.max(EDGE_GAP, Math.min(centred, furthestLeft)) - box.left);
-              }
-              setLeftMonth(firstOfMonth(start));
-              setFocused(start);
-              setDrawingFrom(null);
-              setOpen(true);
-            }}
-            className={`${TRIGGER} ${dressed.trigger}`}
-          >
-            {face}
-            <span className={dressed.change}>{open ? "Close" : "Change"}</span>
-          </button>
-        </>
-      )}
+      <button
+        id={id}
+        ref={trigger}
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => {
+          if (open) {
+            close();
+            return;
+          }
+          const box = trigger.current?.getBoundingClientRect();
+          if (box !== undefined) {
+            const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
+            const centred = box.left + box.width / 2 - width / 2;
+            const furthestLeft = window.innerWidth - EDGE_GAP - width;
+            setShift(Math.max(EDGE_GAP, Math.min(centred, furthestLeft)) - box.left);
+          }
+          setLeftMonth(firstOfMonth(start));
+          setFocused(start);
+          setDrawingFrom(null);
+          setOpen(true);
+        }}
+        className={`${TRIGGER} ${dressed.trigger}`}
+      >
+        {size === "large" ? (
+          <>
+            <End name="First day" date={open ? shownStart : start} />
+            <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+            <End name="Last day" date={open ? shownEnd : end} />
+          </>
+        ) : (
+          <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
+        )}
+        <span className={dressed.change}>{open ? "Close" : "Change"}</span>
+      </button>
 
       {open ? (
         <div
           role="dialog"
           aria-label={`Choose the ${label.toLowerCase()}`}
           style={{ left: shift }}
-          className={`mt-3 rounded-card border border-rule px-5 pt-4 pb-2 ${dressed.panel}`}
+          className={`absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md ${dressed.panel}`}
         >
           {/* The line over the months: which click comes next, and a step of
               one month at either end of it. */}
