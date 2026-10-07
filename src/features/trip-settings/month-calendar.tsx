@@ -12,6 +12,7 @@ import {
   WEEKDAYS,
   firstOfMonth,
   gridStart,
+  sameDayIn,
   shiftMonths,
   weeksIn,
 } from "./month-grid";
@@ -51,7 +52,9 @@ const STEP =
  * comes next, as it does over a desk's months.
  *
  * The arrow keys walk the days, stepping the month when they walk off it, and
- * Page Up and Page Down step the month.
+ * Page Up and Page Down step the month, taking the day to the same date in it.
+ * The focus follows the keys and nothing else: stepping the month by its
+ * arrows leaves it on the arrow.
  */
 export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
   const labelId = useId();
@@ -59,7 +62,11 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
   const [month, setMonth] = useState<IsoDate>(firstOfMonth(range.start));
   /** The day the keys are on. */
   const [focused, setFocused] = useState<IsoDate>(range.start);
-  /** Set once the keys have moved, so the focus is only taken when they ask for it. */
+  /**
+   * Set as a key moves the day and let go of once the focus has followed it,
+   * so the focus is only taken when the keys ask for it, and never by the
+   * arrows either side of the month's name coming back to the day.
+   */
   const steered = useRef(false);
   const grid = useRef<HTMLDivElement | null>(null);
 
@@ -71,6 +78,7 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
     if (!steered.current) {
       return;
     }
+    steered.current = false;
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
   }, [focused, month]);
 
@@ -101,7 +109,12 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
     }
     if (event.key === "PageUp" || event.key === "PageDown") {
       event.preventDefault();
-      setMonth(shiftMonths(month, event.key === "PageUp" ? -1 : 1));
+      // The day goes with the month, or the focus would be left on a day
+      // that has gone from the grid.
+      const next = sameDayIn(stop, event.key === "PageUp" ? -1 : 1);
+      steered.current = true;
+      setFocused(next);
+      setMonth(firstOfMonth(next));
     }
   };
 

@@ -58,6 +58,26 @@ const PHONE_FIT_PADDING = { top: 40, right: 40, bottom: 240, left: 40 } as const
 const PHONE_TOP_UNDER_SEARCH = 134;
 
 /**
+ * The least height of a phone's map the day is framed in. A phone on its side
+ * is shorter than the search, the rows and the bar of views over its map put
+ * together, which would leave the day no room at all. There the room kept
+ * over and under it gives way, each in proportion, until this much is left.
+ */
+const PHONE_LEAST_FRAME = 120;
+
+/** The room kept round the day on a phone's map this tall. */
+function phonePadding(mapHeight: number, searchOnTop: boolean): google.maps.Padding {
+  const top = searchOnTop ? PHONE_TOP_UNDER_SEARCH : PHONE_FIT_PADDING.top;
+  const { bottom } = PHONE_FIT_PADDING;
+  const share = Math.min(1, Math.max(0, mapHeight - PHONE_LEAST_FRAME) / (top + bottom));
+  return {
+    ...PHONE_FIT_PADDING,
+    top: Math.round(top * share),
+    bottom: Math.round(bottom * share),
+  };
+}
+
+/**
  * Tailwind's lg, from which the planner is two panes side by side and a sheet
  * is a panel over the map's edge rather than the whole window; globals.css
  * stops the window scrolling at the same width. Below it nothing laid over
@@ -736,7 +756,7 @@ export function TripMap({
       bounds,
       window.matchMedia(WIDE_WINDOW).matches
         ? { top: FIT_PADDING, right: FIT_PADDING, bottom: FIT_PADDING, left: FIT_PADDING + seen }
-        : { ...PHONE_FIT_PADDING, top: searchOnTop ? PHONE_TOP_UNDER_SEARCH : PHONE_FIT_PADDING.top },
+        : phonePadding(map.getDiv().clientHeight, searchOnTop),
     );
   }, [state, start, end, stops, centre, candidate, covered, searchOnTop]);
 

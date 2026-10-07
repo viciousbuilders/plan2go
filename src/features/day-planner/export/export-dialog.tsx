@@ -19,13 +19,15 @@ import {
   PinIcon,
   RouteIcon,
 } from "@/ui/icons";
+import { FINGER_ROOM } from "@/ui/finger-room";
 import { Notice } from "@/ui/notice";
 import type { PlannedDay } from "../compute-trip";
 import { dayMapSources } from "./day-map-source";
 import { exportRequestQuery, MOST_DAYS } from "./export-query";
 import type { ExportRequest } from "./export-request";
 import { DEFAULT_EXPORT, exportRequestKey } from "./export-request";
-import { formatDayChip, formatDayTab, formatTripDates } from "../format-day-date";
+import { formatTripDates } from "@/core/time/date-range";
+import { formatDayChip, formatDayTab } from "../format-day-date";
 import { exportFileName, LONGEST_FILE_NAME, tidyFileName } from "./export-name";
 import type { Ink, MapSize, Orientation, PaperSize, TextSize } from "./paper";
 import { sheetGeometry } from "./paper";
@@ -673,31 +675,25 @@ export function ExportDialog({
   const pageWord = sheets === 1 ? "page" : "pages";
   /** "3 pages", once the sheets have been dealt; nothing to say before. */
   const pageCount = sheets === null ? null : `${String(sheets)} ${pageWord}`;
-  /** What the file can carry or leave off, every one on to begin with, so a choice only ever takes away. */
-  const includes = [
-    { label: "Cover page", Icon: BookOpenIcon, on: cover, set: setCover },
-    { label: "Route map", Icon: MapIcon, on: map, set: setMap },
-    { label: "Stop notes", Icon: NoteIcon, on: notes, set: setNotes },
-    { label: "Travel", Icon: RouteIcon, on: legs, set: setLegs },
-    { label: "Addresses", Icon: PinIcon, on: addresses, set: setAddresses },
-    { label: "Opening hours", Icon: ClockIcon, on: hours, set: setHours },
-    { label: "Notes pages", Icon: NotebookIcon, on: ruled, set: setRuled },
-    { label: "Day summary", Icon: ChartIcon, on: stats, set: setStats },
-  ];
   /**
-   * The same choices as a phone's switches, in design 1b's words and order:
-   * its five first, then the three it has no row for.
+   * What the file can carry or leave off, every one on to begin with, so a
+   * choice only ever takes away. Each is a desk's pill, its word and glyph,
+   * and a phone's switch, in design 1b's words at its place in the design's
+   * order: its five first, then the three it has no row for. One list, so no
+   * choice is ever offered on one and missing from the other.
    */
-  const switches = [
-    { label: "Cover page", on: cover, set: setCover },
-    { label: "Route map per day", on: map, set: setMap },
-    { label: "Addresses", on: addresses, set: setAddresses },
-    { label: "Opening hours", on: hours, set: setHours },
-    { label: "Notes", on: notes, set: setNotes },
-    { label: "Travel between stops", on: legs, set: setLegs },
-    { label: "Notes pages", on: ruled, set: setRuled },
-    { label: "Day summary", on: stats, set: setStats },
+  const includes = [
+    { label: "Cover page", Icon: BookOpenIcon, phone: "Cover page", phoneAt: 0, on: cover, set: setCover },
+    { label: "Route map", Icon: MapIcon, phone: "Route map per day", phoneAt: 1, on: map, set: setMap },
+    { label: "Stop notes", Icon: NoteIcon, phone: "Notes", phoneAt: 4, on: notes, set: setNotes },
+    { label: "Travel", Icon: RouteIcon, phone: "Travel between stops", phoneAt: 5, on: legs, set: setLegs },
+    { label: "Addresses", Icon: PinIcon, phone: "Addresses", phoneAt: 2, on: addresses, set: setAddresses },
+    { label: "Opening hours", Icon: ClockIcon, phone: "Opening hours", phoneAt: 3, on: hours, set: setHours },
+    { label: "Notes pages", Icon: NotebookIcon, phone: "Notes pages", phoneAt: 6, on: ruled, set: setRuled },
+    { label: "Day summary", Icon: ChartIcon, phone: "Day summary", phoneAt: 7, on: stats, set: setStats },
   ];
+  /** The same choices as a phone's switches, in the order the phone has them. */
+  const switches = [...includes].sort((one, other) => one.phoneAt - other.phoneAt);
   /** Under a phone's heading: the trip's name, and its dates as the page's head writes them. */
   const first = days[0];
   const last = days[days.length - 1];
@@ -814,10 +810,14 @@ export function ExportDialog({
             <div inert={phase !== "idle"} className={phase === "idle" ? "" : "opacity-50"}>
               <div className="mt-[26px] flex items-center gap-2">
                 <p className="flex-1 text-body/none font-bold text-ink">Days</p>
+                {/* Drawn at its words' size, so the row stays the heading's
+                    height. It answers a finger over the room above it and to
+                    either side, forty two tall, and stops short of the days
+                    under it, which answer fingers of their own. */}
                 <button
                   type="button"
                   onClick={toggleAll}
-                  className={`-my-2 -mr-1 rounded-pill px-1 py-2 text-small/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FOCUS}`}
+                  className={`relative -my-2 -mr-1 rounded-pill px-1 py-2 text-small/none font-bold text-terracotta-800 after:absolute after:-inset-x-[6px] after:-top-[12px] after:-bottom-px hover:text-terracotta-900 ${FOCUS}`}
                 >
                   {allPicked ? "Clear" : "Select all"}
                 </button>
@@ -886,9 +886,9 @@ export function ExportDialog({
                   with the knob at its end while on, a quiet one while off. */}
               <p className="mt-[26px] text-body/none font-bold text-ink">Include</p>
               <div className="mt-2 rounded-card bg-paper-raised px-4 py-1">
-                {switches.map(({ label, on, set }) => (
+                {switches.map(({ phone, on, set }) => (
                   <button
-                    key={label}
+                    key={phone}
                     type="button"
                     role="switch"
                     aria-checked={on}
@@ -897,7 +897,7 @@ export function ExportDialog({
                     }}
                     className={`flex w-full items-center gap-3 py-[13px] text-left text-ink ${FOCUS}`}
                   >
-                    <span className="min-w-0 flex-1 text-place/[1.2] font-semibold">{label}</span>
+                    <span className="min-w-0 flex-1 text-place/[1.2] font-semibold">{phone}</span>
                     <span
                       aria-hidden="true"
                       className={`relative h-7 w-[46px] shrink-0 rounded-pill ${on ? "bg-terracotta" : "bg-ink/18"}`}
@@ -1056,7 +1056,7 @@ export function ExportDialog({
                       onClick={() => {
                         asking.current?.abort();
                       }}
-                      className={`-my-2 -mr-1 shrink-0 rounded-pill px-1 py-2 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FOCUS}`}
+                      className={`-my-2 -mr-1 shrink-0 rounded-pill px-1 py-2 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FINGER_ROOM} ${FOCUS}`}
                     >
                       Cancel
                     </button>
@@ -1081,7 +1081,9 @@ export function ExportDialog({
                     <CheckIcon size={16} strokeWidth={2.75} />
                   </span>
                   <p role="status" className="min-w-0 flex-1 text-body/[1.35] font-semibold text-sage-900">
-                    {`Saved ${savedAs} to Files`}
+                    {/* Not where it went: the browser decides that, and on
+                        a phone it may ask first. */}
+                    {`Saved ${savedAs}`}
                   </p>
                   <button
                     ref={doneButton}
@@ -1090,7 +1092,7 @@ export function ExportDialog({
                       setPhase("idle");
                       setProgress(0);
                     }}
-                    className={`-my-2 shrink-0 rounded-pill px-1 py-2 text-body/none font-bold text-sage-900 ${FOCUS}`}
+                    className={`-my-2 shrink-0 rounded-pill px-1 py-2 text-body/none font-bold text-sage-900 ${FINGER_ROOM} ${FOCUS}`}
                   >
                     Done
                   </button>
@@ -1159,7 +1161,7 @@ export function ExportDialog({
                 ref={previewBack}
                 type="button"
                 onClick={closePreview}
-                className={`-ml-1 shrink-0 rounded-pill px-1 py-3 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FOCUS}`}
+                className={`-ml-1 shrink-0 rounded-pill px-1 py-3 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FINGER_ROOM} ${FOCUS}`}
               >
                 Close
               </button>
@@ -1173,7 +1175,7 @@ export function ExportDialog({
                 type="button"
                 disabled={tooMany}
                 onClick={exportFromPreview}
-                className={`shrink-0 rounded-pill bg-terracotta px-4 py-[10px] text-body/none font-bold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-terracotta ${FOCUS}`}
+                className={`shrink-0 rounded-pill bg-terracotta px-4 py-[10px] text-body/none font-bold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-terracotta ${FINGER_ROOM} ${FOCUS}`}
               >
                 Export
               </button>

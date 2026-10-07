@@ -1093,8 +1093,9 @@ on a card drawn as the preview's is. The file's name under its own heading, in a
 **Export PDF** with the pages it comes to, the download glyph before it, on the accent's
 solid pill. While the file is drawn, a card of `paper-raised` saying "Creating" and the
 file's name, with **Cancel** at its end and a bar 8px tall filling in the accent under
-it; once it is saved, a card of sage 100 with a tick on a disc of sage 600, "Saved" the
-file's name "to Files" in sage 900 and **Done** at its end, which puts the button back.
+it; once it is saved, a card of sage 100 with a tick on a disc of sage 600, "Saved" and
+the file's name in sage 900, and **Done** at its end, which puts the button back. Not
+where the file went, which the browser decides and a phone's may ask about first.
 Everything over the button is faded and out of reach from the moment the file is asked
 for until Done. Escape goes back to the day, and every other way out is the bar of
 views.

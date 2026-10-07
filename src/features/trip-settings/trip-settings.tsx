@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useActionState, useId, useRef, useState } from "react";
 import { daysBetween } from "@/core/time/zoned";
-import { formatTripDates } from "@/features/day-planner/format-day-date";
+import { formatTripDates } from "@/core/time/date-range";
 import { HEADING_BAND, HEADING_BODY, HEADING_DATES } from "@/features/day-planner/panel-heading";
 import { useLocalToday } from "@/ui/use-local-today";
 import { DateRangeField } from "./date-range-field";

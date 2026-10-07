@@ -26,7 +26,10 @@ interface MenuPages {
   readonly page: MenuPage | null;
   readonly open: (page: MenuPage) => void;
   readonly back: () => void;
-  /** Puts the whole menu away, for a page whose work is done. */
+  /**
+   * Puts the whole menu away, for a page whose work is done, and hands the
+   * focus back to the menu's button.
+   */
   readonly close: () => void;
 }
 
@@ -39,6 +42,48 @@ export function useMenuPages(): MenuPages {
     throw new Error("useMenuPages is for a row rendered inside TripMenu.");
   }
   return pages;
+}
+
+interface MenuPageRowProps {
+  /** The page's name, over it and to a screen reader. */
+  readonly title: string;
+  readonly content: ReactNode;
+  readonly className: string;
+  /** What the row says. */
+  readonly children: ReactNode;
+}
+
+/**
+ * A row that turns the menu into a page of its own rather than opening a
+ * second panel over it. When the page is left, the focus comes back here,
+ * where it went from.
+ */
+export function MenuPageRow({ title, content, className, children }: MenuPageRowProps) {
+  const pages = useMenuPages();
+  const trigger = useRef<HTMLButtonElement | null>(null);
+
+  return (
+    <button
+      type="button"
+      ref={trigger}
+      aria-haspopup="dialog"
+      // Whichever page is up, this row is hidden under it, so the only state
+      // it is ever read in is the one with no page open.
+      aria-expanded={pages.page !== null}
+      onClick={() => {
+        pages.open({
+          title,
+          content,
+          onBack: () => {
+            trigger.current?.focus();
+          },
+        });
+      }}
+      className={className}
+    >
+      {children}
+    </button>
+  );
 }
 
 /**
@@ -81,6 +126,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState<MenuPage | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
+  const button = useRef<HTMLButtonElement | null>(null);
   const backButton = useRef<HTMLButtonElement | null>(null);
   /** The page just left, until the rows are drawn again and it can be told. */
   const returning = useRef<MenuPage | null>(null);
@@ -95,9 +141,20 @@ export function TripMenu({ label, children }: TripMenuProps) {
     setPage(null);
   };
 
+  /**
+   * Put away from inside: by Escape, by the dimmed page, or by a page whose
+   * work is done. The focus goes back to the button that opened it, rather
+   * than to nothing as the panel it was in leaves. Not a press somewhere
+   * else, which has put the focus where it wanted.
+   */
+  const putAway = (): void => {
+    close();
+    button.current?.focus();
+  };
+
   // Built afresh each render rather than memoised: the menu renders when it
   // opens, closes or turns a page, and its rows are all that read this.
-  const pages: MenuPages = { page, open: setPage, back, close };
+  const pages: MenuPages = { page, open: setPage, back, close: putAway };
 
   /**
    * A page arriving takes the focus to its way back, which is its first
@@ -120,20 +177,19 @@ export function TripMenu({ label, children }: TripMenuProps) {
       ref={container}
       className="relative flex-none"
       onKeyDown={(event) => {
-        // Not when something inside has answered it already, such as the
-        // calendar on a page folding itself away.
-        if (event.key === "Escape" && !event.defaultPrevented) {
+        if (event.key === "Escape") {
           event.preventDefault();
           if (page !== null) {
             back();
           } else {
-            close();
+            putAway();
           }
         }
       }}
     >
       <button
         type="button"
+        ref={button}
         aria-label={label}
         aria-expanded={open}
         onClick={() => {
@@ -165,7 +221,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
               the menu hears as outside itself. */}
           <div
             aria-hidden="true"
-            onClick={close}
+            onClick={putAway}
             className="fixed inset-0 z-50 touch-none bg-ink/35 lg:hidden"
           />
           <div

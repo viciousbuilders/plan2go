@@ -53,6 +53,16 @@ export function shiftMonths(first: IsoDate, delta: number): IsoDate {
   return iso(Math.floor(index / 12), (index % 12) + 1, 1);
 }
 
+/**
+ * The same date a number of months away, or the last of that month where it
+ * is shorter: where Page Up and Page Down take the day the keys are on.
+ */
+export function sameDayIn(date: IsoDate, delta: number): IsoDate {
+  const first = shiftMonths(firstOfMonth(date), delta);
+  const length = daysBetween(first, shiftMonths(first, 1));
+  return addDays(first, Math.min(parseIsoDate(date).day, length) - 1);
+}
+
 /** The Monday on or before the first of the month the grid is showing. */
 export function gridStart(first: IsoDate): IsoDate {
   return addDays(first, -((weekdayOf(first) + 6) % DAYS_IN_WEEK));

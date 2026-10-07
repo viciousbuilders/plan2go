@@ -389,19 +389,18 @@ export function TripEditor({
 
   const nothingToExport = days.every((day) => day.plan.stops.length === 0);
   /**
-   * Whichever way the export is asked for, from the trip's menu or the bar of
-   * views: on a desk the dialog over the window, on a phone its Export view.
+   * The export as a desk asks for it, from the trip's menu or the name's row:
+   * the dialog over the window. A phone draws neither, and exports from the
+   * Export view in the bar of views instead.
    */
-  const openExport = (): void => {
-    if (narrowWindow()) {
-      setView("export");
-      setPicked(null);
-      return;
-    }
-    setExportOpen(true);
-  };
   const exportControl = (where: "menu" | "heading") => (
-    <TripExport where={where} disabled={nothingToExport} onOpen={openExport} />
+    <TripExport
+      where={where}
+      disabled={nothingToExport}
+      onOpen={() => {
+        setExportOpen(true);
+      }}
+    />
   );
 
   /**

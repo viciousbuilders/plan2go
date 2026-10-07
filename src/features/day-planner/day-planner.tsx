@@ -8,7 +8,7 @@ import { DayItinerary } from "./day-itinerary";
 import { DayTabs } from "./day-tabs";
 import { GUTTER, HEADING_BAND, HEADING_BODY, HEADING_DATES } from "./panel-heading";
 import type { DayActions, EditOutcome } from "./day-actions";
-import { formatDateRange, formatTripDates } from "./format-day-date";
+import { formatDateRange, formatTripDates } from "@/core/time/date-range";
 import { DayTimeline } from "./phone/day-timeline";
 
 interface DayPlannerProps {

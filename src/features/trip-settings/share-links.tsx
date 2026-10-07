@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { LinkIcon, ShareIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
 import { SheetRow } from "./sheet-row";
-import { useMenuPages } from "./trip-menu";
+import { MenuPageRow } from "./trip-menu";
 
 /** The word at the end of the pill, in the accent, with the pill's own ground under the pointer. */
 const COPY =
@@ -146,31 +146,15 @@ function SharePage({ slug, editKey }: ShareLinksProps) {
  * focus comes back here, where it went from.
  */
 export function ShareLinks({ slug, editKey }: ShareLinksProps) {
-  const pages = useMenuPages();
-  const trigger = useRef<HTMLButtonElement | null>(null);
-
   return (
-    <button
-      type="button"
-      ref={trigger}
-      aria-haspopup="dialog"
-      // Whichever page is up, this row is hidden under it, so the only state
-      // it is ever read in is the one with no page open.
-      aria-expanded={pages.page !== null}
-      onClick={() => {
-        pages.open({
-          title: "Share this trip",
-          content: <SharePage slug={slug} editKey={editKey} />,
-          onBack: () => {
-            trigger.current?.focus();
-          },
-        });
-      }}
+    <MenuPageRow
+      title="Share this trip"
+      content={<SharePage slug={slug} editKey={editKey} />}
       className={MENU_ITEM}
     >
       <ShareIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
       <span className="max-lg:hidden">Share</span>
       <SheetRow icon={LinkIcon} title="Share trip" detail="View-only and edit links" />
-    </button>
+    </MenuPageRow>
   );
 }

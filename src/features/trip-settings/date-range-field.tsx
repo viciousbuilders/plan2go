@@ -6,7 +6,7 @@ import type { IsoDate } from "@/core/model/day";
 import { addDays, isoDateAsUtc, parseIsoDate } from "@/core/time/zoned";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
-import { formatDateRange } from "@/features/day-planner/format-day-date";
+import { formatDateRange } from "@/core/time/date-range";
 import {
   DAYS_IN_WEEK,
   MONTH_AND_YEAR,
@@ -14,6 +14,7 @@ import {
   WEEKDAYS,
   firstOfMonth,
   gridStart,
+  sameDayIn,
   shiftMonths,
   weeksIn,
 } from "./month-grid";
@@ -52,7 +53,7 @@ const TRIGGER =
  * things and should see both answers. On the trip's own name row it is one
  * control among several on a 34px line: no label and no box. The dates sit
  * beside the trip's name as a fact about it, and a row that reads "Hanoi, five
- * days 10-15 Sept Change" spends its last word on the mechanism rather than
+ * days 10 to 15 Sept Change" spends its last word on the mechanism rather than
  * on the trip.
  *
  * Not on a phone, where the dates are written under the trip's name and set
@@ -72,14 +73,10 @@ const SIZES = {
       "w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700",
     change: "sr-only",
     stack: "shrink-0 max-lg:hidden",
-    panel: "",
   },
   large: {
     trigger: "gap-2 px-5 py-[14px]",
     change: "sr-only",
-    // The starter page is an ordinary page that scrolls, so the calendar is
-    // as long as it is.
-    panel: "",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
     stack: "@container flex flex-col",
@@ -348,7 +345,12 @@ export function DateRangeField({
     }
     if (event.key === "PageUp" || event.key === "PageDown") {
       event.preventDefault();
-      setLeftMonth(shiftMonths(leftMonth, event.key === "PageUp" ? -1 : 1));
+      // The day the keys are on goes with the months, to the same date a
+      // month along, so it stays on show and the focus is never left on a
+      // day that has gone from the grid.
+      const delta = event.key === "PageUp" ? -1 : 1;
+      setLeftMonth(shiftMonths(leftMonth, delta));
+      setFocused(sameDayIn(focused, delta));
       return;
     }
     if (event.key === "Escape") {
@@ -410,7 +412,7 @@ export function DateRangeField({
           role="dialog"
           aria-label={`Choose the ${label.toLowerCase()}`}
           style={{ left: shift }}
-          className={`absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md ${dressed.panel}`}
+          className="absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md"
         >
           {/* The line over the months: which click comes next, and a step of
               one month at either end of it. */}
@@ -523,7 +525,11 @@ export function DateRangeField({
                               >
                                 <button
                                   type="button"
-                                  data-date={date}
+                                  // Only on the month's own days. The same
+                                  // date stands unseen at the edge of the
+                                  // month beside it, and the focus looking it
+                                  // up must find the one that can take it.
+                                  data-date={thisMonth ? date : undefined}
                                   disabled={disabled}
                                   tabIndex={date === focused ? 0 : -1}
                                   aria-current={date === today ? "date" : undefined}

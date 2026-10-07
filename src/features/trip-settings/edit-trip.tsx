@@ -1,14 +1,14 @@
 "use client";
 
-import { useId, useRef, useState, useTransition } from "react";
-import { formatTripDates } from "@/features/day-planner/format-day-date";
+import { useId, useState, useTransition } from "react";
+import { formatTripDates } from "@/core/time/date-range";
 import { PencilIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
 import { Notice } from "@/ui/notice";
 import type { DrawnRange } from "./month-calendar";
 import { MonthCalendar } from "./month-calendar";
 import { SheetRow } from "./sheet-row";
-import { useMenuPages } from "./trip-menu";
+import { MenuPageRow, useMenuPages } from "./trip-menu";
 import type { TripSettingsOutcome } from "./trip-settings";
 import { UNSAVED } from "./trip-settings";
 
@@ -57,7 +57,8 @@ interface EditTripProps {
  * Nothing is written until Save trip is pressed, and it cannot be until both
  * ends are drawn. Going back to the cards, or putting the sheet away, leaves
  * the trip as it was. Once it is saved the sheet goes, and what is left is
- * the trip as it now is.
+ * the trip as it now is. Pressed with nothing changed, it writes nothing and
+ * the sheet goes all the same.
  *
  * Saved by hand rather than by a form: the menu is drawn inside the form on
  * the name's row, and a form cannot hold another.
@@ -74,6 +75,11 @@ function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: Edit
   const save = (): void => {
     const last = range.end;
     if (last === null || saving) {
+      return;
+    }
+    // Trimmed, as the save trims it: spaces round the same name are no change.
+    if (name.trim() === title && range.start === startDate && last === endDate) {
+      pages.close();
       return;
     }
     const form = new FormData();
@@ -166,29 +172,13 @@ function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: Edit
  * read, on the name's row. When the page is left, the focus comes back here.
  */
 export function EditTrip(props: EditTripProps) {
-  const pages = useMenuPages();
-  const trigger = useRef<HTMLButtonElement | null>(null);
-
   return (
-    <button
-      type="button"
-      ref={trigger}
-      aria-haspopup="dialog"
-      // Whichever page is up, this row is hidden under it, so the only state
-      // it is ever read in is the one with no page open.
-      aria-expanded={pages.page !== null}
-      onClick={() => {
-        pages.open({
-          title: "Plan your trip",
-          content: <EditTripPage {...props} />,
-          onBack: () => {
-            trigger.current?.focus();
-          },
-        });
-      }}
+    <MenuPageRow
+      title="Plan your trip"
+      content={<EditTripPage {...props} />}
       className={`${MENU_ITEM} lg:hidden`}
     >
       <SheetRow icon={PencilIcon} title="Edit trip" detail="Name, start date and duration" />
-    </button>
+    </MenuPageRow>
   );
 }
