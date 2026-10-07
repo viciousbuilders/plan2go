@@ -1073,32 +1073,47 @@ drawing it. The browser's own print command still prints the preview while the d
 is open, and the open day while it is not.
 
 On a phone the export is not a dialog but the Export view, a page of its own under the
-bar of views, drawn to the Export tab of design 1b of "PlanToGo iPhone" with the
-dialog's own choices, every one with its own glyph. "Export PDF" at the headline step;
-the switch of the full trip and the cover alone, on a track sunk into the page with the
-chosen one in `terracotta-800`; the days five across, a chosen one filled in
-`terracotta-800`; what the file includes as pills that wrap rather than toggles two
-across, at the small step, `terracotta-100` inside `terracotta-300` while on and quiet on
-the page inside `rule` while off; the page setup folded to its line on a card of `sheet`,
-its tracks sunk into the page as the switch is; the way to the preview; the file's name
-under its own heading, in the same pill on `sheet`, and what is wrong with it said under
-it rather than over it, since the page has the room; and the button, the bar and Saved
-at 54px. Escape goes back to the day, and every other way out is the bar of views.
+bar of views, drawn as the Export tab of design 1b of "PlanToGo iPhone app" draws it,
+with every choice the dialog has but the switch of the full trip and the cover alone.
+"Export PDF" at the headline step, and under it the trip's name and its dates at the
+small step in 500 `ink-muted`. **Days** with **Select all** or **Clear** at the right
+in `terracotta-800`, and the days five across, 6px apart: a card for each, rounded at
+the `panel` radius inside a 1.5px edge, "DAY 1" at the label step in bold capitals over
+its date in bold at the body step over its city at the label step, the number and the
+city faded; on `paper-raised` inside `rule`, and filled in `terracotta-800` with its
+words in `paper` while it is in the file. A day with nothing on it is dashed and cannot
+be chosen. **Include**, and under it one card of `paper-raised` rounded at the `card`
+radius holding a switch to a row: its name at the place step in 600, and a track 46px
+by 28px, `terracotta` with its knob at the end while on and ink at 18 percent while off,
+the knob 22px across on `sheet` under `shadow-sm`. Cover page, Route map per day,
+Addresses, Opening hours and Notes, as the design lists them, then Travel between stops,
+Notes pages and Day summary, which it has no row for. The page setup folded to its line
+on a card drawn as the preview's is. The file's name under its own heading, in a pill
+50px tall on `sheet` with .pdf after it, and what is wrong with it said under it. Then
+**Export PDF** with the pages it comes to, the download glyph before it, on the accent's
+solid pill. While the file is drawn, a card of `paper-raised` saying "Creating" and the
+file's name, with **Cancel** at its end and a bar 8px tall filling in the accent under
+it; once it is saved, a card of sage 100 with a tick on a disc of sage 600, "Saved" the
+file's name "to Files" in sage 900 and **Done** at its end, which puts the button back.
+Everything over the button is faded and out of reach from the moment the file is asked
+for until Done. Escape goes back to the day, and every other way out is the bar of
+views.
 
-The preview is a card on raised paper, as the page setup's is: a page in small at its
-front, a bar of the accent over two lines of ink and a block where the map is, then
-**Preview** in bold over how many pages the export comes to, and a chevron. It opens over
-the whole window and the bar of views, on the sunken ground the desk's preview stands
-on: the way back on the left, the file's name in the middle, or Preview while there is
-none, and which page is in the middle of how many on the right. Under them the sheets
-themselves, the same ones the desk's preview draws, one beside the next in a row that
-snaps to each, every page scaled to 300px wide on a phone the design's width, or as tall
-as the window has room for, with the pages either side peeking in 51px and 16px apart,
-each on the deepest shadow. At the foot, **Export PDF** with the pages it comes to, which
-puts the preview away and begins the file, or, with no name to save it under, puts the
-preview away and takes the keyboard to the name. Escape puts it away. Until it is
-opened the sheets are laid out unseen, for the count and for the browser's own print
-command, which prints them while the view is up, the preview open or not.
+The preview is a card drawn as the setup's is: a page in small at its front, a bar of
+the accent over a block of sage where the map is and two lines of ink, then **Preview**
+at the place step in bold over how many pages the export comes to, and a chevron. It
+opens over the whole window and the bar of views, on the sunken ground the desk's
+preview stands on: **Close** in `terracotta-800` on the left, which page is in the
+middle of how many in the middle, "Page 2 of 6", and **Export** on the accent's solid
+pill on the right, which puts the preview away and begins the file, or, with no name to
+save it under, puts the preview away and takes the keyboard to the name. Under them the
+sheets themselves, the same ones the desk's preview draws, one beside the next in a row
+that snaps to each, every page scaled to 300px wide on a phone the design's width, or
+as tall as the window has room for less 60px kept clear at its foot, with the pages
+either side peeking in 51px and 16px apart, each on the deepest shadow. Escape puts it
+away. Until it is opened the sheets are laid out unseen, for the count and for the
+browser's own print command, which prints them while the view is up, the preview open
+or not.
 
 ## Banned in this product
 
