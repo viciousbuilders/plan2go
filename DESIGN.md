@@ -376,33 +376,33 @@ does at the meta step in `ink-muted`. **Edit trip**, "Name, start date and durat
 **Share trip**, "View-only and edit links"; **New trip**, "Start planning another
 trip"; and **Delete trip**, "Remove this trip and all its days", its disc in terracotta
 200 and its name in `terracotta-800`. Export is not one of them, since it is a view in
-the bar. Share trip turns the sheet into its page, under the page's name and an arrow
-back to the cards. Delete trip asks its question over the sheet, as it does on a desk.
-Escape or a press on the dimmed page puts the sheet away.
+the bar. Edit trip and Share trip turn the sheet into their page, under the page's name
+and an arrow back to the cards: "Plan your trip" and "Share this trip". Delete trip
+asks its question over the sheet, as it does on a desk. Escape or a press on the dimmed
+page puts the sheet away, and Escape on a page goes back to the cards.
 
-Edit trip opens a page over the whole window, the bar of views included, on `paper`
-and 20px in at either side, drawn as design 1b draws the start of a trip less its main
-city. At its head **Cancel** in bold at the body step in `terracotta-800`, then "Plan
-your trip" in the display face at the headline step. "Trip name" in bold at the small
+Edit trip's page is drawn as design 1b draws the start of a trip less its main city.
+"Trip name" in bold at the small
 step over the name's field, 50px tall on `paper-raised` inside a 1.5px `rule` edge, at
 16px. Then "Dates" in bold at the small step, and on the same row the month, "October
 2026", in bold at the body step between the two arrows that step it, each 40px across.
 Under that row, centred and on the page rather than on the month's card, the line a
 desk's calendar has over its months, saying which press comes next, "Choose the first
 day" or, once it is pressed, "Now choose the last day", at the body step in 500
-`ink-muted`. Under it the month on `paper-raised` rounded at the `card` radius, a week
-to a row, Monday first: the weekdays at the micro step in 600 `ink-faint`, and every day in
+`ink-muted`. Under it the month on `paper-raised` inside a 1.5px `rule` edge, the name's
+field's, since the sheet under it is `paper-raised` too, rounded at the `card` radius, a
+week to a row, Monday first: the weekdays at the micro step in 600 `ink-faint`, and every day in
 bold at the body step on a disc 40px across in a cell 42px tall. The trip's two ends
 are filled in `terracotta-800` with their day in `paper`, and the days from one to the
 other stand on a band of `terracotta-100`, rounded off where it stops. The first press
 on a day begins the trip there and the second ends it; a press before the first day,
-or once both are set, begins again. At the foot of the window, what has been drawn at
-the body step in 600 `ink-muted`, the dates and how many days they come to, or "Now
-pick your last day", over **Save trip** on the accent's solid pill across the page.
-Nothing is written until Save trip is pressed, and it is not offered until both ends
-are drawn. Saving, Cancel and Escape all put the page and the menu away together. The
-dates keep to the same rules as a desk's calendar: any day may be chosen, and a trip
-may run as long as it likes.
+or once both are set, begins again. Under the month, what has been drawn at the body
+step in 600 `ink-muted`, the dates and how many days they come to, or "Now pick your
+last day", over **Save trip** on the accent's solid pill across the sheet. Nothing is
+written until Save trip is pressed, and it is not offered until both ends are drawn.
+Saving puts the sheet away; going back to the cards, or putting the sheet away, leaves
+the trip as it was. The dates keep to the same rules as a desk's calendar: any day may
+be chosen, and a trip may run as long as it likes.
 
 Under them the strip of days runs out to the window's edges, scrolling the days under
 them, 20px in at either end, so the first day stands under the trip's name. A day is a
@@ -510,9 +510,9 @@ Everything on a phone is pressed with a finger: what is drawn smaller than 40px 
 finger over the room around it and is drawn no larger, and nothing that answers a finger
 reaches into what another answers. A field is 16px on a phone, whatever step it is set
 at on a desk, because under that iOS zooms the whole page into a field as it takes the
-cursor and leaves it zoomed (see Typography). Edit trip's page is the whole window and
-scrolls as a page does once it is taller than the window, as it is on a phone held on
-its side.
+cursor and leaves it zoomed (see Typography). Edit trip's page is in the menu's sheet,
+which scrolls inside itself once it is taller than most of the window, as it is on a
+small phone or one held on its side.
 
 ## Elevation and depth
 

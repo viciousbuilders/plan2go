@@ -37,8 +37,9 @@ const STEP =
  * The trip's dates as a phone chooses them on Edit trip's page, the way
  * design 1b draws the start of a trip: one month at a time, stepped by the
  * arrows either side of its name on the row the label heads, and under that
- * row the month on raised paper, a week to a row, Monday first, every day a
- * disc forty across in a cell forty two tall.
+ * row the month on raised paper inside a 1.5px hairline, the edge the name's
+ * field has, since the sheet it is drawn on is raised paper too. A week to a
+ * row, Monday first, every day a disc forty across in a cell forty two tall.
  *
  * Two presses draw the trip: the first sets where it begins and leaves the
  * end open, the second where it ends. A press before the first day, or once
@@ -145,8 +146,8 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
 
       {/* Which press comes next, in the words a desk's calendar uses over
           its months, between the row the month is stepped on and the
-          month itself. Not read out as it changes, since the line at the
-          foot of Edit trip's page already is. */}
+          month itself. Not read out as it changes, since the line under the
+          month on Edit trip's page already is. */}
       <p className="mt-[10px] text-center text-body/none font-medium text-ink-muted">
         {end === null ? "Now choose the last day" : "Choose the first day"}
       </p>
@@ -156,7 +157,7 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
         role="grid"
         aria-labelledby={labelId}
         onKeyDown={onKeyDown}
-        className="mt-[10px] rounded-card bg-paper-raised px-2 py-3"
+        className="mt-[10px] rounded-card border-[1.5px] border-rule bg-paper-raised px-2 py-3"
       >
         <div role="row" className="grid grid-cols-7">
           {WEEKDAYS.map((weekday, index) => (

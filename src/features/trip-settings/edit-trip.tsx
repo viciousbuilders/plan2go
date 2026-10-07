@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { formatTripDates } from "@/features/day-planner/format-day-date";
 import { PencilIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
@@ -24,7 +24,7 @@ const LABEL = "text-small/none font-bold text-ink";
 const NAME_FIELD =
   "min-h-[50px] w-full rounded-pill border-[1.5px] border-rule bg-paper-raised px-[18px] text-[16px]/none font-medium text-ink caret-terracotta outline-none placeholder:text-ink-faint focus-visible:border-terracotta aria-invalid:border-terracotta";
 
-/** The one way off the page with something written: the accent's solid pill, across it. */
+/** The one way off the page with something written: the accent's solid pill, across the sheet. */
 const SAVE =
   "w-full rounded-pill bg-terracotta px-5 py-4 text-place/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
@@ -47,41 +47,29 @@ interface EditTripProps {
 }
 
 /**
- * The trip's name and dates as a phone changes them, on a page over the whole
- * window, the way design 1b draws the start of a trip: Cancel at its head in
- * the accent's deepest brown, "Plan your trip" at the headline step, the
- * name's field, the month to draw the dates on, and at its foot what has been
- * drawn, the dates and how many days they come to, over Save trip.
+ * The trip's name and dates as a phone changes them, on Edit trip's page of
+ * the menu's sheet, which comes up as Share trip's does: under "Plan your
+ * trip" and the arrow back to the cards. On it, as design 1b draws the start
+ * of a trip less its main city: the name's field, the month to draw the dates
+ * on, and under them what has been drawn, the dates and how many days they
+ * come to, over Save trip.
  *
  * Nothing is written until Save trip is pressed, and it cannot be until both
- * ends are drawn. Cancel or Escape leaves the trip as it was. Either way the
- * menu goes with the page, and what is left is the trip as it now is.
+ * ends are drawn. Going back to the cards, or putting the sheet away, leaves
+ * the trip as it was. Once it is saved the sheet goes, and what is left is
+ * the trip as it now is.
  *
  * Saved by hand rather than by a form: the menu is drawn inside the form on
  * the name's row, and a form cannot hold another.
  */
-function EditTripPage({
-  slug,
-  editKey,
-  title,
-  startDate,
-  endDate,
-  onSave,
-  onClose,
-}: EditTripProps & { readonly onClose: () => void }) {
-  const headingId = useId();
+function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: EditTripProps) {
+  const pages = useMenuPages();
   const fieldId = useId();
-  const page = useRef<HTMLDivElement | null>(null);
   const [name, setName] = useState(title);
   const [range, setRange] = useState<DrawnRange>({ start: startDate, end: endDate });
   /** What the save said when it refused, until anything on the page changes. */
   const [refusal, setRefusal] = useState<TripSettingsOutcome | null>(null);
   const [saving, startSaving] = useTransition();
-
-  /** The page takes the keyboard as it comes up, so Escape and Tab start there. */
-  useEffect(() => {
-    page.current?.focus();
-  }, []);
 
   const save = (): void => {
     const last = range.end;
@@ -97,7 +85,7 @@ function EditTripPage({
     startSaving(async () => {
       const outcome = await onSave(UNSAVED, form);
       if (outcome.error === null) {
-        onClose();
+        pages.close();
         return;
       }
       setRefusal(outcome);
@@ -105,37 +93,8 @@ function EditTripPage({
   };
 
   return (
-    // Fixed over the whole window, the bar of views at its foot included, on
-    // the page's own paper. It scrolls as a page does when it is taller than
-    // the window, which a phone on its side makes it.
-    <div
-      ref={page}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={headingId}
-      tabIndex={-1}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          onClose();
-        }
-      }}
-      className="fixed inset-0 z-10 flex flex-col overflow-y-auto overscroll-contain bg-paper px-5 pt-[max(12px,env(safe-area-inset-top))] text-left outline-none lg:hidden"
-    >
-      <div className="flex min-h-11 items-center">
-        <button
-          type="button"
-          onClick={onClose}
-          className="-ml-1 rounded-pill px-1 py-[10px] text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          Cancel
-        </button>
-      </div>
-      <h2 id={headingId} className="mt-1 font-display text-headline tracking-[-0.01em] text-ink">
-        Plan your trip
-      </h2>
-
-      <label htmlFor={`${fieldId}-name`} className={`mt-6 ${LABEL}`}>
+    <div className="flex flex-col">
+      <label htmlFor={`${fieldId}-name`} className={LABEL}>
         Trip name
       </label>
       {/* Not `required`, for the reason the name's row gives: empty is
@@ -178,51 +137,58 @@ function EditTripPage({
         />
       </div>
 
-      {/* Whatever room the window has left goes here, so the foot stands at
-          the foot of the window. */}
-      <div aria-hidden="true" className="min-h-5 flex-1" />
-
-      <div className="flex flex-col gap-3 pt-[14px] pb-[max(24px,env(safe-area-inset-bottom))]">
-        <p aria-live="polite" className="text-center text-body/[1.3] font-semibold text-ink-muted tabular-nums">
-          {range.end === null ? "Now pick your last day" : formatTripDates(range.start, range.end)}
-        </p>
-        {refusal !== null && refusal.field === null ? (
-          <Notice role="alert" size="meta">
-            {refusal.error}
-          </Notice>
-        ) : null}
-        <button type="button" onClick={save} disabled={range.end === null || saving} className={SAVE}>
-          {saving ? "Saving" : "Save trip"}
-        </button>
-      </div>
+      <p
+        aria-live="polite"
+        className="mt-5 text-center text-body/[1.3] font-semibold text-ink-muted tabular-nums"
+      >
+        {range.end === null ? "Now pick your last day" : formatTripDates(range.start, range.end)}
+      </p>
+      {refusal !== null && refusal.field === null ? (
+        <Notice role="alert" size="meta" className="mt-3">
+          {refusal.error}
+        </Notice>
+      ) : null}
+      <button
+        type="button"
+        onClick={save}
+        disabled={range.end === null || saving}
+        className={`mt-3 ${SAVE}`}
+      >
+        {saving ? "Saving" : "Save trip"}
+      </button>
     </div>
   );
 }
 
 /**
- * The row in the trip's menu that opens Edit trip's page over the window. On
- * a phone only: on a desk the name and the dates are changed where they are
- * read, on the name's row. The page is drawn from here, so the menu stays
- * open under it until the page is done, and puts itself away with it.
+ * The row in the trip's menu that turns the sheet into Edit trip's page. On a
+ * phone only: on a desk the name and the dates are changed where they are
+ * read, on the name's row. When the page is left, the focus comes back here.
  */
 export function EditTrip(props: EditTripProps) {
   const pages = useMenuPages();
-  const [editing, setEditing] = useState(false);
+  const trigger = useRef<HTMLButtonElement | null>(null);
 
   return (
-    <>
-      <button
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={editing}
-        onClick={() => {
-          setEditing(true);
-        }}
-        className={`${MENU_ITEM} lg:hidden`}
-      >
-        <SheetRow icon={PencilIcon} title="Edit trip" detail="Name, start date and duration" />
-      </button>
-      {editing ? <EditTripPage {...props} onClose={pages.close} /> : null}
-    </>
+    <button
+      type="button"
+      ref={trigger}
+      aria-haspopup="dialog"
+      // Whichever page is up, this row is hidden under it, so the only state
+      // it is ever read in is the one with no page open.
+      aria-expanded={pages.page !== null}
+      onClick={() => {
+        pages.open({
+          title: "Plan your trip",
+          content: <EditTripPage {...props} />,
+          onBack: () => {
+            trigger.current?.focus();
+          },
+        });
+      }}
+      className={`${MENU_ITEM} lg:hidden`}
+    >
+      <SheetRow icon={PencilIcon} title="Edit trip" detail="Name, start date and duration" />
+    </button>
   );
 }
