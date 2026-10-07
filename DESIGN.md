@@ -368,8 +368,8 @@ exports from the bar.
 
 The menu comes up from the foot of the window as a sheet, drawn as a leg's sheet is:
 over the page dimmed with `ink` at 35 percent, raised paper rounded 30px at the top
-under `shadow-lg`, with a handle, the trip's name at the lead step over its dates and
-days at the small step in `ink-muted`, and a card for each thing that can be done to the
+under `shadow-lg`, with a handle, and under the handle, with nothing heading them, a
+card for each thing that can be done to the
 trip, 8px apart: on `sheet` inside a 2px `rule` edge, rounded at the `panel` radius, its
 glyph on a 38px disc of sage 200, and its name in bold at the body step over what it
 does at the meta step in `ink-muted`. **Edit trip**, "Name, start date and duration";

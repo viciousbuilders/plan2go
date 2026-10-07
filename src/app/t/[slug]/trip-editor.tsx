@@ -22,7 +22,6 @@ import { colorAfterMove } from "@/core/model/city-colors";
 import { citiesOf } from "@/core/model/day-city";
 import { TripMenu } from "@/features/trip-settings/trip-menu";
 import { TripExport } from "@/features/day-planner/export/trip-export";
-import { formatTripDates } from "@/features/day-planner/format-day-date";
 import { EditTrip } from "@/features/trip-settings/edit-trip";
 import { ShareLinks } from "@/features/trip-settings/share-links";
 import { PlaceSheet, SHEET_REACH } from "@/features/place-details/place-sheet";
@@ -757,11 +756,7 @@ export function TripEditor({
                   />
                 }
                 actions={
-                  <TripMenu
-                    label="Trip actions"
-                    title={title}
-                    detail={formatTripDates(first.plan.date, last.plan.date)}
-                  >
+                  <TripMenu label="Trip actions">
                     {/* A phone's way to the name and the dates, which a desk
                         changes on the name's row instead. */}
                     <EditTrip

@@ -52,12 +52,6 @@ const SHEET =
 
 interface TripMenuProps {
   readonly label: string;
-  /**
-   * What heads the menu on a phone, where it is a sheet over the page and
-   * says which trip it is about: the trip's name, and its dates under it.
-   */
-  readonly title: string;
-  readonly detail: string;
   readonly children: ReactNode;
 }
 
@@ -78,11 +72,12 @@ interface TripMenuProps {
  *
  * On a phone the same panel comes up from the foot of the window as a sheet,
  * drawn as a leg's sheet is: the page dimmed under it, raised paper rounded
- * at the top under the deepest shadow, a handle, and the trip's name and
- * dates over the rows, which are cards there. A page takes the whole sheet,
- * under its name and the arrow back. A press on the dimmed page puts it away.
+ * at the top under the deepest shadow, and a handle over the rows, which are
+ * cards there. Nothing heads the rows: the trip they are about is named on
+ * the page under the sheet. A page takes the whole sheet, under its name and
+ * the arrow back. A press on the dimmed page puts it away.
  */
-export function TripMenu({ label, title, detail, children }: TripMenuProps) {
+export function TripMenu({ label, children }: TripMenuProps) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState<MenuPage | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
@@ -188,12 +183,7 @@ export function TripMenu({ label, title, detail, children }: TripMenuProps) {
               className="mx-auto mb-4 h-[5px] w-10 rounded-pill bg-ink/20 lg:hidden"
             />
             <MenuPagesContext value={pages}>
-              {page === null ? (
-                <div className="mb-4 px-[6px] lg:hidden">
-                  <h2 className="font-display text-lead text-ink">{title}</h2>
-                  <p className="mt-1 text-small font-medium text-ink-muted tabular-nums">{detail}</p>
-                </div>
-              ) : (
+              {page === null ? null : (
                 <div className="flex items-center gap-2 max-lg:mb-4">
                   <button
                     type="button"
