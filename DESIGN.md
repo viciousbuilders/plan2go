@@ -387,11 +387,11 @@ your trip" in the display face at the headline step. "Trip name" in bold at the 
 step over the name's field, 50px tall on `paper-raised` inside a 1.5px `rule` edge, at
 16px. Then "Dates" in bold at the small step, and on the same row the month, "October
 2026", in bold at the body step between the two arrows that step it, each 40px across.
-Under that row the month on `paper-raised` rounded at the `card` radius. At its top,
-centred, the line a desk's calendar has over its months, saying which press comes next,
-"Choose the first day" or, once it is pressed, "Now choose the last day", at the body
-step in 500 `ink-muted`. Then a week to a
-row, Monday first: the weekdays at the micro step in 600 `ink-faint`, and every day in
+Under that row, centred and on the page rather than on the month's card, the line a
+desk's calendar has over its months, saying which press comes next, "Choose the first
+day" or, once it is pressed, "Now choose the last day", at the body step in 500
+`ink-muted`. Under it the month on `paper-raised` rounded at the `card` radius, a week
+to a row, Monday first: the weekdays at the micro step in 600 `ink-faint`, and every day in
 bold at the body step on a disc 40px across in a cell 42px tall. The trip's two ends
 are filled in `terracotta-800` with their day in `paper`, and the days from one to the
 other stand on a band of `terracotta-100`, rounded off where it stops. The first press
