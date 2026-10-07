@@ -28,12 +28,13 @@ export const GUTTER = "px-[14px] max-lg:px-5";
  * menu hang out of it over the day.
  *
  * On a phone there is no pill. The name is the page's headline, the dates are
- * a line under it, and the round buttons stand at the right of the name, the
- * way design 1b heads the page: a grid of the name's column and one for each
- * button, with whatever goes under the name placing itself in the second row.
+ * a line under it, and the trip's menu, the one round button, stands at the
+ * right of the name, the way design 1b heads the page: a grid of the name's
+ * column and the button's, with whatever goes under the name placing itself
+ * in the second row.
  */
 export const HEADING_BAND =
-  "flex items-center gap-[10px] rounded-pill border border-rule bg-paper-raised py-[10px] pr-3 pl-[18px] shadow-sm max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:items-start max-lg:gap-x-2 max-lg:gap-y-1 max-lg:rounded-none max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none";
+  "flex items-center gap-[10px] rounded-pill border border-rule bg-paper-raised py-[10px] pr-3 pl-[18px] shadow-sm max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto] max-lg:items-start max-lg:gap-x-2 max-lg:gap-y-1 max-lg:rounded-none max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none";
 
 /**
  * The line under the trip's name on a phone: its dates and how many days they

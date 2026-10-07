@@ -9,14 +9,14 @@ import { useLocalToday } from "@/ui/use-local-today";
 import { DateRangeField } from "./date-range-field";
 import { Notice } from "@/ui/notice";
 
-interface TripSettingsOutcome {
+export interface TripSettingsOutcome {
   readonly saved: boolean;
   readonly error: string | null;
   /** Which field the message is about, or null when it is about the form. */
   readonly field: "title" | null;
 }
 
-const UNSAVED: TripSettingsOutcome = { saved: false, error: null, field: null };
+export const UNSAVED: TripSettingsOutcome = { saved: false, error: null, field: null };
 
 const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -35,11 +35,12 @@ const CALENDAR_DATE = /^\d{4}-\d{2}-\d{2}$/;
  * It shares its row with the trip's actions and gives way to them, down to the
  * width a trip name still reads at, below which the row wraps instead.
  *
- * On a phone it is the page's headline, the step the trip's name is set at
- * wherever it heads a page, forty tall, which is also a finger's height.
+ * Not on a phone, where the name is the page's headline in plain words and is
+ * changed under Edit trip in the trip's menu. The field stays in the form
+ * there, out of sight, so the form still carries the name.
  */
 const NAME_FIELD =
-  "h-[30px] min-w-0 flex-1 border-0 bg-transparent px-0 py-0 font-display text-title tracking-[-0.01em] text-ink caret-terracotta outline-none placeholder:text-ink-faint aria-invalid:text-terracotta-700 focus-visible:rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-[4px] focus-visible:outline-terracotta max-lg:h-10 max-lg:w-full max-lg:text-headline";
+  "h-[30px] min-w-0 flex-1 border-0 bg-transparent px-0 py-0 font-display text-title tracking-[-0.01em] text-ink caret-terracotta outline-none placeholder:text-ink-faint aria-invalid:text-terracotta-700 focus-visible:rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-[4px] focus-visible:outline-terracotta max-lg:hidden";
 
 interface TripSettingsProps {
   readonly slug: string;
@@ -215,11 +216,15 @@ export function TripSettings({
           }}
           className={NAME_FIELD}
         />
-        {/* Under the name on a phone, where the dates field beside it is a
-            round button with a calendar on it and says no dates of its own.
-            The dates as they are being chosen, so the line follows the
-            calendar the way the field does on a desk. */}
-        <p className={HEADING_DATES}>{formatTripDates(first, last)}</p>
+        {/* The name on a phone: the page's headline, at the step the trip's
+            name is set at wherever it heads a page, drawn as a reader's is.
+            Plain words, since it is changed under Edit trip in the menu. */}
+        <h1 className="min-w-0 font-display text-headline tracking-[-0.01em] break-words text-ink lg:hidden">
+          {title}
+        </h1>
+        {/* Under the name on a phone, where nothing on the row sets them: the
+            trip's dates as they are saved, set under Edit trip as well. */}
+        <p className={HEADING_DATES}>{formatTripDates(startDate, endDate)}</p>
         <DateRangeField
           id={`${fieldId}-dates`}
           startName="startDate"

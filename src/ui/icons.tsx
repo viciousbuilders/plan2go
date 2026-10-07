@@ -8,7 +8,7 @@
  * These are primitives: a shape with no domain knowledge. Which icon stands for
  * a travel mode is a question for the feature that knows what a travel mode is.
  */
-interface IconProps {
+export interface IconProps {
   /** Edge of the square the glyph is drawn in. */
   readonly size: number;
   /** Heavier for interface chrome, lighter inline beside text. */
@@ -47,6 +47,16 @@ export function ShareIcon(props: IconProps) {
       <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
       <path d="M12 15V3" />
       <path d="M8 7l4-4 4 4" />
+    </Glyph>
+  );
+}
+
+/** Two links of a chain: the links a trip is handed over with. */
+export function LinkIcon(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </Glyph>
   );
 }

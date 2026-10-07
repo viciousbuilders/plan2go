@@ -6,7 +6,7 @@ import type { IsoDate } from "@/core/model/day";
 import { addDays, daysBetween, isoDateAsUtc, parseIsoDate, weekdayOf } from "@/core/time/zoned";
 import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
-import { formatDateRange } from "@/features/day-planner/format-day-date";
+import { formatDateRange, formatTripDates } from "@/features/day-planner/format-day-date";
 
 const DAYS_IN_WEEK = 7;
 
@@ -90,19 +90,26 @@ const TRIGGER =
   "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 /**
- * Two homes, two shapes of the same control.
+ * Three homes, three shapes of the same control.
  *
  * On the starter page it is one of the stacked questions, and it answers with
  * both ends of the trip written out in full, each under its own name with an
  * arrow between them, because a person opening a trip is being asked two
- * things and should see both answers. On the trip's own name row it is one
- * control among several on a 34px line: no label and no box. The dates sit
- * beside the trip's name as a fact about it, and a row that reads "Hanoi, five
- * days 10-15 Sept Change" spends its last word on the mechanism rather than
- * on the trip.
+ * things and should see both answers. On the trip's own name row on a desk it
+ * is one control among several on a 34px line: no label and no box. The dates
+ * sit beside the trip's name as a fact about it, and a row that reads "Hanoi,
+ * five days 10-15 Sept Change" spends its last word on the mechanism rather
+ * than on the trip.
  *
- * Neither home shows the word that opens it. The word is still there for
- * anybody who cannot see the pill light up under the pointer.
+ * On a phone it is not on the name's row at all. The dates are written under
+ * the name there and set under Edit trip, in the sheet the trip's menu comes
+ * up as, where it is a pill with a calendar on it and the dates and how many
+ * days they come to. Its calendar opens in the sheet rather than over it,
+ * pushing what is under it down, and folds away once the last day is chosen,
+ * so what is under it is back in sight.
+ *
+ * No home shows the word that opens it. The word is still there for anybody
+ * who cannot see the pill light up under the pointer.
  *
  * The starter page's numbers are those of the fields beside it, from
  * field-styles, rather than the type scale that governs the planner. DESIGN.md
@@ -111,30 +118,34 @@ const TRIGGER =
  */
 const SIZES = {
   inline: {
-    // On a phone the dates are written under the trip's name instead, and
-    // this is the round button at the right of the name with a calendar on
-    // it, forty four across, on raised paper inside a hairline, as design 1b
-    // draws it.
     trigger:
-      "w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700 max-lg:h-11 max-lg:w-11 max-lg:justify-center max-lg:border-[1.5px] max-lg:border-rule max-lg:bg-paper-raised max-lg:p-0 max-lg:text-ink max-lg:hover:border-rule-strong max-lg:hover:bg-paper-raised max-lg:hover:text-ink",
+      "w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700",
     change: "sr-only",
-    stack: "shrink-0",
-    // On a phone the calendar hangs from the button at the top of the page,
-    // so it goes no further down the window than leaves it clear of the bar
-    // of views at the foot, and scrolls inside itself, or its foot, where the
-    // dates are saved, is under that bar. Never shorter than a month, for a
-    // phone on its side, where the page scrolls to the foot instead.
-    panel: "max-lg:scroll-quiet max-lg:max-h-[max(330px,calc(100dvh-162px))] max-lg:overflow-y-auto",
+    // Not on a phone, where the dates are set under Edit trip in the trip's
+    // menu instead.
+    stack: "shrink-0 max-lg:hidden",
+    panel: "absolute top-full z-30 w-[min(600px,calc(100vw-2rem))] bg-paper-raised shadow-md",
+    folds: false,
   },
   large: {
     trigger: "gap-2 px-5 py-[14px]",
     change: "sr-only",
     // The starter page is an ordinary page that scrolls, so the calendar is
     // as long as it is.
-    panel: "",
+    panel: "absolute top-full z-30 w-[min(600px,calc(100vw-2rem))] bg-paper-raised shadow-md",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
     stack: "@container flex flex-col",
+    folds: false,
+  },
+  sheet: {
+    trigger: "gap-[10px] px-4 py-3 text-body/none font-semibold",
+    change: "sr-only",
+    stack: "",
+    // A card in the sheet, on its paper as the menu's rows are, with no
+    // shadow, since it opens in the sheet rather than over anything.
+    panel: "bg-sheet",
+    folds: true,
   },
 } as const;
 
@@ -143,9 +154,12 @@ const STEP =
 
 interface DateRangeFieldProps {
   readonly id: string;
-  /** Submitted with the form. The visible control is a button, not these. */
-  readonly startName: string;
-  readonly endName: string;
+  /**
+   * Submitted with the form. The visible control is a button, not these. Left
+   * out where the dates are saved by hand rather than by the form round them.
+   */
+  readonly startName?: string;
+  readonly endName?: string;
   readonly label: string;
   readonly start: IsoDate;
   readonly end: IsoDate;
@@ -372,6 +386,9 @@ export function DateRangeField({
     onChange({ start: drawingFrom, end: date });
     setDrawingFrom(null);
     setPreviewing(null);
+    if (dressed.folds) {
+      close();
+    }
   };
 
   /** Keeps the focused day on show, stepping the months when it walks off. */
@@ -417,8 +434,8 @@ export function DateRangeField({
       <label className="sr-only" htmlFor={id}>
         {label}
       </label>
-      <input type="hidden" name={startName} value={start} />
-      <input type="hidden" name={endName} value={end} />
+      {startName === undefined ? null : <input type="hidden" name={startName} value={start} />}
+      {endName === undefined ? null : <input type="hidden" name={endName} value={end} />}
 
       <button
         id={id}
@@ -451,11 +468,15 @@ export function DateRangeField({
             <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
             <End name="Last day" date={open ? shownEnd : end} />
           </>
-        ) : (
+        ) : size === "sheet" ? (
           <>
-            <span className="truncate tabular-nums max-lg:hidden">{formatDateRange(start, end)}</span>
-            <CalendarIcon size={18} strokeWidth={2.75} className="shrink-0 lg:hidden" />
+            <CalendarIcon size={18} strokeWidth={2.4} className="shrink-0 text-ink-muted" />
+            <span className="truncate tabular-nums">
+              {formatTripDates(open ? shownStart : start, open ? shownEnd : end)}
+            </span>
           </>
+        ) : (
+          <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
         )}
         <span className={dressed.change}>{open ? "Close" : "Change"}</span>
       </button>
@@ -465,7 +486,7 @@ export function DateRangeField({
           role="dialog"
           aria-label={`Choose the ${label.toLowerCase()}`}
           style={{ left: shift }}
-          className={`absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md ${dressed.panel}`}
+          className={`mt-3 rounded-card border border-rule px-5 pt-4 pb-2 ${dressed.panel}`}
         >
           {/* The line over the months: which click comes next, and a step of
               one month at either end of it. */}

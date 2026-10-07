@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ShareIcon } from "@/ui/icons";
+import { LinkIcon, ShareIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
+import { SheetRow } from "./sheet-row";
 import { useMenuPages } from "./trip-menu";
 
 /** The word at the end of the pill, in the accent, with the pill's own ground under the pointer. */
@@ -167,8 +168,9 @@ export function ShareLinks({ slug, editKey }: ShareLinksProps) {
       }}
       className={MENU_ITEM}
     >
-      <ShareIcon size={15} strokeWidth={2.75} className="shrink-0" />
-      Share
+      <ShareIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
+      <span className="max-lg:hidden">Share</span>
+      <SheetRow icon={LinkIcon} title="Share trip" detail="View-only and edit links" />
     </button>
   );
 }

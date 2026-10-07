@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { PlusIcon, TrashIcon } from "@/ui/icons";
 import { MENU_ITEM, MENU_RULE } from "@/ui/menu";
 import { Notice } from "@/ui/notice";
+import { SheetRow } from "./sheet-row";
 
 /** Deleting this trip either happened or it did not. */
 interface DeleteTripOutcome {
@@ -106,11 +107,13 @@ export function TripActions({
 
   return (
     <div className="relative">
-      <div>
+      {/* Eight apart on a phone, as every row of the sheet is. */}
+      <div className="max-lg:flex max-lg:flex-col max-lg:gap-2">
         {/* Its own tab, so the trip being read is still there behind it. */}
         <Link href={startAnotherPath} target="_blank" className={MENU_ITEM}>
-          <PlusIcon size={15} strokeWidth={2.75} className="shrink-0" />
-          New trip
+          <PlusIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
+          <span className="max-lg:hidden">New trip</span>
+          <SheetRow icon={PlusIcon} title="New trip" detail="Start planning another trip" />
         </Link>
 
         {/* What ends the trip is kept apart from what the trip does, and wears
@@ -128,8 +131,14 @@ export function TripActions({
           }}
           className={`${MENU_ITEM} text-terracotta-700 disabled:opacity-45`}
         >
-          <TrashIcon size={15} strokeWidth={2.75} className="shrink-0" />
-          {deleting ? "Deleting" : "Delete trip"}
+          <TrashIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
+          <span className="max-lg:hidden">{deleting ? "Deleting" : "Delete trip"}</span>
+          <SheetRow
+            icon={TrashIcon}
+            title={deleting ? "Deleting" : "Delete trip"}
+            detail="Remove this trip and all its days"
+            ending
+          />
         </button>
       </div>
 

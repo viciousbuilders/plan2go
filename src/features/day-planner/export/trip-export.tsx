@@ -35,9 +35,10 @@ export function TripExport({ where, disabled, onOpen }: TripExportProps) {
   const look = TRIGGERS[where];
 
   return (
-    /* Not on the name's row on a phone, where Export is one of the views in
-       the bar at the foot of the window, for a reader as for an editor. */
-    <div className={where === "menu" ? "relative" : "relative flex-none max-lg:hidden"}>
+    /* Not on the name's row or in the trip's menu on a phone, where Export is
+       one of the views in the bar at the foot of the window, for a reader as
+       for an editor. */
+    <div className={`relative max-lg:hidden ${where === "menu" ? "" : "flex-none"}`}>
       <button
         type="button"
         disabled={disabled}

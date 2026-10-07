@@ -359,12 +359,30 @@ Plan is the page itself, on `paper`, and scrolls as a document. Nothing on it is
 to the top of the window. It keeps 20px at either side, is no wider than 640px on a
 tablet held upright, and keeps 120px at its foot so its last line clears the bar.
 
-At its head the trip's name at the headline step, and under it its dates as the desk
-writes them and how many days they come to, "· 5 days", at the small step in
-`ink-muted`. At the right of
-the name the round buttons, 44px on `paper-raised` inside a 1.5px hairline: for someone
-who may edit, the calendar that opens the dates, and the trip's menu. A reader has
-neither, and exports from the bar.
+At its head the trip's name at the headline step, in plain words for someone who may
+edit as for a reader, and under it its dates as the desk writes them and how many days
+they come to, "· 5 days", at the small step in `ink-muted`. Nothing on the row sets
+either. At the right of the name, for someone who may edit, the trip's menu, a round
+button 44px across on `paper-raised` inside a 1.5px hairline. A reader has none, and
+exports from the bar.
+
+The menu comes up from the foot of the window as a sheet, drawn as a leg's sheet is:
+over the page dimmed with `ink` at 35 percent, raised paper rounded 30px at the top
+under `shadow-lg`, with a handle, the trip's name at the lead step over its dates and
+days at the small step in `ink-muted`, and a card for each thing that can be done to the
+trip, 8px apart: on `sheet` inside a 2px `rule` edge, rounded at the `panel` radius, its
+glyph on a 38px disc of sage 200, and its name in bold at the body step over what it
+does at the meta step in `ink-muted`. **Edit trip**, "Name, start date and duration";
+**Share trip**, "View-only and edit links"; **New trip**, "Start planning another
+trip"; and **Delete trip**, "Remove this trip and all its days", its disc in terracotta
+200 and its name in `terracotta-800`. Export is not one of them, since it is a view in
+the bar. Edit trip and Share trip turn the sheet into their page, under the page's name
+and an arrow back to the cards. Edit trip's page has the name in a field, the dates and
+how many days they come to in a pill with a calendar on it, which opens the calendar in
+the sheet and folds it away once the last day is chosen, and Save on the accent's solid pill
+across the sheet. Nothing is written until Save is pressed, and once it is the sheet
+goes. Delete trip asks its question over the sheet, as it does on a desk. Escape or a
+press on the dimmed page puts the sheet away.
 
 Under them the strip of days runs out to the window's edges, scrolling the days under
 them, 20px in at either end, so the first day stands under the trip's name. A day is a
@@ -472,9 +490,9 @@ Everything on a phone is pressed with a finger: what is drawn smaller than 40px 
 finger over the room around it and is drawn no larger, and nothing that answers a finger
 reaches into what another answers. A field is 16px on a phone, whatever step it is set
 at on a desk, because under that iOS zooms the whole page into a field as it takes the
-cursor and leaves it zoomed (see Typography). The calendar under the trip's dates goes
-no further down the window than leaves it clear of the bar of views, and scrolls inside
-itself.
+cursor and leaves it zoomed (see Typography). The calendar for the trip's dates opens in
+the menu's sheet, under Edit trip, and the sheet scrolls inside itself once it is
+taller than most of the window.
 
 ## Elevation and depth
 
