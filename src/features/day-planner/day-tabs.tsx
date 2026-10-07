@@ -61,13 +61,15 @@ function stopLine(day: DayPlan): string {
  *
  * On a phone a day is a card of its own, the way design 1b of "PlanToGo
  * iPhone app" draws the strip, though without the dot it puts ahead of the
- * number: its number over its date over its city, laid from the card's left
- * edge, on raised paper inside a hairline and rounded at the panel's radius.
- * At least eighty wide, so the strip reads as a row of days, and wider for a
- * city with a longer name.
+ * number: its number over its date over its city, centred in the card both
+ * ways rather than laid from its left edge as the design has them, so a day
+ * with no city stands in the middle of a card as tall as its neighbours. On
+ * raised paper inside a hairline and rounded at the panel's radius. At least
+ * eighty wide, so the strip reads as a row of days, and wider for a city with
+ * a longer name.
  */
 const TAB =
-  "group/tab relative flex shrink-0 flex-col items-center rounded-pill border-0 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-11 lg:min-w-[82px] lg:justify-center lg:gap-1 lg:px-[15px] max-lg:min-w-20 max-lg:items-start max-lg:gap-[5px] max-lg:rounded-panel max-lg:border-[1.5px] max-lg:px-[13px] max-lg:pt-[10px] max-lg:pb-[11px]";
+  "group/tab relative flex shrink-0 flex-col items-center justify-center rounded-pill border-0 whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-11 lg:min-w-[82px] lg:gap-1 lg:px-[15px] max-lg:min-w-20 max-lg:gap-[5px] max-lg:rounded-panel max-lg:border-[1.5px] max-lg:px-[13px] max-lg:pt-[10px] max-lg:pb-[11px]";
 
 /**
  * The day's number: the one uppercase label in the product, at the micro

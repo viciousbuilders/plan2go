@@ -369,23 +369,19 @@ neither, and exports from the bar.
 Under them the strip of days runs out to the window's edges, scrolling the days under
 them, 20px in at either end, so the first day stands under the trip's name. A day is a
 card at least 80px wide, 6px from the next and all as tall as the tallest, on
-`paper-raised` inside a 1.5px `rule` edge, rounded at the `panel` radius, its words laid
-from its left: "DAY 1" at the micro step in 600 capitals, its date, "Sat 10", at the
+`paper-raised` inside a 1.5px `rule` edge, rounded at the `panel` radius, its words
+centred in it: "DAY 1" at the micro step in 600 capitals, its date, "Sat 10", at the
 body step in bold, and its city at the micro step, the number and the city a little
 faded. No dot leads the number, neither the city's nor one for whether anything is
 planned on the day. The chosen day's card is filled in `terracotta-800` with its words
 in `paper`, the way a chosen chip is
 anywhere in the product; today, when it is not chosen, is in sage 100 inside a sage 200
-edge with its words in sage 800. On a trip that goes to more than one city, the line
-under the strip names the open day's city as well. After the last day, centred on the
+edge with its words in sage 800. After the last day, centred on the
 cards and as far from them as they are from each other, the button that adds a day, a
 44px dashed ring.
 
-Then a line saying what the day comes to, at the small step in 600 `ink-muted`: "Day 1
-· 3 stops · done by 12:38", the day being over in the words the printed day uses, done,
-back or finish by, and "Day 2 · Sun 4 Oct" for a day with nothing on it.
-
-Then the day, down a rail. Every line of it is laid on the same three columns: the times
+Then the day, down a rail, 16px under the cards, with nothing between them to say what
+the day comes to. Every line of it is laid on the same three columns: the times
 in the first, 50px wide and set to its right edge so they read as one column; the marks
 on the rail in the second, 26px; and the words in the rest, 10px between each.
 
