@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import { daysBetween } from "@/core/time/zoned";
 import { calendarDate } from "./calendar-date";
 
@@ -11,7 +12,8 @@ import { calendarDate } from "./calendar-date";
  *
  * The two ends of the trip are dates, not a length: a person planning a holiday
  * knows when they land and when they fly home, and counting the nights in
- * between is the thing they came here to stop doing.
+ * between is the thing they came here to stop doing. They are a year apart at
+ * most, as a new trip's are and as adding a day keeps them.
  *
  * Messages say what happened and then what to do, because they are read by
  * someone who has just been stopped. The name's are shorter than that: they
@@ -30,6 +32,10 @@ export const tripSettingsSchema = z
   })
   .refine((value) => daysBetween(value.startDate, value.endDate) >= 0, {
     message: "The last day is before the first day. Choose a later last day.",
+    path: ["endDate"],
+  })
+  .refine((value) => daysBetween(value.startDate, value.endDate) + 1 <= MAX_TRIP_DAYS, {
+    message: `A trip runs to ${String(MAX_TRIP_DAYS)} days at most. Choose an earlier last day.`,
     path: ["endDate"],
   });
 

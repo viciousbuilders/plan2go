@@ -1,10 +1,13 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
+import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import { formatTripDates } from "@/core/time/date-range";
+import { daysBetween } from "@/core/time/zoned";
 import { PencilIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
 import { Notice } from "@/ui/notice";
+import { daysLost } from "./days-lost";
 import type { DrawnRange } from "./month-calendar";
 import { MonthCalendar } from "./month-calendar";
 import { SheetRow } from "./sheet-row";
@@ -36,6 +39,11 @@ interface EditTripProps {
   readonly startDate: string;
   readonly endDate: string;
   /**
+   * How many stops each day has, first day first, so the page can say what a
+   * shorter trip would take with it before it is saved.
+   */
+  readonly stopsByDay: readonly number[];
+  /**
    * The same save the name's row uses on a desk. Passed in rather than
    * imported, because a feature may not reach into the route that owns the
    * mutation.
@@ -63,7 +71,15 @@ interface EditTripProps {
  * Saved by hand rather than by a form: the menu is drawn inside the form on
  * the name's row, and a form cannot hold another.
  */
-function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: EditTripProps) {
+function EditTripPage({
+  slug,
+  editKey,
+  title,
+  startDate,
+  endDate,
+  stopsByDay,
+  onSave,
+}: EditTripProps) {
   const pages = useMenuPages();
   const fieldId = useId();
   const [name, setName] = useState(title);
@@ -71,6 +87,9 @@ function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: Edit
   /** What the save said when it refused, until anything on the page changes. */
   const [refusal, setRefusal] = useState<TripSettingsOutcome | null>(null);
   const [saving, startSaving] = useTransition();
+  /** What saving dates that come to fewer days would take with it, or null. */
+  const lost =
+    range.end === null ? null : daysLost(stopsByDay, daysBetween(range.start, range.end) + 1);
 
   const save = (): void => {
     const last = range.end;
@@ -136,6 +155,7 @@ function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: Edit
         <MonthCalendar
           label="Dates"
           range={range}
+          maxSpanDays={MAX_TRIP_DAYS}
           onChange={(drawn) => {
             setRange(drawn);
             setRefusal(null);
@@ -149,6 +169,13 @@ function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: Edit
       >
         {range.end === null ? "Now pick your last day" : formatTripDates(range.start, range.end)}
       </p>
+      {/* Said before the save rather than found out after it: the days past
+          the new end go, and what is planned on them with them. */}
+      {lost === null ? null : (
+        <Notice role="alert" size="meta" className="mt-3">
+          {lost}
+        </Notice>
+      )}
       {refusal !== null && refusal.field === null ? (
         <Notice role="alert" size="meta" className="mt-3">
           {refusal.error}

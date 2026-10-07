@@ -27,6 +27,8 @@ interface MonthCalendarProps {
   /** What the days are for, at the head of the row the month is stepped on. */
   readonly label: string;
   readonly range: DrawnRange;
+  /** The longest a trip may run, counting both ends. */
+  readonly maxSpanDays: number;
   readonly onChange: (range: DrawnRange) => void;
 }
 
@@ -49,14 +51,16 @@ const STEP =
  * deepest brown with their day in paper, and the days from one to the other
  * stand on a band of the accent's lightest tint, rounded off where it stops.
  * A line over the month, outside its card, says which of the two presses
- * comes next, as it does over a desk's months.
+ * comes next, as it does over a desk's months. While the last day is being
+ * chosen, the days past the longest a trip may run from the first are faint
+ * and not offered, as on a desk's months too.
  *
  * The arrow keys walk the days, stepping the month when they walk off it, and
  * Page Up and Page Down step the month, taking the day to the same date in it.
  * The focus follows the keys and nothing else: stepping the month by its
  * arrows leaves it on the arrow.
  */
-export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
+export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCalendarProps) {
   const labelId = useId();
   /** The first of the month on show. */
   const [month, setMonth] = useState<IsoDate>(firstOfMonth(range.start));
@@ -125,6 +129,11 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
     addDays(gridStart(month), index),
   );
   const { start, end } = range;
+  /**
+   * While the last day is being chosen, the furthest it may be. Null once both
+   * ends are drawn, when a press anywhere begins the trip again.
+   */
+  const furthest = end === null ? addDays(start, maxSpanDays - 1) : null;
 
   return (
     <div>
@@ -192,6 +201,7 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
                 return <span role="gridcell" key={date} />;
               }
               const isEnd = date === start || date === end;
+              const tooFar = furthest !== null && date > furthest;
               const banded = end !== null && end > start && date >= start && date <= end;
               return (
                 <span
@@ -209,11 +219,21 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
                     type="button"
                     data-date={date}
                     tabIndex={date === stop ? 0 : -1}
+                    // Past the longest a trip may run: faint, and not offered
+                    // to a press, but still reached by the keys, so walking
+                    // them past it never drops the focus.
+                    aria-disabled={tooFar ? true : undefined}
                     onClick={() => {
-                      pick(date);
+                      if (!tooFar) {
+                        pick(date);
+                      }
                     }}
                     className={`grid h-10 w-10 place-items-center rounded-pill text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
-                      isEnd ? "bg-terracotta-800 text-paper" : "text-ink hover:bg-terracotta-100"
+                      isEnd
+                        ? "bg-terracotta-800 text-paper"
+                        : tooFar
+                          ? "cursor-not-allowed text-ink-faint"
+                          : "text-ink hover:bg-terracotta-100"
                     }`}
                   >
                     <span aria-hidden="true">{parseIsoDate(date).day}</span>

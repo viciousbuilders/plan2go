@@ -2,11 +2,13 @@
 
 import type { ReactNode } from "react";
 import { useActionState, useId, useRef, useState } from "react";
+import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import { daysBetween } from "@/core/time/zoned";
 import { formatTripDates } from "@/core/time/date-range";
-import { HEADING_BAND, HEADING_BODY, HEADING_DATES } from "@/features/day-planner/panel-heading";
+import { HEADING_BAND, HEADING_BODY, HEADING_DATES } from "@/ui/panel-heading";
 import { useLocalToday } from "@/ui/use-local-today";
 import { DateRangeField } from "./date-range-field";
+import { daysLost } from "./days-lost";
 import { Notice } from "@/ui/notice";
 
 export interface TripSettingsOutcome {
@@ -49,6 +51,11 @@ interface TripSettingsProps {
   readonly title: string;
   readonly startDate: string;
   readonly endDate: string;
+  /**
+   * How many stops each day has, first day first, so the dates can say what a
+   * shorter trip would take with it before it is saved.
+   */
+  readonly stopsByDay: readonly number[];
   /**
    * What can be done to the trip as a whole. It sits on the name's row, at the
    * top of the panel, because that row is the trip itself rather than a day in
@@ -98,6 +105,7 @@ export function TripSettings({
   title,
   startDate,
   endDate,
+  stopsByDay,
   actions,
   tabs,
   onSave,
@@ -152,6 +160,8 @@ export function TripSettings({
 
   const span = spanOf(first, last);
   const datesChanged = first !== startDate || last !== endDate;
+  /** What saving dates that come to fewer days would take with it, or null. */
+  const lost = daysLost(stopsByDay, span);
   /** The name has no button of its own, so leaving the field is the commit. */
   const commitName = (): void => {
     if (!pending && name !== title) {
@@ -171,13 +181,22 @@ export function TripSettings({
 
   const saveDates =
     datesChanged || pending ? (
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-pill bg-terracotta px-5 py-[10px] text-body font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-      >
-        {pending ? "Saving" : "Save dates"}
-      </button>
+      <>
+        {/* Said before the save rather than found out after it: the days
+            past the new end go, and what is planned on them with them. */}
+        {lost === null ? null : (
+          <Notice role="alert" size="meta" className="mb-3">
+            {lost}
+          </Notice>
+        )}
+        <button
+          type="submit"
+          disabled={pending}
+          className="w-full rounded-pill bg-terracotta px-5 py-[10px] text-body font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          {pending ? "Saving" : "Save dates"}
+        </button>
+      </>
     ) : null;
 
   return (
@@ -233,6 +252,7 @@ export function TripSettings({
           start={first}
           end={last}
           today={today}
+          maxSpanDays={MAX_TRIP_DAYS}
           onChange={(range) => {
             setFirst(range.start);
             setLast(range.end);

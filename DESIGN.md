@@ -400,9 +400,14 @@ or once both are set, begins again. Under the month, what has been drawn at the 
 step in 600 `ink-muted`, the dates and how many days they come to, or "Now pick your
 last day", over **Save trip** on the accent's solid pill across the sheet. Nothing is
 written until Save trip is pressed, and it is not offered until both ends are drawn.
+Dates that come to fewer days than the trip has are said for what they cost before it
+is pressed, in a notice over it: "Saving takes Days 5 to 7 off the trip, and the 9 stops
+on them". A day is kept by its place in the trip rather than its date, so a shorter
+trip loses its last days. A desk's calendar says the same over its Save dates.
 Saving puts the sheet away; going back to the cards, or putting the sheet away, leaves
 the trip as it was. The dates keep to the same rules as a desk's calendar: any day may
-be chosen, and a trip may run as long as it likes.
+be chosen first, and a trip runs to 365 days at most, so while the last day is being
+chosen the days past that are in `ink-faint` and not offered.
 
 Under them the strip of days runs out to the window's edges, scrolling the days under
 them, 20px in at either end, so the first day stands under the trip's name. A day is a

@@ -6,7 +6,7 @@ import type { PlannedDay } from "./compute-trip";
 import type { EndpointRef } from "./day-itinerary";
 import { DayItinerary } from "./day-itinerary";
 import { DayTabs } from "./day-tabs";
-import { GUTTER, HEADING_BAND, HEADING_BODY, HEADING_DATES } from "./panel-heading";
+import { GUTTER, HEADING_BAND, HEADING_BODY, HEADING_DATES } from "@/ui/panel-heading";
 import type { DayActions, EditOutcome } from "./day-actions";
 import { formatDateRange, formatTripDates } from "@/core/time/date-range";
 import { DayTimeline } from "./phone/day-timeline";

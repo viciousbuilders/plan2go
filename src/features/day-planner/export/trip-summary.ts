@@ -135,7 +135,7 @@ export function daySpan(day: PlannedDay): string | null {
   }
   const leave = formatClock(day.plan.startAtMinutes);
   const { at } = dayDone(day);
-  return at === null ? leave : `${leave}–${formatDayTime(at)}`;
+  return at === null ? leave : `${leave}-${formatDayTime(at)}`;
 }
 
 /** Longer than this, a name in the list of days is cut short. */

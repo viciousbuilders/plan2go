@@ -10,9 +10,10 @@ import { weekdayOf } from "@/core/time/zoned";
  * so says nothing at all rather than guessing. A place with two windows says
  * both, because the gap between them is the thing that would ruin an afternoon.
  *
- * A dash between the two rather than the word "to", which is how a sign on a
- * door writes it and two characters shorter on a line that already carries a
- * clock, a stay and two buttons.
+ * A hyphen between the two rather than the word "to", which is how a sign on
+ * a door writes it and three characters shorter on a line that already
+ * carries a clock, a stay and two buttons. A hyphen and not the en dash a
+ * sign would use, which the product never writes.
  */
 export function formatOpeningHours(
   windows: readonly OpeningWindow[] | null,
@@ -24,7 +25,7 @@ export function formatOpeningHours(
     return "Closed today";
   }
   const spans = windows.map(
-    (window) => `${formatClock(window.opensAt)}–${formatClock(window.closesAt)}`,
+    (window) => `${formatClock(window.opensAt)}-${formatClock(window.closesAt)}`,
   );
   return `Open ${spans.join(", ")}`;
 }

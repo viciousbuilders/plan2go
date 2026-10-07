@@ -155,7 +155,7 @@ describe("dayDone and daySpan", () => {
   it("is done at the last stop when the day finishes nowhere", () => {
     const day = planned(plan("2026-09-28", { stops: [stop("Opera House"), stop("Old Quarter")] }));
     expect(dayDone(day).label).toBe("Done by");
-    expect(daySpan(day)).toBe("09:00–11:15");
+    expect(daySpan(day)).toBe("09:00-11:15");
   });
 
   it("is back when the day finishes where it began, and finishes anywhere else", () => {
@@ -167,7 +167,7 @@ describe("dayDone and daySpan", () => {
     );
     expect(dayDone(back).label).toBe("Back by");
     expect(dayDone(away).label).toBe("Finish by");
-    expect(daySpan(back)).toBe("09:00–10:30");
+    expect(daySpan(back)).toBe("09:00-10:30");
   });
 
   it("has no hours on a day with nothing on it", () => {

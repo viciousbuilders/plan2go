@@ -299,6 +299,22 @@ export function DateRangeField({
       ? undefined
       : addDays(drawingFrom, maxSpanDays - 1);
 
+  /**
+   * The one day Tab stops at: the day the keys are on while it is on show and
+   * may be chosen, else the first on show that may. The arrows over the months
+   * step them without the keys, and a grid with no day to stop at is one Tab
+   * walks straight past. Null when nothing on show may be chosen.
+   */
+  const stop = ((): IsoDate | null => {
+    const offered = (date: IsoDate): boolean =>
+      (min === undefined || date >= min) && (furthest === undefined || date <= furthest);
+    if (focused >= leftMonth && focused < afterShown && offered(focused)) {
+      return focused;
+    }
+    const earliest = min !== undefined && min > leftMonth ? min : leftMonth;
+    return earliest < afterShown && offered(earliest) ? earliest : null;
+  })();
+
   const close = (): void => {
     setOpen(false);
     setDrawingFrom(null);
@@ -340,7 +356,7 @@ export function DateRangeField({
 
     if (step !== undefined) {
       event.preventDefault();
-      moveFocus(addDays(focused, step));
+      moveFocus(addDays(stop ?? focused, step));
       return;
     }
     if (event.key === "PageUp" || event.key === "PageDown") {
@@ -350,7 +366,7 @@ export function DateRangeField({
       // day that has gone from the grid.
       const delta = event.key === "PageUp" ? -1 : 1;
       setLeftMonth(shiftMonths(leftMonth, delta));
-      setFocused(sameDayIn(focused, delta));
+      setFocused(sameDayIn(stop ?? focused, delta));
       return;
     }
     if (event.key === "Escape") {
@@ -531,7 +547,7 @@ export function DateRangeField({
                                   // up must find the one that can take it.
                                   data-date={thisMonth ? date : undefined}
                                   disabled={disabled}
-                                  tabIndex={date === focused ? 0 : -1}
+                                  tabIndex={thisMonth && date === stop ? 0 : -1}
                                   aria-current={date === today ? "date" : undefined}
                                   onClick={() => {
                                     choose(date);

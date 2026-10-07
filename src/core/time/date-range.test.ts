@@ -25,7 +25,7 @@ describe("formatDateRange", () => {
       formatDateRange("2026-12-30", "2027-01-02"),
     ];
     for (const range of ranges) {
-      expect(range).not.toMatch(/[–—]/);
+      expect(range).not.toMatch(/[\u2013\u2014]/);
     }
   });
 });

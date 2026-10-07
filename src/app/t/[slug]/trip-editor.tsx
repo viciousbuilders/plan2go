@@ -386,6 +386,8 @@ export function TripEditor({
   const selected = days[selectedIndex] ?? days[0];
   const first = days[0];
   const last = days[days.length - 1];
+  /** How many stops each day has, for the dates to say what a shorter trip takes with it. */
+  const stopsByDay = days.map((day) => day.plan.stops.length);
 
   const nothingToExport = days.every((day) => day.plan.stops.length === 0);
   /**
@@ -742,6 +744,7 @@ export function TripEditor({
                 title={title}
                 startDate={first.plan.date}
                 endDate={last.plan.date}
+                stopsByDay={stopsByDay}
                 tabs={
                   <DayTabs
                     days={days.map((day) => day.plan)}
@@ -764,6 +767,7 @@ export function TripEditor({
                       title={title}
                       startDate={first.plan.date}
                       endDate={last.plan.date}
+                      stopsByDay={stopsByDay}
                       onSave={(previous, formData) =>
                         recording(updateTripAction(previous, formData))
                       }

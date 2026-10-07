@@ -1,4 +1,11 @@
 /**
+ * How the head of the planner's panel is drawn, shared by the plain heading a
+ * reader gets and the form an editor gets, so the two are drawn alike. Here
+ * rather than in either, because they are two features and neither may reach
+ * into the other.
+ */
+
+/**
  * The panel's gutter: what its edge keeps clear on either side, at the top and
  * down the list alike, so the trip's row, the day's card and the stops under
  * them all stand on one left edge and one right. Fourteen, the room a card
