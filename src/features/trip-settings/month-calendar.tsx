@@ -46,6 +46,8 @@ const STEP =
  * changed their mind is doing anyway. The two ends are filled in the accent's
  * deepest brown with their day in paper, and the days from one to the other
  * stand on a band of the accent's lightest tint, rounded off where it stops.
+ * A line over the weekdays says which of the two presses comes next, as it
+ * does over a desk's months.
  *
  * The arrow keys walk the days, stepping the month when they walk off it, and
  * Page Up and Page Down step the month.
@@ -141,65 +143,68 @@ export function MonthCalendar({ label, range, onChange }: MonthCalendarProps) {
         </button>
       </div>
 
-      <div
-        ref={grid}
-        role="grid"
-        aria-labelledby={labelId}
-        onKeyDown={onKeyDown}
-        className="mt-[10px] rounded-card bg-paper-raised px-2 py-3"
-      >
-        <div role="row" className="grid grid-cols-7">
-          {WEEKDAYS.map((weekday, index) => (
-            <span
-              key={index}
-              role="columnheader"
-              className="pt-1 pb-2 text-center text-micro/none font-semibold text-ink-faint"
-            >
-              <span aria-hidden="true">{weekday.short}</span>
-              <span className="sr-only">{weekday.full}</span>
-            </span>
+      <div className="mt-[10px] rounded-card bg-paper-raised px-2 py-3">
+        {/* Which press comes next, in the words a desk's calendar uses over
+            its months. Not read out as it changes, since the line at the foot
+            of Edit trip's page already is. */}
+        <p className="pt-1 pb-3 text-center text-body/none font-medium text-ink-muted">
+          {end === null ? "Now choose the last day" : "Choose the first day"}
+        </p>
+
+        <div ref={grid} role="grid" aria-labelledby={labelId} onKeyDown={onKeyDown}>
+          <div role="row" className="grid grid-cols-7">
+            {WEEKDAYS.map((weekday, index) => (
+              <span
+                key={index}
+                role="columnheader"
+                className="pt-1 pb-2 text-center text-micro/none font-semibold text-ink-faint"
+              >
+                <span aria-hidden="true">{weekday.short}</span>
+                <span className="sr-only">{weekday.full}</span>
+              </span>
+            ))}
+          </div>
+
+          {Array.from({ length: weeks }, (_unused, week) => (
+            <div role="row" key={week} className="mt-1 grid grid-cols-7">
+              {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
+                if (parseIsoDate(date).month !== shown) {
+                  return <span role="gridcell" key={date} />;
+                }
+                const isEnd = date === start || date === end;
+                const banded = end !== null && end > start && date >= start && date <= end;
+                return (
+                  <span
+                    role="gridcell"
+                    key={date}
+                    aria-selected={isEnd}
+                    className={[
+                      "grid h-[42px] place-items-center",
+                      banded ? "bg-terracotta-100" : "",
+                      banded && date === start ? "rounded-l-pill" : "",
+                      banded && date === end ? "rounded-r-pill" : "",
+                    ].join(" ")}
+                  >
+                    <button
+                      type="button"
+                      data-date={date}
+                      tabIndex={date === stop ? 0 : -1}
+                      onClick={() => {
+                        pick(date);
+                      }}
+                      className={`grid h-10 w-10 place-items-center rounded-pill text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
+                        isEnd ? "bg-terracotta-800 text-paper" : "text-ink hover:bg-terracotta-100"
+                      }`}
+                    >
+                      <span aria-hidden="true">{parseIsoDate(date).day}</span>
+                      <span className="sr-only">{READABLE.format(isoDateAsUtc(date))}</span>
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
           ))}
         </div>
-
-        {Array.from({ length: weeks }, (_unused, week) => (
-          <div role="row" key={week} className="mt-1 grid grid-cols-7">
-            {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
-              if (parseIsoDate(date).month !== shown) {
-                return <span role="gridcell" key={date} />;
-              }
-              const isEnd = date === start || date === end;
-              const banded = end !== null && end > start && date >= start && date <= end;
-              return (
-                <span
-                  role="gridcell"
-                  key={date}
-                  aria-selected={isEnd}
-                  className={[
-                    "grid h-[42px] place-items-center",
-                    banded ? "bg-terracotta-100" : "",
-                    banded && date === start ? "rounded-l-pill" : "",
-                    banded && date === end ? "rounded-r-pill" : "",
-                  ].join(" ")}
-                >
-                  <button
-                    type="button"
-                    data-date={date}
-                    tabIndex={date === stop ? 0 : -1}
-                    onClick={() => {
-                      pick(date);
-                    }}
-                    className={`grid h-10 w-10 place-items-center rounded-pill text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
-                      isEnd ? "bg-terracotta-800 text-paper" : "text-ink hover:bg-terracotta-100"
-                    }`}
-                  >
-                    <span aria-hidden="true">{parseIsoDate(date).day}</span>
-                    <span className="sr-only">{READABLE.format(isoDateAsUtc(date))}</span>
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-        ))}
       </div>
     </div>
   );
