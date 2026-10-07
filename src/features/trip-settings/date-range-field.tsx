@@ -86,8 +86,11 @@ function weeksIn(first: IsoDate): number {
   return Math.ceil(days / DAYS_IN_WEEK);
 }
 
-const TRIGGER =
-  "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+/** The pill the dates are written in, before anything about pressing it. */
+const PILL =
+  "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink";
+
+const TRIGGER = `${PILL} hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`;
 
 /**
  * Three homes, three shapes of the same control.
@@ -103,10 +106,10 @@ const TRIGGER =
  *
  * On a phone it is not on the name's row at all. The dates are written under
  * the name there and set under Edit trip, in the sheet the trip's menu comes
- * up as, where it is a pill with a calendar on it and the dates and how many
- * days they come to. Its calendar opens in the sheet rather than over it,
- * pushing what is under it down, and folds away once the last day is chosen,
- * so what is under it is back in sight.
+ * up as, where the calendar is the page: open from the start, in the sheet
+ * rather than over it, and never put away, under a pill with a calendar on it
+ * that reads out the dates and how many days they come to as they are drawn.
+ * With nothing to open, the pill is not something to press.
  *
  * No home shows the word that opens it. The word is still there for anybody
  * who cannot see the pill light up under the pointer.
@@ -125,7 +128,7 @@ const SIZES = {
     // menu instead.
     stack: "shrink-0 max-lg:hidden",
     panel: "absolute top-full z-30 w-[min(600px,calc(100vw-2rem))] bg-paper-raised shadow-md",
-    folds: false,
+    stays: false,
   },
   large: {
     trigger: "gap-2 px-5 py-[14px]",
@@ -136,16 +139,16 @@ const SIZES = {
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
     stack: "@container flex flex-col",
-    folds: false,
+    stays: false,
   },
   sheet: {
     trigger: "gap-[10px] px-4 py-3 text-body/none font-semibold",
     change: "sr-only",
     stack: "",
     // A card in the sheet, on its paper as the menu's rows are, with no
-    // shadow, since it opens in the sheet rather than over anything.
+    // shadow, since it is in the sheet rather than over anything.
     panel: "bg-sheet",
-    folds: true,
+    stays: true,
   },
 } as const;
 
@@ -292,7 +295,8 @@ export function DateRangeField({
   size = "inline",
 }: DateRangeFieldProps) {
   const dressed = SIZES[size];
-  const [open, setOpen] = useState(false);
+  /** Open from the start where the calendar is the page, and never put away there. */
+  const [open, setOpen] = useState<boolean>(dressed.stays);
   /** The left of the two months on show. */
   const [leftMonth, setLeftMonth] = useState<IsoDate>(firstOfMonth(start));
   /**
@@ -323,16 +327,24 @@ export function DateRangeField({
     closing.current = onClose;
   });
 
+  /**
+   * Whether the focus is the calendar's to move. A calendar that is open from
+   * the start waits for the arrow keys before it takes the focus, so it does
+   * not take it from wherever the page has put it.
+   */
+  const steered = useRef(!dressed.stays);
+
   // The roving focus follows the arrow keys, so the focused cell has to be the
   // one the browser is actually on.
   useEffect(() => {
-    if (!open) {
+    if (!open || !steered.current) {
       return;
     }
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
   }, [open, focused]);
 
-  useOutsidePress(container, open, () => {
+  // Not where the calendar stays open: there is nothing to put away.
+  useOutsidePress(container, open && !dressed.stays, () => {
     setOpen(false);
     setDrawingFrom(null);
     closing.current?.();
@@ -386,13 +398,11 @@ export function DateRangeField({
     onChange({ start: drawingFrom, end: date });
     setDrawingFrom(null);
     setPreviewing(null);
-    if (dressed.folds) {
-      close();
-    }
   };
 
   /** Keeps the focused day on show, stepping the months when it walks off. */
   const moveFocus = (date: IsoDate): void => {
+    steered.current = true;
     setFocused(date);
     if (date < leftMonth) {
       setLeftMonth(firstOfMonth(date));
@@ -420,7 +430,8 @@ export function DateRangeField({
       setLeftMonth(shiftMonths(leftMonth, event.key === "PageUp" ? -1 : 1));
       return;
     }
-    if (event.key === "Escape") {
+    // Where the calendar stays open, Escape is left to whatever holds it.
+    if (event.key === "Escape" && !dressed.stays) {
       event.preventDefault();
       close();
     }
@@ -429,57 +440,71 @@ export function DateRangeField({
   const before = shiftMonths(leftMonth, -1);
   const after = shiftMonths(leftMonth, MONTHS_SHOWN);
 
+  /** What the pill says: both ends of the trip, as they are drawn while the calendar is open. */
+  const face =
+    size === "large" ? (
+      <>
+        <End name="First day" date={open ? shownStart : start} />
+        <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+        <End name="Last day" date={open ? shownEnd : end} />
+      </>
+    ) : size === "sheet" ? (
+      <>
+        <CalendarIcon size={18} strokeWidth={2.4} className="shrink-0 text-ink-muted" />
+        <span className="truncate tabular-nums">
+          {formatTripDates(open ? shownStart : start, open ? shownEnd : end)}
+        </span>
+      </>
+    ) : (
+      <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
+    );
+
   return (
     <div className={`relative ${dressed.stack}`} ref={container}>
-      <label className="sr-only" htmlFor={id}>
-        {label}
-      </label>
       {startName === undefined ? null : <input type="hidden" name={startName} value={start} />}
       {endName === undefined ? null : <input type="hidden" name={endName} value={end} />}
 
-      <button
-        id={id}
-        ref={trigger}
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => {
-          if (open) {
-            close();
-            return;
-          }
-          const box = trigger.current?.getBoundingClientRect();
-          if (box !== undefined) {
-            const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
-            const centred = box.left + box.width / 2 - width / 2;
-            const furthestLeft = window.innerWidth - EDGE_GAP - width;
-            setShift(Math.max(EDGE_GAP, Math.min(centred, furthestLeft)) - box.left);
-          }
-          setLeftMonth(firstOfMonth(start));
-          setFocused(start);
-          setDrawingFrom(null);
-          setOpen(true);
-        }}
-        className={`${TRIGGER} ${dressed.trigger}`}
-      >
-        {size === "large" ? (
-          <>
-            <End name="First day" date={open ? shownStart : start} />
-            <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
-            <End name="Last day" date={open ? shownEnd : end} />
-          </>
-        ) : size === "sheet" ? (
-          <>
-            <CalendarIcon size={18} strokeWidth={2.4} className="shrink-0 text-ink-muted" />
-            <span className="truncate tabular-nums">
-              {formatTripDates(open ? shownStart : start, open ? shownEnd : end)}
-            </span>
-          </>
-        ) : (
-          <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
-        )}
-        <span className={dressed.change}>{open ? "Close" : "Change"}</span>
-      </button>
+      {dressed.stays ? (
+        // Nothing to press where the calendar is always open: the pill reads
+        // out to the eye what the calendar's own line says to a screen reader.
+        <div aria-hidden="true" className={`${PILL} ${dressed.trigger}`}>
+          {face}
+        </div>
+      ) : (
+        <>
+          <label className="sr-only" htmlFor={id}>
+            {label}
+          </label>
+          <button
+            id={id}
+            ref={trigger}
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded={open}
+            onClick={() => {
+              if (open) {
+                close();
+                return;
+              }
+              const box = trigger.current?.getBoundingClientRect();
+              if (box !== undefined) {
+                const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
+                const centred = box.left + box.width / 2 - width / 2;
+                const furthestLeft = window.innerWidth - EDGE_GAP - width;
+                setShift(Math.max(EDGE_GAP, Math.min(centred, furthestLeft)) - box.left);
+              }
+              setLeftMonth(firstOfMonth(start));
+              setFocused(start);
+              setDrawingFrom(null);
+              setOpen(true);
+            }}
+            className={`${TRIGGER} ${dressed.trigger}`}
+          >
+            {face}
+            <span className={dressed.change}>{open ? "Close" : "Change"}</span>
+          </button>
+        </>
+      )}
 
       {open ? (
         <div

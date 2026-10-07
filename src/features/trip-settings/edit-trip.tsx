@@ -50,11 +50,11 @@ interface EditTripProps {
 
 /**
  * The trip's name and dates as a phone changes them, on Edit trip's page of
- * the menu's sheet: the name in a field, the dates in the pill that opens the
- * calendar, and Save under them. Nothing is written until Save is pressed, so
- * leaving the page by its arrow, or putting the sheet away, leaves the trip
- * as it was. Once it is saved the sheet goes, and the page under it is the
- * trip as it now is.
+ * the menu's sheet: the name in a field, the dates in a pill over the
+ * calendar, which is open from the moment the page is, and Save under the
+ * calendar. Nothing is written until Save is pressed, so leaving the page by
+ * its arrow, or putting the sheet away, leaves the trip as it was. Once it is
+ * saved the sheet goes, and the page under it is the trip as it now is.
  *
  * Saved by hand rather than by a form: the menu is drawn inside the form on
  * the name's row, and a form cannot hold another.
@@ -124,10 +124,7 @@ function EditTripPage({ slug, editKey, title, startDate, endDate, onSave }: Edit
         </Notice>
       ) : null}
 
-      {/* The field's own label is the one read out; this one is for the eye. */}
-      <p aria-hidden="true" className={`mt-4 ${LABEL}`}>
-        Dates
-      </p>
+      <p className={`mt-4 ${LABEL}`}>Dates</p>
       <div className="mt-[6px]">
         <DateRangeField
           id={`${fieldId}-dates`}

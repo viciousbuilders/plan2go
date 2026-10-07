@@ -378,9 +378,10 @@ trip"; and **Delete trip**, "Remove this trip and all its days", its disc in ter
 200 and its name in `terracotta-800`. Export is not one of them, since it is a view in
 the bar. Edit trip and Share trip turn the sheet into their page, under the page's name
 and an arrow back to the cards. Edit trip's page has the name in a field, the dates and
-how many days they come to in a pill with a calendar on it, which opens the calendar in
-the sheet and folds it away once the last day is chosen, and Save on the accent's solid pill
-across the sheet. Nothing is written until Save is pressed, and once it is the sheet
+how many days they come to in a pill with a calendar on it, the calendar itself under
+the pill, open from the moment the page is and never put away, and under the calendar
+Save on the accent's solid pill across the sheet. The pill is not pressed: it reads out
+the dates as they are drawn. Nothing is written until Save is pressed, and once it is the sheet
 goes. Delete trip asks its question over the sheet, as it does on a desk. Escape or a
 press on the dimmed page puts the sheet away.
 
@@ -490,8 +491,8 @@ Everything on a phone is pressed with a finger: what is drawn smaller than 40px 
 finger over the room around it and is drawn no larger, and nothing that answers a finger
 reaches into what another answers. A field is 16px on a phone, whatever step it is set
 at on a desk, because under that iOS zooms the whole page into a field as it takes the
-cursor and leaves it zoomed (see Typography). The calendar for the trip's dates opens in
-the menu's sheet, under Edit trip, and the sheet scrolls inside itself once it is
+cursor and leaves it zoomed (see Typography). The calendar for the trip's dates is open
+on Edit trip's page in the menu's sheet, and the sheet scrolls inside itself once it is
 taller than most of the window.
 
 ## Elevation and depth
