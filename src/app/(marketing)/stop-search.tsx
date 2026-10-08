@@ -7,11 +7,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react"
 import { array, nullable, object, optional, safeParse, string } from "zod/mini";
 import { PinIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
-import { useScrollBar } from "@/ui/use-scroll-bar";
-// The search on the map's own stylesheet, for the list under the field: it is
-// drawn from the classes that search's panels are, so the two cannot drift.
-import "@/features/place-search/place-search.css";
-import "./stop-search.css";
+import { FIELD_LABEL } from "./ticket-type";
 
 /** Long enough that typing does not spend money on every letter. */
 const DEBOUNCE_MS = 250;
@@ -78,11 +74,14 @@ interface StopSearchProps {
  * once something is typed, since a phone's keyboard has no Enter to read as
  * an add.
  *
- * The list is the search on the map's, drawn from the same classes as its
- * city panel: under "Matching cities", a pin in the accent before each city.
- * It hangs from the field's line the way that search's panels hang from its
- * bar, exactly its width and 8px under it, so its edges are the field's: on
- * a phone that line is the field and Add, and the dot stands outside it.
+ * The list hangs 8px under the field, drawn as the ticket's other panel, the
+ * departure calendar, is: raised paper rounded at 24px under the same
+ * shadow, "Matching cities" in the ticket's small capitals, and each city a
+ * row a finger's height, a pin in the accent before its name and its country
+ * under that. On a desk it is the calendar's 320px and starts 8px left of the
+ * field, which is 240px, so the list stands a third wider than the words
+ * typed into it; on a phone it is the field's line, the field and Add, and
+ * the dot stands outside it.
  */
 export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [query, setQuery] = useState("");
@@ -94,7 +93,6 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [answered, setAnswered] = useState<string | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
   const field = useRef<HTMLInputElement | null>(null);
-  const watchList = useScrollBar("y");
   /** Answers can arrive out of order, so only the newest is allowed to land. */
   const newest = useRef(0);
   const id = useId();
@@ -207,11 +205,9 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const empty = first ? "First stop" : "Next stop";
 
   return (
-    // The search on the map's palette is scoped to its class, so the list
-    // under the field takes its colours from here.
     <div
       ref={container}
-      className="place-search stop-search grid grid-cols-[24px_minmax(0,1fr)] items-center gap-x-3 md:flex"
+      className="grid grid-cols-[24px_minmax(0,1fr)] items-center gap-x-3 md:flex"
     >
       <span
         aria-hidden="true"
@@ -242,7 +238,7 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
           }}
           onKeyDown={onKeyDown}
           // 21 on a phone, never under 16, or iOS zooms the page into the field.
-          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:h-10 md:w-[200px] md:text-[25px]"
+          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:h-10 md:w-[240px] md:text-[25px]"
         />
         {query.trim() === "" ? null : (
           <button
@@ -260,50 +256,53 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
         )}
 
         {open && searched ? (
-          <div className="search-panel">
-            <div ref={watchList} className="search-list scroll-line">
-              {listed ? (
-                <>
-                  <p className="search-heading">Matching cities</p>
-                  <ul id={listId} role="listbox" aria-label="Cities">
-                    {found.map((city, index) => (
-                      <li
-                        key={city.providerPlaceId}
-                        id={`${listId}-${String(index)}`}
-                        role="option"
-                        aria-selected={index === active}
-                        onMouseEnter={() => {
-                          setActive(index);
+          // The calendar's surface, corners and shadow, the shadow in the
+          // accent's darkest brown as the ticket's own is.
+          <div className="absolute top-full right-0 left-0 z-20 mt-2 rounded-[24px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px]">
+            {listed ? (
+              <>
+                <p className={`${FIELD_LABEL} px-3 pt-2.5 pb-2`}>Matching cities</p>
+                <ul id={listId} role="listbox" aria-label="Cities" className="flex flex-col gap-0.5">
+                  {found.map((city, index) => (
+                    <li
+                      key={city.providerPlaceId}
+                      id={`${listId}-${String(index)}`}
+                      role="option"
+                      aria-selected={index === active}
+                      onMouseEnter={() => {
+                        setActive(index);
+                      }}
+                      // The row Enter or Add takes, tinted, and rounded to sit
+                      // 8px inside the panel's own corners.
+                      className={`rounded-[16px] ${index === active ? "bg-terracotta-100" : ""}`}
+                    >
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => {
+                          add(city);
                         }}
-                        data-active={index === active ? "" : undefined}
-                        className="search-row"
+                        className="flex min-h-14 w-full items-center gap-3 rounded-[16px] py-[7px] pr-3 pl-[11px] text-left"
                       >
-                        <button
-                          type="button"
-                          tabIndex={-1}
-                          onClick={() => {
-                            add(city);
-                          }}
-                          className="search-row-button"
-                        >
-                          <span className="search-mark">
-                            <PinIcon size={15} strokeWidth={2.75} />
-                          </span>
-                          <span className="search-row-words">
-                            <span className="search-row-name">{city.name}</span>
-                            {city.address === null ? null : (
-                              <span className="search-row-line">{city.address}</span>
-                            )}
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : (
-                <p className="search-line">{message ?? (searching ? LOOKING : NO_MATCH)}</p>
-              )}
-            </div>
+                        <PinIcon size={20} strokeWidth={2.75} className="flex-none text-terracotta" />
+                        <span className="min-w-0">
+                          <span className="block text-[16px] leading-5 font-bold text-ink">{city.name}</span>
+                          {city.address === null ? null : (
+                            <span className="mt-1 block text-[13px] leading-[1.35] text-ink-muted">
+                              {city.address}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="px-3 py-3 text-[13px] leading-[1.4] text-ink-muted">
+                {message ?? (searching ? LOOKING : NO_MATCH)}
+              </p>
+            )}
           </div>
         ) : null}
       </div>
