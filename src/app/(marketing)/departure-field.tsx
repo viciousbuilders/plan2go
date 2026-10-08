@@ -35,6 +35,9 @@ const PANEL_WIDTH = 320;
 /** Room kept between the panel and the edge of the window. */
 const EDGE_GAP = 16;
 
+/** Room between the field and the panel standing beside it, the ml-4 it is drawn with. */
+const SIDE_GAP = 16;
+
 /** The most weeks a month spans: a long one that starts on a Saturday or a Sunday. */
 const MOST_WEEKS = 6;
 
@@ -65,13 +68,18 @@ interface DepartureFieldProps {
  * pointer while it is over the days. Days before today are shown and not
  * offered.
  *
- * One month at a time, at every width. It hangs from the field, always under
- * it and centred on the whole of it, the word and the day as well as the
- * chevron, walked back only where it would run past the window's edge, and
- * opening it scrolls the page as little as it takes to bring the whole month
- * into the window. The arrow keys walk the days,
- * stepping the month when they walk off it, Page Up and Page Down go a month,
- * and Escape puts it away, the focus back on the field each time it goes.
+ * One month at a time, at every width. Where the window has room beside the
+ * field it stands there, to the right of it, rather than hanging under it
+ * and making the page run on past the ticket. On a phone, which has no such
+ * room, it hangs under the field, centred on the whole of it, the word and
+ * the day as well as the chevron, and walked back only where it would run
+ * past the window's edge. Either way it stands in the room the longest month
+ * takes, so its top and the arrows on it stay where they are however many
+ * weeks each month stepped through has, and opening it scrolls the page as
+ * little as it takes to bring all of that into the window. The arrow keys
+ * walk the days, stepping the month when they walk off it, Page Up and Page
+ * Down go a month, and Escape puts it away, the focus back on the field each
+ * time it goes.
  */
 export function DepartureField({ today, start, days, onChange }: DepartureFieldProps) {
   const [open, setOpen] = useState(false);
@@ -80,7 +88,9 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   const [focused, setFocused] = useState<IsoDate | null>(null);
   /** The day under the pointer, which the band is drawn from while it is there. */
   const [previewing, setPreviewing] = useState<IsoDate | null>(null);
-  /** Where the panel's left edge goes, from the field's own: centred under it, and kept in the window. */
+  /** Whether it stands beside the field, where the window has room for it there, rather than under it. */
+  const [beside, setBeside] = useState(false);
+  /** Where the panel's left edge goes under the field, from the field's own: centred, and kept in the window. */
   const [shift, setShift] = useState(0);
   /**
    * Set as the keys move the day, or as the panel opens, and let go of once
@@ -90,20 +100,19 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   const steered = useRef(false);
   const container = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
-  /** The room under the panel that the longest month would take. */
-  const reach = useRef<HTMLDivElement | null>(null);
+  /** Where the panel stands: the room the longest month takes. */
+  const stand = useRef<HTMLDivElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
 
   /**
-   * Brought whole into the window as it opens, since it hangs under the field
-   * however little room the window has there, and with it the room the
-   * longest month would take, so a month stepped on to later is in sight
-   * however many weeks it has. "nearest" leaves a calendar that is already in
-   * sight exactly where it is.
+   * Brought whole into the window as it opens, the room the longest month
+   * takes with it, so a month stepped on to later is in sight however many
+   * weeks it has. "nearest" leaves a calendar that is already in sight
+   * exactly where it is.
    */
   useEffect(() => {
     if (open) {
-      reach.current?.scrollIntoView({ block: "nearest" });
+      stand.current?.scrollIntoView({ block: "nearest" });
     }
   }, [open]);
 
@@ -132,6 +141,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
     const box = trigger.current?.getBoundingClientRect();
     if (box !== undefined) {
       const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
+      setBeside(box.right + SIDE_GAP + width + EDGE_GAP <= window.innerWidth);
       const centred = box.left + (box.width - width) / 2;
       setShift(Math.max(EDGE_GAP, Math.min(centred, window.innerWidth - EDGE_GAP - width)) - box.left);
     }
@@ -204,154 +214,163 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
     };
 
     return (
+      // Where it stands: always the room the longest month takes, the panel
+      // at the top of it ending at its own month's last week, so the panel's
+      // top and the arrows on it never move as the months are stepped
+      // through. Beside the field it stands on a line a week under the
+      // field's foot, so a month of five weeks, the commonest, ends level
+      // with the field. Presses on the room the panel leaves go through to
+      // the page, as presses anywhere else outside it do.
       <div
-        role="dialog"
-        aria-label="Choose the day the trip departs"
-        style={{ left: shift }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            putAway();
-          }
-        }}
-        className="absolute top-full z-20 mt-3 w-[min(320px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md"
+        ref={stand}
+        style={beside ? undefined : { left: shift }}
+        className={`pointer-events-none absolute z-20 ${beside ? "left-full -bottom-9 ml-4" : "top-full mt-3"}`}
       >
-        {/* The line over the month: what to choose, and a step of one month
-            at either end of it, each named for the month it goes to. */}
-        <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}
-            disabled={!canGoBack}
-            onClick={() => {
-              setMonth(before);
-            }}
-            className={STEP}
-          >
-            <ArrowLeftIcon size={20} strokeWidth={1.75} />
-          </button>
-          <p className="text-center text-body/none font-medium text-ink-muted">
-            Choose the day you depart
-          </p>
-          <button
-            type="button"
-            aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(after))}`}
-            onClick={() => {
-              setMonth(after);
-            }}
-            className={STEP}
-          >
-            <ArrowRightIcon size={20} strokeWidth={1.75} />
-          </button>
-        </div>
-
         <div
-          ref={grid}
-          onKeyDown={onKeyDown}
-          onMouseLeave={() => {
-            setPreviewing(null);
+          role="dialog"
+          aria-label="Choose the day the trip departs"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              putAway();
+            }
           }}
-          className="mt-4"
+          className="pointer-events-auto w-[min(320px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md"
         >
-          <p className="text-center font-display text-place/none font-bold text-ink">
-            {MONTH_AND_YEAR.format(isoDateAsUtc(month))}
-          </p>
-          <div role="grid" aria-label={MONTH_AND_YEAR.format(isoDateAsUtc(month))} className="mt-3">
-            <div role="row" className="grid grid-cols-7">
-              {WEEKDAYS.map((weekday, index) => (
-                <span
-                  key={index}
-                  role="columnheader"
-                  className="pb-1.5 text-center text-meta/none text-ink-muted"
-                >
-                  <span aria-hidden="true">{weekday.short}</span>
-                  <span className="sr-only">{weekday.full}</span>
-                </span>
-              ))}
-            </div>
-            {Array.from({ length: weeks }, (_unused, week) => (
-              <div role="row" key={week} className="grid grid-cols-7">
-                {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
-                  if (parseIsoDate(date).month !== shownMonth) {
-                    return <span role="gridcell" key={date} className="h-9" />;
-                  }
-                  const early = date < today;
-                  const isStart = date === leaving;
-                  const isBack = date === back && back > leaving;
-                  /*
-                   * The trip's days stand on a band from the day it departs
-                   * to the day it is back, rounded off at each end, in the
-                   * tint the planner's calendar draws a range in.
-                   */
-                  const banded = back > leaving && date >= leaving && date <= back;
-                  return (
-                    <span
-                      role="gridcell"
-                      key={date}
-                      aria-selected={date === start}
-                      className={[
-                        "grid h-9 place-items-center",
-                        banded ? "bg-terracotta-200/70" : "",
-                        banded && isStart ? "rounded-l-pill" : "",
-                        banded && isBack ? "rounded-r-pill" : "",
-                      ].join(" ")}
-                    >
-                      <button
-                        type="button"
-                        data-date={date}
-                        disabled={early}
-                        tabIndex={date === stop ? 0 : -1}
-                        aria-current={date === today ? "date" : undefined}
-                        onClick={() => {
-                          pick(date);
-                        }}
-                        onMouseEnter={() => {
-                          setPreviewing(early ? null : date);
-                        }}
-                        // The day it departs filled in the accent's deepest
-                        // brown, as a chosen day is anywhere in the product,
-                        // and the day it is back ringed in it, since that
-                        // follows from the stops rather than being chosen.
+          {/* The line over the month: what to choose, and a step of one month
+              at either end of it, each named for the month it goes to. */}
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}
+              disabled={!canGoBack}
+              onClick={() => {
+                setMonth(before);
+              }}
+              className={STEP}
+            >
+              <ArrowLeftIcon size={20} strokeWidth={1.75} />
+            </button>
+            <p className="text-center text-body/none font-medium text-ink-muted">
+              Choose the day you depart
+            </p>
+            <button
+              type="button"
+              aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(after))}`}
+              onClick={() => {
+                setMonth(after);
+              }}
+              className={STEP}
+            >
+              <ArrowRightIcon size={20} strokeWidth={1.75} />
+            </button>
+          </div>
+
+          <div
+            ref={grid}
+            onKeyDown={onKeyDown}
+            onMouseLeave={() => {
+              setPreviewing(null);
+            }}
+            className="mt-4"
+          >
+            <p className="text-center font-display text-place/none font-bold text-ink">
+              {MONTH_AND_YEAR.format(isoDateAsUtc(month))}
+            </p>
+            <div role="grid" aria-label={MONTH_AND_YEAR.format(isoDateAsUtc(month))} className="mt-3">
+              <div role="row" className="grid grid-cols-7">
+                {WEEKDAYS.map((weekday, index) => (
+                  <span
+                    key={index}
+                    role="columnheader"
+                    className="pb-1.5 text-center text-meta/none text-ink-muted"
+                  >
+                    <span aria-hidden="true">{weekday.short}</span>
+                    <span className="sr-only">{weekday.full}</span>
+                  </span>
+                ))}
+              </div>
+              {Array.from({ length: weeks }, (_unused, week) => (
+                <div role="row" key={week} className="grid grid-cols-7">
+                  {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
+                    if (parseIsoDate(date).month !== shownMonth) {
+                      return <span role="gridcell" key={date} className="h-9" />;
+                    }
+                    const early = date < today;
+                    const isStart = date === leaving;
+                    const isBack = date === back && back > leaving;
+                    /*
+                     * The trip's days stand on a band from the day it departs
+                     * to the day it is back, rounded off at each end, in the
+                     * tint the planner's calendar draws a range in.
+                     */
+                    const banded = back > leaving && date >= leaving && date <= back;
+                    return (
+                      <span
+                        role="gridcell"
+                        key={date}
+                        aria-selected={date === start}
                         className={[
-                          "grid h-8 w-8 place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta",
-                          isStart
-                            ? "border-terracotta-800 bg-terracotta-800 text-paper"
-                            : isBack
-                              ? "border-terracotta-800 text-terracotta-800"
-                              : early
-                                ? "border-transparent text-ink-faint"
-                                : date === today
-                                  ? "border-terracotta text-ink hover:bg-terracotta-200"
-                                  : "border-transparent text-ink hover:bg-terracotta-200",
+                          "grid h-9 place-items-center",
+                          banded ? "bg-terracotta-200/70" : "",
+                          banded && isStart ? "rounded-l-pill" : "",
+                          banded && isBack ? "rounded-r-pill" : "",
                         ].join(" ")}
                       >
-                        <span aria-hidden="true">{parseIsoDate(date).day}</span>
-                        <span className="sr-only">
-                          {READABLE.format(isoDateAsUtc(date))}
-                          {date === today ? ", today" : ""}
-                          {isBack ? ", the day the trip is back" : ""}
-                        </span>
-                      </button>
-                    </span>
-                  );
-                })}
-              </div>
-            ))}
+                        <button
+                          type="button"
+                          data-date={date}
+                          disabled={early}
+                          tabIndex={date === stop ? 0 : -1}
+                          aria-current={date === today ? "date" : undefined}
+                          onClick={() => {
+                            pick(date);
+                          }}
+                          onMouseEnter={() => {
+                            setPreviewing(early ? null : date);
+                          }}
+                          // The day it departs filled in the accent's deepest
+                          // brown, as a chosen day is anywhere in the product,
+                          // and the day it is back ringed in it, since that
+                          // follows from the stops rather than being chosen.
+                          className={[
+                            "grid h-8 w-8 place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta",
+                            isStart
+                              ? "border-terracotta-800 bg-terracotta-800 text-paper"
+                              : isBack
+                                ? "border-terracotta-800 text-terracotta-800"
+                                : early
+                                  ? "border-transparent text-ink-faint"
+                                  : date === today
+                                    ? "border-terracotta text-ink hover:bg-terracotta-200"
+                                    : "border-transparent text-ink hover:bg-terracotta-200",
+                          ].join(" ")}
+                        >
+                          <span aria-hidden="true">{parseIsoDate(date).day}</span>
+                          <span className="sr-only">
+                            {READABLE.format(isoDateAsUtc(date))}
+                            {date === today ? ", today" : ""}
+                            {isBack ? ", the day the trip is back" : ""}
+                          </span>
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Out of sight under the panel, which ends at its month's last week:
-            the room the longest month would take below it, and under that
-            the room kept from the window's foot. The page ends where the last
-            thing on it does, so without this a month a week shorter than the
-            last made the page shorter, which pulled the panel and its arrows
-            down under a pointer pressing on to the next month. With it the
-            page keeps its length whatever month is on show. */}
-        <div ref={reach} aria-hidden="true" className="pointer-events-none absolute top-full left-0 w-px">
+        {/* Out of sight under the panel, the weeks its month does not have.
+            Under the field, the room kept from the window's foot as well:
+            the page ends where the last thing on it does, and needs that
+            room to scroll to. */}
+        <div aria-hidden="true">
           {Array.from({ length: MOST_WEEKS - weeks }, (_unused, at) => (
             <div key={`room-${String(at)}`} className="h-9" />
           ))}
-          <div className="h-4" />
+          {beside ? null : <div className="h-4" />}
         </div>
       </div>
     );
