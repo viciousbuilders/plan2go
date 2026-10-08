@@ -66,9 +66,10 @@ interface DepartureFieldProps {
  * offered.
  *
  * One month at a time, at every width. It hangs from the field, always under
- * it and from its left edge, walked back only where it would run past the
- * window's edge, and opening it scrolls the page as little as it takes to
- * bring the whole month into the window. The arrow keys walk the days,
+ * it and centred on the whole of it, the word and the day as well as the
+ * chevron, walked back only where it would run past the window's edge, and
+ * opening it scrolls the page as little as it takes to bring the whole month
+ * into the window. The arrow keys walk the days,
  * stepping the month when they walk off it, Page Up and Page Down go a month,
  * and Escape puts it away, the focus back on the field each time it goes.
  */
@@ -79,7 +80,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   const [focused, setFocused] = useState<IsoDate | null>(null);
   /** The day under the pointer, which the band is drawn from while it is there. */
   const [previewing, setPreviewing] = useState<IsoDate | null>(null);
-  /** Where the panel's left edge goes, from the field's own, to keep it in the window. */
+  /** Where the panel's left edge goes, from the field's own: centred under it, and kept in the window. */
   const [shift, setShift] = useState(0);
   /**
    * Set as the keys move the day, or as the panel opens, and let go of once
@@ -128,7 +129,8 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
     const box = trigger.current?.getBoundingClientRect();
     if (box !== undefined) {
       const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
-      setShift(Math.max(EDGE_GAP, Math.min(box.left, window.innerWidth - EDGE_GAP - width)) - box.left);
+      const centred = box.left + (box.width - width) / 2;
+      setShift(Math.max(EDGE_GAP, Math.min(centred, window.innerWidth - EDGE_GAP - width)) - box.left);
     }
     setMonth(first);
     setFocused(start);
