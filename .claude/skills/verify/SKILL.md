@@ -33,9 +33,16 @@ const browser = await chromium.launch({ channel: "chrome", headless: true });
 Every dev run writes to the one shared Neon database, so open a fresh trip rather than
 touching one that exists. Front door at `/`:
 
-1. `#cityPlaceId` is a Google backed search over cities anywhere; fill it, wait for
-   `[role="listbox"][aria-label="City"] [role="option"]` and click one.
-2. Dates are prefilled. Click `button[type="submit"]`.
+1. The stop field, `getByLabel("Add a stop")`, is a Google backed search over cities
+   anywhere; fill it, wait for `[role="listbox"][aria-label="Cities"] [role="option"]`
+   and press Enter. That adds the picked city as a stop of one day and empties the
+   field, with the cursor still in it, for the next. A stop's days step with the
+   buttons named `More days in <city>` and `Fewer days in <city>`. The ticket draws each
+   stop twice, a desk's and a phone's, one hidden at any width, so find them by role,
+   which only sees the one on show.
+2. The trip departs today until changed (`input[name="startDate"]`, a native date field
+   laid unseen over the Departs line). Press `getByRole("button", { name: /Start planning/ })`
+   on the ticket's stub, open once there is a stop.
 
 It lands on `/t/<slug>/edit/<key>`. The key in the URL is the whole of the edit
 authority, there is no cookie. `/t/<slug>` on its own is the read only share view and

@@ -37,20 +37,19 @@ export async function openTrip(
   headers: Headers,
   repository: TripRepository,
   /**
-   * What the traveller filled in on the way in, still being looked up: the
-   * city is a round trip to the place provider, and the budget is a round
-   * trip to our own database, and neither has to wait for the other. Null
-   * once it settles means the place could not be found.
+   * What the traveller filled in on the way in, looked up: every city on it is
+   * a round trip to the place provider, paid for unless our own table has it.
+   * Asked only once the budget allows the trip, so a press the budget turns
+   * away spends nothing with the provider, however many stops it names. Null
+   * means a place could not be found.
    */
-  details: Promise<NewTripRequest | null>,
+  details: () => Promise<NewTripRequest | null>,
 ): Promise<TripOpened> {
-  const [limit, resolved] = await Promise.all([
-    consumeRateLimit(ROUTE, headers, POLICY),
-    details,
-  ]);
+  const limit = await consumeRateLimit(ROUTE, headers, POLICY);
   if (!limit.allowed) {
     return { status: "too-many", retryAfterSeconds: limit.retryAfterSeconds };
   }
+  const resolved = await details();
   if (resolved === null) {
     return { status: "nowhere" };
   }

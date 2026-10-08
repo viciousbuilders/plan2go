@@ -14,8 +14,9 @@ page. The hard part of this product is the time engine, everything else is typin
 token in an httpOnly cookie authorises mutations. `Trip.userId` is nullable and stays
 that way until accounts exist.
 
-**The front door.** `/` is the page in `src/app/(marketing)`: the city, the time zone,
-the first day and how many days. Submitting it opens a trip and lands on `/t/[slug]`.
+**The front door.** `/` is the page in `src/app/(marketing)`: the stops the trip makes,
+each a city and how many days in it, and the day it departs. The first city is the trip's
+own and sets its time zone. Submitting it opens a trip and lands on `/t/[slug]`.
 The button inside a trip that starts another one posts to `/new` instead, and both come
 through `openTrip`, so they share one rate limit and one place that hands out the edit
 token.

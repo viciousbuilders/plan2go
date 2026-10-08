@@ -241,20 +241,26 @@ async function insert(trip: NewTrip, slug: string): Promise<CreatedTrip> {
       title: trip.title,
       timeZone: trip.timeZone,
       startDate: trip.startDate,
-      centreLat: trip.centre?.lat ?? null,
-      centreLng: trip.centre?.lng ?? null,
-      cityName: trip.cityName,
-      cityPlaceId: trip.cityPlaceId,
-      // The city the trip opens in is its first, so it holds the first colour.
-      cityColors:
-        trip.cityName === null
-          ? PrismaNamespace.DbNull
-          : { [cityKey({ providerPlaceId: trip.cityPlaceId, name: trip.cityName })]: 0 },
+      centreLat: trip.city.position.lat,
+      centreLng: trip.city.position.lng,
+      cityName: trip.city.name,
+      cityPlaceId: trip.city.providerPlaceId,
+      // Each city takes the next colour in the order the trip reaches it, so
+      // the city the trip opens in, its first, holds the first.
+      cityColors: settleCityColors(
+        {},
+        trip.dayCities.map((city) => city ?? trip.city),
+      ),
       editKeyHash: trip.editKeyHash,
       days: {
-        create: Array.from({ length: trip.dayCount }, (_unused, index) => ({
+        create: trip.dayCities.map((city, index) => ({
           position: index,
           startAtMinutes: trip.startAtMinutes,
+          // All four together or none, as a day moved to a city is kept.
+          cityPlaceId: city?.providerPlaceId ?? null,
+          cityName: city?.name ?? null,
+          cityLat: city?.position.lat ?? null,
+          cityLng: city?.position.lng ?? null,
         })),
       },
     },

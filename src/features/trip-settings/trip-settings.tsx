@@ -259,7 +259,6 @@ export function TripSettings({
           }}
           footer={saveDates}
           onClose={abandonDates}
-          size="inline"
         />
 
         {actions}

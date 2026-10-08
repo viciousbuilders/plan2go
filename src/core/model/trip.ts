@@ -13,6 +13,17 @@ export type TripId = string;
  */
 export const MAX_TRIP_DAYS = 365;
 
+/**
+ * The most stops a trip is opened with from the front page. Each is a city
+ * looked up with the place provider as the trip opens, so this is also how
+ * many of those a single press can ask for. More cities are added from inside
+ * the trip, a day at a time.
+ */
+export const MAX_STOPS = 12;
+
+/** The most days one stop is given on the front page, where they are counted a press at a time. */
+export const MAX_STOP_DAYS = 30;
+
 export interface Trip {
   readonly id: TripId;
   /** Random, unguessable, and the only thing in the URL. */

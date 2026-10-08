@@ -8,7 +8,7 @@ import { addDays } from "@/core/time/zoned";
  */
 export function calendarDate(missing: string): z.ZodType<string> {
   return z
-    .string()
+    .string({ error: missing })
     .regex(/^\d{4}-\d{2}-\d{2}$/, missing)
     .refine((value) => addDays(value, 0) === value, "That date does not exist. Check it.");
 }

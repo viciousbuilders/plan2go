@@ -28,60 +28,19 @@ const PANEL_WIDTH = 600;
 /** Room to keep between the panel and the edge of the window. Matches the 2rem in its width class. */
 const EDGE_GAP = 16;
 
-const DAY_MONTH = new Intl.DateTimeFormat("en-AU", {
-  day: "numeric",
-  month: "short",
-  timeZone: "UTC",
-});
-
-const DAY_MONTH_YEAR = new Intl.DateTimeFormat("en-AU", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-const TRIGGER =
-  "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
-
 /**
- * Two homes, two shapes of the same control.
- *
- * On the starter page it is one of the stacked questions, and it answers with
- * both ends of the trip written out in full, each under its own name with an
- * arrow between them, because a person opening a trip is being asked two
- * things and should see both answers. On the trip's own name row it is one
- * control among several on a 34px line: no label and no box. The dates sit
- * beside the trip's name as a fact about it, and a row that reads "Hanoi, five
- * days 10 to 15 Sept Change" spends its last word on the mechanism rather than
- * on the trip.
+ * On the trip's own name row, one control among several on a 34px line: no
+ * label and no box. The dates sit beside the trip's name as a fact about it,
+ * and a row that reads "Hanoi, five days 10 to 15 Sept Change" spends its last
+ * word on the mechanism rather than on the trip, so the word that opens it is
+ * not shown. It is still there for anybody who cannot see the pill light up
+ * under the pointer.
  *
  * Not on a phone, where the dates are written under the trip's name and set
  * on Edit trip's page, from the trip's menu, on a calendar of its own.
- *
- * Neither home shows the word that opens it. The word is still there for
- * anybody who cannot see the pill light up under the pointer.
- *
- * The starter page's numbers are those of the fields beside it, from
- * field-styles, rather than the type scale that governs the planner. DESIGN.md
- * says as much: it owns src/app/t, src/features and src/ui, and the marketing
- * page answers to the skill instead.
  */
-const SIZES = {
-  inline: {
-    trigger:
-      "w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700",
-    change: "sr-only",
-    stack: "shrink-0 max-lg:hidden",
-  },
-  large: {
-    trigger: "gap-2 px-5 py-[14px]",
-    change: "sr-only",
-    // The container the day's format is measured against. Not the pill itself:
-    // a button cannot be a size container, and the wrapper is exactly as wide.
-    stack: "@container flex flex-col",
-  },
-} as const;
+const TRIGGER =
+  "flex w-full items-center rounded-pill border border-transparent bg-transparent px-2 py-[5px] text-left text-small/none font-semibold text-ink-muted hover:bg-terracotta-100 hover:text-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 const STEP =
   "grid h-[30px] w-[30px] shrink-0 place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
@@ -102,8 +61,6 @@ interface DateRangeFieldProps {
    * day tabs read it, so the two always agree.
    */
   readonly today: IsoDate | null;
-  /** Earliest day that may be chosen. Days before it are shown but not offered. */
-  readonly min?: IsoDate;
   /** The longest a trip may run, counting both ends. */
   readonly maxSpanDays?: number;
   readonly onChange: (range: { start: IsoDate; end: IsoDate }) => void;
@@ -114,73 +71,6 @@ interface DateRangeFieldProps {
    * so this is the caller's chance to put back what was there.
    */
   readonly onClose?: () => void;
-  /** Which of its two homes this one is in. See SIZES above. */
-  readonly size?: keyof typeof SIZES;
-}
-
-/**
- * One end of the trip as the starter page's field writes it: its name over the
- * day.
- *
- * The day is written as fully as the pill has room for, which is a question
- * about the pill and not about the window: the card it sits in is a column of
- * a grid that folds, so a wide window can still hand it a narrow card. The
- * weekday goes first, then the year, and the pill measures itself to decide.
- *
- * A day not known yet is a blank line at the same height, so the pill is the
- * same size with it and without it.
- */
-function End({ name, date }: { readonly name: string; readonly date: IsoDate | null }) {
-  const day = date === null ? null : isoDateAsUtc(date);
-  return (
-    <span className="flex min-w-0 flex-1 flex-col gap-[5px]">
-      <span className="text-[13px] leading-none font-semibold text-ink-muted">{name}</span>
-      <span className="truncate text-[14px] leading-[1.2] tabular-nums">
-        {day === null ? (
-          // Written as its escape because it is invisible: a space that does
-          // not collapse, so the empty line keeps the height of a day.
-          <span className="invisible">{"\u00a0"}</span>
-        ) : (
-          <>
-            {/* The steps are where each longer form stops fitting the widest
-                day it can be asked to show, measured rather than guessed. */}
-            <span className="hidden @min-[336px]:inline">{READABLE.format(day)}</span>
-            <span className="hidden @min-[260px]:inline @min-[336px]:hidden">
-              {DAY_MONTH_YEAR.format(day)}
-            </span>
-            <span className="@min-[260px]:hidden">{DAY_MONTH.format(day)}</span>
-          </>
-        )}
-      </span>
-    </span>
-  );
-}
-
-/**
- * The starter page's field before the browser has said what today is, which
- * is the day a trip opens on and the earliest the calendar offers. The page is
- * built once and served to every zone as it is, so only the browser can know.
- *
- * Drawn exactly as the field is, the pill, both names and the arrow between
- * them, with the two days blank until they are known, so nothing on the page
- * moves when they arrive a moment after it has loaded. Not open to a press
- * yet, since there is no month to show.
- */
-export function DateRangeWaiting({ id, label }: { readonly id: string; readonly label: string }) {
-  const dressed = SIZES.large;
-  return (
-    <div className={`relative ${dressed.stack}`}>
-      <label className="sr-only" htmlFor={id}>
-        {label}
-      </label>
-      <button id={id} type="button" disabled aria-busy="true" className={`${TRIGGER} ${dressed.trigger}`}>
-        <End name="First day" date={null} />
-        <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
-        <End name="Last day" date={null} />
-        <span className={dressed.change}>Change</span>
-      </button>
-    </div>
-  );
 }
 
 /**
@@ -215,14 +105,11 @@ export function DateRangeField({
   start,
   end,
   today,
-  min,
   maxSpanDays,
   onChange,
   footer,
   onClose,
-  size = "inline",
 }: DateRangeFieldProps) {
-  const dressed = SIZES[size];
   const [open, setOpen] = useState(false);
   /** The left of the two months on show. */
   const [leftMonth, setLeftMonth] = useState<IsoDate>(firstOfMonth(start));
@@ -236,8 +123,8 @@ export function DateRangeField({
   const [focused, setFocused] = useState<IsoDate>(start);
   /**
    * Where the panel's left edge goes, in pixels from the field's own. The
-   * panel is centred on the field, which it is wider than on the starter page
-   * and much wider than in the planner, so its middle rather than either edge
+   * panel is centred on the field, which it is much wider than, so its middle
+   * rather than either edge
    * is what it shares with the thing that opened it. Centred like that it can
    * open off the side of the window, so it is walked back until it fits, and
    * on a window narrower than the panel that means the window's own margin
@@ -306,13 +193,11 @@ export function DateRangeField({
    * walks straight past. Null when nothing on show may be chosen.
    */
   const stop = ((): IsoDate | null => {
-    const offered = (date: IsoDate): boolean =>
-      (min === undefined || date >= min) && (furthest === undefined || date <= furthest);
+    const offered = (date: IsoDate): boolean => furthest === undefined || date <= furthest;
     if (focused >= leftMonth && focused < afterShown && offered(focused)) {
       return focused;
     }
-    const earliest = min !== undefined && min > leftMonth ? min : leftMonth;
-    return earliest < afterShown && offered(earliest) ? earliest : null;
+    return offered(leftMonth) ? leftMonth : null;
   })();
 
   const close = (): void => {
@@ -379,7 +264,7 @@ export function DateRangeField({
   const after = shiftMonths(leftMonth, MONTHS_SHOWN);
 
   return (
-    <div className={`relative ${dressed.stack}`} ref={container}>
+    <div className="relative shrink-0 max-lg:hidden" ref={container}>
       <label className="sr-only" htmlFor={id}>
         {label}
       </label>
@@ -409,18 +294,10 @@ export function DateRangeField({
           setDrawingFrom(null);
           setOpen(true);
         }}
-        className={`${TRIGGER} ${dressed.trigger}`}
+        className={TRIGGER}
       >
-        {size === "large" ? (
-          <>
-            <End name="First day" date={open ? shownStart : start} />
-            <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
-            <End name="Last day" date={open ? shownEnd : end} />
-          </>
-        ) : (
-          <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
-        )}
-        <span className={dressed.change}>{open ? "Close" : "Change"}</span>
+        <span className="truncate tabular-nums">{formatDateRange(start, end)}</span>
+        <span className="sr-only">{open ? "Close" : "Change"}</span>
       </button>
 
       {open ? (
@@ -507,9 +384,8 @@ export function DateRangeField({
                           .slice(week * DAYS_IN_WEEK, week * DAYS_IN_WEEK + DAYS_IN_WEEK)
                           .map((date) => {
                             const thisMonth = parseIsoDate(date).month === shownMonth;
-                            const tooEarly = min !== undefined && date < min;
                             const tooFar = furthest !== undefined && date > furthest;
-                            const disabled = tooEarly || tooFar || !thisMonth;
+                            const disabled = tooFar || !thisMonth;
 
                             const isStart = thisMonth && date === shownStart;
                             const isEnd = thisMonth && date === shownEnd;
@@ -562,11 +438,7 @@ export function DateRangeField({
                                       : date === today
                                         ? "border-terracotta text-ink"
                                         : "border-transparent text-ink hover:bg-terracotta-200",
-                                    !thisMonth
-                                      ? "invisible"
-                                      : tooEarly || tooFar
-                                        ? "text-ink-faint"
-                                        : "",
+                                    !thisMonth ? "invisible" : tooFar ? "text-ink-faint" : "",
                                   ].join(" ")}
                                 >
                                   <span aria-hidden="true">{parseIsoDate(date).day}</span>

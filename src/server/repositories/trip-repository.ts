@@ -1,7 +1,7 @@
 import type { CityColors } from "@/core/model/city-colors";
 import type { DayCity, DayId, IsoDate } from "@/core/model/day";
 import type { TravelMode } from "@/core/model/leg";
-import type { LatLng, Place } from "@/core/model/place";
+import type { Place } from "@/core/model/place";
 import type { Trip } from "@/core/model/trip";
 
 /** Everything storage needs to open a new trip. The raw token never comes here. */
@@ -10,15 +10,16 @@ export interface NewTrip {
   readonly title: string;
   readonly timeZone: string;
   readonly startDate: IsoDate;
-  readonly dayCount: number;
   /** Minutes from local midnight that each new day begins at. */
   readonly startAtMinutes: number;
-  /** The city the trip is in, for the map to open on. */
-  readonly centre: LatLng | null;
-  /** What that city is called, for saying rather than pointing. */
-  readonly cityName: string | null;
-  /** The provider's identifier for that city, so a day in it can be told apart. */
-  readonly cityPlaceId: string | null;
+  /** The trip's own city, where the map opens: the first it stops in. */
+  readonly city: Omit<DayCity, "color">;
+  /**
+   * The city each day is in, first day first, one entry for every day the
+   * trip has: null for a day in the trip's own city, which is how a day that
+   * nobody has moved is kept.
+   */
+  readonly dayCities: readonly (Omit<DayCity, "color"> | null)[];
   readonly editKeyHash: EditKeyHash;
 }
 

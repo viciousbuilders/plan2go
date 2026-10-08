@@ -1,53 +1,52 @@
 import { z } from "zod";
-import { MAX_TRIP_DAYS } from "@/core/model/trip";
-import { daysBetween } from "@/core/time/zoned";
+import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
 import { calendarDate } from "./calendar-date";
 
-/** Both ends counted, so a trip that starts and ends on one day is one day long. */
-function daysAcross(startDate: string, endDate: string): number {
-  return daysBetween(startDate, endDate) + 1;
-}
+const STOP_DAYS = `A stop runs 1 to ${String(MAX_STOP_DAYS)} days. Change its days and try again.`;
+
+/**
+ * One stop as the front page sends it: the provider's own identifier for the
+ * city, looked up on the way in rather than trusted, and how many days in it.
+ */
+const stopSchema = z.object({
+  cityPlaceId: z
+    .string()
+    .trim()
+    .min(1, "A stop has no city. Remove it and add the city again.")
+    .max(300),
+  days: z.coerce.number({ error: STOP_DAYS }).int(STOP_DAYS).min(1, STOP_DAYS).max(MAX_STOP_DAYS, STOP_DAYS),
+});
 
 /**
  * What a person may send when they open a trip.
  *
- * The city is the provider's own identifier for it rather than typed text, so
- * the map has somewhere to open and the days keep the right clock. Both are
- * looked up from it on the way in: someone who has said which city they are
- * going to has already answered the question about time zones. It does not name
- * the trip, which the traveller does for themselves.
+ * The cities are the provider's own identifiers rather than typed text, so
+ * the map has somewhere to open and the days keep the right clock. They are
+ * looked up on the way in: someone who has said which city they start in has
+ * already answered the question about time zones. Nothing here names the
+ * trip, which the traveller does for themselves.
  *
- * The two ends are dates rather than a length, the same way they are once the
- * trip is open: a person planning a holiday knows when they land and when they
- * fly home, and counting the nights in between is the thing they came here to
- * stop doing. The length is worked out here, because that is what storage lays
- * the days out from.
+ * A trip is the stops it makes, in order, each a city and how many days in
+ * it, from the day it departs. That is how somebody planning a holiday says
+ * it, "two days in Hanoi, one in Ninh Binh", and the dates follow from it
+ * rather than being counted out by hand.
+ *
+ * No trip opened here runs past a year: the most stops at the most days each
+ * comes to less, which the test beside this keeps true.
  *
  * Messages say what happened and then what to do, because they are read by
  * someone who has just been stopped.
  */
 export const newTripInputSchema = z
   .object({
-    cityPlaceId: z
-      .string()
-      .trim()
-      .min(1, "The city is missing. Choose where you are going.")
-      .max(300),
-    startDate: calendarDate("The first day is missing. Enter a date."),
-    endDate: calendarDate("The last day is missing. Enter a date."),
-  })
-  .refine((value) => daysAcross(value.startDate, value.endDate) >= 1, {
-    message: "The last day is before the first day. Choose a later last day.",
-    path: ["endDate"],
-  })
-  .refine((value) => daysAcross(value.startDate, value.endDate) <= MAX_TRIP_DAYS, {
-    message: `A trip runs to ${String(MAX_TRIP_DAYS)} days at most. Choose an earlier last day.`,
-    path: ["endDate"],
-  })
-  .transform((value) => ({
-    cityPlaceId: value.cityPlaceId,
-    startDate: value.startDate,
-    dayCount: daysAcross(value.startDate, value.endDate),
-  }));
+    stops: z
+      .array(stopSchema)
+      .min(1, "The trip has no stops yet. Type a city and choose it from the list.")
+      .max(
+        MAX_STOPS,
+        `A trip starts with ${String(MAX_STOPS)} stops at most. Add the rest from inside the trip.`,
+      ),
+    startDate: calendarDate("The day the trip departs is missing. Choose a date."),
+  });
 
 export type NewTripInput = z.infer<typeof newTripInputSchema>;

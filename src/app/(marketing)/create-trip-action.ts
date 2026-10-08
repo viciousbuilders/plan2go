@@ -9,7 +9,7 @@ import { prepareCitiesToVisit } from "@/server/places/cities-to-visit";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { placeDetailsFor } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
-import type { NewTripRequest } from "@/server/trips/create-trip";
+import type { NewTripRequest, TripStop } from "@/server/trips/create-trip";
 import { UNTITLED } from "@/server/trips/create-trip";
 import { newTripInputSchema } from "@/server/trips/new-trip-input";
 import { openTrip } from "@/server/trips/open-trip";
@@ -17,95 +17,112 @@ import { isSupportedTimeZone, openingTimeZone } from "@/server/trips/time-zones"
 
 export interface CreateTripFormState {
   readonly error: string | null;
-  /** Which field the sentence is about, when it is about one. */
-  readonly field: "city" | null;
 }
 
 /**
- * Opening a trip from the form on the front page.
+ * Opening a trip from the ticket on the front page.
  *
- * It goes through openTrip rather than straight to storage, so the front page
- * and the button that starts another trip from inside one share a rate limit
- * and neither is a way around the other.
+ * It goes through openTrip rather than straight to storage, so every way a
+ * trip is opened shares one rate limit and none is a way around the others.
  */
 export async function createTripAction(
   _previous: CreateTripFormState,
   formData: FormData,
 ): Promise<CreateTripFormState> {
+  // A stop is two fields side by side, its city and its days, as many of each
+  // as there are stops, in the order the trip makes them.
+  const days = formData.getAll("stopDays");
   const parsed = newTripInputSchema.safeParse({
-    cityPlaceId: formData.get("cityPlaceId"),
-    timeZone: formData.get("timeZone"),
+    stops: formData.getAll("stopPlaceId").map((cityPlaceId, index) => ({
+      cityPlaceId,
+      days: days[index],
+    })),
     startDate: formData.get("startDate"),
-    endDate: formData.get("endDate"),
   });
 
   if (!parsed.success) {
-    const first = parsed.error.issues[0];
-    return {
-      error: first === undefined ? "Check the form and send it again." : first.message,
-      field: first?.path[0] === "cityPlaceId" ? "city" : null,
-    };
+    return { error: parsed.error.issues[0]?.message ?? "Check the trip and send it again." };
   }
 
   const apiKey = googleMapsApiKey();
   if (apiKey === null) {
-    return { error: "Place search is not switched on for this server.", field: null };
+    return { error: "Place search is not switched on for this server." };
   }
 
-  const { cityPlaceId, ...rest } = parsed.data;
+  const { stops, startDate } = parsed.data;
+  // At least one, as the schema has it, named here so the type says so too.
+  const [opening] = stops;
+  if (opening === undefined) {
+    return { error: "The trip has no stops yet. Type a city and choose it from the list." };
+  }
   const asked = await headers();
   const places = createGooglePlacesProvider({ apiKey });
 
-  // The city is looked up here rather than trusted from the form, so the map
-  // opens where the place actually is and the clock is the one kept there.
-  // It does not name the trip: a trip is not one city, and the traveller names
-  // it themselves in the planner.
+  // The cities are looked up here rather than trusted from the form, so the
+  // map opens where each actually is and the clock is the one kept where the
+  // trip begins. Each once, however many times the trip comes back to it. They
+  // do not name the trip: a trip is not one city, and the traveller names it
+  // themselves in the planner.
   //
-  // The clock the trip keeps is the city's, not the one the browser is sitting
-  // in. The details answer names it, and only when it does not is a second,
-  // slower call spent finding out. Where neither can, the request's own guess
-  // is a better answer than refusing to open the trip.
+  // The clock the trip keeps is its first city's, not the one the browser is
+  // sitting in. The details answer names it, and only when it does not is a
+  // second, slower call spent finding out. Where neither can, the request's
+  // own guess is a better answer than refusing to open the trip.
   const lookedUp = async (): Promise<NewTripRequest | null> => {
-    const city = await placeDetailsFor(cityPlaceId, places, null);
-    if (city === null) {
+    const asking = [...new Set(stops.map((stop) => stop.cityPlaceId))];
+    const answers = await Promise.all(asking.map((id) => placeDetailsFor(id, places, null)));
+    const found = new Map(asking.map((id, index) => [id, answers[index] ?? null]));
+
+    const resolved: TripStop[] = [];
+    for (const stop of stops) {
+      const city = found.get(stop.cityPlaceId) ?? null;
+      if (city === null) {
+        return null;
+      }
+      resolved.push({
+        city: {
+          providerPlaceId: city.providerPlaceId ?? stop.cityPlaceId,
+          name: city.name,
+          position: city.position,
+        },
+        days: stop.days,
+      });
+    }
+
+    const [first, ...rest] = resolved;
+    const firstCity = found.get(opening.cityPlaceId) ?? null;
+    if (first === undefined || firstCity === null) {
       return null;
     }
     const zone =
-      city.timeZone !== null && isSupportedTimeZone(city.timeZone)
-        ? city.timeZone
-        : await createGoogleTimeZoneProvider({ apiKey }).lookup(city.position);
+      firstCity.timeZone !== null && isSupportedTimeZone(firstCity.timeZone)
+        ? firstCity.timeZone
+        : await createGoogleTimeZoneProvider({ apiKey }).lookup(firstCity.position);
     return {
-      ...rest,
       title: UNTITLED,
       timeZone: zone ?? openingTimeZone(asked),
-      centre: city.position,
-      cityName: city.name,
-      cityPlaceId: city.providerPlaceId ?? cityPlaceId,
+      startDate,
+      stops: [first, ...rest],
     };
   };
 
-  const request = lookedUp();
-  const opened = await openTrip(asked, prismaTripRepository, request);
+  const opened = await openTrip(asked, prismaTripRepository, lookedUp);
 
   if (opened.status === "too-many") {
     return {
       error: `Too many new trips have been started from this connection. Wait ${String(opened.retryAfterSeconds)} seconds and try again.`,
-      field: null,
     };
   }
   if (opened.status === "nowhere") {
-    return { error: "That city could not be found. Choose it from the list again.", field: "city" };
+    return {
+      error: "A city on the trip could not be found. Remove it and choose it from the list again.",
+    };
   }
 
-  // The cities worth going to from the trip's city, worked out once the
+  // The cities worth going to from the trip's own city, worked out once the
   // traveller is on their way to the trip rather than when they first open
-  // the city picker and wait for it. Settled already: the trip was opened
-  // from it.
-  const opening = await request;
-  const openedIn = opening?.cityPlaceId ?? null;
-  if (openedIn !== null) {
-    after(() => prepareCitiesToVisit(asked, openedIn, places));
-  }
+  // the city picker and wait for it.
+  after(() => prepareCitiesToVisit(asked, opening.cityPlaceId, places));
 
   // Straight to the edit link: this is the one moment the key exists in the
   // clear, and the trip is unreachable for editing without it.
