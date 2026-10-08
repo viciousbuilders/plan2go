@@ -10,9 +10,12 @@ page. The hard part of this product is the time engine, everything else is typin
 
 ## Non-negotiables
 
-**Identity.** No authentication. A random slug at `/t/[slug]` identifies a trip. An edit
-token in an httpOnly cookie authorises mutations. `Trip.userId` is nullable and stays
-that way until accounts exist.
+**Identity.** No authentication. A random slug at `/t/[slug]` identifies a trip, and that
+link alone is the read only view. A second random key, in the edit link
+`/t/[slug]/edit/[key]`, authorises mutations. Storage keeps only its hash, and nothing
+is kept in a cookie or anywhere else in the browser: whoever holds the edit link holds
+the trip, on any device. `Trip.userId` is nullable and stays that way until accounts
+exist.
 
 **The front door.** `/` is the page in `src/app/(marketing)`: the stops the trip makes,
 each a city and how many days in it, and the day it departs. The first city is the trip's
