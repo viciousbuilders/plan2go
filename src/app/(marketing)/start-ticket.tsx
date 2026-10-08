@@ -250,7 +250,11 @@ export function StartTicket() {
               );
             })}
 
-            <li>
+            {/* On a desk, as tall as a stop: the name's line, 30px at 1.25,
+                over its days, 8px under it and 28px tall. So the row the
+                field is on keeps its height when the city chosen in it
+                takes the field's place. */}
+            <li className="md:min-h-[73.5px]">
               {stops.length < MAX_STOPS ? (
                 <StopSearch first={stops.length === 0} onAdd={add} />
               ) : (
