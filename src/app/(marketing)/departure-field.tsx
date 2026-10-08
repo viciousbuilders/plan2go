@@ -32,17 +32,8 @@ const DEPARTS_ON = new Intl.DateTimeFormat("en-AU", {
 /** Matches the panel's own width class, for keeping it inside the window. */
 const PANEL_WIDTH = 320;
 
-/** Room kept between the panel and the edge of the window, and between it and the field. */
+/** Room kept between the panel and the edge of the window. */
 const EDGE_GAP = 16;
-const FIELD_GAP = 12;
-
-/**
- * How tall the panel comes to, for deciding whether it fits under the field:
- * its padding, the line with the arrows, the month's name and the weekdays,
- * and then a row for each week.
- */
-const PANEL_FRAME_HEIGHT = 140;
-const WEEK_HEIGHT = 36;
 
 const STEP =
   "grid h-[30px] w-[30px] shrink-0 place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 hover:text-terracotta-900 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
@@ -71,11 +62,12 @@ interface DepartureFieldProps {
  * pointer while it is over the days. Days before today are shown and not
  * offered.
  *
- * One month at a time, at every width. It opens under the field, or over it
- * when the window has no room under it, and is walked back from the window's
- * edge. The arrow keys walk the days, stepping the month when they walk off
- * it, Page Up and Page Down go a month, and Escape puts it away, the focus
- * back on the field each time it goes.
+ * One month at a time, at every width. It hangs from the field, always under
+ * it and from its left edge, walked back only where it would run past the
+ * window's edge, and opening it scrolls the page as little as it takes to
+ * bring the whole month into the window. The arrow keys walk the days,
+ * stepping the month when they walk off it, Page Up and Page Down go a month,
+ * and Escape puts it away, the focus back on the field each time it goes.
  */
 export function DepartureField({ today, start, days, onChange }: DepartureFieldProps) {
   const [open, setOpen] = useState(false);
@@ -86,8 +78,6 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   const [previewing, setPreviewing] = useState<IsoDate | null>(null);
   /** Where the panel's left edge goes, from the field's own, to keep it in the window. */
   const [shift, setShift] = useState(0);
-  /** Whether it opens over the field, when the window has no room under it. */
-  const [above, setAbove] = useState(false);
   /**
    * Set as the keys move the day, or as the panel opens, and let go of once
    * the focus has followed, so the focus is only taken when they ask for it:
@@ -96,7 +86,19 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   const steered = useRef(false);
   const container = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
+  const calendar = useRef<HTMLDivElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
+
+  /**
+   * Brought whole into the window as it opens, since it hangs under the field
+   * however little room the window has there. "nearest" leaves a month that
+   * is already in sight exactly where it is.
+   */
+  useEffect(() => {
+    if (open) {
+      calendar.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open || !steered.current || focused === null) {
@@ -124,10 +126,6 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
     if (box !== undefined) {
       const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
       setShift(Math.max(EDGE_GAP, Math.min(box.left, window.innerWidth - EDGE_GAP - width)) - box.left);
-      const height = PANEL_FRAME_HEIGHT + weeksIn(first) * WEEK_HEIGHT;
-      const roomUnder = window.innerHeight - box.bottom - FIELD_GAP - EDGE_GAP;
-      const roomOver = box.top - FIELD_GAP - EDGE_GAP;
-      setAbove(roomUnder < height && roomOver >= height);
     }
     setMonth(first);
     setFocused(start);
@@ -199,6 +197,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
 
     return (
       <div
+        ref={calendar}
         role="dialog"
         aria-label="Choose the day the trip departs"
         style={{ left: shift }}
@@ -208,9 +207,11 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
             putAway();
           }
         }}
-        className={`absolute z-20 w-[min(320px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md ${
-          above ? "bottom-full mb-3" : "top-full mt-3"
-        }`}
+        // Scrolled into the window with the room it keeps from the window's
+        // sides under it. The page ends where the last box on it does, which
+        // here is this one's edge, so a strip of nothing under it gives the
+        // page that room to scroll to.
+        className="absolute top-full z-20 mt-3 w-[min(320px,calc(100vw-2rem))] scroll-mb-4 rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md after:absolute after:top-full after:h-4 after:w-px"
       >
         {/* The line over the month: what to choose, and a step of one month
             at either end of it, each named for the month it goes to. */}
