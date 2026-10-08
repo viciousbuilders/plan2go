@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 // zod/mini, by name: this file reaches the browser, and the classic import
 // carries every locale zod has with it. See export-query.ts.
 import { array, nullable, object, optional, safeParse, string } from "zod/mini";
@@ -42,6 +42,24 @@ const NO_MATCH = "No city matches that. Check the spelling.";
 /** Tailwind's md, from which the ticket is laid out as on a desk. */
 const WIDE = "(min-width: 48rem)";
 
+/** Between the field's line and the list, the mt-2 or mb-2 it is drawn with. */
+const LIST_GAP = 8;
+
+/** Room the list keeps from either end of the page. */
+const PAGE_ROOM = 8;
+
+/**
+ * How tall the list is at its tallest, five cities, the most the search
+ * answers: its padding, its heading, and five rows of 56px, 2px apart.
+ */
+const LIST_HEIGHT = 333;
+
+/** Which side of the field the list hangs on, and how tall it may be there. */
+interface Hang {
+  readonly above: boolean;
+  readonly room: number;
+}
+
 function watchWidth(onChange: () => void): () => void {
   const wide = window.matchMedia(WIDE);
   wide.addEventListener("change", onChange);
@@ -74,14 +92,16 @@ interface StopSearchProps {
  * once something is typed, since a phone's keyboard has no Enter to read as
  * an add.
  *
- * The list hangs 8px under the field, drawn as the ticket's other panel, the
- * departure calendar, is: raised paper rounded at 24px under the same
- * shadow, "Matching cities" in the ticket's small capitals, and each city a
- * row a finger's height, a pin in the accent before its name and its country
- * under that. On a desk it is the calendar's 320px and starts 8px left of the
- * field, which is 240px, so the list stands a third wider than the words
- * typed into it; on a phone it is the field's line, the field and Add, and
- * the dot stands outside it.
+ * The list hangs 8px under the field, or over it where the page has no room
+ * for five cities under it before its foot, as the departure calendar does,
+ * and is never taller than the room on its side, so it never runs the page
+ * on past either end. It is drawn as that calendar is: raised paper rounded
+ * at 24px under the same shadow, "Matching cities" in the ticket's small
+ * capitals, and each city a row a finger's height, a pin in the accent
+ * before its name and its country under that. On a desk it is the
+ * calendar's 320px and starts 8px left of the field, which is 240px, so the
+ * list stands a third wider than the words typed into it; on a phone it is
+ * the field's line, the field and Add, and the dot stands outside it.
  */
 export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [query, setQuery] = useState("");
@@ -91,7 +111,14 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [message, setMessage] = useState<string | null>(null);
   /** The text the list on screen is an answer to. */
   const [answered, setAnswered] = useState<string | null>(null);
+  /**
+   * Worked out as the list opens and kept while it is open, so it does not
+   * change sides as the answers come in and the list grows.
+   */
+  const [hang, setHang] = useState<Hang>({ above: false, room: LIST_HEIGHT });
   const container = useRef<HTMLDivElement | null>(null);
+  /** The field's line, which the list hangs from. */
+  const line = useRef<HTMLDivElement | null>(null);
   const field = useRef<HTMLInputElement | null>(null);
   /** Answers can arrive out of order, so only the newest is allowed to land. */
   const newest = useRef(0);
@@ -115,6 +142,35 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const searching = searched && answered !== trimmed;
   const listed = open && found.length > 0;
   const picked = listed ? found[active] : undefined;
+  /** Whether the list is up, with cities in it or a sentence. */
+  const shown = open && searched;
+
+  /**
+   * Under the field where the page has room for five cities before its foot,
+   * else on whichever side has more room, and no taller than that room. Again
+   * whenever the window changes size while the list is up.
+   */
+  useLayoutEffect(() => {
+    if (!shown) {
+      return;
+    }
+    const hangIt = (): void => {
+      const box = line.current?.getBoundingClientRect();
+      if (box === undefined) {
+        return;
+      }
+      const page = document.body.getBoundingClientRect();
+      const under = page.bottom - PAGE_ROOM - (box.bottom + LIST_GAP);
+      const over = box.top - LIST_GAP - (page.top + PAGE_ROOM);
+      const above = under < LIST_HEIGHT && over > under;
+      setHang({ above, room: Math.max(0, above ? over : under) });
+    };
+    hangIt();
+    window.addEventListener("resize", hangIt);
+    return () => {
+      window.removeEventListener("resize", hangIt);
+    };
+  }, [shown]);
 
   useEffect(() => {
     if (!searched) {
@@ -215,7 +271,7 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
       />
       {/* The field's line, which the list hangs from: the field, and on a
           phone Add at its end. */}
-      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 md:flex">
+      <div ref={line} className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 md:flex">
         <label htmlFor={fieldId} className="sr-only">
           Add a stop
         </label>
@@ -238,7 +294,8 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
           }}
           onKeyDown={onKeyDown}
           // 21 on a phone, never under 16, or iOS zooms the page into the field.
-          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:h-10 md:w-[240px] md:text-[25px]"
+          // No ring round it: the caret, in the accent, says it has the cursor.
+          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-10 md:w-[240px] md:text-[25px]"
         />
         {query.trim() === "" ? null : (
           <button
@@ -255,10 +312,15 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
           </button>
         )}
 
-        {open && searched ? (
+        {shown ? (
           // The calendar's surface, corners and shadow, the shadow in the
           // accent's darkest brown as the ticket's own is.
-          <div className="absolute top-full right-0 left-0 z-20 mt-2 rounded-[24px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px]">
+          <div
+            style={{ maxHeight: hang.room }}
+            className={`absolute right-0 left-0 z-20 overflow-y-auto overscroll-contain rounded-[24px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px] ${
+              hang.above ? "bottom-full mb-2" : "top-full mt-2"
+            }`}
+          >
             {listed ? (
               <>
                 <p className={`${FIELD_LABEL} px-3 pt-2.5 pb-2`}>Matching cities</p>
