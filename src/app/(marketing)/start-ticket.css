@@ -4,6 +4,11 @@
  * round where they meet as a ticket is where it tears, and a warm shadow
  * under the whole that follows the cuts.
  *
+ * The stub is the accent's 700 rather than the accent itself. Its smallest
+ * words, how many cities, are in paper at 15px, and on the accent they read at
+ * 3.5 to 1, under the 4.5 small words need. The 700 gives 6.5, and is the
+ * first step down the ramp that clears it: the 600 is still short, at 4.3.
+ *
  * A phone has the stub under the main half, so the cuts are at the two ends
  * of the line between them; a desk has it beside, so the cuts are at the top
  * and the foot of that line.
@@ -40,7 +45,7 @@
     radial-gradient(circle at 100% 0, transparent 14px, #000 15px) right / 51% 100% no-repeat;
   border-top: 2px dashed color-mix(in srgb, var(--color-sheet) 50%, transparent);
   border-radius: 0 0 28px 28px;
-  background: var(--color-terracotta);
+  background: var(--color-terracotta-700);
   -webkit-mask: var(--cut);
   mask: var(--cut);
 }
