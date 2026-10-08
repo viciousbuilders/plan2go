@@ -90,17 +90,20 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   const steered = useRef(false);
   const container = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
-  const calendar = useRef<HTMLDivElement | null>(null);
+  /** The room under the panel that the longest month would take. */
+  const reach = useRef<HTMLDivElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
 
   /**
    * Brought whole into the window as it opens, since it hangs under the field
-   * however little room the window has there. "nearest" leaves a month that
-   * is already in sight exactly where it is.
+   * however little room the window has there, and with it the room the
+   * longest month would take, so a month stepped on to later is in sight
+   * however many weeks it has. "nearest" leaves a calendar that is already in
+   * sight exactly where it is.
    */
   useEffect(() => {
     if (open) {
-      calendar.current?.scrollIntoView({ block: "nearest" });
+      reach.current?.scrollIntoView({ block: "nearest" });
     }
   }, [open]);
 
@@ -202,7 +205,6 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
 
     return (
       <div
-        ref={calendar}
         role="dialog"
         aria-label="Choose the day the trip departs"
         style={{ left: shift }}
@@ -212,11 +214,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
             putAway();
           }
         }}
-        // Scrolled into the window with the room it keeps from the window's
-        // sides under it. The page ends where the last box on it does, which
-        // here is this one's edge, so a strip of nothing under it gives the
-        // page that room to scroll to.
-        className="absolute top-full z-20 mt-3 w-[min(320px,calc(100vw-2rem))] scroll-mb-4 rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md after:absolute after:top-full after:h-4 after:w-px"
+        className="absolute top-full z-20 mt-3 w-[min(320px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md"
       >
         {/* The line over the month: what to choose, and a step of one month
             at either end of it, each named for the month it goes to. */}
@@ -339,15 +337,21 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
                 })}
               </div>
             ))}
-            {/* Room for the weeks this month does not have, up to the six the
-                longest spans, so the panel is one size from month to month.
-                A month a week shorter made the page under it shorter, which
-                pulled the panel and its arrows down under a pointer pressing
-                on to the next month. */}
-            {Array.from({ length: MOST_WEEKS - weeks }, (_unused, at) => (
-              <div key={`room-${String(at)}`} aria-hidden="true" className="h-9" />
-            ))}
           </div>
+        </div>
+
+        {/* Out of sight under the panel, which ends at its month's last week:
+            the room the longest month would take below it, and under that
+            the room kept from the window's foot. The page ends where the last
+            thing on it does, so without this a month a week shorter than the
+            last made the page shorter, which pulled the panel and its arrows
+            down under a pointer pressing on to the next month. With it the
+            page keeps its length whatever month is on show. */}
+        <div ref={reach} aria-hidden="true" className="pointer-events-none absolute top-full left-0 w-px">
+          {Array.from({ length: MOST_WEEKS - weeks }, (_unused, at) => (
+            <div key={`room-${String(at)}`} className="h-9" />
+          ))}
+          <div className="h-4" />
         </div>
       </div>
     );
