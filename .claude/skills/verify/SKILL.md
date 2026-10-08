@@ -40,9 +40,12 @@ touching one that exists. Front door at `/`:
    buttons named `More days in <city>` and `Fewer days in <city>`. The ticket draws each
    stop twice, a desk's and a phone's, one hidden at any width, so find them by role,
    which only sees the one on show.
-2. The trip departs today until changed (`input[name="startDate"]`, a native date field
-   laid unseen over the Departs line). Press `getByRole("button", { name: /Start planning/ })`
-   on the ticket's stub, open once there is a stop.
+2. The trip departs today until changed. The Departs line is a button, named "Departs"
+   and the day, that opens `[role="dialog"][aria-label="Choose the day the trip departs"]`;
+   its days are `button[data-date="YYYY-MM-DD"]`, days before today disabled, and a press
+   chooses and closes it. What is sent is `input[name="startDate"]`, hidden. Press
+   `getByRole("button", { name: /Start planning/ })` on the ticket's stub, open once there
+   is a stop.
 
 It lands on `/t/<slug>/edit/<key>`. The key in the URL is the whole of the edit
 authority, there is no cookie. `/t/<slug>` on its own is the read only share view and

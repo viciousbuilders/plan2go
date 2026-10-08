@@ -3,32 +3,22 @@
 import { Fragment, useActionState, useRef, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
 import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
-import { addDays, isoDateAsUtc } from "@/core/time/zoned";
+import { addDays } from "@/core/time/zoned";
 import { formatDayDate } from "@/features/day-planner/format-day-date";
-import { ChevronDownIcon, CloseIcon, MinusIcon, PlaneIcon, PlusIcon } from "@/ui/icons";
+import { CloseIcon, MinusIcon, PlaneIcon, PlusIcon } from "@/ui/icons";
 import { Notice } from "@/ui/notice";
 import { useLocalToday } from "@/ui/use-local-today";
 import type { CreateTripFormState } from "./create-trip-action";
 import { createTripAction } from "./create-trip-action";
+import { DepartureField } from "./departure-field";
 import type { ChosenCity } from "./stop-search";
 import { StopSearch } from "./stop-search";
+import { FIELD_LABEL, FIELD_VALUE } from "./ticket-type";
 import "./start-ticket.css";
 
 // Lives here, not beside the action: a "use server" file may export only async
 // functions, so the starting state cannot sit next to it.
 const NO_ERROR: CreateTripFormState = { error: null };
-
-/** The day the trip departs, as a desk's ticket writes it, the year included. */
-const DEPARTS_ON = new Intl.DateTimeFormat("en-AU", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-/** What a field on the ticket is called, over what it says. */
-const LABEL = "text-[11px] leading-none font-bold tracking-[0.14em] text-ink-muted uppercase";
 
 /** Every round button on the ticket answers the keyboard the same way. */
 const FOCUS =
@@ -270,47 +260,18 @@ export function StartTicket() {
           </ol>
 
           <div className="grid grid-cols-2 gap-4 border-t-2 border-dashed border-rule pt-[18px] md:flex md:flex-wrap md:gap-x-10 md:gap-y-4 md:pt-5">
-            {/* The browser's own calendar, laid over the whole field and out of
-                sight, so a press anywhere on it opens one, and on a phone it
-                is the phone's own wheel of days. */}
-            <label className="relative flex min-h-11 cursor-pointer flex-col gap-2 rounded-chip has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-terracotta">
-              <span className={LABEL}>Departs</span>
-              <span className="flex items-center gap-[6px] text-[16px] leading-none font-semibold text-ink tabular-nums md:gap-2 md:text-[17px]">
-                {start === null ? (
-                  // The day's room, kept blank until the browser has said
-                  // what today is, so nothing moves when it arrives.
-                  <span className="invisible">Thu, 8 Oct</span>
-                ) : (
-                  <>
-                    <span className="md:hidden">{formatDayDate(start)}</span>
-                    <span className="max-md:hidden">{DEPARTS_ON.format(isoDateAsUtc(start))}</span>
-                  </>
-                )}
-                <ChevronDownIcon size={15} strokeWidth={2.75} className="flex-none text-terracotta-700" />
-              </span>
-              <input
-                type="date"
-                name="startDate"
-                aria-label="Departure date"
-                value={start ?? ""}
-                min={today ?? undefined}
-                disabled={start === null}
-                onChange={(event) => {
-                  const picked = event.target.value;
-                  // Emptied, which a desk's field allows, is not a day: the
-                  // one chosen before stands.
-                  if (picked === "" || today === null) {
-                    return;
-                  }
-                  setChosenStart(picked < today ? today : picked);
-                  setChangedUnder(state);
-                }}
-                className="start-date absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              />
-            </label>
+            <DepartureField
+              today={today}
+              start={start}
+              days={days}
+              onChange={(chosen) => {
+                setChosenStart(chosen);
+                setChangedUnder(state);
+              }}
+            />
             <div className="flex flex-col gap-2">
-              <span className={LABEL}>Returns</span>
-              <span className="text-[16px] leading-none font-semibold text-ink tabular-nums md:text-[17px]">
+              <span className={FIELD_LABEL}>Returns</span>
+              <span className={FIELD_VALUE}>
                 {back === null ? (
                   <span className="font-medium text-ink-muted">Add a stop</span>
                 ) : (
