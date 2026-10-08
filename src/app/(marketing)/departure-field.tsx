@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
 import { addDays, isoDateAsUtc, parseIsoDate } from "@/core/time/zoned";
 import { formatDayDate } from "@/features/day-planner/format-day-date";
@@ -29,12 +29,8 @@ const DEPARTS_ON = new Intl.DateTimeFormat("en-AU", {
   timeZone: "UTC",
 });
 
-/** Room for two months side by side: Tailwind's sm. Under it, one. */
-const ROOM_FOR_TWO = "(min-width: 40rem)";
-
-/** Each matches the panel's own width class, for keeping it inside the window. */
-const ONE_MONTH_WIDTH = 320;
-const TWO_MONTHS_WIDTH = 600;
+/** Matches the panel's own width class, for keeping it inside the window. */
+const PANEL_WIDTH = 320;
 
 /** Room kept between the panel and the edge of the window, and between it and the field. */
 const EDGE_GAP = 16;
@@ -51,14 +47,6 @@ const WEEK_HEIGHT = 36;
 const STEP =
   "grid h-[30px] w-[30px] shrink-0 place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 hover:text-terracotta-900 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
-function watchWidth(onChange: () => void): () => void {
-  const room = window.matchMedia(ROOM_FOR_TWO);
-  room.addEventListener("change", onChange);
-  return () => {
-    room.removeEventListener("change", onChange);
-  };
-}
-
 interface DepartureFieldProps {
   /** Today on the reader's own clock, the earliest day a trip can depart, or null until the browser has said. */
   readonly today: IsoDate | null;
@@ -72,9 +60,10 @@ interface DepartureFieldProps {
 /**
  * The day the trip departs, chosen from a calendar of the product's own rather
  * than the browser's, which is drawn by the browser in a system's colours and
- * cannot be reached with CSS. The same calendar the trip's dates are chosen on
- * inside the planner: the months under a line saying what to choose, a step to
- * the month before or after at either end of it, every day a disc.
+ * cannot be reached with CSS. Drawn as the calendar the trip's dates are
+ * chosen on inside the planner, one month rather than two: the month under a
+ * line saying what to choose, a step to the month before or after at either
+ * end of it, every day a disc.
  *
  * One press chooses: the trip departs that day, and the panel goes. The days
  * the stops come to stand on a band from it to the day the trip is back, so
@@ -82,16 +71,16 @@ interface DepartureFieldProps {
  * pointer while it is over the days. Days before today are shown and not
  * offered.
  *
- * Two months side by side where there is room, one on a phone. It opens under
- * the field, or over it when the window has no room under it, and is walked
- * back from the window's edge. The arrow keys walk the days, stepping the
- * months when they walk off them, Page Up and Page Down go a month, and Escape
- * puts it away, the focus back on the field each time it goes.
+ * One month at a time, at every width. It opens under the field, or over it
+ * when the window has no room under it, and is walked back from the window's
+ * edge. The arrow keys walk the days, stepping the month when they walk off
+ * it, Page Up and Page Down go a month, and Escape puts it away, the focus
+ * back on the field each time it goes.
  */
 export function DepartureField({ today, start, days, onChange }: DepartureFieldProps) {
   const [open, setOpen] = useState(false);
-  /** The first of the months on show, and the day the keys are on, both set as it opens. */
-  const [leftMonth, setLeftMonth] = useState<IsoDate | null>(null);
+  /** The month on show, as its first day, and the day the keys are on, both set as it opens. */
+  const [month, setMonth] = useState<IsoDate | null>(null);
   const [focused, setFocused] = useState<IsoDate | null>(null);
   /** The day under the pointer, which the band is drawn from while it is there. */
   const [previewing, setPreviewing] = useState<IsoDate | null>(null);
@@ -102,18 +91,12 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   /**
    * Set as the keys move the day, or as the panel opens, and let go of once
    * the focus has followed, so the focus is only taken when they ask for it:
-   * never by the arrows over the months, which leave it where it was.
+   * never by the arrows over the month, which leave it where it was.
    */
   const steered = useRef(false);
   const container = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
-  const two = useSyncExternalStore(
-    watchWidth,
-    () => window.matchMedia(ROOM_FOR_TWO).matches,
-    () => true,
-  );
-  const shown = two ? 2 : 1;
 
   useEffect(() => {
     if (!open || !steered.current || focused === null) {
@@ -121,7 +104,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
     }
     steered.current = false;
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
-  }, [open, focused, leftMonth]);
+  }, [open, focused, month]);
 
   useOutsidePress(container, open, () => {
     setOpen(false);
@@ -139,15 +122,14 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
     const first = firstOfMonth(start);
     const box = trigger.current?.getBoundingClientRect();
     if (box !== undefined) {
-      const width = Math.min(two ? TWO_MONTHS_WIDTH : ONE_MONTH_WIDTH, window.innerWidth - 2 * EDGE_GAP);
+      const width = Math.min(PANEL_WIDTH, window.innerWidth - 2 * EDGE_GAP);
       setShift(Math.max(EDGE_GAP, Math.min(box.left, window.innerWidth - EDGE_GAP - width)) - box.left);
-      const weeks = Math.max(...Array.from({ length: shown }, (_unused, at) => weeksIn(shiftMonths(first, at))));
-      const height = PANEL_FRAME_HEIGHT + weeks * WEEK_HEIGHT;
+      const height = PANEL_FRAME_HEIGHT + weeksIn(first) * WEEK_HEIGHT;
       const roomUnder = window.innerHeight - box.bottom - FIELD_GAP - EDGE_GAP;
       const roomOver = box.top - FIELD_GAP - EDGE_GAP;
       setAbove(roomUnder < height && roomOver >= height);
     }
-    setLeftMonth(first);
+    setMonth(first);
     setFocused(start);
     setPreviewing(null);
     steered.current = true;
@@ -160,17 +142,18 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
   };
 
   const panel = (() => {
-    if (!open || start === null || today === null || leftMonth === null || focused === null) {
+    if (!open || start === null || today === null || month === null || focused === null) {
       return null;
     }
-    const months = Array.from({ length: shown }, (_unused, at) => shiftMonths(leftMonth, at));
-    const afterShown = shiftMonths(leftMonth, shown);
-    /** As many rows as the taller month needs, both drawn to it so their weeks line up. */
-    const weeksShown = Math.max(...months.map(weeksIn));
-    const before = shiftMonths(leftMonth, -1);
-    const after = shiftMonths(leftMonth, shown);
+    const before = shiftMonths(month, -1);
+    const after = shiftMonths(month, 1);
+    const weeks = weeksIn(month);
+    const cells = Array.from({ length: weeks * DAYS_IN_WEEK }, (_unused, index) =>
+      addDays(gridStart(month), index),
+    );
+    const shownMonth = parseIsoDate(month).month;
     /** Nothing before today's month is offered, so there is no stepping back to it. */
-    const canGoBack = leftMonth > firstOfMonth(today);
+    const canGoBack = month > firstOfMonth(today);
     /** The trip as it would be: from the day under the pointer, or the day chosen. */
     const leaving = previewing ?? start;
     const back = days > 1 ? addDays(leaving, days - 1) : leaving;
@@ -179,21 +162,19 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
      * else the first on show that can be chosen.
      */
     const stop =
-      focused >= leftMonth && focused < afterShown
+      focused >= month && focused < after
         ? focused
-        : today > leftMonth && today < afterShown
+        : today > month && today < after
           ? today
-          : leftMonth;
+          : month;
 
-    /** Keeps the day the keys are on on show and never before today, stepping the months to follow it. */
+    /** Keeps the day the keys are on on show and never before today, stepping the month to follow it. */
     const moveTo = (date: IsoDate): void => {
       const next = date < today ? today : date;
       steered.current = true;
       setFocused(next);
-      if (next < leftMonth) {
-        setLeftMonth(firstOfMonth(next));
-      } else if (next >= afterShown) {
-        setLeftMonth(shiftMonths(firstOfMonth(next), -(shown - 1)));
+      if (next < month || next >= after) {
+        setMonth(firstOfMonth(next));
       }
     };
 
@@ -227,11 +208,11 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
             putAway();
           }
         }}
-        className={`absolute z-20 rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md ${
-          two ? "w-[min(600px,calc(100vw-2rem))]" : "w-[min(320px,calc(100vw-2rem))]"
-        } ${above ? "bottom-full mb-3" : "top-full mt-3"}`}
+        className={`absolute z-20 w-[min(320px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-3 shadow-md ${
+          above ? "bottom-full mb-3" : "top-full mt-3"
+        }`}
       >
-        {/* The line over the months: what to choose, and a step of one month
+        {/* The line over the month: what to choose, and a step of one month
             at either end of it, each named for the month it goes to. */}
         <div className="flex items-center justify-between gap-3">
           <button
@@ -239,7 +220,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
             aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}
             disabled={!canGoBack}
             onClick={() => {
-              setLeftMonth(before);
+              setMonth(before);
             }}
             className={STEP}
           >
@@ -252,7 +233,7 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
             type="button"
             aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(after))}`}
             onClick={() => {
-              setLeftMonth(shiftMonths(leftMonth, 1));
+              setMonth(after);
             }}
             className={STEP}
           >
@@ -266,104 +247,93 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
           onMouseLeave={() => {
             setPreviewing(null);
           }}
-          className={`mt-4 grid gap-x-6 gap-y-5 ${two ? "grid-cols-2" : ""}`}
+          className="mt-4"
         >
-          {months.map((month) => {
-            const cells = Array.from({ length: weeksShown * DAYS_IN_WEEK }, (_unused, index) =>
-              addDays(gridStart(month), index),
-            );
-            const shownMonth = parseIsoDate(month).month;
-            return (
-              <div key={month}>
-                <p className="text-center font-display text-place/none font-bold text-ink">
-                  {MONTH_AND_YEAR.format(isoDateAsUtc(month))}
-                </p>
-                <div role="grid" aria-label={MONTH_AND_YEAR.format(isoDateAsUtc(month))} className="mt-3">
-                  <div role="row" className="grid grid-cols-7">
-                    {WEEKDAYS.map((weekday, index) => (
-                      <span
-                        key={index}
-                        role="columnheader"
-                        className="pb-1.5 text-center text-meta/none text-ink-muted"
+          <p className="text-center font-display text-place/none font-bold text-ink">
+            {MONTH_AND_YEAR.format(isoDateAsUtc(month))}
+          </p>
+          <div role="grid" aria-label={MONTH_AND_YEAR.format(isoDateAsUtc(month))} className="mt-3">
+            <div role="row" className="grid grid-cols-7">
+              {WEEKDAYS.map((weekday, index) => (
+                <span
+                  key={index}
+                  role="columnheader"
+                  className="pb-1.5 text-center text-meta/none text-ink-muted"
+                >
+                  <span aria-hidden="true">{weekday.short}</span>
+                  <span className="sr-only">{weekday.full}</span>
+                </span>
+              ))}
+            </div>
+            {Array.from({ length: weeks }, (_unused, week) => (
+              <div role="row" key={week} className="grid grid-cols-7">
+                {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
+                  if (parseIsoDate(date).month !== shownMonth) {
+                    return <span role="gridcell" key={date} className="h-9" />;
+                  }
+                  const early = date < today;
+                  const isStart = date === leaving;
+                  const isBack = date === back && back > leaving;
+                  /*
+                   * The trip's days stand on a band from the day it departs
+                   * to the day it is back, rounded off at each end, in the
+                   * tint the planner's calendar draws a range in.
+                   */
+                  const banded = back > leaving && date >= leaving && date <= back;
+                  return (
+                    <span
+                      role="gridcell"
+                      key={date}
+                      aria-selected={date === start}
+                      className={[
+                        "grid h-9 place-items-center",
+                        banded ? "bg-terracotta-200/70" : "",
+                        banded && isStart ? "rounded-l-pill" : "",
+                        banded && isBack ? "rounded-r-pill" : "",
+                      ].join(" ")}
+                    >
+                      <button
+                        type="button"
+                        data-date={date}
+                        disabled={early}
+                        tabIndex={date === stop ? 0 : -1}
+                        aria-current={date === today ? "date" : undefined}
+                        onClick={() => {
+                          pick(date);
+                        }}
+                        onMouseEnter={() => {
+                          setPreviewing(early ? null : date);
+                        }}
+                        // The day it departs filled in the accent's deepest
+                        // brown, as a chosen day is anywhere in the product,
+                        // and the day it is back ringed in it, since that
+                        // follows from the stops rather than being chosen.
+                        className={[
+                          "grid h-8 w-8 place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta",
+                          isStart
+                            ? "border-terracotta-800 bg-terracotta-800 text-paper"
+                            : isBack
+                              ? "border-terracotta-800 text-terracotta-800"
+                              : early
+                                ? "border-transparent text-ink-faint"
+                                : date === today
+                                  ? "border-terracotta text-ink hover:bg-terracotta-200"
+                                  : "border-transparent text-ink hover:bg-terracotta-200",
+                        ].join(" ")}
                       >
-                        <span aria-hidden="true">{weekday.short}</span>
-                        <span className="sr-only">{weekday.full}</span>
-                      </span>
-                    ))}
-                  </div>
-                  {Array.from({ length: weeksShown }, (_unused, week) => (
-                    <div role="row" key={week} className="grid grid-cols-7">
-                      {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
-                        if (parseIsoDate(date).month !== shownMonth) {
-                          return <span role="gridcell" key={date} className="h-9" />;
-                        }
-                        const early = date < today;
-                        const isStart = date === leaving;
-                        const isBack = date === back && back > leaving;
-                        /*
-                         * The trip's days stand on a band from the day it
-                         * departs to the day it is back, rounded off at each
-                         * end, in the tint the planner's calendar draws a
-                         * range in.
-                         */
-                        const banded = back > leaving && date >= leaving && date <= back;
-                        return (
-                          <span
-                            role="gridcell"
-                            key={date}
-                            aria-selected={date === start}
-                            className={[
-                              "grid h-9 place-items-center",
-                              banded ? "bg-terracotta-200/70" : "",
-                              banded && isStart ? "rounded-l-pill" : "",
-                              banded && isBack ? "rounded-r-pill" : "",
-                            ].join(" ")}
-                          >
-                            <button
-                              type="button"
-                              data-date={date}
-                              disabled={early}
-                              tabIndex={date === stop ? 0 : -1}
-                              aria-current={date === today ? "date" : undefined}
-                              onClick={() => {
-                                pick(date);
-                              }}
-                              onMouseEnter={() => {
-                                setPreviewing(early ? null : date);
-                              }}
-                              // The day it departs filled in the accent's deepest
-                              // brown, as a chosen day is anywhere in the product,
-                              // and the day it is back ringed in it, since that
-                              // follows from the stops rather than being chosen.
-                              className={[
-                                "grid h-8 w-8 place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta",
-                                isStart
-                                  ? "border-terracotta-800 bg-terracotta-800 text-paper"
-                                  : isBack
-                                    ? "border-terracotta-800 text-terracotta-800"
-                                    : early
-                                      ? "border-transparent text-ink-faint"
-                                      : date === today
-                                        ? "border-terracotta text-ink hover:bg-terracotta-200"
-                                        : "border-transparent text-ink hover:bg-terracotta-200",
-                              ].join(" ")}
-                            >
-                              <span aria-hidden="true">{parseIsoDate(date).day}</span>
-                              <span className="sr-only">
-                                {READABLE.format(isoDateAsUtc(date))}
-                                {date === today ? ", today" : ""}
-                                {isBack ? ", the day the trip is back" : ""}
-                              </span>
-                            </button>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
+                        <span aria-hidden="true">{parseIsoDate(date).day}</span>
+                        <span className="sr-only">
+                          {READABLE.format(isoDateAsUtc(date))}
+                          {date === today ? ", today" : ""}
+                          {isBack ? ", the day the trip is back" : ""}
+                        </span>
+                      </button>
+                    </span>
+                  );
+                })}
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
     );
