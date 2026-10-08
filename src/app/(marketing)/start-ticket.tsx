@@ -75,6 +75,8 @@ export function StartTicket() {
   const start = chosenStart ?? today;
   const [stops, setStops] = useState<readonly Stop[]>([]);
   const keys = useRef(0);
+  /** The ticket, which the departure calendar is kept inside from side to side. */
+  const ticket = useRef<HTMLDivElement | null>(null);
   /**
    * The answer the ticket was last changed under. An answer is about the
    * ticket as it was sent, and once a stop or the date has changed it is no
@@ -127,7 +129,7 @@ export function StartTicket() {
         </Fragment>
       ))}
 
-      <div className="ticket flex flex-col md:flex-row">
+      <div ref={ticket} className="ticket flex flex-col md:flex-row">
         {/* Over the stub, so the list of cities can hang down over it. */}
         <div className="relative z-[1] flex min-w-0 flex-1 flex-col gap-5 px-5 py-6 md:gap-6 md:p-8">
           <div aria-hidden="true" className="ticket-ground ticket-ground-main" />
@@ -263,7 +265,7 @@ export function StartTicket() {
             <DepartureField
               today={today}
               start={start}
-              days={days}
+              within={ticket}
               onChange={(chosen) => {
                 setChosenStart(chosen);
                 setChangedUnder(state);
