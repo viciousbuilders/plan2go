@@ -5,7 +5,13 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react"
 // zod/mini, by name: this file reaches the browser, and the classic import
 // carries every locale zod has with it. See export-query.ts.
 import { array, nullable, object, optional, safeParse, string } from "zod/mini";
+import { PinIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
+import { useScrollBar } from "@/ui/use-scroll-bar";
+// The search on the map's own stylesheet, for the list under the field: it is
+// drawn from the classes that search's panels are, so the two cannot drift.
+import "@/features/place-search/place-search.css";
+import "./stop-search.css";
 
 /** Long enough that typing does not spend money on every letter. */
 const DEBOUNCE_MS = 250;
@@ -67,10 +73,16 @@ interface StopSearchProps {
  * goes when the button on its stub is pressed.
  *
  * Drawn as each design has it. On a desk, a line to write on after the last
- * stop, with "Press Enter to add" under it once something is typed. On a
- * phone, the row under the last stop on the line the stops run down, its dot
- * dashed since the stop is not there yet, with Add at its end once something
- * is typed, since a phone's keyboard has no Enter to read as an add.
+ * stop. On a phone, the row under the last stop on the line the stops run
+ * down, its dot dashed since the stop is not there yet, with Add at its end
+ * once something is typed, since a phone's keyboard has no Enter to read as
+ * an add.
+ *
+ * The list is the search on the map's, drawn from the same classes as its
+ * city panel: under "Matching cities", a pin in the accent before each city.
+ * It hangs from the field's line the way that search's panels hang from its
+ * bar, exactly its width and 8px under it, so its edges are the field's: on
+ * a phone that line is the field and Add, and the dot stands outside it.
  */
 export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [query, setQuery] = useState("");
@@ -82,6 +94,7 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [answered, setAnswered] = useState<string | null>(null);
   const container = useRef<HTMLDivElement | null>(null);
   const field = useRef<HTMLInputElement | null>(null);
+  const watchList = useScrollBar("y");
   /** Answers can arrive out of order, so only the newest is allowed to land. */
   const newest = useRef(0);
   const id = useId();
@@ -194,101 +207,106 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const empty = first ? "First stop" : "Next stop";
 
   return (
+    // The search on the map's palette is scoped to its class, so the list
+    // under the field takes its colours from here.
     <div
       ref={container}
-      className="relative grid grid-cols-[24px_minmax(0,1fr)_auto] items-center gap-x-3 md:flex md:flex-col md:items-start md:gap-2"
+      className="place-search stop-search grid grid-cols-[24px_minmax(0,1fr)] items-center gap-x-3 md:flex"
     >
       <span
         aria-hidden="true"
         className="h-3 w-3 justify-self-center rounded-pill border-[2.5px] border-dashed border-terracotta md:hidden"
       />
-      <label htmlFor={fieldId} className="sr-only">
-        Add a stop
-      </label>
-      <input
-        ref={field}
-        id={fieldId}
-        type="text"
-        role="combobox"
-        autoComplete="off"
-        enterKeyHint="done"
-        aria-expanded={listed}
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-activedescendant={picked === undefined ? undefined : `${listId}-${String(active)}`}
-        value={query}
-        placeholder={wide ? `+ ${empty}` : empty}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setOpen(true);
-        }}
-        onKeyDown={onKeyDown}
-        // 21 on a phone, never under 16, or iOS zooms the page into the field.
-        className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:h-10 md:w-[200px] md:text-[25px]"
-      />
-      {query.trim() === "" ? null : (
-        <button
-          type="button"
-          disabled={picked === undefined}
-          onClick={() => {
-            if (picked !== undefined) {
-              add(picked);
-            }
+      {/* The field's line, which the list hangs from: the field, and on a
+          phone Add at its end. */}
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 md:flex">
+        <label htmlFor={fieldId} className="sr-only">
+          Add a stop
+        </label>
+        <input
+          ref={field}
+          id={fieldId}
+          type="text"
+          role="combobox"
+          autoComplete="off"
+          enterKeyHint="done"
+          aria-expanded={listed}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={picked === undefined ? undefined : `${listId}-${String(active)}`}
+          value={query}
+          placeholder={wide ? `+ ${empty}` : empty}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setOpen(true);
           }}
-          className="h-10 rounded-pill bg-terracotta px-4 text-[14px] leading-none font-bold text-sheet hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:hidden"
-        >
-          Add
-        </button>
-      )}
-      {/* Its room kept whether or not there is anything to say, so the line
-          of stops does not grow and shrink as the field is typed in. */}
-      <span className="flex h-7 items-center text-[13px] leading-none font-medium text-ink-muted max-md:hidden">
-        {query.trim() === "" ? "" : "Press Enter to add"}
-      </span>
+          onKeyDown={onKeyDown}
+          // 21 on a phone, never under 16, or iOS zooms the page into the field.
+          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:h-10 md:w-[200px] md:text-[25px]"
+        />
+        {query.trim() === "" ? null : (
+          <button
+            type="button"
+            disabled={picked === undefined}
+            onClick={() => {
+              if (picked !== undefined) {
+                add(picked);
+              }
+            }}
+            className="h-10 rounded-pill bg-terracotta px-4 text-[14px] leading-none font-bold text-sheet hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:hidden"
+          >
+            Add
+          </button>
+        )}
 
-      {open && searched ? (
-        <div className="absolute top-full right-0 left-0 z-10 mt-2 rounded-panel border border-rule bg-paper-raised p-[7px] shadow-md md:right-auto md:w-[min(320px,calc(100vw-3rem))]">
-          {listed ? (
-            <ul id={listId} role="listbox" aria-label="Cities">
-              {found.map((city, index) => (
-                <li
-                  key={city.providerPlaceId}
-                  id={`${listId}-${String(index)}`}
-                  role="option"
-                  aria-selected={index === active}
-                >
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onMouseEnter={() => {
-                      setActive(index);
-                    }}
-                    onClick={() => {
-                      add(city);
-                    }}
-                    className={`block w-full rounded-chip px-[11px] py-2 text-left ${
-                      index === active ? "bg-terracotta-100" : ""
-                    }`}
-                  >
-                    <span className="block text-[14px] leading-[1.3] font-semibold text-ink">
-                      {city.name}
-                    </span>
-                    {city.address === null ? null : (
-                      <span className="block text-[12.5px] leading-[1.3] text-ink-muted">
-                        {city.address}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="px-[11px] py-[10px] text-[13px] leading-[1.35] text-ink-muted">
-              {message ?? (searching ? LOOKING : NO_MATCH)}
-            </p>
-          )}
-        </div>
-      ) : null}
+        {open && searched ? (
+          <div className="search-panel">
+            <div ref={watchList} className="search-list scroll-line">
+              {listed ? (
+                <>
+                  <p className="search-heading">Matching cities</p>
+                  <ul id={listId} role="listbox" aria-label="Cities">
+                    {found.map((city, index) => (
+                      <li
+                        key={city.providerPlaceId}
+                        id={`${listId}-${String(index)}`}
+                        role="option"
+                        aria-selected={index === active}
+                        onMouseEnter={() => {
+                          setActive(index);
+                        }}
+                        data-active={index === active ? "" : undefined}
+                        className="search-row"
+                      >
+                        <button
+                          type="button"
+                          tabIndex={-1}
+                          onClick={() => {
+                            add(city);
+                          }}
+                          className="search-row-button"
+                        >
+                          <span className="search-mark">
+                            <PinIcon size={15} strokeWidth={2.75} />
+                          </span>
+                          <span className="search-row-words">
+                            <span className="search-row-name">{city.name}</span>
+                            {city.address === null ? null : (
+                              <span className="search-row-line">{city.address}</span>
+                            )}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="search-line">{message ?? (searching ? LOOKING : NO_MATCH)}</p>
+              )}
+            </div>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

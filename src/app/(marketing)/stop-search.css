@@ -1,0 +1,53 @@
+/*
+ * The list under the stop search is the search on the map's, drawn from the
+ * classes in place-search.css. Two things about it are the ticket's own.
+ *
+ * The row Enter or Add would take stays picked out at every width. Over a
+ * phone's map that search lets go of it, since a first row tinted read as
+ * one already chosen; here Add stands at the end of the field and takes that
+ * row, so the tint says which city it will be.
+ *
+ * And its rows are a finger's only where the ticket is a phone's, under
+ * 48rem. That search makes them a finger's under 1024px, where the planner
+ * is a phone's, but from 48rem the ticket is a desk's, its steps a pointer's
+ * size and the list only as wide as the field it hangs from. Between the two
+ * the rows stay as a desk draws them: the pin with no disc behind it, the
+ * name at the small step over its line at the micro step.
+ */
+.stop-search .search-row[data-active] {
+  background: var(--search-hover);
+}
+
+@media (width >= 48rem) and (width < 1024px) {
+  .stop-search .search-panel {
+    max-height: 330px;
+  }
+
+  .stop-search .search-row {
+    padding-right: 6px;
+    border-radius: var(--radius-chip);
+  }
+
+  .stop-search .search-row-button {
+    gap: 7px;
+    min-height: auto;
+    padding: 8px 6px 8px 7px;
+    border-radius: var(--radius-chip);
+  }
+
+  .stop-search .search-row-button > .search-mark {
+    width: 15px;
+    height: 15px;
+    background: none;
+  }
+
+  .stop-search .search-row-name {
+    font-size: var(--text-small);
+    line-height: var(--text-small--line-height);
+  }
+
+  .stop-search .search-row-line {
+    font-size: var(--text-micro);
+    line-height: var(--text-micro--line-height);
+  }
+}
