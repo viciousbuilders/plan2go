@@ -1,7 +1,8 @@
 "use client";
 
-import type { KeyboardEvent, RefObject } from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { KeyboardEvent, ReactNode, RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import type { IsoDate } from "@/core/model/day";
 import { addDays, isoDateAsUtc, parseIsoDate } from "@/core/time/zoned";
 import { formatDayDate } from "@/features/day-planner/format-day-date";
@@ -28,6 +29,9 @@ const DEPARTS_ON = new Intl.DateTimeFormat("en-AU", {
   timeZone: "UTC",
 });
 
+/** Tailwind's md, from which the ticket is laid out as on a desk. */
+const WIDE = "(min-width: 48rem)";
+
 /** Six weeks, the most a month spans: a long one that starts on a Saturday or a Sunday. */
 const WEEKS_SHOWN = 6;
 
@@ -50,7 +54,34 @@ const LEAD = 8;
 const PAGE_ROOM = 8;
 
 const STEP =
-  "grid h-9 w-9 flex-none place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta";
+  "grid flex-none place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta";
+
+/** How big the parts of the month are drawn: a step either way, its glyph, the month's name, a week, a day. */
+interface Sizes {
+  readonly step: string;
+  readonly glyph: number;
+  readonly title: string;
+  readonly week: string;
+  readonly day: string;
+}
+
+/** A desk's, as the start page's design draws it. */
+const DESK: Sizes = {
+  step: "h-9 w-9",
+  glyph: 18,
+  title: "text-[16px]",
+  week: "h-10",
+  day: "h-9 w-9 text-[14px]",
+};
+
+/** A phone's, as the mobile design draws its sheet: every day and step a finger's. */
+const PHONE: Sizes = {
+  step: "h-11 w-11",
+  glyph: 20,
+  title: "text-[17px]",
+  week: "h-12",
+  day: "h-11 w-11 text-[15px]",
+};
 
 /** Where the calendar stands: its left edge from the field's, its width, and whether it is under the field. */
 interface Place {
@@ -59,12 +90,20 @@ interface Place {
   readonly below: boolean;
 }
 
+function watchWidth(onChange: () => void): () => void {
+  const wide = window.matchMedia(WIDE);
+  wide.addEventListener("change", onChange);
+  return () => {
+    wide.removeEventListener("change", onChange);
+  };
+}
+
 interface DepartureFieldProps {
   /** Today on the reader's own clock, the earliest day a trip can depart, or null until the browser has said. */
   readonly today: IsoDate | null;
   /** The day the trip departs, or null until the browser has said what today is. */
   readonly start: IsoDate | null;
-  /** The ticket, which the calendar is kept inside from side to side. */
+  /** The ticket, which a desk's calendar is kept inside from side to side. */
   readonly within: RefObject<HTMLElement | null>;
   readonly onChange: (start: IsoDate) => void;
 }
@@ -72,22 +111,27 @@ interface DepartureFieldProps {
 /**
  * The day the trip departs, chosen from a calendar of the product's own rather
  * than the browser's, which is drawn by the browser in a system's colours and
- * cannot be reached with CSS. Drawn and placed as the start page's design has
- * it: the month's name between a step to the month before and one to the
- * month after, the weekdays under them, and six weeks of days, every day a
- * disc, the days of the months either side in a fainter ink.
+ * cannot be reached with CSS. Drawn as the start page's two designs draw it:
+ * the month's name between a step to the month before and one to the month
+ * after, the weekdays under them, and six weeks of days, every day a disc,
+ * the days of the months either side in a fainter ink.
  *
  * One press chooses: the trip departs that day, and the calendar goes. Days
  * before today are shown and not offered.
  *
  * Six weeks whatever the month, so the calendar is one size from month to
  * month and the arrows on it stay where a pointer pressing on through the
- * months left them. It opens 12px under the field, from a little left of it
- * and kept inside the ticket, or 12px over it where the page has no room for
- * it before its foot, and finds its place again if the window changes size
- * while it is open. The arrow keys walk the days, stepping the month when
- * they walk off it, Page Up and Page Down go a month, and Escape puts it
- * away, the focus back on the field each time it goes.
+ * months left them.
+ *
+ * On a desk it opens 12px under the field, from a little left of it and kept
+ * inside the ticket, or 12px over it where the page has no room for it before
+ * its foot, and finds its place again if the window changes size while it is
+ * open. On a phone it comes up from the foot of the window as a sheet, over
+ * the page dimmed, with a handle and the words saying what it is for over the
+ * month, every day and step a finger's size; a press on the dimmed page puts
+ * it away. The arrow keys walk the days, stepping the month when they walk
+ * off it, Page Up and Page Down go a month, and Escape puts it away, the
+ * focus back on the field each time it goes.
  */
 export function DepartureField({ today, start, within, onChange }: DepartureFieldProps) {
   const [open, setOpen] = useState(false);
@@ -105,14 +149,25 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
   const trigger = useRef<HTMLButtonElement | null>(null);
   const calendar = useRef<HTMLDivElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
+  /**
+   * Whether the ticket is a desk's, which decides between the calendar beside
+   * the field and the sheet. Taken as a desk's on the server, which cannot
+   * know, and settled once the browser has said; the calendar is only ever
+   * open in the browser.
+   */
+  const desk = useSyncExternalStore(
+    watchWidth,
+    () => window.matchMedia(WIDE).matches,
+    () => true,
+  );
 
   /**
-   * Placed once it is drawn and before it is seen, and again whenever the
-   * window changes size while it is open: under the field where the page has
-   * room for it before its foot, else over it.
+   * A desk's calendar, placed once it is drawn and before it is seen, and
+   * again whenever the window changes size while it is open: under the field
+   * where the page has room for it before its foot, else over it.
    */
   useLayoutEffect(() => {
-    if (!open) {
+    if (!open || !desk) {
       return;
     }
     const placeIt = (): void => {
@@ -137,7 +192,7 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
     return () => {
       window.removeEventListener("resize", placeIt);
     };
-  }, [open, within]);
+  }, [open, desk, within]);
 
   useEffect(() => {
     if (!open || !steered.current || focused === null) {
@@ -147,7 +202,10 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
   }, [open, focused, month]);
 
-  useOutsidePress(container, open, () => {
+  // A desk's calendar goes at a press anywhere outside it. A phone's sheet
+  // lies over a dimmed page that puts it away itself, and stands outside the
+  // field, where a press inside it would read as one outside.
+  useOutsidePress(container, open && desk, () => {
     setOpen(false);
   });
 
@@ -171,10 +229,18 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
     putAway();
   };
 
-  const panel = (() => {
+  const onEscape = (event: KeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      putAway();
+    }
+  };
+
+  const panel = ((): ReactNode => {
     if (!open || start === null || today === null || month === null || focused === null) {
       return null;
     }
+    const sizes = desk ? DESK : PHONE;
     const before = shiftMonths(month, -1);
     const after = shiftMonths(month, 1);
     const cells = Array.from({ length: WEEKS_SHOWN * DAYS_IN_WEEK }, (_unused, index) =>
@@ -224,23 +290,8 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
       }
     };
 
-    return (
-      <div
-        ref={calendar}
-        role="dialog"
-        aria-label="Choose the day the trip departs"
-        style={{ left: place.left, width: place.width }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            putAway();
-          }
-        }}
-        // The design's shadow, in the accent's darkest brown as the ticket's own is.
-        className={`absolute z-20 flex flex-col gap-3 rounded-[24px] bg-paper-raised p-5 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] ${
-          place.below ? "top-full mt-3" : "bottom-full mb-3"
-        }`}
-      >
+    const body = (
+      <>
         {/* The month, between a step of one month either way, each named for
             the month it goes to. */}
         <div className="flex items-center justify-between gap-2">
@@ -251,20 +302,20 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
             onClick={() => {
               setMonth(before);
             }}
-            className={STEP}
+            className={`${STEP} ${sizes.step}`}
           >
-            <ArrowLeftIcon size={18} strokeWidth={2.75} />
+            <ArrowLeftIcon size={sizes.glyph} strokeWidth={2.75} />
           </button>
-          <p className="text-[16px] leading-none font-bold text-ink">{monthName}</p>
+          <p className={`${sizes.title} leading-none font-bold text-ink`}>{monthName}</p>
           <button
             type="button"
             aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(after))}`}
             onClick={() => {
               setMonth(after);
             }}
-            className={STEP}
+            className={`${STEP} ${sizes.step}`}
           >
-            <ArrowRightIcon size={18} strokeWidth={2.75} />
+            <ArrowRightIcon size={sizes.glyph} strokeWidth={2.75} />
           </button>
         </div>
 
@@ -283,11 +334,13 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
           </div>
           <div role="rowgroup">
             {Array.from({ length: WEEKS_SHOWN }, (_unused, week) => (
-              <div role="row" key={week} className="grid h-10 grid-cols-7 place-items-center">
+              <div role="row" key={week} className={`grid ${sizes.week} grid-cols-7 place-items-center`}>
                 {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
                   const inMonth = parseIsoDate(date).month === shownMonth;
                   const early = date < today;
-                  const chosen = inMonth && date === start;
+                  // The phone's design fills the day it departs wherever it
+                  // stands in the six weeks; the desk's only in its own month.
+                  const chosen = date === start && (inMonth || !desk);
                   return (
                     <span role="gridcell" key={date} aria-selected={chosen}>
                       <button
@@ -304,7 +357,7 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
                         // the months either side fainter than this one, and
                         // the days before today faintest of all.
                         className={[
-                          "grid h-9 w-9 place-items-center rounded-pill text-[14px] leading-none font-bold focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta",
+                          `grid ${sizes.day} place-items-center rounded-pill leading-none font-bold focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta`,
                           chosen
                             ? "bg-terracotta-800 text-sheet"
                             : early
@@ -327,7 +380,50 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
             ))}
           </div>
         </div>
-      </div>
+      </>
+    );
+
+    if (desk) {
+      return (
+        <div
+          ref={calendar}
+          role="dialog"
+          aria-label="Choose the day the trip departs"
+          style={{ left: place.left, width: place.width }}
+          onKeyDown={onEscape}
+          // The design's shadow, in the accent's darkest brown as the ticket's own is.
+          className={`absolute z-20 flex flex-col gap-3 rounded-[24px] bg-paper-raised p-5 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] ${
+            place.below ? "top-full mt-3" : "bottom-full mb-3"
+          }`}
+        >
+          {body}
+        </div>
+      );
+    }
+
+    // At the foot of the page rather than in the ticket: the ticket's shadow
+    // is a filter, and a filter makes the window's edges its own, so a sheet
+    // fixed to the window inside it would be fixed to the ticket instead.
+    return createPortal(
+      <div className="fixed inset-0 z-50">
+        <div aria-hidden="true" onClick={putAway} className="absolute inset-0 touch-none bg-ink/32" />
+        <div
+          ref={calendar}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose the day the trip departs"
+          onKeyDown={onEscape}
+          // The design's shadow, cast upwards, in the accent's darkest brown
+          // as the ticket's own is; and room at its foot for a phone's own
+          // edge where it has one.
+          className="absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col gap-3 overflow-y-auto overscroll-contain rounded-t-[28px] bg-paper-raised px-5 pt-3 pb-[max(32px,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)]"
+        >
+          <span aria-hidden="true" className="h-[5px] w-10 flex-none self-center rounded-pill bg-ink/18" />
+          <p className={`${FIELD_LABEL} pt-1`}>Choose the day you depart</p>
+          {body}
+        </div>
+      </div>,
+      document.body,
     );
   })();
 
@@ -363,10 +459,13 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
               <span className="max-md:hidden">{DEPARTS_ON.format(isoDateAsUtc(start))}</span>
             </>
           )}
+          {/* 14px on a phone and 15px on a desk, as each design draws it,
+              and turned over while the calendar is open only on a desk: on a
+              phone the sheet stands over it. */}
           <ChevronDownIcon
             size={15}
             strokeWidth={2.75}
-            className={`flex-none text-terracotta-700 ${open ? "rotate-180" : ""}`}
+            className={`flex-none text-terracotta-700 max-md:size-3.5 ${open ? "md:rotate-180" : ""}`}
           />
         </span>
       </button>
