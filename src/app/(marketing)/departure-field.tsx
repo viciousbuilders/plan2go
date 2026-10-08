@@ -69,8 +69,9 @@ interface DepartureFieldProps {
  * offered.
  *
  * One month at a time, at every width. Where the window has room beside the
- * field it stands there, to the right of it, rather than hanging under it
- * and making the page run on past the ticket. On a phone, which has no such
+ * field it stands there, to the right of it and level with its middle,
+ * rather than hanging the whole of itself under the field, where it ran the
+ * page on past its end. On a phone, which has no such
  * room, it hangs under the field, centred on the whole of it, the word and
  * the day as well as the chevron, and walked back only where it would run
  * past the window's edge. Either way it stands in the room the longest month
@@ -217,14 +218,16 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
       // Where it stands: always the room the longest month takes, the panel
       // at the top of it ending at its own month's last week, so the panel's
       // top and the arrows on it never move as the months are stepped
-      // through. Beside the field it stands on a line a week under the
-      // field's foot, so a month of five weeks, the commonest, ends level
-      // with the field. Presses on the room the panel leaves go through to
-      // the page, as presses anywhere else outside it do.
+      // through. Beside the field it is centred on the field's middle and
+      // set half a week's row lower, so a month of five weeks, the
+      // commonest, is the one centred exactly: a sixth week runs a row on
+      // under that, and a month of four stops a row short. Presses on the
+      // room the panel leaves go through to the page, as presses anywhere
+      // else outside it do.
       <div
         ref={stand}
         style={beside ? undefined : { left: shift }}
-        className={`pointer-events-none absolute z-20 ${beside ? "left-full -bottom-9 ml-4" : "top-full mt-3"}`}
+        className={`pointer-events-none absolute z-20 ${beside ? "top-1/2 left-full mt-[18px] ml-4 -translate-y-1/2" : "top-full mt-3"}`}
       >
         <div
           role="dialog"
