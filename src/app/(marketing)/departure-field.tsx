@@ -35,6 +35,9 @@ const PANEL_WIDTH = 320;
 /** Room kept between the panel and the edge of the window. */
 const EDGE_GAP = 16;
 
+/** The most weeks a month spans: a long one that starts on a Saturday or a Sunday. */
+const MOST_WEEKS = 6;
+
 const STEP =
   "grid h-[30px] w-[30px] shrink-0 place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 hover:text-terracotta-900 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
@@ -333,6 +336,14 @@ export function DepartureField({ today, start, days, onChange }: DepartureFieldP
                   );
                 })}
               </div>
+            ))}
+            {/* Room for the weeks this month does not have, up to the six the
+                longest spans, so the panel is one size from month to month.
+                A month a week shorter made the page under it shorter, which
+                pulled the panel and its arrows down under a pointer pressing
+                on to the next month. */}
+            {Array.from({ length: MOST_WEEKS - weeks }, (_unused, at) => (
+              <div key={`room-${String(at)}`} aria-hidden="true" className="h-9" />
             ))}
           </div>
         </div>
