@@ -59,6 +59,9 @@ const body = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
+  // Where the site is served from. A link's preview picture has to be given
+  // as a whole address, since the app showing it fetches it from outside.
+  metadataBase: new URL("https://plan2go.vietbrosinaus.com"),
   title: "plan2go",
   description: "Plan a multi-day trip and see how long each day really takes.",
 };
