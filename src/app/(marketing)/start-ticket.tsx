@@ -36,11 +36,15 @@ const DAYS = "flex items-center rounded-pill bg-paper-raised";
 /** The way to take a stop off: a cross in the faint ink, in its card's top right corner. */
 const REMOVE = `absolute grid place-items-center rounded-pill text-ink-faint hover:bg-terracotta-200 hover:text-terracotta-800 ${FOCUS}`;
 
-/** A step of a stop's days, as tall as the pill it is in: a desk's. */
-const DESK_STEP = `grid h-9 w-9 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
+/**
+ * A step of a stop's days, as tall as the pill it is in: a desk's. Under the
+ * pointer it takes the accent's second tint, a step past the card's own, so
+ * it does not read as a hole through the pill to the card.
+ */
+const DESK_STEP = `grid h-9 w-9 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-200 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
 
-/** A step of a stop's days, forty across inside the pill they share: a phone's. */
-const PHONE_STEP = `grid h-10 w-10 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
+/** A step of a stop's days, forty across inside the pill they share: a phone's, tinted as a desk's. */
+const PHONE_STEP = `grid h-10 w-10 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-200 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
 
 /** A stop's name, which is pressed to change its city, warming to the accent under the pointer. */
 const NAME = `rounded-chip font-display leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink hover:text-terracotta-700 ${FOCUS}`;
