@@ -35,8 +35,9 @@ touching one that exists. Front door at `/`:
 
 1. The stop field, `getByLabel("Add a stop")`, is a Google backed search over cities
    anywhere; fill it, wait for `[role="listbox"][aria-label="Cities"] [role="option"]`
-   and press Enter. That adds the picked city as a stop of one day and empties the
-   field, with the cursor still in it, for the next. A stop's days step with the
+   and press Enter. That adds the picked city as a stop of one day, empties the field
+   and takes the cursor out of it, with the list put away; `fill` puts the cursor back
+   for the next. A stop's days step with the
    buttons named `More days in <city>` and `Fewer days in <city>`. The ticket draws each
    stop twice, a desk's and a phone's, one hidden at any width, so find them by role,
    which only sees the one on show.

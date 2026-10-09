@@ -192,9 +192,9 @@ interface StopSearchProps {
  *
  * Two fields are this one. The next stop's, after the last on the ticket: a
  * city goes on the ticket when it is pressed in the list, on a phone as on a
- * desk, at a day, and the field empties for the next with the cursor still in
- * it and the list still up, offering the towns near the city just chosen, so
- * a trip of five cities is five names typed or picked one after another. And
+ * desk, at a day, and the field empties and lets the cursor go, its list put
+ * away, so the ticket is seen whole with the city on it. Reached for again,
+ * it offers the towns near the city just chosen for the stop after it. And
  * a stop's own, in place of its name once the name is pressed, empty and
  * showing the name as its words: the city chosen in it is the stop's city
  * from then on, at the same days, and the field goes, as it does when it is
@@ -303,8 +303,8 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
   /**
    * Under the field where the page has room for five cities before its foot,
    * else on whichever side has more room, and no taller than that room. Again
-   * whenever the window changes size while the list is up, and when a city
-   * chosen from it moves the field on.
+   * whenever the window changes size while the list is up, and when the city
+   * the stop comes after changes under it.
    */
   useLayoutEffect(() => {
     if (!shown) {
@@ -393,8 +393,8 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
     });
   };
   const lookingUpOffer = useEffectEvent(lookUpOffer);
-  // Again whenever the city the stop comes after changes while the list is
-  // up, as it does the moment a next stop is chosen from it.
+  // As the list opens, for the city the stop comes after then, and again
+  // whenever that city changes while the list is up.
   useEffect(() => {
     if (open) {
       lookingUpOffer();
@@ -418,9 +418,11 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
     setFound([]);
     setAnswered(null);
     setActive(0);
-    // Left up, to offer the towns near the city just chosen for the stop after it.
-    setOpen(true);
-    field.current?.focus();
+    // Put away, with the cursor let go of, so the ticket is seen whole with
+    // the city on it and a phone puts its keyboard down. Reaching for the
+    // field again offers the towns near the city just chosen.
+    setOpen(false);
+    field.current?.blur();
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
