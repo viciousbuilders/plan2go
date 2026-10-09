@@ -32,8 +32,8 @@ export default function MarketingPage() {
             Plan it, map it, share it.
           </h1>
           <p className="text-[16px] leading-[1.6] text-balance text-ink-muted md:max-w-[44ch] md:text-[18px]">
-            Add your cities, fill each day with places, see real travel times, and share it as a link
-            or PDF.
+            Add your cities, fill each day with places, see real travel times, and share it as a
+            link or PDF.
           </p>
         </div>
       </div>

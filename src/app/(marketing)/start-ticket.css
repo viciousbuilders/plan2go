@@ -111,10 +111,50 @@
   box-shadow: none;
 }
 
+/*
+ * While the trip is being made, the arrow is a plane flying on through a
+ * strip at the end of the words, climbing a little, and round again: the
+ * button is busy, and busy getting somewhere. The strip fades at both ends,
+ * so the plane comes out of nothing and goes into it rather than being cut
+ * off at an edge. When the trip is ready the page goes off the way it flew,
+ * in globals.css. Under reduced motion it stands still and the words say it.
+ */
+.ticket-go-runway {
+  display: inline-block;
+  width: 30px;
+  height: 18px;
+  margin-left: 5px;
+  vertical-align: -4px;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.ticket-go-plane {
+  display: block;
+  margin: 1px auto 0;
+  rotate: 40deg;
+  animation: ticket-fly 1.2s linear infinite;
+}
+
+@keyframes ticket-fly {
+  from {
+    translate: -25px 3px;
+  }
+
+  to {
+    translate: 25px -3px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ticket-go,
   .ticket-go-arrow {
     transition: none;
+  }
+
+  .ticket-go-plane {
+    animation: none;
   }
 
   .ticket-go:enabled:hover,

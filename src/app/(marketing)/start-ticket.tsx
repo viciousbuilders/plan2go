@@ -490,12 +490,22 @@ export function StartTicket() {
             type="submit"
             disabled={pending || start === null || stops.length === 0}
             // Its ring in the stub's own light, which shows on the accent
-            // where the accent's ring would not. How it moves under the
-            // pointer is in start-ticket.css.
-            className="ticket-go h-12 rounded-pill bg-paper-raised px-6 text-[16px] leading-none font-bold whitespace-nowrap text-terracotta-800 hover:bg-sheet active:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-sheet"
+            // where the accent's ring would not. How it moves, under the
+            // pointer and while the trip is being made, is in
+            // start-ticket.css. Making the trip, it is shut to a second press
+            // without fading as a button that cannot be pressed does: it is
+            // busy, not out of reach.
+            className={`ticket-go h-12 rounded-pill bg-paper-raised px-6 text-[16px] leading-none font-bold whitespace-nowrap text-terracotta-800 hover:bg-sheet active:bg-terracotta-100 disabled:hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-sheet ${
+              pending ? "cursor-progress" : "disabled:opacity-45"
+            }`}
           >
             {pending ? (
-              "Making the trip"
+              <>
+                Making the trip
+                <span aria-hidden="true" className="ticket-go-runway">
+                  <PlaneIcon size={16} strokeWidth={2.75} className="ticket-go-plane" />
+                </span>
+              </>
             ) : (
               <>
                 Start planning{" "}

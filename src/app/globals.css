@@ -403,6 +403,70 @@
 }
 
 /*
+ * Opening a trip from the front page, from DESIGN.md's Motion. React's
+ * <ViewTransition> names the two sides, the front page's layout as it goes and
+ * the edit link's page as it comes, and starts the browser's view transition
+ * when the redirect lands; these are the motions it is given. The front page
+ * goes off to the left, quickly, the way the plane on its button was flying,
+ * and the trip comes in from the right once it has, settling over a longer
+ * stretch so it is seen to arrive.
+ *
+ * What neither names is the ground under both, the same paper, and it does
+ * not move. React starts a transition for the other way between the two
+ * pages as well, deleting a trip, since the layout comes back; with nothing
+ * named to move and the ground still, that one is over in a frame.
+ *
+ * The page under the transition takes the pointer while it runs, rather than
+ * the transition's own layer, so a press in that moment is not lost.
+ */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(.trip-leave) {
+  animation:
+    150ms ease-in both trip-fade reverse,
+    300ms ease-in both trip-slide-out;
+}
+
+::view-transition-new(.trip-arrive) {
+  animation:
+    210ms ease-out 150ms both trip-fade,
+    400ms cubic-bezier(0.22, 1, 0.36, 1) both trip-slide-in;
+}
+
+@keyframes trip-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes trip-slide-out {
+  to {
+    translate: -60px 0;
+  }
+}
+
+@keyframes trip-slide-in {
+  from {
+    translate: 60px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/*
  * The printed page, from DESIGN.md: a first class target rather than a
  * fallback. What prints is not the planner but the sheets it keeps for the
  * purpose, drawn by printed-trip.tsx and styled in printed-trip.css. Without

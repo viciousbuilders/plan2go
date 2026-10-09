@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import { Credit } from "@/ui/credit";
 
 /**
@@ -29,15 +30,26 @@ const COLUMN = "mx-auto w-full max-w-[560px] md:max-w-[1040px]";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col px-5 md:px-6">
-      {children}
-      <footer
-        className={`${COLUMN} py-8 text-center text-[13px] font-medium text-ink-muted md:py-6`}
-      >
-        <p>
-          <Credit />
-        </p>
-      </footer>
-    </div>
+    /*
+     * When the ticket opens a trip, the whole page goes off to the left as the
+     * trip comes in from the right, in globals.css. Here rather than on the
+     * page: the trip is not under this layout, so going to it takes the layout
+     * away too, and React looks for a <ViewTransition> only above the first
+     * element of what is taken away, which is this one's div. Only going,
+     * since the one way here from inside the app, deleting a trip, is not a
+     * journey on.
+     */
+    <ViewTransition exit="trip-leave" default="none">
+      <div className="flex min-h-dvh flex-col px-5 md:px-6">
+        {children}
+        <footer
+          className={`${COLUMN} py-8 text-center text-[13px] font-medium text-ink-muted md:py-6`}
+        >
+          <p>
+            <Credit />
+          </p>
+        </footer>
+      </div>
+    </ViewTransition>
   );
 }

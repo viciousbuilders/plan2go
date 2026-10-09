@@ -867,8 +867,8 @@ and it is the product's own.
 
 ## Motion
 
-Six things animate: reordering a stop, the trip's actions unfolding, a place's sheet
-arriving and leaving, the chosen day's pill moving along the strip, the export's bar while
+Seven things animate: the trip arriving from the front page, reordering a stop, the trip's
+actions unfolding, a place's sheet arriving and leaving, the chosen day's pill moving along the strip, the export's bar while
 its file is drawn, and the search on the map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
 pressed and gliding along when an arrow moves the row, the pill's colours and chevron turning, its
@@ -905,14 +905,24 @@ The export's bar: its fill's `width` over 150ms `linear` each time the clock mov
 on, and a spinner beside its words turning once every 800ms. The page setup's chevron
 turns over in one frame, as any panel opening does.
 
+The trip arriving: when the front page's ticket opens a trip, the front page goes off
+60px to the left as it fades, over 150ms `ease-in` for the fade and 300ms for the
+slide, and the trip comes in 60px from the right, fading in over 210ms `ease-out`
+once the front page has gone and sliding over 400ms on `cubic-bezier(0.22, 1, 0.36, 1)`.
+It is the browser's view transition, started by React's `<ViewTransition>` around the
+front page's layout and the trip's edit page when the redirect lands, and it says that pressing Start planning went
+somewhere: until then the plane on the button has been flying right, and the trip
+arrives from the way it flew. Only that way in. A trip reached by its link is simply
+there, and the front page reached by deleting a trip appears in one frame.
+
 Nothing else. No transitions on focus outside the search, any other panel opening, or map
 interaction, and no other transition on hover. Those changes are instant.
 
 Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
-Under `prefers-reduced-motion: reduce`, reordering, the sheet, the day's pill, a city's
-dot and everything in the search are instant too, and the empty field's words stay on
+Under `prefers-reduced-motion: reduce`, the trip's arrival, reordering, the sheet, the
+day's pill, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
