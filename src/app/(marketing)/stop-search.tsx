@@ -12,9 +12,7 @@ import {
 } from "react";
 // zod/mini, by name: this file reaches the browser, and the classic import
 // carries every locale zod has with it. See export-query.ts.
-import type { infer as Infer } from "zod/mini";
-import { array, nullable, number, object, optional, safeParse, string } from "zod/mini";
-import { formatDistance } from "@/core/model/distance";
+import { array, nullable, object, optional, safeParse, string } from "zod/mini";
 import { foldedName } from "@/core/model/place-name";
 import { PinIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
@@ -35,23 +33,14 @@ const responseSchema = object({ suggestions: array(suggestionSchema) });
 
 const refusalSchema = object({ error: string(), action: optional(string()) });
 
-/** A city offered before anything is typed, and how far it is from the city the next stop follows. */
-const offeredSchema = object({
-  providerPlaceId: string(),
-  name: string(),
-  address: nullable(string()),
-  /** Null on a ticket with no city yet, which has nowhere to measure from. */
-  distanceMeters: nullable(number()),
-});
-
-/** The towns near a city and the best known cities in its country, nearest first. */
-const nearSchema = object({ cities: array(offeredSchema) });
+/**
+ * The towns near a city and the best known cities in its country, nearest
+ * first. Each comes with how far it is, which the list leaves unsaid.
+ */
+const nearSchema = object({ cities: array(suggestionSchema) });
 
 /** The best known cities in the reader's country, or the world's when that is not known. */
-const startSchema = object({ country: nullable(string()), cities: array(offeredSchema) });
-
-/** A row of the list: a city found or offered, and how far it is when that is known. */
-type ListedCity = Infer<typeof offeredSchema>;
+const startSchema = object({ country: nullable(string()), cities: array(suggestionSchema) });
 
 /** A city picked out of the list. */
 export interface ChosenCity {
@@ -61,10 +50,10 @@ export interface ChosenCity {
   readonly address: string | null;
 }
 
-/** The cities the empty field offers, and the words over them: "Near Da Nang", "Popular in Vietnam". */
+/** The cities the empty field offers, and the words over them: "Suggested cities", "Popular in Vietnam". */
 interface Offer {
   readonly heading: string;
-  readonly cities: readonly ListedCity[];
+  readonly cities: readonly ChosenCity[];
 }
 
 /**
@@ -160,7 +149,7 @@ async function offerFor(after: ChosenCity | null): Promise<Offer> {
     const parsed = response.ok ? safeParse(nearSchema, await response.json()) : null;
     return parsed === null || !parsed.success
       ? nothing
-      : { heading: `Near ${after.name}`, cities: parsed.data.cities };
+      : { heading: "Suggested cities", cities: parsed.data.cities };
   } catch {
     return nothing;
   }
@@ -184,10 +173,10 @@ interface StopSearchProps {
  *
  * Before anything is typed it offers cities instead, as the cursor goes into
  * it: the towns near the last city on the ticket and the best known in its
- * country, nearest first, each with how far it is, and none the ticket
- * already goes to. On a ticket with no city yet, the best known cities in
- * the country the reader is in, as far as their connection says, and where
- * it does not say, cities known the world over.
+ * country, nearest first, and none the ticket already goes to. On a ticket
+ * with no city yet, the best known cities in the country the reader is in,
+ * as far as their connection says, and where it does not say, cities known
+ * the world over.
  *
  * A city goes on the ticket when it is pressed in the list, on a phone as on
  * a desk, at a day, and the field empties for the next with the cursor still
@@ -279,11 +268,7 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
         ),
     )
     .slice(0, OFFERED);
-  const rows: readonly ListedCity[] = searched
-    ? found.map((city) => ({ ...city, distanceMeters: null }))
-    : blank
-      ? offered
-      : [];
+  const rows: readonly ChosenCity[] = searched ? found : blank ? offered : [];
   const listed = open && rows.length > 0;
   /** The row Enter takes, the first until the arrow keys or the pointer move it. */
   const at = active < rows.length ? active : 0;
@@ -296,11 +281,7 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
   const shown = open && (searched || (blank && (offer === undefined || offered.length > 0)));
   const heading = searched ? "Matching cities" : (offer?.heading ?? "");
   /** What the list says when it has no cities in it. */
-  const sentence = searched
-    ? (message ?? (searching ? LOOKING : NO_MATCH))
-    : last === null
-      ? LOOKING
-      : `Looking for cities near ${last.name}.`;
+  const sentence = searched ? (message ?? (searching ? LOOKING : NO_MATCH)) : LOOKING;
 
   /**
    * Under the field where the page has room for five cities before its foot,
@@ -407,8 +388,8 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
     setOpen(false);
   });
 
-  const add = (city: ListedCity): void => {
-    onAdd({ providerPlaceId: city.providerPlaceId, name: city.name, address: city.address });
+  const add = (city: ChosenCity): void => {
+    onAdd(city);
     // An answer still on its way is to a question nobody is asking any more.
     newest.current += 1;
     setQuery("");
@@ -539,7 +520,7 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
                         className="flex min-h-12 w-full items-center gap-3 rounded-[16px] py-1.5 pr-3 pl-[11px] text-left"
                       >
                         <PinIcon size={18} strokeWidth={2.75} className="flex-none text-terracotta" />
-                        <span className="min-w-0 flex-1">
+                        <span className="min-w-0">
                           <span className="block text-[14px] leading-[18px] font-bold text-ink">{city.name}</span>
                           {city.address === null ? null : (
                             <span className="mt-0.5 block text-[12px] leading-4 text-ink-muted">
@@ -547,13 +528,6 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
                             </span>
                           )}
                         </span>
-                        {/* How far it is from the last city on the ticket, at
-                            the row's end, as the trip's own city picker says it. */}
-                        {city.distanceMeters === null ? null : (
-                          <span className="flex-none text-[12px] leading-none font-semibold text-ink-muted tabular-nums">
-                            {formatDistance(city.distanceMeters)}
-                          </span>
-                        )}
                       </button>
                     </li>
                   ))}
