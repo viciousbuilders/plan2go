@@ -212,7 +212,7 @@ interface StopSearchProps {
  * for five cities under it before its foot, as the departure calendar does,
  * and is never taller than the room on its side, so it never runs the page
  * on past either end. It is drawn as that calendar is: raised paper rounded
- * at 24px under the same shadow, "Matching cities" or what the cities offered
+ * at 20px under the same shadow, "Matching cities" or what the cities offered
  * are in the ticket's small capitals, and each city a row a finger's height,
  * a pin in the accent before its name and its country under that. On a desk
  * it is the calendar's 320px and starts 8px left of the field, which is
@@ -497,10 +497,9 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
         }}
         onPointerEnter={lookUpOffer}
         onKeyDown={onKeyDown}
-        // 21 on a phone and 20 on a desk, never under 16, or iOS zooms the
-        // page into the field.
+        // 20, never under 16, or iOS zooms the page into the field.
         // No ring round it: the caret, in the accent, says it has the cursor.
-        className={`h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:text-[20px] ${
+        className={`h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[20px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 ${
           changing === null ? "md:w-[240px]" : ""
         }`}
       />
@@ -510,7 +509,7 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
         // accent's darkest brown as the ticket's own is.
         <div
           style={{ maxHeight: hang.room }}
-          className={`absolute right-0 left-0 z-20 overflow-y-auto overscroll-contain rounded-[24px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px] ${
+          className={`absolute right-0 left-0 z-20 overflow-y-auto overscroll-contain rounded-[20px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px] ${
             hang.above ? "bottom-full mb-2" : "top-full mt-2"
           }`}
         >
@@ -534,7 +533,7 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
                     }}
                     // The row Enter takes, tinted, and rounded to sit 8px
                     // inside the panel's own corners.
-                    className={`rounded-[16px] ${index === at ? "bg-terracotta-100" : ""}`}
+                    className={`rounded-[12px] ${index === at ? "bg-terracotta-100" : ""}`}
                   >
                     <button
                       type="button"
@@ -542,7 +541,7 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
                       onClick={() => {
                         choose(city);
                       }}
-                      className="flex min-h-12 w-full items-center gap-3 rounded-[16px] py-1.5 pr-3 pl-[11px] text-left"
+                      className="flex min-h-12 w-full items-center gap-3 rounded-[12px] py-1.5 pr-3 pl-[11px] text-left"
                     >
                       <PinIcon size={18} strokeWidth={2.75} className="flex-none text-terracotta" />
                       <span className="min-w-0">

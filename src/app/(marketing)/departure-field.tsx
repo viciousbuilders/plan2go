@@ -392,7 +392,7 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
           style={{ left: place.left, width: place.width }}
           onKeyDown={onEscape}
           // The design's shadow, in the accent's darkest brown as the ticket's own is.
-          className={`absolute z-20 flex flex-col gap-3 rounded-[24px] bg-paper-raised p-5 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] ${
+          className={`absolute z-20 flex flex-col gap-3 rounded-[20px] bg-paper-raised p-5 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] ${
             place.below ? "top-full mt-3" : "bottom-full mb-3"
           }`}
         >

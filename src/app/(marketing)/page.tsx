@@ -19,7 +19,7 @@ export default function MarketingPage() {
      * written down its left edge, the way the page is read there.
      */
     <main className="mx-auto flex w-full max-w-[560px] grow flex-col md:max-w-[1040px] md:items-center md:justify-center md:gap-10 md:pt-8 md:pb-14">
-      <div className="flex flex-col gap-8 pt-14 pb-7 md:items-center md:gap-6 md:p-0">
+      <div className="flex flex-col gap-8 pt-14 pb-8 md:items-center md:gap-6 md:p-0">
         <Image
           src={lockup}
           alt="plan2go"
@@ -28,10 +28,10 @@ export default function MarketingPage() {
           className="h-auto w-[112px] md:w-[140px]"
         />
         <div className="flex flex-col gap-3 md:items-center md:gap-4 md:text-center">
-          <h1 className="font-display text-[32px] leading-[1.1] font-semibold tracking-[-0.01em] text-balance text-ink md:text-[clamp(34px,5.2vw,53px)] md:leading-[1.08]">
+          <h1 className="font-display text-[32px] leading-[1.1] font-semibold tracking-[-0.01em] text-balance text-ink md:text-[clamp(36px,5vw,52px)]">
             Plan it, sort it, share it.
           </h1>
-          <p className="text-[15.5px] leading-[1.55] text-pretty text-ink-muted md:max-w-[44ch] md:text-[17px] md:leading-[1.6]">
+          <p className="text-[16px] leading-[1.6] text-pretty text-ink-muted md:max-w-[44ch] md:text-[18px]">
             Add each stop and how long you stay. We turn it into a{" "}
             <span className="whitespace-nowrap">day-by-day</span> plan you can fill with places.
           </p>

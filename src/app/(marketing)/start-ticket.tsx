@@ -26,15 +26,23 @@ const FOCUS =
 
 /**
  * A stop's card, the accent's lightest tint on the ticket's paper: its name,
- * its days and the way to take it off all stand in it.
+ * its days and the way to take it off all stand in it, 16px from its edge.
+ *
+ * The ticket keeps one set of corners. The ticket itself is 28px; everything
+ * that stands on it is 20px, a card, the list a search hangs, the calendar;
+ * a row inside one of those is 12px, 8px in from its edge; and anything
+ * pressed is a pill.
  */
 const CARD = "relative rounded-[20px] bg-terracotta-100";
 
 /** The pill of the ticket's own paper a stop's days are stepped in, inside its card. */
 const DAYS = "flex items-center rounded-pill bg-paper-raised";
 
-/** The way to take a stop off: a cross in the faint ink, in its card's top right corner. */
-const REMOVE = `absolute grid place-items-center rounded-pill text-ink-faint hover:bg-terracotta-200 hover:text-terracotta-800 ${FOCUS}`;
+/**
+ * The way to take a stop off: a cross in the faint ink at the end of the
+ * card's name, as wide as the step under it, so it stands over the step up.
+ */
+const REMOVE = `grid flex-none place-items-center rounded-pill text-ink-faint hover:bg-terracotta-200 hover:text-terracotta-800 ${FOCUS}`;
 
 /**
  * A step of a stop's days, as tall as the pill it is in: a desk's. Under the
@@ -114,6 +122,37 @@ export function StartTicket() {
    * in its place has gone: as a city is chosen in it, or as it is left from
    * the keys. A press elsewhere has put the cursor where it wanted it.
    */
+  /**
+   * The stops, which on a desk run in rows. Which card starts a row is only
+   * known once the row is laid out, so each is marked after every drawing,
+   * and again whenever the list or a card changes size, as when the window
+   * does or the names' font arrives. A mark changes no size, so it cannot
+   * move a card to another row.
+   */
+  const stopList = useRef<HTMLOListElement | null>(null);
+  useLayoutEffect(() => {
+    const list = stopList.current;
+    if (list === null) {
+      return;
+    }
+    const items = [...list.querySelectorAll<HTMLElement>(":scope > li[data-stop]")];
+    const mark = (): void => {
+      let rowTop: number | null = null;
+      for (const item of items) {
+        item.toggleAttribute("data-row-start", item.offsetTop !== rowTop);
+        rowTop = item.offsetTop;
+      }
+    };
+    mark();
+    const watching = new ResizeObserver(mark);
+    watching.observe(list);
+    for (const item of items) {
+      watching.observe(item);
+    }
+    return () => {
+      watching.disconnect();
+    };
+  });
   const refocus = useRef<number | null>(null);
   useLayoutEffect(() => {
     const key = refocus.current;
@@ -189,13 +228,18 @@ export function StartTicket() {
       ))}
 
       <div ref={ticket} className="ticket flex flex-col md:flex-row">
-        {/* Over the stub, so the list of cities can hang down over it. */}
-        <div className="relative z-[1] flex min-w-0 flex-1 flex-col gap-5 px-5 py-6 md:gap-6 md:p-8">
+        {/* Over the stub, so the list of cities can hang down over it. Its
+            parts 24px apart, as far over the dashed line as under it, and
+            32px in from its edge on a desk, as the stub is. */}
+        <div className="relative z-[1] flex min-w-0 flex-1 flex-col gap-6 px-5 py-6 md:p-8">
           <div aria-hidden="true" className="ticket-ground ticket-ground-main" />
 
+          {/* On a desk, 44px between cards, the room a plane takes with
+              12px either side of it. */}
           <ol
+            ref={stopList}
             aria-label="Stops"
-            className="flex flex-col md:flex-row md:flex-wrap md:items-start md:gap-x-3 md:gap-y-4"
+            className="flex flex-col md:flex-row md:flex-wrap md:gap-x-11 md:gap-y-4"
           >
             {stops.map((stop, index) => {
               const { name } = stop.city;
@@ -219,30 +263,54 @@ export function StartTicket() {
                 setChanging(stop.key);
               };
               return (
-                <li key={stop.key} className="md:flex md:items-center md:gap-3">
+                <li key={stop.key} data-stop="" className="group md:relative md:flex">
+                  {/* On a desk, the plane from the stop before, in the gap
+                      before this card and taking no room of its own, and
+                      not there at all where this card starts a row, where
+                      it would hang by the ticket's edge pointing at nothing. */}
+                  {index === 0 ? null : (
+                    <PlaneIcon
+                      size={20}
+                      strokeWidth={2.75}
+                      className="absolute top-1/2 right-full mr-3 -translate-y-1/2 text-terracotta group-data-[row-start]:invisible max-md:hidden"
+                    />
+                  )}
+
                   {/* A phone's: on the line the stops run down, its card,
-                      the city over its dates and its days in a pill at the
-                      end, which step down to one and no further, and the
-                      way to take it off in the corner. */}
+                      the city with the way to take it off at the end of
+                      its line, over its dates and its days in a pill,
+                      which step down to one and no further. The dot on the
+                      line stands level with the name. */}
                   <div className="grid grid-cols-[24px_minmax(0,1fr)] gap-x-3 md:hidden">
-                    <div aria-hidden="true" className="flex flex-col items-center pt-[22px]">
+                    <div aria-hidden="true" className="flex flex-col items-center pt-[30px]">
                       <span className="h-3 w-3 flex-none rounded-pill border-[3px] border-terracotta" />
                       <span className="my-1 w-0 flex-1 border-l-2 border-dashed border-terracotta-300" />
                     </div>
-                    <div className={`${CARD} mb-3 min-w-0 p-3`}>
-                      {/* Clear of the cross in the corner. */}
-                      <div className="pr-9">
-                        {search ?? (
-                          <button
-                            type="button"
-                            data-stop-name={stop.key}
-                            aria-label={`Change ${name}`}
-                            onClick={pressName}
-                            className={`${NAME} text-left text-[25px]`}
-                          >
-                            {name}
-                          </button>
-                        )}
+                    <div className={`${CARD} mb-3 min-w-0 p-4`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          {search ?? (
+                            <button
+                              type="button"
+                              data-stop-name={stop.key}
+                              aria-label={`Change ${name}`}
+                              onClick={pressName}
+                              className={`${NAME} text-left text-[24px]`}
+                            >
+                              {name}
+                            </button>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${name}`}
+                          onClick={() => {
+                            remove(stop.key);
+                          }}
+                          className={`${REMOVE} h-10 w-10`}
+                        >
+                          <CloseIcon size={14} strokeWidth={2.75} />
+                        </button>
                       </div>
                       <div className="mt-1 flex items-center justify-between gap-3">
                         <span className="min-w-0 text-[13px] leading-[1.2] font-medium text-ink-muted tabular-nums">
@@ -277,45 +345,48 @@ export function StartTicket() {
                           </button>
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* A desk's: its card, at least 176px across so a row of
+                      them reads as one size, and as tall as the tallest in
+                      its row, the city with the way to take it off at the
+                      end of its line, over its days in a pill of the
+                      ticket's paper at its foot, which step down to one and
+                      no further. */}
+                  <div className={`${CARD} flex min-w-44 flex-col justify-between p-4 max-md:hidden`}>
+                    <div className="flex items-center justify-between gap-2">
+                      {/* While the city is being changed the name stays,
+                          unseen, to hold the card at its width, and the
+                          search lies over it, so the cards along the line
+                          do not move up or down a row while it is. */}
+                      <div className="relative min-w-0 flex-1">
+                        <button
+                          type="button"
+                          data-stop-name={stop.key}
+                          aria-label={`Change ${name}`}
+                          onClick={pressName}
+                          className={`${NAME} text-left text-[24px] ${search === null ? "" : "invisible"}`}
+                        >
+                          {name}
+                        </button>
+                        {/* Lifted over the cards after it, since being moved
+                            up makes it a layer of its own, and the list it
+                            hangs would otherwise go under them. */}
+                        {search === null ? null : (
+                          <div className="absolute inset-x-0 top-1/2 z-20 -translate-y-1/2">{search}</div>
+                        )}
+                      </div>
                       <button
                         type="button"
                         aria-label={`Remove ${name}`}
                         onClick={() => {
                           remove(stop.key);
                         }}
-                        className={`${REMOVE} top-1 right-1 h-10 w-10`}
+                        className={`${REMOVE} h-9 w-9`}
                       >
-                        <CloseIcon size={14} strokeWidth={2.75} />
+                        <CloseIcon size={12} strokeWidth={2.75} />
                       </button>
-                    </div>
-                  </div>
-
-                  {/* A desk's: its card, the city over its days in a pill
-                      of the ticket's paper, which step down to one and no
-                      further, and the way to take it off in the corner;
-                      then the plane on to the next. */}
-                  <div className={`${CARD} flex min-w-[150px] flex-col px-3 pt-4 pb-3 max-md:hidden`}>
-                    {/* Clear of the cross in the corner. While the city is
-                        being changed the name stays, unseen, to hold the
-                        card at its width, and the search lies over it, so
-                        the cards along the line do not move up or down a
-                        row while it is. */}
-                    <div className="relative pr-6 pl-1.5">
-                      <button
-                        type="button"
-                        data-stop-name={stop.key}
-                        aria-label={`Change ${name}`}
-                        onClick={pressName}
-                        className={`${NAME} text-left text-[24px] ${search === null ? "" : "invisible"}`}
-                      >
-                        {name}
-                      </button>
-                      {/* Lifted over the cards after it, since being moved
-                          up makes it a layer of its own, and the list it
-                          hangs would otherwise go under them. */}
-                      {search === null ? null : (
-                        <div className="absolute top-1/2 right-6 left-1.5 z-20 -translate-y-1/2">{search}</div>
-                      )}
                     </div>
                     <div className={`${DAYS} mt-3 justify-between`}>
                       <button
@@ -344,29 +415,16 @@ export function StartTicket() {
                         <PlusIcon size={12} strokeWidth={2.75} />
                       </button>
                     </div>
-                    <button
-                      type="button"
-                      aria-label={`Remove ${name}`}
-                      onClick={() => {
-                        remove(stop.key);
-                      }}
-                      className={`${REMOVE} top-1.5 right-1.5 h-7 w-7`}
-                    >
-                      <CloseIcon size={12} strokeWidth={2.75} />
-                    </button>
                   </div>
-                  <PlaneIcon size={20} strokeWidth={2.75} className="flex-none text-terracotta max-md:hidden" />
                 </li>
               );
             })}
 
-            {/* On a desk, as tall as a stop's card: 16px over the name's
-                line, 24px at 1.25, its days 12px under it and 36px tall,
-                and 12px under them. So the row the field is on keeps its
-                height when the city chosen in it takes the field's place,
-                and the field stands level with the middle of the cards, as
-                the planes do. */}
-            <li className="md:flex md:min-h-[106px] md:items-center">
+            {/* On a desk, a line of its own under the cards and at their
+                left edge, so the next stop is always found in the one place
+                however many cities there are, rather than wherever the last
+                card leaves room. */}
+            <li className="md:basis-full">
               {stops.length < MAX_STOPS ? (
                 <StopSearch after={onTicket.at(-1) ?? null} taken={onTicket} changing={null} onChoose={add} />
               ) : (
@@ -377,7 +435,7 @@ export function StartTicket() {
             </li>
           </ol>
 
-          <div className="grid grid-cols-2 gap-4 border-t-2 border-dashed border-rule pt-[18px] md:flex md:flex-wrap md:gap-x-10 md:gap-y-4 md:pt-5">
+          <div className="grid grid-cols-2 gap-4 border-t-2 border-dashed border-rule pt-6 md:flex md:flex-wrap md:gap-x-10 md:gap-y-4">
             <DepartureField
               today={today}
               start={start}
@@ -400,13 +458,13 @@ export function StartTicket() {
           </div>
         </div>
 
-        <div className="relative isolate flex flex-col gap-4 px-5 pt-[22px] pb-5 text-sheet md:w-[260px] md:flex-none md:justify-between md:gap-6 md:px-7 md:py-8">
+        <div className="relative isolate flex flex-col gap-4 px-5 py-6 text-sheet md:w-[260px] md:flex-none md:justify-between md:gap-6 md:p-8">
           <div aria-hidden="true" className="ticket-ground ticket-ground-stub" />
           <p className="flex items-baseline justify-between gap-3 md:flex-col md:items-start md:gap-2">
-            <span className="font-display text-[27px] leading-none font-semibold whitespace-nowrap md:text-[24px]">
+            <span className="font-display text-[24px] leading-none font-semibold whitespace-nowrap">
               {count(days, "day", "days")}
             </span>
-            <span className="text-[15px] leading-none font-semibold">
+            <span className="text-[16px] leading-none font-semibold">
               {count(cities, "city", "cities")}
             </span>
           </p>
@@ -419,7 +477,7 @@ export function StartTicket() {
             disabled={pending || start === null || stops.length === 0}
             // Its ring in the stub's own light, which shows on the accent
             // where the accent's ring would not.
-            className="h-[52px] rounded-pill bg-paper-raised px-6 text-[16px] leading-none font-bold whitespace-nowrap text-terracotta-800 hover:bg-sheet active:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-sheet md:h-auto md:py-4"
+            className="h-12 rounded-pill bg-paper-raised px-6 text-[16px] leading-none font-bold whitespace-nowrap text-terracotta-800 hover:bg-sheet active:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-sheet"
           >
             {pending ? (
               "Making the trip"

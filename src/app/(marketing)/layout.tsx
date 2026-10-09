@@ -32,7 +32,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-dvh flex-col px-5 md:px-6">
       {children}
       <footer
-        className={`${COLUMN} pt-7 pb-8 text-center text-[13px] font-medium text-ink-muted md:py-6 md:text-[13.5px]`}
+        className={`${COLUMN} py-8 text-center text-[13px] font-medium text-ink-muted md:py-6`}
       >
         <p>
           <Credit />
