@@ -122,37 +122,6 @@ export function StartTicket() {
    * in its place has gone: as a city is chosen in it, or as it is left from
    * the keys. A press elsewhere has put the cursor where it wanted it.
    */
-  /**
-   * The stops, which on a desk run in rows. Which card starts a row is only
-   * known once the row is laid out, so each is marked after every drawing,
-   * and again whenever the list or a card changes size, as when the window
-   * does or the names' font arrives. A mark changes no size, so it cannot
-   * move a card to another row.
-   */
-  const stopList = useRef<HTMLOListElement | null>(null);
-  useLayoutEffect(() => {
-    const list = stopList.current;
-    if (list === null) {
-      return;
-    }
-    const items = [...list.querySelectorAll<HTMLElement>(":scope > li[data-stop]")];
-    const mark = (): void => {
-      let rowTop: number | null = null;
-      for (const item of items) {
-        item.toggleAttribute("data-row-start", item.offsetTop !== rowTop);
-        rowTop = item.offsetTop;
-      }
-    };
-    mark();
-    const watching = new ResizeObserver(mark);
-    watching.observe(list);
-    for (const item of items) {
-      watching.observe(item);
-    }
-    return () => {
-      watching.disconnect();
-    };
-  });
   const refocus = useRef<number | null>(null);
   useLayoutEffect(() => {
     const key = refocus.current;
@@ -237,7 +206,6 @@ export function StartTicket() {
           {/* On a desk, 44px between cards, the room a plane takes with
               12px either side of it. */}
           <ol
-            ref={stopList}
             aria-label="Stops"
             className="flex flex-col md:flex-row md:flex-wrap md:gap-x-11 md:gap-y-4"
           >
@@ -263,19 +231,7 @@ export function StartTicket() {
                 setChanging(stop.key);
               };
               return (
-                <li key={stop.key} data-stop="" className="group md:relative md:flex">
-                  {/* On a desk, the plane from the stop before, in the gap
-                      before this card and taking no room of its own, and
-                      not there at all where this card starts a row, where
-                      it would hang by the ticket's edge pointing at nothing. */}
-                  {index === 0 ? null : (
-                    <PlaneIcon
-                      size={20}
-                      strokeWidth={2.75}
-                      className="absolute top-1/2 right-full mr-3 -translate-y-1/2 text-terracotta group-data-[row-start]:invisible max-md:hidden"
-                    />
-                  )}
-
+                <li key={stop.key} className="md:relative md:flex">
                   {/* A phone's: on the line the stops run down, its card,
                       the city with the way to take it off at the end of
                       its line, over its dates and its days in a pill,
@@ -416,6 +372,19 @@ export function StartTicket() {
                       </button>
                     </div>
                   </div>
+
+                  {/* On a desk, the plane on to the next stop, in the gap
+                      after this card and taking no room of its own. Where
+                      the card ends a row it stands at the row's end, so the
+                      leg on to the next row keeps its plane as every leg
+                      does; the last stop has none. */}
+                  {index === stops.length - 1 ? null : (
+                    <PlaneIcon
+                      size={20}
+                      strokeWidth={2.75}
+                      className="absolute top-1/2 left-full ml-3 -translate-y-1/2 text-terracotta max-md:hidden"
+                    />
+                  )}
                 </li>
               );
             })}
