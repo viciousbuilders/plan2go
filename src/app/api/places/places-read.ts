@@ -27,8 +27,11 @@ interface PlacesRead<Query> {
   readonly query: z.ZodType<Query>;
   /** What the function log calls the provider failing, so an outage can be told apart. */
   readonly failing: string;
-  /** The reply to a request that was allowed, and read. */
-  readonly answer: (query: Query, provider: PlacesProvider) => Promise<NextResponse>;
+  /**
+   * The reply to a request that was allowed, and read, with the request's
+   * headers for an answer that depends on where it came from.
+   */
+  readonly answer: (query: Query, provider: PlacesProvider, headers: Headers) => Promise<NextResponse>;
 }
 
 /** A refusal, which says what happened and then what to do. */
@@ -85,7 +88,7 @@ export function placesRead<Query>(
     }
 
     try {
-      return await read.answer(parsed.data, createGooglePlacesProvider({ apiKey }));
+      return await read.answer(parsed.data, createGooglePlacesProvider({ apiKey }), request.headers);
     } catch (cause) {
       // Kept in the function log so an upstream outage is diagnosable, and
       // turned into a sentence that says what the reader should do about it.

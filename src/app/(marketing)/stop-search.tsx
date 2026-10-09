@@ -1,10 +1,21 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 // zod/mini, by name: this file reaches the browser, and the classic import
 // carries every locale zod has with it. See export-query.ts.
-import { array, nullable, object, optional, safeParse, string } from "zod/mini";
+import type { infer as Infer } from "zod/mini";
+import { array, nullable, number, object, optional, safeParse, string } from "zod/mini";
+import { formatDistance } from "@/core/model/distance";
+import { foldedName } from "@/core/model/place-name";
 import { PinIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
 import { FIELD_LABEL } from "./ticket-type";
@@ -24,6 +35,24 @@ const responseSchema = object({ suggestions: array(suggestionSchema) });
 
 const refusalSchema = object({ error: string(), action: optional(string()) });
 
+/** A city offered before anything is typed, and how far it is from the city the next stop follows. */
+const offeredSchema = object({
+  providerPlaceId: string(),
+  name: string(),
+  address: nullable(string()),
+  /** Null on a ticket with no city yet, which has nowhere to measure from. */
+  distanceMeters: nullable(number()),
+});
+
+/** The towns near a city and the best known cities in its country, nearest first. */
+const nearSchema = object({ cities: array(offeredSchema) });
+
+/** The best known cities in the reader's country, or the world's when that is not known. */
+const startSchema = object({ country: nullable(string()), cities: array(offeredSchema) });
+
+/** A row of the list: a city found or offered, and how far it is when that is known. */
+type ListedCity = Infer<typeof offeredSchema>;
+
 /** A city picked out of the list. */
 export interface ChosenCity {
   readonly providerPlaceId: string;
@@ -32,12 +61,30 @@ export interface ChosenCity {
   readonly address: string | null;
 }
 
+/** The cities the empty field offers, and the words over them: "Near Da Nang", "Popular in Vietnam". */
+interface Offer {
+  readonly heading: string;
+  readonly cities: readonly ListedCity[];
+}
+
 /**
  * What the list says while it is looking and when it finds nothing. Both name
  * what is being looked for, since the field itself says only "Next stop".
  */
 const LOOKING = "Looking for cities.";
 const NO_MATCH = "No city matches that. Check the spelling.";
+
+/** As many cities as the empty field offers, which is as many as a search answers with. */
+const OFFERED = 5;
+
+/**
+ * The towns near a city asked for, as many as the route gives: the ticket's
+ * own cities come out of them, and five still have to be left once they have.
+ */
+const NEAR_ASKED = 20;
+
+/** What the empty field's offer is kept under on a ticket with no city yet. */
+const NO_CITY_YET = "start";
 
 /** Tailwind's md, from which the ticket is laid out as on a desk. */
 const WIDE = "(min-width: 48rem)";
@@ -50,7 +97,8 @@ const PAGE_ROOM = 8;
 
 /**
  * How tall the list is at its tallest, five cities, the most the search
- * answers: its padding, its heading, and five rows of 48px, 2px apart.
+ * answers and the most the empty field offers: its padding, its heading, and
+ * five rows of 48px, 2px apart.
  */
 const LIST_HEIGHT = 293;
 
@@ -68,9 +116,63 @@ function watchWidth(onChange: () => void): () => void {
   };
 }
 
+/**
+ * A country as a sentence says it after "in": "Vietnam", and with the word an
+ * English sentence puts in front of some, "the United States", "the
+ * Netherlands".
+ */
+function inCountry(country: string): string {
+  return /^United |(Republic|Islands|Territories)$|^(Netherlands|Philippines|Bahamas|Gambia|Maldives|Seychelles|Comoros)$/.test(
+    country,
+  )
+    ? `the ${country}`
+    : country;
+}
+
+/**
+ * The cities the empty field offers: the towns near the city the next stop
+ * follows and the best known in its country, nearest first, or on a ticket
+ * with no city yet, the best known in the reader's country, or the world's
+ * where that is not known. Never throws, and every refusal is an offer of
+ * nothing: nobody asked for this list out loud, so the field says nothing
+ * about one it never got, and typing a city still works.
+ */
+async function offerFor(after: ChosenCity | null): Promise<Offer> {
+  const nothing: Offer = { heading: "", cities: [] };
+  try {
+    if (after === null) {
+      const response = await fetch(`/api/places/cities/start?limit=${String(OFFERED)}`);
+      const parsed = response.ok ? safeParse(startSchema, await response.json()) : null;
+      if (parsed === null || !parsed.success) {
+        return nothing;
+      }
+      const { country, cities } = parsed.data;
+      return {
+        heading: country === null ? "Popular cities" : `Popular in ${inCountry(country)}`,
+        cities,
+      };
+    }
+    const parameters = new URLSearchParams({
+      city: after.providerPlaceId,
+      limit: String(NEAR_ASKED),
+    });
+    const response = await fetch(`/api/places/cities?${parameters.toString()}`);
+    const parsed = response.ok ? safeParse(nearSchema, await response.json()) : null;
+    return parsed === null || !parsed.success
+      ? nothing
+      : { heading: `Near ${after.name}`, cities: parsed.data.cities };
+  } catch {
+    return nothing;
+  }
+}
+
 interface StopSearchProps {
-  /** Whether no stop is on the ticket yet, which decides what the empty field offers. */
-  readonly first: boolean;
+  /**
+   * The cities on the ticket so far, in the order the trip makes them: the
+   * empty field offers the towns near the last of them, and none of them
+   * again.
+   */
+  readonly cities: readonly ChosenCity[];
   readonly onAdd: (city: ChosenCity) => void;
 }
 
@@ -80,9 +182,17 @@ interface StopSearchProps {
  * text is neither. The answers are whole cities, from anywhere, each with the
  * country it is in under its name.
  *
+ * Before anything is typed it offers cities instead, as the cursor goes into
+ * it: the towns near the last city on the ticket and the best known in its
+ * country, nearest first, each with how far it is, and none the ticket
+ * already goes to. On a ticket with no city yet, the best known cities in
+ * the country the reader is in, as far as their connection says, and where
+ * it does not say, cities known the world over.
+ *
  * Picking one puts it on the ticket at a day and empties the field for the
- * next, with the cursor still in it, so a trip of five cities is five names
- * typed one after another. Enter takes the city picked out in the list, the
+ * next, with the cursor still in it and the list still up, offering the towns
+ * near the city just chosen, so a trip of five cities is five names typed or
+ * picked one after another. Enter takes the city picked out in the list, the
  * first until the arrow keys move it, and never sends the ticket: the ticket
  * goes when the button on its stub is pressed.
  *
@@ -96,14 +206,15 @@ interface StopSearchProps {
  * for five cities under it before its foot, as the departure calendar does,
  * and is never taller than the room on its side, so it never runs the page
  * on past either end. It is drawn as that calendar is: raised paper rounded
- * at 24px under the same shadow, "Matching cities" in the ticket's small
- * capitals, and each city a row a finger's height, a pin in the accent
- * before its name and its country under that. On a desk it is the
- * calendar's 320px and starts 8px left of the field, which is 240px, so the
- * list stands a third wider than the words typed into it; on a phone it is
- * the field's line, the field and Add, and the dot stands outside it.
+ * at 24px under the same shadow, "Matching cities" or what the cities offered
+ * are in the ticket's small capitals, and each city a row a finger's height,
+ * a pin in the accent before its name and its country under that. On a desk
+ * it is the calendar's 320px and starts 8px left of the field, which is
+ * 240px, so the list stands a third wider than the words typed into it; on a
+ * phone it is the field's line, the field and Add, and the dot stands outside
+ * it.
  */
-export function StopSearch({ first, onAdd }: StopSearchProps) {
+export function StopSearch({ cities, onAdd }: StopSearchProps) {
   const [query, setQuery] = useState("");
   const [found, setFound] = useState<readonly ChosenCity[]>([]);
   const [active, setActive] = useState(0);
@@ -111,6 +222,12 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const [message, setMessage] = useState<string | null>(null);
   /** The text the list on screen is an answer to. */
   const [answered, setAnswered] = useState<string | null>(null);
+  /**
+   * The cities the empty field offers, by the city they are near, once each
+   * has answered. Kept for as long as the ticket is here, so taking the last
+   * stop off offers the towns near the one before it again at once.
+   */
+  const [offers, setOffers] = useState<Readonly<Record<string, Offer>>>({});
   /**
    * Worked out as the list opens and kept while it is open, so it does not
    * change sides as the answers come in and the list grows.
@@ -122,6 +239,12 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
   const field = useRef<HTMLInputElement | null>(null);
   /** Answers can arrive out of order, so only the newest is allowed to land. */
   const newest = useRef(0);
+  /**
+   * The offers asked for and not answered yet, so each is asked for once
+   * however often the field is reached for. A ref, because the effect that
+   * asks may not set state on the way in, only in the answer.
+   */
+  const asking = useRef(new Set<string>());
   const id = useId();
   const fieldId = `${id}-field`;
   const listId = `${id}-cities`;
@@ -137,18 +260,55 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
     () => true,
   );
 
+  /** The city the next stop follows, whose towns the empty field offers. */
+  const last = cities.at(-1) ?? null;
+  const offerKey = last?.providerPlaceId ?? NO_CITY_YET;
+
   const trimmed = query.trim();
   const searched = trimmed.length >= MINIMUM_LETTERS;
   const searching = searched && answered !== trimmed;
-  const listed = open && found.length > 0;
-  const picked = listed ? found[active] : undefined;
-  /** Whether the list is up, with cities in it or a sentence. */
-  const shown = open && searched;
+  /** Nothing typed, so the list is the cities offered rather than the cities found. */
+  const blank = trimmed === "";
+  const offer = offers[offerKey];
+  /** The cities offered, less every city on the ticket, by its identifier or by its name. */
+  const offered = (offer?.cities ?? [])
+    .filter(
+      (city) =>
+        !cities.some(
+          (onTicket) =>
+            onTicket.providerPlaceId === city.providerPlaceId ||
+            foldedName(onTicket.name) === foldedName(city.name),
+        ),
+    )
+    .slice(0, OFFERED);
+  const rows: readonly ListedCity[] = searched
+    ? found.map((city) => ({ ...city, distanceMeters: null }))
+    : blank
+      ? offered
+      : [];
+  const listed = open && rows.length > 0;
+  /** The row Enter takes, the first until the arrow keys or the pointer move it. */
+  const at = active < rows.length ? active : 0;
+  const picked = listed ? rows[at] : undefined;
+  /**
+   * Whether the list is up, with cities in it or a sentence. The cities
+   * offered have a sentence only while they are on their way, and an offer of
+   * none shows nothing at all.
+   */
+  const shown = open && (searched || (blank && (offer === undefined || offered.length > 0)));
+  const heading = searched ? "Matching cities" : (offer?.heading ?? "");
+  /** What the list says when it has no cities in it. */
+  const sentence = searched
+    ? (message ?? (searching ? LOOKING : NO_MATCH))
+    : last === null
+      ? LOOKING
+      : `Looking for cities near ${last.name}.`;
 
   /**
    * Under the field where the page has room for five cities before its foot,
    * else on whichever side has more room, and no taller than that room. Again
-   * whenever the window changes size while the list is up.
+   * whenever the window changes size while the list is up, and when a city
+   * chosen from it moves the field on.
    */
   useLayoutEffect(() => {
     if (!shown) {
@@ -170,7 +330,7 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
     return () => {
       window.removeEventListener("resize", hangIt);
     };
-  }, [shown]);
+  }, [shown, offerKey]);
 
   useEffect(() => {
     if (!searched) {
@@ -216,23 +376,56 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
     };
   }, [trimmed, searched]);
 
+  /**
+   * The cities the empty field offers, asked for as the field is reached for,
+   * the pointer coming onto it or the cursor going into it, and not as the
+   * page opens: somebody who never reaches for the field should never cause
+   * it. Usually a read of what the server kept, and on its way before the
+   * press rather than after it. A list that did not come is kept as an empty
+   * one, so the field stops saying it is looking and leaves finding the city
+   * to the typing.
+   */
+  const lookUpOffer = (): void => {
+    const key = offerKey;
+    if (offers[key] !== undefined || asking.current.has(key)) {
+      return;
+    }
+    asking.current.add(key);
+    void offerFor(last).then((answer) => {
+      asking.current.delete(key);
+      setOffers((now) => ({ ...now, [key]: answer }));
+    });
+  };
+  const lookingUpOffer = useEffectEvent(lookUpOffer);
+  // Again whenever the last city on the ticket changes while the list is up,
+  // as it does the moment a city is chosen from it.
+  useEffect(() => {
+    if (open) {
+      lookingUpOffer();
+    }
+  }, [open, offerKey]);
+
   useOutsidePress(container, open, () => {
     setOpen(false);
   });
 
-  const add = (city: ChosenCity): void => {
-    onAdd(city);
+  const add = (city: ListedCity): void => {
+    onAdd({ providerPlaceId: city.providerPlaceId, name: city.name, address: city.address });
     // An answer still on its way is to a question nobody is asking any more.
     newest.current += 1;
     setQuery("");
     setFound([]);
     setAnswered(null);
-    setOpen(false);
+    setActive(0);
+    // Left up, to offer the towns near the city just chosen for the stop after it.
+    setOpen(true);
     field.current?.focus();
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
-    if (event.key === "Escape") {
+    // Tab takes the cursor on, and the list would be left over whatever it
+    // goes to.
+    if (event.key === "Escape" || event.key === "Tab") {
       setOpen(false);
       return;
     }
@@ -241,7 +434,7 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
       event.preventDefault();
       if (picked !== undefined) {
         add(picked);
-      } else if (searched) {
+      } else {
         setOpen(true);
       }
       return;
@@ -251,14 +444,14 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActive((at) => (at + 1) % found.length);
+      setActive((at + 1) % rows.length);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActive((at) => (at === 0 ? found.length - 1 : at - 1));
+      setActive(at === 0 ? rows.length - 1 : at - 1);
     }
   };
 
-  const empty = first ? "First stop" : "Next stop";
+  const empty = cities.length === 0 ? "First stop" : "Next stop";
 
   return (
     <div
@@ -285,13 +478,23 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
           aria-expanded={listed}
           aria-controls={listId}
           aria-autocomplete="list"
-          aria-activedescendant={picked === undefined ? undefined : `${listId}-${String(active)}`}
+          aria-activedescendant={picked === undefined ? undefined : `${listId}-${String(at)}`}
           value={query}
           placeholder={wide ? `+ ${empty}` : empty}
           onChange={(event) => {
             setQuery(event.target.value);
+            setActive(0);
             setOpen(true);
           }}
+          onFocus={() => {
+            setOpen(true);
+          }}
+          // A press on the field it already has the cursor in, after Escape
+          // put the list away, brings it back.
+          onClick={() => {
+            setOpen(true);
+          }}
+          onPointerEnter={lookUpOffer}
           onKeyDown={onKeyDown}
           // 21 on a phone and 20 on a desk, never under 16, or iOS zooms the
           // page into the field.
@@ -324,20 +527,25 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
           >
             {listed ? (
               <>
-                <p className={`${FIELD_LABEL} px-3 pt-2.5 pb-2`}>Matching cities</p>
-                <ul id={listId} role="listbox" aria-label="Cities" className="flex flex-col gap-0.5">
-                  {found.map((city, index) => (
+                <p className={`${FIELD_LABEL} px-3 pt-2.5 pb-2`}>{heading}</p>
+                <ul
+                  id={listId}
+                  role="listbox"
+                  aria-label={searched ? "Cities" : heading}
+                  className="flex flex-col gap-0.5"
+                >
+                  {rows.map((city, index) => (
                     <li
                       key={city.providerPlaceId}
                       id={`${listId}-${String(index)}`}
                       role="option"
-                      aria-selected={index === active}
+                      aria-selected={index === at}
                       onMouseEnter={() => {
                         setActive(index);
                       }}
                       // The row Enter or Add takes, tinted, and rounded to sit
                       // 8px inside the panel's own corners.
-                      className={`rounded-[16px] ${index === active ? "bg-terracotta-100" : ""}`}
+                      className={`rounded-[16px] ${index === at ? "bg-terracotta-100" : ""}`}
                     >
                       <button
                         type="button"
@@ -348,7 +556,7 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
                         className="flex min-h-12 w-full items-center gap-3 rounded-[16px] py-1.5 pr-3 pl-[11px] text-left"
                       >
                         <PinIcon size={18} strokeWidth={2.75} className="flex-none text-terracotta" />
-                        <span className="min-w-0">
+                        <span className="min-w-0 flex-1">
                           <span className="block text-[14px] leading-[18px] font-bold text-ink">{city.name}</span>
                           {city.address === null ? null : (
                             <span className="mt-0.5 block text-[12px] leading-4 text-ink-muted">
@@ -356,15 +564,20 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
                             </span>
                           )}
                         </span>
+                        {/* How far it is from the last city on the ticket, at
+                            the row's end, as the trip's own city picker says it. */}
+                        {city.distanceMeters === null ? null : (
+                          <span className="flex-none text-[12px] leading-none font-semibold text-ink-muted tabular-nums">
+                            {formatDistance(city.distanceMeters)}
+                          </span>
+                        )}
                       </button>
                     </li>
                   ))}
                 </ul>
               </>
             ) : (
-              <p className="px-3 py-3 text-[13px] leading-[1.4] text-ink-muted">
-                {message ?? (searching ? LOOKING : NO_MATCH)}
-              </p>
+              <p className="px-3 py-3 text-[13px] leading-[1.4] text-ink-muted">{sentence}</p>
             )}
           </div>
         ) : null}

@@ -13,8 +13,9 @@ export const CITIES_TO_VISIT_ROUTE = "places-cities";
 
 /**
  * As tight as the typed search is loose: this is worked out once each time a
- * day is put in a city and asked once each time the city picker opens, so a
- * person reaches it a handful of times in a minute at most.
+ * day is put in a city, asked once each time the city picker opens, and on the
+ * front door once for each city put on the ticket and once for a ticket with
+ * none, so a person reaches it a handful of times in a minute at most.
  */
 export const CITIES_TO_VISIT_POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 10 };
 
@@ -361,6 +362,30 @@ export function nearestFirst(
 }
 
 /**
+ * The best known cities in a country, the best known first, as the provider
+ * ranks the landmarks they are known for. Every trip to the country asks the
+ * same question, and so does everyone the front door finds in it.
+ */
+export function popularCitiesIn(
+  country: string,
+  provider: PlacesProvider,
+  now: Date,
+): Promise<readonly PlaceSuggestion[]> {
+  return suggestionsFor(
+    { query: POPULAR_KEY, biasKey: country, size: POPULAR_KEPT },
+    async () => {
+      const landmarks = await provider.landmarks({
+        query: `best cities to visit in ${country}`,
+        within: null,
+        limit: LANDMARKS_ASKED,
+      });
+      return townsAt(landmarks, country, POPULAR_KEPT, provider);
+    },
+    now,
+  );
+}
+
+/**
  * The cities worth going to from a city, for the picker nobody has typed in
  * yet: the towns around it and the best known cities in its country, in one
  * list, nearest first.
@@ -401,18 +426,7 @@ export async function citiesToVisit(
       },
       now,
     ),
-    suggestionsFor(
-      { query: POPULAR_KEY, biasKey: country, size: POPULAR_KEPT },
-      async () => {
-        const landmarks = await provider.landmarks({
-          query: `best cities to visit in ${country}`,
-          within: null,
-          limit: LANDMARKS_ASKED,
-        });
-        return townsAt(landmarks, country, POPULAR_KEPT, provider);
-      },
-      now,
-    ),
+    popularCitiesIn(country, provider, now),
   ]);
 
   const candidates: PlaceSuggestion[] = [];

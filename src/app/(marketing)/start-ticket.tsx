@@ -257,7 +257,7 @@ export function StartTicket() {
                 takes the field's place. */}
             <li className="md:min-h-[66px]">
               {stops.length < MAX_STOPS ? (
-                <StopSearch first={stops.length === 0} onAdd={add} />
+                <StopSearch cities={stops.map((stop) => stop.city)} onAdd={add} />
               ) : (
                 <p className="py-2 text-[14px] leading-[1.4] font-medium text-ink-muted md:max-w-[26ch]">
                   {`A trip starts with ${String(MAX_STOPS)} stops at most. Add more from inside the trip.`}
