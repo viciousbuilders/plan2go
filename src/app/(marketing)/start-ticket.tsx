@@ -3,6 +3,7 @@
 import { Fragment, useActionState, useLayoutEffect, useRef, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
 import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
+import { formatDateRange } from "@/core/time/date-range";
 import { addDays } from "@/core/time/zoned";
 import { formatDayDate } from "@/features/day-planner/format-day-date";
 import { CloseIcon, MinusIcon, PlaneIcon, PlusIcon } from "@/ui/icons";
@@ -68,11 +69,12 @@ function count(amount: number, one: string, many: string): string {
   return `${String(amount)} ${amount === 1 ? one : many}`;
 }
 
-/** A stop's days as the line under its name says them: the day, or the first and last. */
+/**
+ * A stop's days as the line under its name says them, as shortly as the
+ * trip's own dates are written inside it: "9 to 12 Oct", or the one day.
+ */
 function stay(first: IsoDate, days: number): string {
-  return days === 1
-    ? formatDayDate(first)
-    : `${formatDayDate(first)} to ${formatDayDate(addDays(first, days - 1))}`;
+  return formatDateRange(first, addDays(first, days - 1));
 }
 
 /**
