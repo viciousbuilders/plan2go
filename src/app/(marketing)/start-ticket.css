@@ -4,10 +4,10 @@
  * round where they meet as a ticket is where it tears, and a warm shadow
  * under the whole that follows the cuts.
  *
- * The stub is the accent's 700 rather than the accent itself. Its smallest
- * words, how many cities, are in paper at 16px, and on the accent they read at
- * 3.5 to 1, under the 4.5 small words need. The 700 gives 6.5, and is the
- * first step down the ramp that clears it: the 600 is still short, at 4.3.
+ * The stub is the accent itself, as the design draws it. Light words on it
+ * read at 3.5 to 1: enough for the count of days, which is large, and short of
+ * the 4.5 its smaller words need, which the accent's 700 cleared at 6.5. The
+ * design's colour was chosen over that.
  *
  * A phone has the stub under the main half, so the cuts are at the two ends
  * of the line between them; a desk has it beside, so the cuts are at the top
@@ -45,7 +45,7 @@
     radial-gradient(circle at 100% 0, transparent 14px, #000 15px) right / 51% 100% no-repeat;
   border-top: 2px dashed color-mix(in srgb, var(--color-sheet) 50%, transparent);
   border-radius: 0 0 28px 28px;
-  background: var(--color-terracotta-700);
+  background: var(--color-terracotta);
   -webkit-mask: var(--cut);
   mask: var(--cut);
 }
@@ -72,3 +72,55 @@
   }
 }
 
+/*
+ * The button that opens the trip rises a little under the pointer and its
+ * arrow steps on, the way it is about to go; pressed, it settles and gives a
+ * little. Only while it can be pressed, and only where there is a pointer to
+ * hover with, so a tap on a phone does not leave it raised. Under reduced
+ * motion its colours still change and nothing moves.
+ */
+.ticket-go,
+.ticket-go-arrow {
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ticket-go {
+  transition-property: translate, scale, box-shadow, background-color;
+}
+
+.ticket-go-arrow {
+  display: inline-block;
+  transition-property: translate;
+}
+
+@media (hover: hover) {
+  .ticket-go:enabled:hover {
+    translate: 0 -2px;
+    box-shadow: 0 10px 20px -6px color-mix(in srgb, var(--color-terracotta-900) 45%, transparent);
+  }
+
+  .ticket-go:enabled:hover .ticket-go-arrow {
+    translate: 4px 0;
+  }
+}
+
+.ticket-go:enabled:active {
+  translate: 0 0;
+  scale: 0.98;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket-go,
+  .ticket-go-arrow {
+    transition: none;
+  }
+
+  .ticket-go:enabled:hover,
+  .ticket-go:enabled:active,
+  .ticket-go:enabled:hover .ticket-go-arrow {
+    translate: none;
+    scale: none;
+  }
+}

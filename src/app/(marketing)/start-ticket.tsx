@@ -6,7 +6,15 @@ import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
 import { formatDateRange } from "@/core/time/date-range";
 import { addDays } from "@/core/time/zoned";
 import { formatDayDate } from "@/features/day-planner/format-day-date";
-import { CloseIcon, MinusIcon, PlaneIcon, PlusIcon } from "@/ui/icons";
+import {
+  CheckIcon,
+  ClockIcon,
+  CloseIcon,
+  MinusIcon,
+  PlaneIcon,
+  PlusIcon,
+  ShareIcon,
+} from "@/ui/icons";
 import { Notice } from "@/ui/notice";
 import { useLocalToday } from "@/ui/use-local-today";
 import type { CreateTripFormState } from "./create-trip-action";
@@ -58,6 +66,16 @@ const PHONE_STEP = `grid h-10 w-10 place-items-center rounded-pill text-terracot
 /** A stop's name, which is pressed to change its city, warming to the accent under the pointer. */
 const NAME = `rounded-chip font-display leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink hover:text-terracotta-700 ${FOCUS}`;
 
+/**
+ * A line on a desk's stub saying what opening the trip leads to. Each is one
+ * row of words, so the three stand beside a single row of stops without
+ * making the ticket any taller than that row already has.
+ */
+const AHEAD = "flex items-start gap-2.5 text-[15px] leading-[1.35] font-semibold";
+
+/** Its glyph, level with the middle of the line's first row of words. */
+const AHEAD_GLYPH = "mt-[2px] flex-none";
+
 interface Stop {
   /** Tells two stops in one city apart, which a trip that comes back to a city has. */
   readonly key: number;
@@ -81,7 +99,8 @@ function stay(first: IsoDate, days: number): string {
  * The front page's form, drawn as a ticket, as the start page's design draws
  * it: on its main half the stops the trip makes, each a city and how many days
  * in it, then the day it departs and the day it comes back; on its stub what
- * that comes to and the button that opens the trip.
+ * that comes to, on a desk what opening the trip leads to, and the button that
+ * opens it.
  *
  * On a desk the two halves stand side by side, and the stops run along a line
  * with a plane between each and the next. On a phone the stub is under the
@@ -431,14 +450,38 @@ export function StartTicket() {
 
         <div className="relative isolate flex flex-col gap-4 px-5 py-6 text-sheet md:w-[260px] md:flex-none md:justify-between md:gap-6 md:p-8">
           <div aria-hidden="true" className="ticket-ground ticket-ground-stub" />
-          <p className="flex items-baseline justify-between gap-3 md:flex-col md:items-start md:gap-2">
-            <span className="font-display text-[24px] leading-none font-semibold whitespace-nowrap">
-              {count(days, "day", "days")}
-            </span>
-            <span className="text-[16px] leading-none font-semibold">
-              {count(cities, "city", "cities")}
-            </span>
-          </p>
+          <div className="flex flex-col gap-6">
+            <p className="flex items-baseline justify-between gap-3 md:flex-col md:items-start md:gap-2">
+              <span className="font-display text-[24px] leading-none font-semibold whitespace-nowrap">
+                {count(days, "day", "days")}
+              </span>
+              <span className="text-[16px] leading-none font-semibold">
+                {count(cities, "city", "cities")}
+              </span>
+            </p>
+            {/* On a desk, once there is a stop, what opening the trip leads
+                to, past a dashed line as the ticket's own: the stop's card
+                has made the ticket taller than the stub's counts and button
+                need, and this is the room that leaves. Before then the
+                ticket is a line high and the stub has none going spare, and
+                a phone's stub is a row, with none either. */}
+            {stops.length === 0 ? null : (
+              <ul className="flex flex-col gap-3 border-t-2 border-dashed border-sheet/50 pt-6 max-md:hidden">
+                <li className={AHEAD}>
+                  <ClockIcon size={16} strokeWidth={2.4} className={AHEAD_GLYPH} />
+                  Real travel times
+                </li>
+                <li className={AHEAD}>
+                  <ShareIcon size={16} strokeWidth={2.4} className={AHEAD_GLYPH} />
+                  Share or print the plan
+                </li>
+                <li className={AHEAD}>
+                  <CheckIcon size={16} strokeWidth={2.4} className={AHEAD_GLYPH} />
+                  No account needed
+                </li>
+              </ul>
+            )}
+          </div>
           {/* Not open to a press until there is a stop to go to and a day to
               go on. The page is served without the day, and a ticket sent
               before the browser has said what today is would come back
@@ -447,14 +490,18 @@ export function StartTicket() {
             type="submit"
             disabled={pending || start === null || stops.length === 0}
             // Its ring in the stub's own light, which shows on the accent
-            // where the accent's ring would not.
-            className="h-12 rounded-pill bg-paper-raised px-6 text-[16px] leading-none font-bold whitespace-nowrap text-terracotta-800 hover:bg-sheet active:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-sheet"
+            // where the accent's ring would not. How it moves under the
+            // pointer is in start-ticket.css.
+            className="ticket-go h-12 rounded-pill bg-paper-raised px-6 text-[16px] leading-none font-bold whitespace-nowrap text-terracotta-800 hover:bg-sheet active:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-sheet"
           >
             {pending ? (
               "Making the trip"
             ) : (
               <>
-                Start planning <span aria-hidden="true">→</span>
+                Start planning{" "}
+                <span aria-hidden="true" className="ticket-go-arrow">
+                  →
+                </span>
               </>
             )}
           </button>
