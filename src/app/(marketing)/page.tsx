@@ -29,10 +29,11 @@ export default function MarketingPage() {
         />
         <div className="flex flex-col gap-3 md:items-center md:gap-4 md:text-center">
           <h1 className="font-display text-[32px] leading-[1.1] font-semibold tracking-[-0.01em] text-balance text-ink md:text-[clamp(36px,5vw,52px)]">
-            Your trip, stop by stop.
+            Plan days that actually work.
           </h1>
-          <p className="text-[16px] leading-[1.6] text-pretty text-ink-muted md:max-w-[44ch] md:text-[18px]">
-            Start with the cities. The mornings, museums and dinners come next.
+          <p className="text-[16px] leading-[1.6] text-balance text-ink-muted md:max-w-[44ch] md:text-[18px]">
+            Add your cities, fill each day with places, see real travel times, and share it as a link
+            or PDF.
           </p>
         </div>
       </div>
