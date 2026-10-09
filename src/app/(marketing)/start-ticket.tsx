@@ -489,6 +489,7 @@ export function StartTicket() {
           <button
             type="submit"
             disabled={pending || start === null || stops.length === 0}
+            data-pending={pending || undefined}
             // Its ring in the stub's own light, which shows on the accent
             // where the accent's ring would not. How it moves, under the
             // pointer and while the trip is being made, is in
@@ -499,21 +500,12 @@ export function StartTicket() {
               pending ? "cursor-progress" : "disabled:opacity-45"
             }`}
           >
-            {pending ? (
-              <>
-                Making the trip
-                <span aria-hidden="true" className="ticket-go-runway">
-                  <PlaneIcon size={16} strokeWidth={2.75} className="ticket-go-plane" />
-                </span>
-              </>
-            ) : (
-              <>
-                Start planning{" "}
-                <span aria-hidden="true" className="ticket-go-arrow">
-                  →
-                </span>
-              </>
-            )}
+            {pending ? "Making the trip" : "Start planning"}
+            {/* The one plane either way, so a press sends it off from where
+                it stood rather than putting another in its place. */}
+            <span aria-hidden="true" className="ticket-go-runway">
+              <PlaneIcon size={16} strokeWidth={2.75} className="ticket-go-plane" />
+            </span>
           </button>
         </div>
       </div>

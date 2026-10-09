@@ -73,14 +73,26 @@
 }
 
 /*
- * The button that opens the trip rises a little under the pointer and its
- * arrow steps on, the way it is about to go; pressed, it settles and gives a
- * little. Only while it can be pressed, and only where there is a pointer to
- * hover with, so a tap on a phone does not leave it raised. Under reduced
- * motion its colours still change and nothing moves.
+ * The button that opens the trip ends in a plane where an arrow would be,
+ * pointing on and tipped up a little, the way the trip is about to go. Under
+ * the pointer the button rises a little and the plane steps on; pressed, it
+ * settles and gives a little. Only while it can be pressed, and only where
+ * there is a pointer to hover with, so a tap on a phone does not leave it
+ * raised.
+ *
+ * The plane stands in a strip of its own at the end of the words, which is
+ * where it flies while the trip is being made: off from where it stood past
+ * the strip's far end, in again from past the near one, and round, climbing a
+ * little, so the press is seen to send it and the wait is seen to be going
+ * somewhere. The strip fades at both ends while it flies, so the plane goes
+ * into nothing and comes out of it rather than being cut off at an edge.
+ * When the trip is ready the page goes off the way it flew, in globals.css.
+ *
+ * Under reduced motion its colours still change, the plane stands still, and
+ * the words say the trip is being made.
  */
 .ticket-go,
-.ticket-go-arrow {
+.ticket-go-plane {
   transition-duration: 250ms;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -89,8 +101,19 @@
   transition-property: translate, scale, box-shadow, background-color;
 }
 
-.ticket-go-arrow {
+.ticket-go-runway {
   display: inline-block;
+  width: 28px;
+  height: 18px;
+  margin-left: 2px;
+  vertical-align: -4px;
+  overflow: hidden;
+}
+
+.ticket-go-plane {
+  display: block;
+  margin: 1px auto 0;
+  rotate: 40deg;
   transition-property: translate;
 }
 
@@ -100,8 +123,8 @@
     box-shadow: 0 10px 20px -6px color-mix(in srgb, var(--color-terracotta-900) 45%, transparent);
   }
 
-  .ticket-go:enabled:hover .ticket-go-arrow {
-    translate: 4px 0;
+  .ticket-go:enabled:hover .ticket-go-plane {
+    translate: 3px -1px;
   }
 }
 
@@ -111,55 +134,48 @@
   box-shadow: none;
 }
 
-/*
- * While the trip is being made, the arrow is a plane flying on through a
- * strip at the end of the words, climbing a little, and round again: the
- * button is busy, and busy getting somewhere. The strip fades at both ends,
- * so the plane comes out of nothing and goes into it rather than being cut
- * off at an edge. When the trip is ready the page goes off the way it flew,
- * in globals.css. Under reduced motion it stands still and the words say it.
- */
-.ticket-go-runway {
-  display: inline-block;
-  width: 30px;
-  height: 18px;
-  margin-left: 5px;
-  vertical-align: -4px;
-  overflow: hidden;
+.ticket-go[data-pending] .ticket-go-runway {
   -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
   mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
 }
 
-.ticket-go-plane {
-  display: block;
-  margin: 1px auto 0;
-  rotate: 40deg;
+.ticket-go[data-pending] .ticket-go-plane {
   animation: ticket-fly 1.2s linear infinite;
 }
 
+/* Out past the strip's far end and in again from past its near one, the jump
+   between made where neither end shows it. */
 @keyframes ticket-fly {
-  from {
+  0% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 25px -3px;
+  }
+
+  50.1% {
     translate: -25px 3px;
   }
 
-  to {
-    translate: 25px -3px;
+  100% {
+    translate: 0 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ticket-go,
-  .ticket-go-arrow {
+  .ticket-go-plane {
     transition: none;
   }
 
-  .ticket-go-plane {
+  .ticket-go[data-pending] .ticket-go-plane {
     animation: none;
   }
 
   .ticket-go:enabled:hover,
   .ticket-go:enabled:active,
-  .ticket-go:enabled:hover .ticket-go-arrow {
+  .ticket-go:enabled:hover .ticket-go-plane {
     translate: none;
     scale: none;
   }
