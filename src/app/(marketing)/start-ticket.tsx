@@ -197,10 +197,11 @@ export function StartTicket() {
                   </div>
 
                   {/* A desk's: the city over its days, which step down to
-                      one and no further, and the way to take it off; then
+                      one and no further, and the way to take it off, the
+                      two centred on each other whichever is the wider; then
                       the plane on to the next. */}
-                  <div className="flex min-w-0 flex-col gap-2 max-md:hidden">
-                    <span className="font-display text-[30px] leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink">
+                  <div className="flex min-w-0 flex-col items-center gap-2 max-md:hidden">
+                    <span className="text-center font-display text-[30px] leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink">
                       {name}
                     </span>
                     <div className="flex items-center gap-1">
