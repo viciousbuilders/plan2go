@@ -216,8 +216,9 @@ interface StopSearchProps {
  * are in the ticket's small capitals, and each city a row a finger's height,
  * a pin in the accent before its name and its country under that. On a desk
  * it is the calendar's 320px and starts 8px left of the field, which is
- * 240px, so the list stands a third wider than the words typed into it; on a
- * phone it is as wide as the field, and the dot stands outside it.
+ * 240px for the next stop, so the list stands a third wider than the words
+ * typed into it, and as wide as the name it stands over for a stop's own; on
+ * a phone it is as wide as the field, and the dot stands outside it.
  */
 export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSearchProps) {
   const [query, setQuery] = useState("");
@@ -499,7 +500,9 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
         // 21 on a phone and 20 on a desk, never under 16, or iOS zooms the
         // page into the field.
         // No ring round it: the caret, in the accent, says it has the cursor.
-        className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:w-[240px] md:text-[20px]"
+        className={`h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:text-[20px] ${
+          changing === null ? "md:w-[240px]" : ""
+        }`}
       />
 
       {shown ? (

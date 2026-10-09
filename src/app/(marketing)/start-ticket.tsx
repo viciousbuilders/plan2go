@@ -24,11 +24,23 @@ const NO_ERROR: CreateTripFormState = { error: null };
 const FOCUS =
   "focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta";
 
-/** A step of a stop's days, on its own disc of the accent's lightest tint: a desk's. */
-const DESK_STEP = `grid h-7 w-7 place-items-center rounded-pill bg-terracotta-100 text-terracotta-800 hover:bg-terracotta-200 disabled:opacity-45 disabled:hover:bg-terracotta-100 ${FOCUS}`;
+/**
+ * A stop's card, the accent's lightest tint on the ticket's paper: its name,
+ * its days and the way to take it off all stand in it.
+ */
+const CARD = "relative rounded-[20px] bg-terracotta-100";
+
+/** The pill of the ticket's own paper a stop's days are stepped in, inside its card. */
+const DAYS = "flex items-center rounded-pill bg-paper-raised";
+
+/** The way to take a stop off: a cross in the faint ink, in its card's top right corner. */
+const REMOVE = `absolute grid place-items-center rounded-pill text-ink-faint hover:bg-terracotta-200 hover:text-terracotta-800 ${FOCUS}`;
+
+/** A step of a stop's days, as tall as the pill it is in: a desk's. */
+const DESK_STEP = `grid h-9 w-9 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
 
 /** A step of a stop's days, forty across inside the pill they share: a phone's. */
-const PHONE_STEP = `grid h-10 w-10 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-200 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
+const PHONE_STEP = `grid h-10 w-10 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-100 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
 
 /** A stop's name, which is pressed to change its city, warming to the accent under the pointer. */
 const NAME = `rounded-chip font-display leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink hover:text-terracotta-700 ${FOCUS}`;
@@ -203,90 +215,105 @@ export function StartTicket() {
                 setChanging(stop.key);
               };
               return (
-                <li key={stop.key} className="md:flex md:items-start md:gap-3">
-                  {/* A phone's: on the line the stops run down, the city
-                      and its dates, and its days in a pill at the end. At
-                      one day the step down takes the stop off instead.
-                      While its city is being changed, the search takes the
-                      pill's room as well, so it and its list are as wide
-                      as the next stop's. */}
-                  <div className="grid grid-cols-[24px_minmax(0,1fr)_auto] gap-x-3 md:hidden">
-                    <div aria-hidden="true" className="flex flex-col items-center pt-[10px]">
+                <li key={stop.key} className="md:flex md:items-center md:gap-3">
+                  {/* A phone's: on the line the stops run down, its card,
+                      the city over its dates and its days in a pill at the
+                      end, which step down to one and no further, and the
+                      way to take it off in the corner. */}
+                  <div className="grid grid-cols-[24px_minmax(0,1fr)] gap-x-3 md:hidden">
+                    <div aria-hidden="true" className="flex flex-col items-center pt-[22px]">
                       <span className="h-3 w-3 flex-none rounded-pill border-[3px] border-terracotta" />
                       <span className="my-1 w-0 flex-1 border-l-2 border-dashed border-terracotta-300" />
                     </div>
-                    <div className={`flex min-w-0 flex-col gap-1 pb-4 ${search === null ? "" : "col-span-2"}`}>
-                      {search ?? (
-                        <button
-                          type="button"
-                          data-stop-name={stop.key}
-                          aria-label={`Change ${name}`}
-                          onClick={pressName}
-                          className={`${NAME} self-start text-left text-[25px]`}
-                        >
-                          {name}
-                        </button>
-                      )}
-                      <span className="text-[13px] leading-[1.2] font-medium text-ink-muted tabular-nums">
-                        {first === undefined ? "" : stay(first, stop.days)}
-                      </span>
-                    </div>
-                    <div
-                      className={`flex items-center self-start rounded-pill bg-terracotta-100 ${search === null ? "" : "hidden"}`}
-                    >
-                      <button
-                        type="button"
-                        aria-label={stop.days > 1 ? `Fewer days in ${name}` : `Remove ${name}`}
-                        onClick={() => {
-                          if (stop.days > 1) {
-                            step(stop.key, -1);
-                          } else {
-                            remove(stop.key);
-                          }
-                        }}
-                        className={PHONE_STEP}
-                      >
-                        {stop.days > 1 ? (
-                          <MinusIcon size={14} strokeWidth={2.75} />
-                        ) : (
-                          <CloseIcon size={14} strokeWidth={2.75} />
+                    <div className={`${CARD} mb-3 min-w-0 p-3`}>
+                      {/* Clear of the cross in the corner. */}
+                      <div className="pr-9">
+                        {search ?? (
+                          <button
+                            type="button"
+                            data-stop-name={stop.key}
+                            aria-label={`Change ${name}`}
+                            onClick={pressName}
+                            className={`${NAME} text-left text-[25px]`}
+                          >
+                            {name}
+                          </button>
                         )}
-                      </button>
-                      <span className="min-w-7 text-center text-[14px] leading-none font-bold text-terracotta-800 tabular-nums">
-                        <span aria-hidden="true">{`${String(stop.days)}d`}</span>
-                        <span className="sr-only">{count(stop.days, "day", "days")}</span>
-                      </span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between gap-3">
+                        <span className="min-w-0 text-[13px] leading-[1.2] font-medium text-ink-muted tabular-nums">
+                          {first === undefined ? "" : stay(first, stop.days)}
+                        </span>
+                        <div className={DAYS}>
+                          <button
+                            type="button"
+                            aria-label={`Fewer days in ${name}`}
+                            disabled={stop.days <= 1}
+                            onClick={() => {
+                              step(stop.key, -1);
+                            }}
+                            className={PHONE_STEP}
+                          >
+                            <MinusIcon size={14} strokeWidth={2.75} />
+                          </button>
+                          <span className="min-w-7 text-center text-[14px] leading-none font-bold text-ink tabular-nums">
+                            <span aria-hidden="true">{`${String(stop.days)}d`}</span>
+                            <span className="sr-only">{count(stop.days, "day", "days")}</span>
+                          </span>
+                          <button
+                            type="button"
+                            aria-label={`More days in ${name}`}
+                            disabled={stop.days >= MAX_STOP_DAYS}
+                            onClick={() => {
+                              step(stop.key, 1);
+                            }}
+                            className={PHONE_STEP}
+                          >
+                            <PlusIcon size={14} strokeWidth={2.75} />
+                          </button>
+                        </div>
+                      </div>
                       <button
                         type="button"
-                        aria-label={`More days in ${name}`}
-                        disabled={stop.days >= MAX_STOP_DAYS}
+                        aria-label={`Remove ${name}`}
                         onClick={() => {
-                          step(stop.key, 1);
+                          remove(stop.key);
                         }}
-                        className={PHONE_STEP}
+                        className={`${REMOVE} top-1 right-1 h-10 w-10`}
                       >
-                        <PlusIcon size={14} strokeWidth={2.75} />
+                        <CloseIcon size={14} strokeWidth={2.75} />
                       </button>
                     </div>
                   </div>
 
-                  {/* A desk's: the city over its days, which step down to
-                      one and no further, and the way to take it off, the
-                      two centred on each other whichever is the wider; then
-                      the plane on to the next. */}
-                  <div className="flex min-w-0 flex-col items-center gap-2 max-md:hidden">
-                    {search ?? (
+                  {/* A desk's: its card, the city over its days in a pill
+                      of the ticket's paper, which step down to one and no
+                      further, and the way to take it off in the corner;
+                      then the plane on to the next. */}
+                  <div className={`${CARD} flex min-w-[150px] flex-col px-3 pt-4 pb-3 max-md:hidden`}>
+                    {/* Clear of the cross in the corner. While the city is
+                        being changed the name stays, unseen, to hold the
+                        card at its width, and the search lies over it, so
+                        the cards along the line do not move up or down a
+                        row while it is. */}
+                    <div className="relative pr-6 pl-1.5">
                       <button
                         type="button"
                         data-stop-name={stop.key}
                         aria-label={`Change ${name}`}
                         onClick={pressName}
-                        className={`${NAME} text-center text-[24px]`}
+                        className={`${NAME} text-left text-[24px] ${search === null ? "" : "invisible"}`}
                       >
                         {name}
                       </button>
-                    )}
-                    <div className="flex items-center gap-1">
+                      {/* Lifted over the cards after it, since being moved
+                          up makes it a layer of its own, and the list it
+                          hangs would otherwise go under them. */}
+                      {search === null ? null : (
+                        <div className="absolute top-1/2 right-6 left-1.5 z-20 -translate-y-1/2">{search}</div>
+                      )}
+                    </div>
+                    <div className={`${DAYS} mt-3 justify-between`}>
                       <button
                         type="button"
                         aria-label={`Fewer days in ${name}`}
@@ -298,7 +325,7 @@ export function StartTicket() {
                       >
                         <MinusIcon size={12} strokeWidth={2.75} />
                       </button>
-                      <span className="min-w-14 text-center text-[13px] leading-none font-semibold text-ink-muted tabular-nums">
+                      <span className="min-w-14 text-center text-[14px] leading-none font-bold text-ink tabular-nums">
                         {count(stop.days, "day", "days")}
                       </span>
                       <button
@@ -312,32 +339,30 @@ export function StartTicket() {
                       >
                         <PlusIcon size={12} strokeWidth={2.75} />
                       </button>
-                      <button
-                        type="button"
-                        aria-label={`Remove ${name}`}
-                        onClick={() => {
-                          remove(stop.key);
-                        }}
-                        className={`grid h-7 w-7 place-items-center rounded-pill text-ink-faint hover:bg-terracotta-100 hover:text-terracotta-800 ${FOCUS}`}
-                      >
-                        <CloseIcon size={12} strokeWidth={2.75} />
-                      </button>
                     </div>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${name}`}
+                      onClick={() => {
+                        remove(stop.key);
+                      }}
+                      className={`${REMOVE} top-1.5 right-1.5 h-7 w-7`}
+                    >
+                      <CloseIcon size={12} strokeWidth={2.75} />
+                    </button>
                   </div>
-                  <PlaneIcon
-                    size={20}
-                    strokeWidth={2.75}
-                    className="mt-1.5 flex-none text-terracotta max-md:hidden"
-                  />
+                  <PlaneIcon size={20} strokeWidth={2.75} className="flex-none text-terracotta max-md:hidden" />
                 </li>
               );
             })}
 
-            {/* On a desk, as tall as a stop: the name's line, 24px at 1.25,
-                over its days, 8px under it and 28px tall. So the row the
-                field is on keeps its height when the city chosen in it
-                takes the field's place. */}
-            <li className="md:min-h-[66px]">
+            {/* On a desk, as tall as a stop's card: 16px over the name's
+                line, 24px at 1.25, its days 12px under it and 36px tall,
+                and 12px under them. So the row the field is on keeps its
+                height when the city chosen in it takes the field's place,
+                and the field stands level with the middle of the cards, as
+                the planes do. */}
+            <li className="md:flex md:min-h-[106px] md:items-center">
               {stops.length < MAX_STOPS ? (
                 <StopSearch after={onTicket.at(-1) ?? null} taken={onTicket} changing={null} onChoose={add} />
               ) : (
