@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useActionState, useRef, useState } from "react";
+import { Fragment, useActionState, useLayoutEffect, useRef, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
 import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
 import { addDays } from "@/core/time/zoned";
@@ -29,6 +29,9 @@ const DESK_STEP = `grid h-7 w-7 place-items-center rounded-pill bg-terracotta-10
 
 /** A step of a stop's days, forty across inside the pill they share: a phone's. */
 const PHONE_STEP = `grid h-10 w-10 place-items-center rounded-pill text-terracotta-800 hover:bg-terracotta-200 disabled:opacity-45 disabled:hover:bg-transparent ${FOCUS}`;
+
+/** A stop's name, which is pressed to change its city, warming to the accent under the pointer. */
+const NAME = `rounded-chip font-display leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink hover:text-terracotta-700 ${FOCUS}`;
 
 interface Stop {
   /** Tells two stops in one city apart, which a trip that comes back to a city has. */
@@ -59,6 +62,10 @@ function stay(first: IsoDate, days: number): string {
  * main half, and the stops run down a dashed line, each with its days and its
  * dates beside it.
  *
+ * A stop's name is pressed to change its city: the search the next stop is
+ * found with stands in its place, and the city chosen there is the stop's
+ * from then on, at the same days.
+ *
  * The days follow from the stops: the trip departs on the day chosen, and each
  * stop takes the days after the last one's. Nothing about the dates is typed
  * twice, and nothing can be made to disagree.
@@ -84,6 +91,28 @@ export function StartTicket() {
    */
   const [changedUnder, setChangedUnder] = useState<CreateTripFormState | null>(null);
   const error = changedUnder === state ? null : state.error;
+  /** The stop whose city is being changed, its name a search for now, or null. */
+  const [changing, setChanging] = useState<number | null>(null);
+  /**
+   * The stop whose name the cursor goes back to once the search that stood
+   * in its place has gone: as a city is chosen in it, or as it is left from
+   * the keys. A press elsewhere has put the cursor where it wanted it.
+   */
+  const refocus = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const key = refocus.current;
+    if (key === null) {
+      return;
+    }
+    refocus.current = null;
+    // Each stop is drawn twice, a desk's and a phone's, and one is on show.
+    const names = ticket.current?.querySelectorAll<HTMLElement>(`[data-stop-name="${String(key)}"]`) ?? [];
+    for (const name of names) {
+      if (name.getClientRects().length > 0) {
+        name.focus();
+      }
+    }
+  });
 
   const change = (next: (now: readonly Stop[]) => readonly Stop[]): void => {
     setStops(next);
@@ -106,6 +135,20 @@ export function StartTicket() {
   const remove = (key: number): void => {
     change((now) => now.filter((stop) => stop.key !== key));
   };
+  const changeCity = (key: number, city: ChosenCity): void => {
+    change((now) => now.map((stop) => (stop.key === key ? { ...stop, city } : stop)));
+    setChanging(null);
+    refocus.current = key;
+  };
+  const stopChanging = (key: number, fromKeys: boolean): void => {
+    setChanging(null);
+    if (fromKeys) {
+      refocus.current = key;
+    }
+  };
+
+  /** Every city on the ticket, in the order the trip makes them. */
+  const onTicket = stops.map((stop) => stop.city);
 
   const days = stops.reduce((total, stop) => total + stop.days, 0);
   const cities = new Set(stops.map((stop) => stop.city.providerPlaceId)).size;
@@ -141,25 +184,56 @@ export function StartTicket() {
             {stops.map((stop, index) => {
               const { name } = stop.city;
               const first = arrives[index];
+              /** The stop's own search, in its name's place while its city is being changed. */
+              const search =
+                changing === stop.key ? (
+                  <StopSearch
+                    after={stops[index - 1]?.city ?? null}
+                    taken={onTicket}
+                    changing={stop.city}
+                    onChoose={(city) => {
+                      changeCity(stop.key, city);
+                    }}
+                    onLeave={(fromKeys) => {
+                      stopChanging(stop.key, fromKeys);
+                    }}
+                  />
+                ) : null;
+              const pressName = (): void => {
+                setChanging(stop.key);
+              };
               return (
                 <li key={stop.key} className="md:flex md:items-start md:gap-3">
                   {/* A phone's: on the line the stops run down, the city
                       and its dates, and its days in a pill at the end. At
-                      one day the step down takes the stop off instead. */}
+                      one day the step down takes the stop off instead.
+                      While its city is being changed, the search takes the
+                      pill's room as well, so it and its list are as wide
+                      as the next stop's. */}
                   <div className="grid grid-cols-[24px_minmax(0,1fr)_auto] gap-x-3 md:hidden">
                     <div aria-hidden="true" className="flex flex-col items-center pt-[10px]">
                       <span className="h-3 w-3 flex-none rounded-pill border-[3px] border-terracotta" />
                       <span className="my-1 w-0 flex-1 border-l-2 border-dashed border-terracotta-300" />
                     </div>
-                    <div className="flex min-w-0 flex-col gap-1 pb-4">
-                      <span className="font-display text-[25px] leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink">
-                        {name}
-                      </span>
+                    <div className={`flex min-w-0 flex-col gap-1 pb-4 ${search === null ? "" : "col-span-2"}`}>
+                      {search ?? (
+                        <button
+                          type="button"
+                          data-stop-name={stop.key}
+                          aria-label={`Change ${name}`}
+                          onClick={pressName}
+                          className={`${NAME} self-start text-left text-[25px]`}
+                        >
+                          {name}
+                        </button>
+                      )}
                       <span className="text-[13px] leading-[1.2] font-medium text-ink-muted tabular-nums">
                         {first === undefined ? "" : stay(first, stop.days)}
                       </span>
                     </div>
-                    <div className="flex items-center self-start rounded-pill bg-terracotta-100">
+                    <div
+                      className={`flex items-center self-start rounded-pill bg-terracotta-100 ${search === null ? "" : "hidden"}`}
+                    >
                       <button
                         type="button"
                         aria-label={stop.days > 1 ? `Fewer days in ${name}` : `Remove ${name}`}
@@ -201,9 +275,17 @@ export function StartTicket() {
                       two centred on each other whichever is the wider; then
                       the plane on to the next. */}
                   <div className="flex min-w-0 flex-col items-center gap-2 max-md:hidden">
-                    <span className="text-center font-display text-[24px] leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink">
-                      {name}
-                    </span>
+                    {search ?? (
+                      <button
+                        type="button"
+                        data-stop-name={stop.key}
+                        aria-label={`Change ${name}`}
+                        onClick={pressName}
+                        className={`${NAME} text-center text-[24px]`}
+                      >
+                        {name}
+                      </button>
+                    )}
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
@@ -257,7 +339,7 @@ export function StartTicket() {
                 takes the field's place. */}
             <li className="md:min-h-[66px]">
               {stops.length < MAX_STOPS ? (
-                <StopSearch cities={stops.map((stop) => stop.city)} onAdd={add} />
+                <StopSearch after={onTicket.at(-1) ?? null} taken={onTicket} changing={null} onChoose={add} />
               ) : (
                 <p className="py-2 text-[14px] leading-[1.4] font-medium text-ink-muted md:max-w-[26ch]">
                   {`A trip starts with ${String(MAX_STOPS)} stops at most. Add more from inside the trip.`}

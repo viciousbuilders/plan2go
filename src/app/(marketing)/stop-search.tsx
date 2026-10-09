@@ -157,38 +157,56 @@ async function offerFor(after: ChosenCity | null): Promise<Offer> {
 
 interface StopSearchProps {
   /**
-   * The cities on the ticket so far, in the order the trip makes them: the
-   * empty field offers the towns near the last of them, and none of them
-   * again.
+   * The city the stop being searched for comes after, whose towns the empty
+   * field offers, or null for the first stop.
    */
-  readonly cities: readonly ChosenCity[];
-  readonly onAdd: (city: ChosenCity) => void;
+  readonly after: ChosenCity | null;
+  /** Every city on the ticket, none of which the empty field offers again. */
+  readonly taken: readonly ChosenCity[];
+  /**
+   * The city of the stop whose city is being changed, which the field stands
+   * in place of, or null for the field the next stop is added in.
+   */
+  readonly changing: ChosenCity | null;
+  readonly onChoose: (city: ChosenCity) => void;
+  /**
+   * The field left with no city chosen in it, while a stop's city is being
+   * changed: from the keys, by Escape or Tab, or by a press anywhere else,
+   * which has put the cursor where it wanted it.
+   */
+  readonly onLeave?: (fromKeys: boolean) => void;
 }
 
 /**
- * The next stop, searched rather than typed: a trip needs somewhere real, a
+ * A stop's city, searched rather than typed: a trip needs somewhere real, a
  * place the map can open on and whose clock the days keep, and a line of
  * text is neither. The answers are whole cities, from anywhere, each with the
  * country it is in under its name.
  *
  * Before anything is typed it offers cities instead, as the cursor goes into
- * it: the towns near the last city on the ticket and the best known in its
- * country, nearest first, and none the ticket already goes to. On a ticket
- * with no city yet, the best known cities in the country the reader is in,
- * as far as their connection says, and where it does not say, cities known
- * the world over.
+ * it: the towns near the city the stop comes after and the best known in its
+ * country, nearest first, and none the ticket already goes to. For a first
+ * stop, the best known cities in the country the reader is in, as far as
+ * their connection says, and where it does not say, cities known the world
+ * over.
  *
- * A city goes on the ticket when it is pressed in the list, on a phone as on
- * a desk, at a day, and the field empties for the next with the cursor still
- * in it and the list still up, offering the towns near the city just chosen,
- * so a trip of five cities is five names typed or picked one after another.
+ * Two fields are this one. The next stop's, after the last on the ticket: a
+ * city goes on the ticket when it is pressed in the list, on a phone as on a
+ * desk, at a day, and the field empties for the next with the cursor still in
+ * it and the list still up, offering the towns near the city just chosen, so
+ * a trip of five cities is five names typed or picked one after another. And
+ * a stop's own, in place of its name once the name is pressed, empty and
+ * showing the name as its words: the city chosen in it is the stop's city
+ * from then on, at the same days, and the field goes, as it does when it is
+ * left with nothing chosen.
+ *
  * Enter takes the city picked out in the list, the first until the arrow keys
  * move it, and never sends the ticket: the ticket goes when the button on its
  * stub is pressed.
  *
- * Drawn as each design has it. On a desk, a line to write on after the last
- * stop. On a phone, the row under the last stop on the line the stops run
- * down, its dot dashed since the stop is not there yet.
+ * Drawn as each design has it. On a desk, a line to write on. On a phone, the
+ * next stop's is the row under the last stop on the line the stops run down,
+ * its dot dashed since the stop is not there yet.
  *
  * The list hangs 8px under the field, or over it where the page has no room
  * for five cities under it before its foot, as the departure calendar does,
@@ -201,7 +219,7 @@ interface StopSearchProps {
  * 240px, so the list stands a third wider than the words typed into it; on a
  * phone it is as wide as the field, and the dot stands outside it.
  */
-export function StopSearch({ cities, onAdd }: StopSearchProps) {
+export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSearchProps) {
   const [query, setQuery] = useState("");
   const [found, setFound] = useState<readonly ChosenCity[]>([]);
   const [active, setActive] = useState(0);
@@ -247,9 +265,7 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
     () => true,
   );
 
-  /** The city the next stop follows, whose towns the empty field offers. */
-  const last = cities.at(-1) ?? null;
-  const offerKey = last?.providerPlaceId ?? NO_CITY_YET;
+  const offerKey = after?.providerPlaceId ?? NO_CITY_YET;
 
   const trimmed = query.trim();
   const searched = trimmed.length >= MINIMUM_LETTERS;
@@ -261,7 +277,7 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
   const offered = (offer?.cities ?? [])
     .filter(
       (city) =>
-        !cities.some(
+        !taken.some(
           (onTicket) =>
             onTicket.providerPlaceId === city.providerPlaceId ||
             foldedName(onTicket.name) === foldedName(city.name),
@@ -370,14 +386,14 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
       return;
     }
     asking.current.add(key);
-    void offerFor(last).then((answer) => {
+    void offerFor(after).then((answer) => {
       asking.current.delete(key);
       setOffers((now) => ({ ...now, [key]: answer }));
     });
   };
   const lookingUpOffer = useEffectEvent(lookUpOffer);
-  // Again whenever the last city on the ticket changes while the list is up,
-  // as it does the moment a city is chosen from it.
+  // Again whenever the city the stop comes after changes while the list is
+  // up, as it does the moment a next stop is chosen from it.
   useEffect(() => {
     if (open) {
       lookingUpOffer();
@@ -386,12 +402,17 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
 
   useOutsidePress(container, open, () => {
     setOpen(false);
+    onLeave?.(false);
   });
 
-  const add = (city: ChosenCity): void => {
-    onAdd(city);
+  const choose = (city: ChosenCity): void => {
     // An answer still on its way is to a question nobody is asking any more.
     newest.current += 1;
+    onChoose(city);
+    if (changing !== null) {
+      // The field goes with the change.
+      return;
+    }
     setQuery("");
     setFound([]);
     setAnswered(null);
@@ -403,16 +424,22 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     // Tab takes the cursor on, and the list would be left over whatever it
-    // goes to.
+    // goes to. A stop's own field goes as it is left, so the cursor goes back
+    // to the name it stood in place of, rather than on from a field no longer
+    // there.
     if (event.key === "Escape" || event.key === "Tab") {
       setOpen(false);
+      if (onLeave !== undefined) {
+        event.preventDefault();
+        onLeave(true);
+      }
       return;
     }
     if (event.key === "Enter") {
       // The field is inside the ticket's form, and Enter there would send it.
       event.preventDefault();
       if (picked !== undefined) {
-        add(picked);
+        choose(picked);
       } else {
         setOpen(true);
       }
@@ -430,9 +457,115 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
     }
   };
 
-  const empty = cities.length === 0 ? "First stop" : "Next stop";
+  const empty = taken.length === 0 ? "First stop" : "Next stop";
 
-  return (
+  // The field's line, which the list hangs from.
+  const fieldLine = (
+    <div ref={line} className="relative grid grid-cols-[minmax(0,1fr)] items-center md:flex">
+      <label htmlFor={fieldId} className="sr-only">
+        {changing === null ? "Add a stop" : `Change ${changing.name} to`}
+      </label>
+      <input
+        ref={field}
+        id={fieldId}
+        type="text"
+        role="combobox"
+        autoComplete="off"
+        enterKeyHint="done"
+        aria-expanded={listed}
+        aria-controls={listId}
+        aria-autocomplete="list"
+        aria-activedescendant={picked === undefined ? undefined : `${listId}-${String(at)}`}
+        // A stop's own field takes the cursor as it takes the name's place,
+        // during the press that put it there, so a phone opens its keyboard.
+        autoFocus={changing !== null}
+        value={query}
+        placeholder={changing?.name ?? (wide ? `+ ${empty}` : empty)}
+        onChange={(event) => {
+          setQuery(event.target.value);
+          setActive(0);
+          setOpen(true);
+        }}
+        onFocus={() => {
+          setOpen(true);
+        }}
+        // A press on the field it already has the cursor in, after Escape
+        // put the list away, brings it back.
+        onClick={() => {
+          setOpen(true);
+        }}
+        onPointerEnter={lookUpOffer}
+        onKeyDown={onKeyDown}
+        // 21 on a phone and 20 on a desk, never under 16, or iOS zooms the
+        // page into the field.
+        // No ring round it: the caret, in the accent, says it has the cursor.
+        className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:w-[240px] md:text-[20px]"
+      />
+
+      {shown ? (
+        // The calendar's surface, corners and shadow, the shadow in the
+        // accent's darkest brown as the ticket's own is.
+        <div
+          style={{ maxHeight: hang.room }}
+          className={`absolute right-0 left-0 z-20 overflow-y-auto overscroll-contain rounded-[24px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px] ${
+            hang.above ? "bottom-full mb-2" : "top-full mt-2"
+          }`}
+        >
+          {listed ? (
+            <>
+              <p className={`${FIELD_LABEL} px-3 pt-2.5 pb-2`}>{heading}</p>
+              <ul
+                id={listId}
+                role="listbox"
+                aria-label={searched ? "Cities" : heading}
+                className="flex flex-col gap-0.5"
+              >
+                {rows.map((city, index) => (
+                  <li
+                    key={city.providerPlaceId}
+                    id={`${listId}-${String(index)}`}
+                    role="option"
+                    aria-selected={index === at}
+                    onMouseEnter={() => {
+                      setActive(index);
+                    }}
+                    // The row Enter takes, tinted, and rounded to sit 8px
+                    // inside the panel's own corners.
+                    className={`rounded-[16px] ${index === at ? "bg-terracotta-100" : ""}`}
+                  >
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => {
+                        choose(city);
+                      }}
+                      className="flex min-h-12 w-full items-center gap-3 rounded-[16px] py-1.5 pr-3 pl-[11px] text-left"
+                    >
+                      <PinIcon size={18} strokeWidth={2.75} className="flex-none text-terracotta" />
+                      <span className="min-w-0">
+                        <span className="block text-[14px] leading-[18px] font-bold text-ink">{city.name}</span>
+                        {city.address === null ? null : (
+                          <span className="mt-0.5 block text-[12px] leading-4 text-ink-muted">
+                            {city.address}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="px-3 py-3 text-[13px] leading-[1.4] text-ink-muted">{sentence}</p>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+
+  // A stop's own field stands where its name stood. The next stop's has, on a
+  // phone, the dashed dot of a stop not there yet in front of it.
+  return changing === null ? (
     <div
       ref={container}
       className="grid grid-cols-[24px_minmax(0,1fr)] items-center gap-x-3 md:flex"
@@ -441,104 +574,9 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
         aria-hidden="true"
         className="h-3 w-3 justify-self-center rounded-pill border-[2.5px] border-dashed border-terracotta md:hidden"
       />
-      {/* The field's line, which the list hangs from. */}
-      <div ref={line} className="relative grid grid-cols-[minmax(0,1fr)] items-center md:flex">
-        <label htmlFor={fieldId} className="sr-only">
-          Add a stop
-        </label>
-        <input
-          ref={field}
-          id={fieldId}
-          type="text"
-          role="combobox"
-          autoComplete="off"
-          enterKeyHint="done"
-          aria-expanded={listed}
-          aria-controls={listId}
-          aria-autocomplete="list"
-          aria-activedescendant={picked === undefined ? undefined : `${listId}-${String(at)}`}
-          value={query}
-          placeholder={wide ? `+ ${empty}` : empty}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setActive(0);
-            setOpen(true);
-          }}
-          onFocus={() => {
-            setOpen(true);
-          }}
-          // A press on the field it already has the cursor in, after Escape
-          // put the list away, brings it back.
-          onClick={() => {
-            setOpen(true);
-          }}
-          onPointerEnter={lookUpOffer}
-          onKeyDown={onKeyDown}
-          // 21 on a phone and 20 on a desk, never under 16, or iOS zooms the
-          // page into the field.
-          // No ring round it: the caret, in the accent, says it has the cursor.
-          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:w-[240px] md:text-[20px]"
-        />
-
-        {shown ? (
-          // The calendar's surface, corners and shadow, the shadow in the
-          // accent's darkest brown as the ticket's own is.
-          <div
-            style={{ maxHeight: hang.room }}
-            className={`absolute right-0 left-0 z-20 overflow-y-auto overscroll-contain rounded-[24px] bg-paper-raised p-2 shadow-[0_18px_40px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)] md:right-auto md:-left-2 md:w-[320px] ${
-              hang.above ? "bottom-full mb-2" : "top-full mt-2"
-            }`}
-          >
-            {listed ? (
-              <>
-                <p className={`${FIELD_LABEL} px-3 pt-2.5 pb-2`}>{heading}</p>
-                <ul
-                  id={listId}
-                  role="listbox"
-                  aria-label={searched ? "Cities" : heading}
-                  className="flex flex-col gap-0.5"
-                >
-                  {rows.map((city, index) => (
-                    <li
-                      key={city.providerPlaceId}
-                      id={`${listId}-${String(index)}`}
-                      role="option"
-                      aria-selected={index === at}
-                      onMouseEnter={() => {
-                        setActive(index);
-                      }}
-                      // The row Enter takes, tinted, and rounded to sit 8px
-                      // inside the panel's own corners.
-                      className={`rounded-[16px] ${index === at ? "bg-terracotta-100" : ""}`}
-                    >
-                      <button
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => {
-                          add(city);
-                        }}
-                        className="flex min-h-12 w-full items-center gap-3 rounded-[16px] py-1.5 pr-3 pl-[11px] text-left"
-                      >
-                        <PinIcon size={18} strokeWidth={2.75} className="flex-none text-terracotta" />
-                        <span className="min-w-0">
-                          <span className="block text-[14px] leading-[18px] font-bold text-ink">{city.name}</span>
-                          {city.address === null ? null : (
-                            <span className="mt-0.5 block text-[12px] leading-4 text-ink-muted">
-                              {city.address}
-                            </span>
-                          )}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className="px-3 py-3 text-[13px] leading-[1.4] text-ink-muted">{sentence}</p>
-            )}
-          </div>
-        ) : null}
-      </div>
+      {fieldLine}
     </div>
+  ) : (
+    <div ref={container}>{fieldLine}</div>
   );
 }
