@@ -333,10 +333,25 @@ export function inTurn<T>(lists: readonly (readonly T[])[]): readonly T[] {
   return all;
 }
 
-/** The country an address ends in, "Vietnam" from "Hanoi, Ha Noi, Vietnam". */
+/**
+ * The countries an address shortens, by the name a landmark's address gives
+ * them in full. A city's address ends in "USA" or "UK", while the landmarks
+ * around it are in the "United States" or the "United Kingdom", and a country
+ * written two ways is two countries to the list, which then keeps none of
+ * them.
+ */
+const SHORTENED_COUNTRIES: Readonly<Record<string, string>> = {
+  USA: "United States",
+  UK: "United Kingdom",
+};
+
+/**
+ * The country an address ends in, "Vietnam" from "Hanoi, Ha Noi, Vietnam",
+ * written in full where the address shortens it.
+ */
 export function countryOf(address: string | null): string | null {
   const last = address?.split(",").at(-1)?.trim() ?? "";
-  return last === "" ? null : last;
+  return last === "" ? null : (SHORTENED_COUNTRIES[last] ?? last);
 }
 
 /** A city suggested, and where it is. */

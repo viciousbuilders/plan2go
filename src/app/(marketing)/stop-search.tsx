@@ -189,18 +189,17 @@ interface StopSearchProps {
  * the country the reader is in, as far as their connection says, and where
  * it does not say, cities known the world over.
  *
- * Picking one puts it on the ticket at a day and empties the field for the
- * next, with the cursor still in it and the list still up, offering the towns
- * near the city just chosen, so a trip of five cities is five names typed or
- * picked one after another. Enter takes the city picked out in the list, the
- * first until the arrow keys move it, and never sends the ticket: the ticket
- * goes when the button on its stub is pressed.
+ * A city goes on the ticket when it is pressed in the list, on a phone as on
+ * a desk, at a day, and the field empties for the next with the cursor still
+ * in it and the list still up, offering the towns near the city just chosen,
+ * so a trip of five cities is five names typed or picked one after another.
+ * Enter takes the city picked out in the list, the first until the arrow keys
+ * move it, and never sends the ticket: the ticket goes when the button on its
+ * stub is pressed.
  *
  * Drawn as each design has it. On a desk, a line to write on after the last
  * stop. On a phone, the row under the last stop on the line the stops run
- * down, its dot dashed since the stop is not there yet, with Add at its end
- * once something is typed, since a phone's keyboard has no Enter to read as
- * an add.
+ * down, its dot dashed since the stop is not there yet.
  *
  * The list hangs 8px under the field, or over it where the page has no room
  * for five cities under it before its foot, as the departure calendar does,
@@ -211,8 +210,7 @@ interface StopSearchProps {
  * a pin in the accent before its name and its country under that. On a desk
  * it is the calendar's 320px and starts 8px left of the field, which is
  * 240px, so the list stands a third wider than the words typed into it; on a
- * phone it is the field's line, the field and Add, and the dot stands outside
- * it.
+ * phone it is as wide as the field, and the dot stands outside it.
  */
 export function StopSearch({ cities, onAdd }: StopSearchProps) {
   const [query, setQuery] = useState("");
@@ -462,9 +460,8 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
         aria-hidden="true"
         className="h-3 w-3 justify-self-center rounded-pill border-[2.5px] border-dashed border-terracotta md:hidden"
       />
-      {/* The field's line, which the list hangs from: the field, and on a
-          phone Add at its end. */}
-      <div ref={line} className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 md:flex">
+      {/* The field's line, which the list hangs from. */}
+      <div ref={line} className="relative grid grid-cols-[minmax(0,1fr)] items-center md:flex">
         <label htmlFor={fieldId} className="sr-only">
           Add a stop
         </label>
@@ -501,20 +498,6 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
           // No ring round it: the caret, in the accent, says it has the cursor.
           className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:w-[240px] md:text-[20px]"
         />
-        {query.trim() === "" ? null : (
-          <button
-            type="button"
-            disabled={picked === undefined}
-            onClick={() => {
-              if (picked !== undefined) {
-                add(picked);
-              }
-            }}
-            className="h-10 rounded-pill bg-terracotta px-4 text-[14px] leading-none font-bold text-sheet hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-terracotta md:hidden"
-          >
-            Add
-          </button>
-        )}
 
         {shown ? (
           // The calendar's surface, corners and shadow, the shadow in the
@@ -543,8 +526,8 @@ export function StopSearch({ cities, onAdd }: StopSearchProps) {
                       onMouseEnter={() => {
                         setActive(index);
                       }}
-                      // The row Enter or Add takes, tinted, and rounded to sit
-                      // 8px inside the panel's own corners.
+                      // The row Enter takes, tinted, and rounded to sit 8px
+                      // inside the panel's own corners.
                       className={`rounded-[16px] ${index === at ? "bg-terracotta-100" : ""}`}
                     >
                       <button

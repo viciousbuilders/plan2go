@@ -272,4 +272,9 @@ describe("countryOf", () => {
     expect(countryOf(null)).toBeNull();
     expect(countryOf("")).toBeNull();
   });
+
+  it("writes in full a country the address shortens, as a landmark's address names it", () => {
+    expect(countryOf("New York, NY, USA")).toBe("United States");
+    expect(countryOf("London, UK")).toBe("United Kingdom");
+  });
 });
