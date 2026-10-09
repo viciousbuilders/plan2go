@@ -459,13 +459,14 @@ export function DepartureField({ today, start, within, onChange }: DepartureFiel
               <span className="max-md:hidden">{DEPARTS_ON.format(isoDateAsUtc(start))}</span>
             </>
           )}
-          {/* 14px on a phone and 15px on a desk, as each design draws it,
-              and turned over while the calendar is open only on a desk: on a
-              phone the sheet stands over it. */}
+          {/* 14px beside the date, as the phone's design draws it, and a
+              desk writes the date at the phone's size too. Turned over while
+              the calendar is open only on a desk: on a phone the sheet
+              stands over it. */}
           <ChevronDownIcon
-            size={15}
+            size={14}
             strokeWidth={2.75}
-            className={`flex-none text-terracotta-700 max-md:size-3.5 ${open ? "md:rotate-180" : ""}`}
+            className={`flex-none text-terracotta-700 ${open ? "md:rotate-180" : ""}`}
           />
         </span>
       </button>

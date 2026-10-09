@@ -50,9 +50,9 @@ const PAGE_ROOM = 8;
 
 /**
  * How tall the list is at its tallest, five cities, the most the search
- * answers: its padding, its heading, and five rows of 56px, 2px apart.
+ * answers: its padding, its heading, and five rows of 48px, 2px apart.
  */
-const LIST_HEIGHT = 333;
+const LIST_HEIGHT = 293;
 
 /** Which side of the field the list hangs on, and how tall it may be there. */
 interface Hang {
@@ -293,9 +293,10 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
             setOpen(true);
           }}
           onKeyDown={onKeyDown}
-          // 21 on a phone, never under 16, or iOS zooms the page into the field.
+          // 21 on a phone and 20 on a desk, never under 16, or iOS zooms the
+          // page into the field.
           // No ring round it: the caret, in the accent, says it has the cursor.
-          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-10 md:w-[240px] md:text-[25px]"
+          className="h-11 w-full rounded-none border-0 border-b-2 border-dashed border-ink/22 bg-transparent p-0 font-display text-[21px] leading-none font-semibold text-ink caret-terracotta outline-none placeholder:text-ink-faint md:h-9 md:w-[240px] md:text-[20px]"
         />
         {query.trim() === "" ? null : (
           <button
@@ -344,13 +345,13 @@ export function StopSearch({ first, onAdd }: StopSearchProps) {
                         onClick={() => {
                           add(city);
                         }}
-                        className="flex min-h-14 w-full items-center gap-3 rounded-[16px] py-[7px] pr-3 pl-[11px] text-left"
+                        className="flex min-h-12 w-full items-center gap-3 rounded-[16px] py-1.5 pr-3 pl-[11px] text-left"
                       >
-                        <PinIcon size={20} strokeWidth={2.75} className="flex-none text-terracotta" />
+                        <PinIcon size={18} strokeWidth={2.75} className="flex-none text-terracotta" />
                         <span className="min-w-0">
-                          <span className="block text-[16px] leading-5 font-bold text-ink">{city.name}</span>
+                          <span className="block text-[14px] leading-[18px] font-bold text-ink">{city.name}</span>
                           {city.address === null ? null : (
-                            <span className="mt-1 block text-[13px] leading-[1.35] text-ink-muted">
+                            <span className="mt-0.5 block text-[12px] leading-4 text-ink-muted">
                               {city.address}
                             </span>
                           )}

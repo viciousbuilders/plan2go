@@ -201,7 +201,7 @@ export function StartTicket() {
                       two centred on each other whichever is the wider; then
                       the plane on to the next. */}
                   <div className="flex min-w-0 flex-col items-center gap-2 max-md:hidden">
-                    <span className="text-center font-display text-[30px] leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink">
+                    <span className="text-center font-display text-[24px] leading-[1.25] font-semibold [overflow-wrap:anywhere] text-ink">
                       {name}
                     </span>
                     <div className="flex items-center gap-1">
@@ -214,9 +214,9 @@ export function StartTicket() {
                         }}
                         className={DESK_STEP}
                       >
-                        <MinusIcon size={13} strokeWidth={2.75} />
+                        <MinusIcon size={12} strokeWidth={2.75} />
                       </button>
-                      <span className="min-w-14 text-center text-[14px] leading-none font-semibold text-ink-muted tabular-nums">
+                      <span className="min-w-14 text-center text-[13px] leading-none font-semibold text-ink-muted tabular-nums">
                         {count(stop.days, "day", "days")}
                       </span>
                       <button
@@ -228,7 +228,7 @@ export function StartTicket() {
                         }}
                         className={DESK_STEP}
                       >
-                        <PlusIcon size={13} strokeWidth={2.75} />
+                        <PlusIcon size={12} strokeWidth={2.75} />
                       </button>
                       <button
                         type="button"
@@ -238,24 +238,24 @@ export function StartTicket() {
                         }}
                         className={`grid h-7 w-7 place-items-center rounded-pill text-ink-faint hover:bg-terracotta-100 hover:text-terracotta-800 ${FOCUS}`}
                       >
-                        <CloseIcon size={13} strokeWidth={2.75} />
+                        <CloseIcon size={12} strokeWidth={2.75} />
                       </button>
                     </div>
                   </div>
                   <PlaneIcon
-                    size={24}
+                    size={20}
                     strokeWidth={2.75}
-                    className="mt-2 flex-none text-terracotta max-md:hidden"
+                    className="mt-1.5 flex-none text-terracotta max-md:hidden"
                   />
                 </li>
               );
             })}
 
-            {/* On a desk, as tall as a stop: the name's line, 30px at 1.25,
+            {/* On a desk, as tall as a stop: the name's line, 24px at 1.25,
                 over its days, 8px under it and 28px tall. So the row the
                 field is on keeps its height when the city chosen in it
                 takes the field's place. */}
-            <li className="md:min-h-[73.5px]">
+            <li className="md:min-h-[66px]">
               {stops.length < MAX_STOPS ? (
                 <StopSearch first={stops.length === 0} onAdd={add} />
               ) : (
@@ -292,7 +292,7 @@ export function StartTicket() {
         <div className="relative isolate flex flex-col gap-4 px-5 pt-[22px] pb-5 text-sheet md:w-[260px] md:flex-none md:justify-between md:gap-6 md:px-7 md:py-8">
           <div aria-hidden="true" className="ticket-ground ticket-ground-stub" />
           <p className="flex items-baseline justify-between gap-3 md:flex-col md:items-start md:gap-2">
-            <span className="font-display text-[27px] leading-none font-semibold whitespace-nowrap md:text-[30px]">
+            <span className="font-display text-[27px] leading-none font-semibold whitespace-nowrap md:text-[24px]">
               {count(days, "day", "days")}
             </span>
             <span className="text-[15px] leading-none font-semibold">

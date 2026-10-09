@@ -9,4 +9,4 @@ export const FIELD_LABEL =
   "text-[11px] leading-none font-bold tracking-[0.14em] text-ink-muted uppercase";
 
 /** What a field on the ticket says. */
-export const FIELD_VALUE = "text-[16px] leading-none font-semibold text-ink tabular-nums md:text-[17px]";
+export const FIELD_VALUE = "text-[16px] leading-none font-semibold text-ink tabular-nums";
