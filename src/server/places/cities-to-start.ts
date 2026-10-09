@@ -65,10 +65,8 @@ function worldFamous(
   );
 }
 
-/** The cities offered on a ticket with none on it yet, and the country they are the best known of. */
+/** The cities offered on a ticket with none on it yet. */
 export interface CitiesToStart {
-  /** The country the cities are the best known cities in, or null when they are the world's. */
-  readonly country: string | null;
   readonly cities: readonly PlaceSuggestion[];
 }
 
@@ -93,11 +91,10 @@ export async function citiesToStart(
     const popular = await popularCitiesIn(country, provider, now);
     if (popular.length > 0) {
       return {
-        country,
         cities: popular.slice(0, limit).map((city) => ({ ...city, distanceMeters: null })),
       };
     }
   }
   const famous = await worldFamous(provider, now);
-  return { country: null, cities: famous.slice(0, limit) };
+  return { cities: famous.slice(0, limit) };
 }

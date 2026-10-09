@@ -34,13 +34,12 @@ const responseSchema = object({ suggestions: array(suggestionSchema) });
 const refusalSchema = object({ error: string(), action: optional(string()) });
 
 /**
- * The towns near a city and the best known cities in its country, nearest
- * first. Each comes with how far it is, which the list leaves unsaid.
+ * The cities the empty field offers, from either of the two lists it asks
+ * for: the towns near a city and the best known in its country, nearest
+ * first, each with how far it is, which the list leaves unsaid; or the best
+ * known cities in the reader's country, or the world's when that is not known.
  */
-const nearSchema = object({ cities: array(suggestionSchema) });
-
-/** The best known cities in the reader's country, or the world's when that is not known. */
-const startSchema = object({ country: nullable(string()), cities: array(suggestionSchema) });
+const offerSchema = object({ cities: array(suggestionSchema) });
 
 /** A city picked out of the list. */
 export interface ChosenCity {
@@ -48,12 +47,6 @@ export interface ChosenCity {
   readonly name: string;
   /** The line the provider writes underneath: the country, which tells two Barcelonas apart. */
   readonly address: string | null;
-}
-
-/** The cities the empty field offers, and the words over them: "Suggested cities", "Popular in Vietnam". */
-interface Offer {
-  readonly heading: string;
-  readonly cities: readonly ChosenCity[];
 }
 
 /**
@@ -106,19 +99,6 @@ function watchWidth(onChange: () => void): () => void {
 }
 
 /**
- * A country as a sentence says it after "in": "Vietnam", and with the word an
- * English sentence puts in front of some, "the United States", "the
- * Netherlands".
- */
-function inCountry(country: string): string {
-  return /^United |(Republic|Islands|Territories)$|^(Netherlands|Philippines|Bahamas|Gambia|Maldives|Seychelles|Comoros)$/.test(
-    country,
-  )
-    ? `the ${country}`
-    : country;
-}
-
-/**
  * The cities the empty field offers: the towns near the city the next stop
  * follows and the best known in its country, nearest first, or on a ticket
  * with no city yet, the best known in the reader's country, or the world's
@@ -126,32 +106,20 @@ function inCountry(country: string): string {
  * nothing: nobody asked for this list out loud, so the field says nothing
  * about one it never got, and typing a city still works.
  */
-async function offerFor(after: ChosenCity | null): Promise<Offer> {
-  const nothing: Offer = { heading: "", cities: [] };
+async function offerFor(after: ChosenCity | null): Promise<readonly ChosenCity[]> {
+  const url =
+    after === null
+      ? `/api/places/cities/start?limit=${String(OFFERED)}`
+      : `/api/places/cities?${new URLSearchParams({
+          city: after.providerPlaceId,
+          limit: String(NEAR_ASKED),
+        }).toString()}`;
   try {
-    if (after === null) {
-      const response = await fetch(`/api/places/cities/start?limit=${String(OFFERED)}`);
-      const parsed = response.ok ? safeParse(startSchema, await response.json()) : null;
-      if (parsed === null || !parsed.success) {
-        return nothing;
-      }
-      const { country, cities } = parsed.data;
-      return {
-        heading: country === null ? "Popular cities" : `Popular in ${inCountry(country)}`,
-        cities,
-      };
-    }
-    const parameters = new URLSearchParams({
-      city: after.providerPlaceId,
-      limit: String(NEAR_ASKED),
-    });
-    const response = await fetch(`/api/places/cities?${parameters.toString()}`);
-    const parsed = response.ok ? safeParse(nearSchema, await response.json()) : null;
-    return parsed === null || !parsed.success
-      ? nothing
-      : { heading: "Suggested cities", cities: parsed.data.cities };
+    const response = await fetch(url);
+    const parsed = response.ok ? safeParse(offerSchema, await response.json()) : null;
+    return parsed === null || !parsed.success ? [] : parsed.data.cities;
   } catch {
-    return nothing;
+    return [];
   }
 }
 
@@ -212,7 +180,7 @@ interface StopSearchProps {
  * for five cities under it before its foot, as the departure calendar does,
  * and is never taller than the room on its side, so it never runs the page
  * on past either end. It is drawn as that calendar is: raised paper rounded
- * at 20px under the same shadow, "Matching cities" or what the cities offered
+ * at 20px under the same shadow, "Matching cities" or "Suggested cities"
  * are in the ticket's small capitals, and each city a row a finger's height,
  * a pin in the accent before its name and its country under that. On a desk
  * it is the calendar's 320px and starts 8px left of the field, which is
@@ -233,7 +201,7 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
    * has answered. Kept for as long as the ticket is here, so taking the last
    * stop off offers the towns near the one before it again at once.
    */
-  const [offers, setOffers] = useState<Readonly<Record<string, Offer>>>({});
+  const [offers, setOffers] = useState<Readonly<Record<string, readonly ChosenCity[]>>>({});
   /**
    * Worked out as the list opens and kept while it is open, so it does not
    * change sides as the answers come in and the list grows.
@@ -275,7 +243,7 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
   const blank = trimmed === "";
   const offer = offers[offerKey];
   /** The cities offered, less every city on the ticket, by its identifier or by its name. */
-  const offered = (offer?.cities ?? [])
+  const offered = (offer ?? [])
     .filter(
       (city) =>
         !taken.some(
@@ -296,7 +264,9 @@ export function StopSearch({ after, taken, changing, onChoose, onLeave }: StopSe
    * none shows nothing at all.
    */
   const shown = open && (searched || (blank && (offer === undefined || offered.length > 0)));
-  const heading = searched ? "Matching cities" : (offer?.heading ?? "");
+  // The cities offered are suggested ones however they were found: near the
+  // last city, or the best known where the reader is or in the world.
+  const heading = searched ? "Matching cities" : "Suggested cities";
   /** What the list says when it has no cities in it. */
   const sentence = searched ? (message ?? (searching ? LOOKING : NO_MATCH)) : LOOKING;
 
