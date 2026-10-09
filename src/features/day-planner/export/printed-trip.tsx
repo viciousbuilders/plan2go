@@ -64,7 +64,7 @@ function rangeOf(days: readonly PlannedDay[]): string {
   if (first.plan.id === last.plan.id) {
     return formatDayDate(first.plan.date);
   }
-  return `${formatDayDate(first.plan.date)} to ${formatDayDate(last.plan.date)}`;
+  return `${formatDayDate(first.plan.date)} - ${formatDayDate(last.plan.date)}`;
 }
 
 /**

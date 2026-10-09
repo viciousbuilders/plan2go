@@ -25,9 +25,10 @@ const DAY_MONTH_YEAR = new Intl.DateTimeFormat("en-AU", {
 
 /**
  * The two ends of a trip said as shortly as they can be without becoming
- * ambiguous: "19 to 23 Sept". The month is written once when both ends share
- * it, and the year only appears when the trip crosses one. Joined by a word
- * rather than a dash, which the product never writes.
+ * ambiguous: "19 - 23 Sept". The month is written once when both ends share
+ * it, and the year only appears when the trip crosses one. Joined by a hyphen
+ * with a space either side, never the en dash a range is often set with,
+ * which the product does not write.
  */
 export function formatDateRange(start: IsoDate, end: IsoDate): string {
   if (start === end) {
@@ -36,12 +37,12 @@ export function formatDateRange(start: IsoDate, end: IsoDate): string {
   const from = parseIsoDate(start);
   const to = parseIsoDate(end);
   if (from.year !== to.year) {
-    return `${DAY_MONTH_YEAR.format(isoDateAsUtc(start))} to ${DAY_MONTH_YEAR.format(isoDateAsUtc(end))}`;
+    return `${DAY_MONTH_YEAR.format(isoDateAsUtc(start))} - ${DAY_MONTH_YEAR.format(isoDateAsUtc(end))}`;
   }
   if (from.month !== to.month) {
-    return `${DAY_MONTH.format(isoDateAsUtc(start))} to ${DAY_MONTH.format(isoDateAsUtc(end))}`;
+    return `${DAY_MONTH.format(isoDateAsUtc(start))} - ${DAY_MONTH.format(isoDateAsUtc(end))}`;
   }
-  return `${DAY_ONLY.format(isoDateAsUtc(start))} to ${DAY_MONTH.format(isoDateAsUtc(end))}`;
+  return `${DAY_ONLY.format(isoDateAsUtc(start))} - ${DAY_MONTH.format(isoDateAsUtc(end))}`;
 }
 
 /**

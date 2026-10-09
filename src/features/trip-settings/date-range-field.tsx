@@ -31,7 +31,7 @@ const EDGE_GAP = 16;
 /**
  * On the trip's own name row, one control among several on a 34px line: no
  * label and no box. The dates sit beside the trip's name as a fact about it,
- * and a row that reads "Hanoi, five days 10 to 15 Sept Change" spends its last
+ * and a row that reads "Hanoi, five days 10 - 15 Sept Change" spends its last
  * word on the mechanism rather than on the trip, so the word that opens it is
  * not shown. It is still there for anybody who cannot see the pill light up
  * under the pointer.

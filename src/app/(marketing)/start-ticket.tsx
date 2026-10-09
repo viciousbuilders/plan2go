@@ -89,7 +89,7 @@ function count(amount: number, one: string, many: string): string {
 
 /**
  * A stop's days as the line under its name says them, as shortly as the
- * trip's own dates are written inside it: "9 to 12 Oct", or the one day.
+ * trip's own dates are written inside it: "9 - 12 Oct", or the one day.
  */
 function stay(first: IsoDate, days: number): string {
   return formatDateRange(first, addDays(first, days - 1));
