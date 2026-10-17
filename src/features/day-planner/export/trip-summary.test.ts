@@ -30,7 +30,7 @@ function place(name: string): Place {
 }
 
 function endpoint(name: string): DayEndpoint {
-  return { place: place(name), label: null };
+  return { place: place(name) };
 }
 
 function stop(name: string, stayMinutes = 60): Stop {

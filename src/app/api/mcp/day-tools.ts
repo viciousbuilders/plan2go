@@ -4,7 +4,6 @@ import { createGooglePlacesProvider } from "@/adapters/places/google-places";
 import { cityRun } from "@/core/model/day-city";
 import { TRAVEL_MODES } from "@/core/model/leg";
 import { formatClock, parseClock } from "@/core/time/minutes";
-import { endpointName } from "@/features/day-planner/endpoint-name";
 import { MODE_WORDS } from "@/features/day-planner/leg-marks";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
@@ -85,7 +84,7 @@ export function registerDayTools(server: McpServer): void {
                 `Day ${String(day)} does not end anywhere, so there is no leg out to an end. Set where it ends with set_day_endpoint first.`,
               );
             }
-            toName = endpointName(plan.end);
+            toName = plan.end.place.name;
           } else {
             const target = stopOn(plan, day, to);
             if ("refusal" in target) {
@@ -183,7 +182,6 @@ export function registerDayTools(server: McpServer): void {
               dayId: plan.id,
               which,
               providerPlaceId: place,
-              label: null,
               session: null,
             },
             prismaTripRepository,

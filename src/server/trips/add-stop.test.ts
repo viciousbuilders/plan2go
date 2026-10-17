@@ -22,7 +22,7 @@ function place(id: string, lng: number): Place {
   };
 }
 
-const HOTEL: DayEndpoint = { place: place("hotel", 138.6), label: "Hotel" };
+const HOTEL: DayEndpoint = { place: place("hotel", 138.6) };
 const MARKET: Stop = {
   id: "market",
   place: place("market", 138.61),

@@ -34,7 +34,7 @@ function stop(id: string): Stop {
   return { id, place: place(id), stayMinutes: 60, travelMode: "walk", note: null };
 }
 
-const HOTEL: DayEndpoint = { place: place("hotel"), label: null };
+const HOTEL: DayEndpoint = { place: place("hotel") };
 
 function day(id: string, stops: readonly Stop[], overrides: Partial<DayPlan> = {}): DayPlan {
   return {

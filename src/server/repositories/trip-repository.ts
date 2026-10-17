@@ -62,8 +62,7 @@ export type DayEnd = "start" | "end";
  * Where a day begins or where it finishes.
  *
  * A null place clears that end, which is how a day goes back to beginning at
- * its first stop. The label is what the traveller calls the point, "Hotel",
- * and is theirs to write or to leave off.
+ * its first stop.
  */
 export interface DayEndpointUpdate {
   readonly slug: string;
@@ -71,7 +70,6 @@ export interface DayEndpointUpdate {
   readonly dayId: DayId;
   readonly which: DayEnd;
   readonly place: Place | null;
-  readonly label: string | null;
 }
 
 export type DayEndpointSet =

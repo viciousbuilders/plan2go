@@ -128,8 +128,8 @@ describe("computeDay driven by the haversine provider", () => {
       date: "2026-08-22",
       timeZone: "Australia/Adelaide",
       label: null,
-      start: { place: place("Apartment", ADELAIDE_GPO), label: "Apartment" },
-      end: { place: place("Apartment", ADELAIDE_GPO), label: "Apartment" },
+      start: { place: place("Apartment", ADELAIDE_GPO) },
+      end: { place: place("Apartment", ADELAIDE_GPO) },
       startAtMinutes: 9 * 60,
       stops: [
         {

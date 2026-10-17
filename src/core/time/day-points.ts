@@ -87,12 +87,9 @@ export function legEnds(day: DayPlan): readonly LegEnds[] {
   return legPoints(day).map(({ from, to }) => ({ from: pointPlace(from), to: pointPlace(to) }));
 }
 
-/** What the traveller calls this point. Their own label wins over the place name. */
+/** What this point is called, which is its place's name. */
 export function pointName(point: DayPoint): string {
-  if (point.kind === "stop") {
-    return point.stop.place.name;
-  }
-  return point.endpoint.label ?? point.endpoint.place.name;
+  return pointPlace(point).name;
 }
 
 function pointPlace(point: DayPoint): Place {

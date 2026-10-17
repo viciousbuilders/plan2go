@@ -12,7 +12,6 @@ import type { DayActions } from "./day-actions";
 import { useDayDrop } from "./day-drop";
 import { ENDS, MARKS, nearestPoint, useEndEdit } from "./day-ends";
 import { EmptyDay } from "./empty-day";
-import { endpointName } from "./endpoint-name";
 import { EndpointPicker } from "./endpoint-picker";
 import { formatDayDate } from "./format-day-date";
 import { hoursOn } from "./format-opening-hours";
@@ -200,7 +199,7 @@ function Anchor({
           done to the place is in the tools, and a name that changed the
           place when it was pressed was a change nobody asked for. */}
       <div className="min-w-0 self-start">
-        <p className="break-words font-display text-place text-ink">{endpointName(endpoint)}</p>
+        <p className="break-words font-display text-place text-ink">{endpoint.place.name}</p>
         <p className="mt-[3px] break-words text-meta text-ink-faint">
           {endpoint.place.address ?? fallback}
         </p>

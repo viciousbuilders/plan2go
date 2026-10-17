@@ -26,7 +26,7 @@ function day(overrides: Partial<DayPlan> = {}): DayPlan {
     date: "2026-09-10",
     timeZone: "Australia/Adelaide",
     label: null,
-    start: { place: place("Hotel", HOTEL), label: null },
+    start: { place: place("Hotel", HOTEL) },
     end: null,
     startAtMinutes: 9 * 60,
     stops: [

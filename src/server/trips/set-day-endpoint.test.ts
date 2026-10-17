@@ -174,7 +174,6 @@ function request(overrides: Partial<Parameters<typeof setDayEndpoint>[0]> = {}) 
     dayId: "day-1",
     which: "end" as const,
     providerPlaceId: "g-Hotel",
-    label: null,
     session: null,
     ...overrides,
   };
@@ -214,7 +213,7 @@ describe("setDayEndpoint", () => {
     const { repository, written } = repositoryFor(
       tripOf([
         day("day-1"),
-        day("day-2", { start: { place: place("Station"), label: null } }),
+        day("day-2", { start: { place: place("Station") } }),
       ]),
       { stored: place("Hotel") },
     );
@@ -350,7 +349,7 @@ describe("setDayEndpoint", () => {
       tripOf([
         day("day-1", {
           stops: [stop("Market")],
-          end: { place: place("Hotel"), label: null },
+          end: { place: place("Hotel") },
         }),
       ]),
     );

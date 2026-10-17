@@ -25,7 +25,7 @@ function stop(name: string, position: LatLng, travelMode: TravelMode): Stop {
 }
 
 function endpoint(name: string, position: LatLng): DayEndpoint {
-  return { place: place(name, position), label: null };
+  return { place: place(name, position) };
 }
 
 function day(

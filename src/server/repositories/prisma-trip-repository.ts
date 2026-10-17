@@ -137,11 +137,11 @@ function toStop(row: StopRow & { place: PlaceRow }): Stop {
   };
 }
 
-function toEndpoint(place: PlaceRow | null, label: string | null): DayEndpoint | null {
+function toEndpoint(place: PlaceRow | null): DayEndpoint | null {
   if (place === null) {
     return null;
   }
-  return { place: toPlace(place), label };
+  return { place: toPlace(place) };
 }
 
 /** A city and where it is, before the trip has said which colour it holds. */
@@ -178,8 +178,8 @@ function toDay(row: DayRow, timeZone: string, startDate: string, city: DayCity |
     date: addDays(startDate, row.position),
     timeZone,
     label: row.label,
-    start: toEndpoint(row.startPlace, row.startLabel),
-    end: toEndpoint(row.endPlace, row.endLabel),
+    start: toEndpoint(row.startPlace),
+    end: toEndpoint(row.endPlace),
     startAtMinutes: row.startAtMinutes,
     stops: row.stops.map(toStop),
     endTravelMode: TRAVEL_MODE_FROM_DB[row.endTravelMode],
@@ -391,10 +391,7 @@ export const prismaTripRepository: TripRepository = {
 
     await db.day.update({
       where: { id: day.id },
-      data:
-        update.which === "start"
-          ? { startPlaceId: placeId, startLabel: update.label }
-          : { endPlaceId: placeId, endLabel: update.label },
+      data: update.which === "start" ? { startPlaceId: placeId } : { endPlaceId: placeId },
     });
     return { status: "set" };
   },

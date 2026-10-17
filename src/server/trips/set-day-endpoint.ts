@@ -14,8 +14,6 @@ export interface SetDayEndpointRequest {
   readonly which: DayEnd;
   /** Null clears that end, so the day goes back to beginning at its first stop. */
   readonly providerPlaceId: string | null;
-  /** What the traveller calls the point, "Hotel", or null to leave it unnamed. */
-  readonly label: string | null;
   readonly session: string | null;
 }
 
@@ -86,7 +84,6 @@ async function offerToTheNextDay(
     dayId: next.id,
     which: "start",
     place: endpoint.place,
-    label: endpoint.label,
   });
   await refreshLegsAt(request, next, "start", endpoint, repository, travelFor);
 }
@@ -133,14 +130,12 @@ export async function setDayEndpoint(
     dayId: request.dayId,
     which: request.which,
     place,
-    label: request.label,
   });
   if (written.status === "refused") {
     return { status: "refused" };
   }
 
-  const endpoint: DayEndpoint | null =
-    place === null ? null : { place, label: request.label };
+  const endpoint: DayEndpoint | null = place === null ? null : { place };
   if (before !== undefined) {
     await refreshLegsAt(request, before, request.which, endpoint, repository, travelFor);
   }

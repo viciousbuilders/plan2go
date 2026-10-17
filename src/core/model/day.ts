@@ -8,13 +8,11 @@ export type DayId = string;
 export type IsoDate = string;
 
 /**
- * Where a day starts or where it ends. The label is what the traveller calls
- * this point, "Hotel", "Airport", "Mum's place", and is theirs to write. It is
- * not a fixed category, and a day does not need one at either end.
+ * Where a day starts or where it ends: a place the day passes through, called
+ * by the place's own name. A day does not need one at either end.
  */
 export interface DayEndpoint {
   readonly place: Place;
-  readonly label: string | null;
 }
 
 /**

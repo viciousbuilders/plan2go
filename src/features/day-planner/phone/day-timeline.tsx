@@ -14,7 +14,6 @@ import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
 import { ENDS, MARKS, nearestPoint, useEndEdit } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
-import { endpointName } from "../endpoint-name";
 import { EndpointPicker } from "../endpoint-picker";
 import { formatDayTime } from "../format-day-time";
 import { hoursOn } from "../format-opening-hours";
@@ -113,7 +112,7 @@ function EndLine({
               className="min-w-0 flex-1 rounded-chip py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
             >
               <span className="block text-body/[1.3] font-semibold break-words text-ink">
-                {`${endVerb(which, day)} ${endpointName(endpoint)}`}
+                {`${endVerb(which, day)} ${endpoint.place.name}`}
               </span>
               {hours === null ? null : (
                 <span className="mt-[3px] flex items-center gap-[5px] text-micro text-ink-muted tabular-nums">

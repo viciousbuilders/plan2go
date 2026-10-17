@@ -21,7 +21,7 @@ function day(id: string, stops: readonly Place[], start: Place | null = null): D
     date: "2026-10-24",
     timeZone: "Asia/Ho_Chi_Minh",
     label: null,
-    start: start === null ? null : { place: start, label: "Hotel" },
+    start: start === null ? null : { place: start },
     end: null,
     startAtMinutes: 540,
     stops: stops.map((stopPlace, index) => ({

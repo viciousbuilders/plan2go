@@ -20,7 +20,6 @@ const endpointSchema = z.object({
   which: z.enum(["start", "end"]),
   /** Null takes the point off the day again. */
   providerPlaceId: z.string().min(1).max(300).nullable(),
-  label: z.string().trim().max(80).nullable(),
   session: z.string().max(64).nullable(),
 });
 

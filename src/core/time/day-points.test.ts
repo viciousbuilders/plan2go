@@ -16,7 +16,7 @@ function place(id: string): Place {
 }
 
 function endpoint(id: string): DayEndpoint {
-  return { place: place(id), label: null };
+  return { place: place(id) };
 }
 
 function stop(id: string): Stop {

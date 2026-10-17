@@ -38,7 +38,7 @@ function stop(
 }
 
 function endpoint(name: string): DayEndpoint {
-  return { place: place(name), label: null };
+  return { place: place(name) };
 }
 
 function day(overrides: Partial<DayPlan> = {}): DayPlan {
@@ -338,8 +338,8 @@ describe("computeDay, days that do not start or end anywhere in particular", () 
 
   it("ends somewhere other than where it started", () => {
     const plan = day({
-      start: { place: place("Hotel"), label: "Hotel" },
-      end: { place: place("Airport"), label: "Airport" },
+      start: endpoint("Hotel"),
+      end: endpoint("Airport"),
       stops: [stop("Market", 45)],
     });
     const result = computeDay({ day: plan, legs: [leg(10), leg(35)] });
@@ -353,8 +353,8 @@ describe("computeDay, days that do not start or end anywhere in particular", () 
 
   it("still travels between a start and an end with no stops in between", () => {
     const plan = day({
-      start: { place: place("Hotel"), label: "Hotel" },
-      end: { place: place("Airport"), label: "Airport" },
+      start: endpoint("Hotel"),
+      end: endpoint("Airport"),
     });
     const result = computeDay({ day: plan, legs: [leg(40)] });
 
@@ -371,15 +371,16 @@ describe("computeDay, days that do not start or end anywhere in particular", () 
     expect(result.ends?.epochMinutes).toBe(result.begins.epochMinutes);
   });
 
-  it("calls a point by the traveller's own label, and by the place name without one", () => {
+  it("calls an end of the day by its place's name, as it calls a stop", () => {
     const plan = day({
-      start: { place: place("Ibis Adelaide"), label: "Hotel" },
-      end: { place: place("Ibis Adelaide"), label: null },
+      start: endpoint("Ibis Adelaide"),
+      end: endpoint("Ibis Adelaide"),
       stops: [stop("Market", 30)],
     });
     const result = computeDay({ day: plan, legs: [leg(10), leg(10)] });
 
-    expect(result.legs[0]?.fromName).toBe("Hotel");
+    expect(result.legs[0]?.fromName).toBe("Ibis Adelaide");
+    expect(result.legs[0]?.toName).toBe("Market");
     expect(result.legs[1]?.toName).toBe("Ibis Adelaide");
   });
 });

@@ -29,7 +29,7 @@ function stop(name: string, providerPlaceId: string | null): Stop {
 }
 
 function endpoint(name: string, providerPlaceId: string | null): DayEndpoint {
-  return { place: place(name, providerPlaceId), label: null };
+  return { place: place(name, providerPlaceId) };
 }
 
 function day(overrides: Partial<DayPlan> = {}): DayPlan {

@@ -12,7 +12,6 @@ import { Credit } from "@/ui/credit";
 import { ArrowRightIcon, FlagIcon, HomeIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
 import { placeUrl } from "../directions-url";
-import { endpointName } from "../endpoint-name";
 import { formatDateRange } from "@/core/time/date-range";
 import { formatDayDate, formatDayLong } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
@@ -641,7 +640,7 @@ function dayUnits({ day, request }: DayContext): readonly Unit[] {
           time={computed.begins}
           role="Leave from"
           place={start.place}
-          name={endpointName(start)}
+          name={start.place.name}
           address={request.addresses ? start.place.address : null}
           finish={false}
           gap={gapped()}
@@ -711,7 +710,7 @@ function dayUnits({ day, request }: DayContext): readonly Unit[] {
             time={computed.ends}
             role={sameEnds ? "Back at" : "Finish at"}
             place={end.place}
-            name={endpointName(end)}
+            name={end.place.name}
             address={request.addresses && !sameEnds ? end.place.address : null}
             finish={!sameEnds}
             gap={gap}

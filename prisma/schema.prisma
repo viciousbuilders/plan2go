@@ -115,14 +115,11 @@ model Day {
   /// Where the day starts. Null means it starts at the first stop.
   startPlaceId String?
   startPlace   Place?  @relation("DayStart", fields: [startPlaceId], references: [id], onDelete: SetNull)
-  /// What the traveller calls that point, for example "Hotel". Theirs to write.
-  startLabel   String?
 
   /// Where the day ends, which need not be where it started. Null means it
   /// ends at the last stop.
   endPlaceId String?
   endPlace   Place?  @relation("DayEnd", fields: [endPlaceId], references: [id], onDelete: SetNull)
-  endLabel   String?
 
   /// The mode used to travel from the last stop to the end point.
   endTravelMode TravelMode @default(WALK)

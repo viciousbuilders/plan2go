@@ -7,7 +7,6 @@ import { formatClock, formatDuration } from "@/core/time/minutes";
 import { parseIsoDate } from "@/core/time/zoned";
 import type { LegOption, PlannedDay } from "@/features/day-planner/compute-trip";
 import { conflictSentence } from "@/features/day-planner/conflict-sentence";
-import { endpointName } from "@/features/day-planner/endpoint-name";
 import { rideSentence } from "@/features/day-planner/export/transit-ride";
 import { dayDone, routeOf } from "@/features/day-planner/export/trip-summary";
 import { formatDayLong } from "@/features/day-planner/format-day-date";
@@ -124,7 +123,7 @@ function dayRows(day: PlannedDay, directions: boolean): readonly string[] {
   const lines: string[] = [];
 
   if (plan.start !== null) {
-    lines.push(row(formatDayTime(computed.begins), `Leave from ${endpointName(plan.start)}`));
+    lines.push(row(formatDayTime(computed.begins), `Leave from ${plan.start.place.name}`));
   }
 
   computed.stops.forEach((stop, index) => {
@@ -162,7 +161,7 @@ function dayRows(day: PlannedDay, directions: boolean): readonly string[] {
     lines.push(
       row(
         computed.ends === null ? "" : formatDayTime(computed.ends),
-        `${back ? "Back at" : "Finish at"} ${endpointName(plan.end)}`,
+        `${back ? "Back at" : "Finish at"} ${plan.end.place.name}`,
       ),
     );
   }

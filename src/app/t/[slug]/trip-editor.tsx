@@ -722,7 +722,6 @@ export function TripEditor({
                         dayId: selected.plan.id,
                         which,
                         providerPlaceId,
-                        label: null,
                         session: null,
                       }),
                     ),
