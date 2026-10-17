@@ -1,43 +1,32 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PLACE_KINDS } from "@/core/model/place-kind";
-import { recommendPlaces } from "@/server/places/recommend-places";
-import type { RateLimitPolicy } from "@/server/rate-limit/window";
+import {
+  KIND_POLICY,
+  KIND_ROUTE,
+  MOST_RECOMMENDED,
+  POPULAR_POLICY,
+  POPULAR_ROUTE,
+  recommendPlaces,
+} from "@/server/places/recommend-places";
 import { placesRead } from "../places-read";
-
-/**
- * What the city is known for is asked once when the field is opened rather
- * than once per few letters, so a person reaches it a handful of times in a
- * sitting and anything asking more often is not one.
- */
-const POPULAR_POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 10 };
-
-/**
- * A kind is asked once for each quick search pressed, and there are ten quick
- * searches, so a reader looking through them all in a minute comes nowhere
- * near this. A script asking for every kind in every city does.
- */
-const KIND_POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 30 };
-
-/** As many as the provider will name for one question. */
-const MOST_ASKED = 20;
 
 const ASKING = { many: "searches", again: "try again", service: "place search service" };
 
 const popularSchema = z.object({
   lat: z.coerce.number().min(-90).max(90),
   lng: z.coerce.number().min(-180).max(180),
-  limit: z.coerce.number().int().min(1).max(MOST_ASKED).default(6),
+  limit: z.coerce.number().int().min(1).max(MOST_RECOMMENDED).default(6),
 });
 
 const kindSchema = popularSchema.extend({
   /** One of the fixed kinds and nothing typed, so every answer is one worth keeping. */
   kind: z.enum(PLACE_KINDS),
-  limit: z.coerce.number().int().min(1).max(MOST_ASKED).default(10),
+  limit: z.coerce.number().int().min(1).max(MOST_RECOMMENDED).default(10),
 });
 
 const popular = placesRead({
-  route: "places-nearby",
+  route: POPULAR_ROUTE,
   policy: POPULAR_POLICY,
   asking: ASKING,
   query: popularSchema,
@@ -49,7 +38,7 @@ const popular = placesRead({
 });
 
 const ofKind = placesRead({
-  route: "places-kind",
+  route: KIND_ROUTE,
   policy: KIND_POLICY,
   asking: ASKING,
   query: kindSchema,

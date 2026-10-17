@@ -1,15 +1,13 @@
 import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import type { PlaceSearchRequest } from "@/core/ports/places-provider";
-import { cachedSearch, keepSearch } from "@/server/places/search-places";
-import type { RateLimitPolicy } from "@/server/rate-limit/window";
+import {
+  cachedSearch,
+  keepSearch,
+  SEARCH_POLICY,
+  SEARCH_ROUTE,
+} from "@/server/places/search-places";
 import { placesRead } from "../places-read";
-
-/**
- * An open endpoint in front of a metered API. The limit is set to stop a script
- * rather than a person: someone typing behind a debounce will not come close.
- */
-const POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 40 };
 
 const querySchema = z.object({
   /** Every field asking this waits for two letters, so fewer is not one of ours. */
@@ -27,8 +25,8 @@ const querySchema = z.object({
  * it is limited by address and answered from our own cache when it can be.
  */
 export const GET = placesRead({
-  route: "places-search",
-  policy: POLICY,
+  route: SEARCH_ROUTE,
+  policy: SEARCH_POLICY,
   asking: { many: "searches", again: "search again", service: "place search service" },
   query: querySchema,
   failing: "Place search failed",

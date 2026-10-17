@@ -1,6 +1,20 @@
-import type { PlaceSearchRequest, PlaceSuggestion } from "@/core/ports/places-provider";
+import type {
+  PlaceSearchRequest,
+  PlaceSuggestion,
+  PlacesProvider,
+} from "@/core/ports/places-provider";
+import type { RateLimitPolicy } from "../rate-limit/window";
 import type { SuggestionCacheKey } from "./suggestion-cache";
-import { cachedSuggestions, keepSuggestions, pointKey } from "./suggestion-cache";
+import { cachedSuggestions, keepSuggestions, pointKey, suggestionsFor } from "./suggestion-cache";
+
+/** What a typed search is counted under, whichever way it is asked. */
+export const SEARCH_ROUTE = "places-search";
+
+/**
+ * An open endpoint in front of a metered API. The limit is set to stop a script
+ * rather than a person: someone typing behind a debounce will not come close.
+ */
+export const SEARCH_POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 40 };
 
 function biasKeyFor(request: PlaceSearchRequest): string {
   return request.near === null ? "anywhere" : pointKey(request.near);
@@ -47,4 +61,18 @@ export function keepSearch(
   now: Date = new Date(),
 ): Promise<void> {
   return keepSuggestions(keyFor(request), suggestions, now);
+}
+
+/**
+ * A typed search from our own table when it was asked recently, and otherwise
+ * from the provider, kept before it is handed back. For a caller with nobody
+ * watching a field for the answer, who can wait the moment the write takes;
+ * the search field's own route keeps it after replying instead.
+ */
+export function searchPlaces(
+  request: PlaceSearchRequest,
+  provider: PlacesProvider,
+  now: Date = new Date(),
+): Promise<readonly PlaceSuggestion[]> {
+  return suggestionsFor(keyFor(request), () => provider.search(request), now);
 }
