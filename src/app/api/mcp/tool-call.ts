@@ -2,6 +2,9 @@ import type { CallToolResult, ServerContext } from "@modelcontextprotocol/server
 import { consumeRateLimit } from "@/server/rate-limit/ip-rate-limit";
 import type { RateLimitPolicy } from "@/server/rate-limit/window";
 
+/** Said by any tool that needs the places provider, on a server with no key for it. */
+export const NO_PLACE_SEARCH = "Place search is not switched on for this server.";
+
 /** What a tool found, in the words the model reads. */
 export function answer(text: string): CallToolResult {
   return { content: [{ type: "text", text }] };
@@ -24,6 +27,11 @@ export function refuse(text: string): CallToolResult {
  */
 function requestOf(ctx: ServerContext): Request | null {
   return ctx.http?.req ?? null;
+}
+
+/** The headers a call came in with, which is what a rate limit counts it by. */
+export function headersOf(ctx: ServerContext): Headers {
+  return requestOf(ctx)?.headers ?? new Headers();
 }
 
 /** Where the call came in, for a link back to this same deployment. */
@@ -53,7 +61,7 @@ export async function overBudget(
   policy: RateLimitPolicy,
   asking: Asking,
 ): Promise<CallToolResult | null> {
-  const limit = await consumeRateLimit(route, requestOf(ctx)?.headers ?? new Headers(), policy);
+  const limit = await consumeRateLimit(route, headersOf(ctx), policy);
   if (limit.allowed) {
     return null;
   }

@@ -191,7 +191,8 @@ function dayHeading(day: PlannedDay, number: number): string {
     .join(" · ");
 }
 
-function dayText(day: PlannedDay, number: number): string {
+/** One day whole: its heading, what it comes to, and its rows. */
+export function dayText(day: PlannedDay, number: number): string {
   const opening = day.plan.stops.length === 0 ? "Nothing planned yet." : dayStats(day);
   return [dayHeading(day, number), opening, ...dayRows(day)].join("\n");
 }

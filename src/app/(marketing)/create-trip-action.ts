@@ -9,11 +9,10 @@ import { prepareCitiesToVisit } from "@/server/places/cities-to-visit";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { placeDetailsFor } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
-import type { NewTripRequest, TripStop } from "@/server/trips/create-trip";
-import { UNTITLED } from "@/server/trips/create-trip";
+import { lookUpNewTrip } from "@/server/trips/look-up-new-trip";
 import { newTripInputSchema } from "@/server/trips/new-trip-input";
 import { openTrip } from "@/server/trips/open-trip";
-import { isSupportedTimeZone, openingTimeZone } from "@/server/trips/time-zones";
+import { openingTimeZone } from "@/server/trips/time-zones";
 
 export interface CreateTripFormState {
   readonly error: string | null;
@@ -49,64 +48,24 @@ export async function createTripAction(
     return { error: "Place search is not switched on for this server." };
   }
 
-  const { stops, startDate } = parsed.data;
   // At least one, as the schema has it, named here so the type says so too.
-  const [opening] = stops;
+  const [opening] = parsed.data.stops;
   if (opening === undefined) {
     return { error: "The trip has no stops yet. Type a city and choose it from the list." };
   }
   const asked = await headers();
   const places = createGooglePlacesProvider({ apiKey });
 
-  // The cities are looked up here rather than trusted from the form, so the
-  // map opens where each actually is and the clock is the one kept where the
-  // trip begins. Each once, however many times the trip comes back to it. They
-  // do not name the trip: a trip is not one city, and the traveller names it
-  // themselves in the planner.
-  //
-  // The clock the trip keeps is its first city's, not the one the browser is
-  // sitting in. The details answer names it, and only when it does not is a
-  // second, slower call spent finding out. Where neither can, the request's
-  // own guess is a better answer than refusing to open the trip.
-  const lookedUp = async (): Promise<NewTripRequest | null> => {
-    const asking = [...new Set(stops.map((stop) => stop.cityPlaceId))];
-    const answers = await Promise.all(asking.map((id) => placeDetailsFor(id, places, null)));
-    const found = new Map(asking.map((id, index) => [id, answers[index] ?? null]));
-
-    const resolved: TripStop[] = [];
-    for (const stop of stops) {
-      const city = found.get(stop.cityPlaceId) ?? null;
-      if (city === null) {
-        return null;
-      }
-      resolved.push({
-        city: {
-          providerPlaceId: city.providerPlaceId ?? stop.cityPlaceId,
-          name: city.name,
-          position: city.position,
-        },
-        days: stop.days,
-      });
-    }
-
-    const [first, ...rest] = resolved;
-    const firstCity = found.get(opening.cityPlaceId) ?? null;
-    if (first === undefined || firstCity === null) {
-      return null;
-    }
-    const zone =
-      firstCity.timeZone !== null && isSupportedTimeZone(firstCity.timeZone)
-        ? firstCity.timeZone
-        : await createGoogleTimeZoneProvider({ apiKey }).lookup(firstCity.position);
-    return {
-      title: UNTITLED,
-      timeZone: zone ?? openingTimeZone(asked),
-      startDate,
-      stops: [first, ...rest],
-    };
-  };
-
-  const opened = await openTrip(asked, prismaTripRepository, lookedUp);
+  // Where the request came from is the clock of last resort, when neither the
+  // first city's details nor the time zone service can say which it keeps.
+  const opened = await openTrip(asked, prismaTripRepository, () =>
+    lookUpNewTrip(
+      parsed.data,
+      { details: (id, session) => placeDetailsFor(id, places, session) },
+      createGoogleTimeZoneProvider({ apiKey }),
+      openingTimeZone(asked),
+    ),
+  );
 
   if (opened.status === "too-many") {
     return {

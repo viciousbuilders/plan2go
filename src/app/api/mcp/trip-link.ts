@@ -6,12 +6,28 @@
  */
 const TRIP_PATH = /(?:^|\/)t\/([A-Za-z0-9_-]{1,80})(?![A-Za-z0-9_-])/;
 
+/**
+ * An editing link's path: the trip's, then `/edit/` and the key. Whether the
+ * key is one is for whatever uses it to say; here it is only the whole of what
+ * follows.
+ */
+const EDIT_PATH = /(?:^|\/)t\/([A-Za-z0-9_-]{1,80})\/edit\/([A-Za-z0-9_-]+)(?![A-Za-z0-9_-])/;
+
 /** Said when what was passed has no trip link in it. */
 export const NOT_A_TRIP_LINK =
   "That is not a link to a plan2go trip. Pass the trip's own link, which has /t/ in it.";
 
 /** Said when the link names no trip, which is also what a deleted trip's link does. */
 export const NO_SUCH_TRIP = "That trip could not be found. Check the link and try again.";
+
+/** Said when a day is asked for that the trip does not have: "This trip has no Day 9. It has 3 days." */
+export function noSuchDay(day: number, days: number): string {
+  return `This trip has no Day ${String(day)}. It has ${String(days)} ${days === 1 ? "day" : "days"}.`;
+}
+
+/** Said when the read only link is given for a change, which it cannot make. */
+export const READ_ONLY_LINK =
+  "That is the trip's read only link, which cannot change it. Pass its editing link, /t/<slug>/edit/<key>.";
 
 /**
  * The slug out of a trip's link, whichever of its links it is: the read only
@@ -25,4 +41,17 @@ export const NO_SUCH_TRIP = "That trip could not be found. Check the link and tr
  */
 export function slugFromLink(link: string): string | null {
   return TRIP_PATH.exec(link.trim())?.[1] ?? null;
+}
+
+/**
+ * The slug and the key out of a trip's editing link, for a change, which only
+ * the key allows. Null for any other link, the read only link included.
+ */
+export function editLinkParts(
+  link: string,
+): { readonly slug: string; readonly key: string } | null {
+  const match = EDIT_PATH.exec(link.trim());
+  const slug = match?.[1];
+  const key = match?.[2];
+  return slug === undefined || key === undefined ? null : { slug, key };
 }

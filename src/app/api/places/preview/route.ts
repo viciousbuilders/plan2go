@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkEditAccess } from "@/server/ownership/edit-access";
-import { placeDetailsFor } from "@/server/places/place-details";
-import type { RateLimitPolicy } from "@/server/rate-limit/window";
+import { placeDetailsFor, PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
 import { placesRead, refuse } from "../places-read";
-
-/**
- * A place is looked at once per choice from a search, and a person chooses a
- * handful in a sitting. Anything asking more often is not a person.
- */
-const POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 30 };
 
 const querySchema = z.object({
   slug: z.string().min(1).max(80),
@@ -31,8 +24,8 @@ const querySchema = z.object({
  * there rather than asking the provider again.
  */
 export const GET = placesRead({
-  route: "places-preview",
-  policy: POLICY,
+  route: PREVIEW_ROUTE,
+  policy: PREVIEW_POLICY,
   asking: { many: "places looked at", again: "choose it again", service: "place service" },
   query: querySchema,
   failing: "Place preview failed",

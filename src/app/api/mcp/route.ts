@@ -1,6 +1,7 @@
 import { createMcpHandler } from "mcp-handler";
 import { consumeRateLimit } from "@/server/rate-limit/ip-rate-limit";
 import type { RateLimitPolicy } from "@/server/rate-limit/window";
+import { registerEditTools } from "./edit-tools";
 import { registerPlaceTools } from "./place-tools";
 import { registerTripTool } from "./trip-tool";
 
@@ -19,14 +20,15 @@ const ROUTE = "mcp";
 const INSTRUCTIONS = [
   "plan2go plans a trip of several days: the cities it goes to, the places on each day, and how long it takes to get from one to the next.",
   "A trip has two links. The read only link, /t/<slug>, shows it, and the editing link, /t/<slug>/edit/<key>, changes it.",
-  "These tools only read, so the read only link is all they need.",
-  "Trips are opened on the plan2go front page. get_trip reads one day by day, with its times and conflicts, and find_places looks for places to visit on one of its days.",
+  "Whoever holds the editing link can change the trip, so it goes only to whoever is planning, and the read only link to everyone else.",
+  "To plan a trip, find each city with find_cities, open the trip with open_trip, look for places on a day with find_places, put them on the day with add_place, and read the days back with get_trip, which gives every time and every conflict.",
 ].join(" ");
 
 const handler = createMcpHandler(
   (server) => {
     registerTripTool(server);
     registerPlaceTools(server);
+    registerEditTools(server);
   },
   {
     serverInfo: { name: "plan2go", version: "0.1.0" },
@@ -36,9 +38,10 @@ const handler = createMcpHandler(
 
 /**
  * plan2go for a model: Claude, or any client that speaks the Model Context
- * Protocol, reading trips and looking for places through the same code the
- * pages use. Nothing about a client is kept between requests, so any request
- * can land on any function.
+ * Protocol, opening trips, putting places on them and reading them back
+ * through the same code the pages use. Nothing about a client is kept between
+ * requests, so any request can land on any function, and a change is made
+ * only with the key out of the trip's editing link, passed as the pages pass it.
  *
  * Counted by address before anything else is read, as every public route is.
  * A refusal is a JSON-RPC error, which is what a client reads, without an id,

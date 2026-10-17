@@ -1,8 +1,21 @@
 import { z } from "zod";
 import type { PlaceDetails, PlacesProvider } from "@/core/ports/places-provider";
 import { db } from "../db";
+import type { RateLimitPolicy } from "../rate-limit/window";
 import { openingHoursToJson, parseOpeningHours } from "./opening-hours";
 import { MILLIS_PER_HOUR } from "@/core/time/minutes";
+
+/**
+ * What looking a place up on its way onto a trip is counted under: the look
+ * the planner takes before adding, and an add that looks the place up itself.
+ */
+export const PREVIEW_ROUTE = "places-preview";
+
+/**
+ * A place is looked at once per choice from a search, and a person chooses a
+ * handful in a sitting. Anything asking more often is not a person.
+ */
+export const PREVIEW_POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 30 };
 
 /**
  * How long a place is remembered. The same day as a search, and for the same

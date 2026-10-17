@@ -20,8 +20,8 @@ import { SEARCH_POLICY, SEARCH_ROUTE, searchPlaces } from "@/server/places/searc
 import type { RateLimitPolicy } from "@/server/rate-limit/window";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
 import { placeLines } from "./place-text";
-import { answer, guarded, overBudget, refuse } from "./tool-call";
-import { NO_SUCH_TRIP, NOT_A_TRIP_LINK, slugFromLink } from "./trip-link";
+import { answer, guarded, NO_PLACE_SEARCH, overBudget, refuse } from "./tool-call";
+import { NO_SUCH_TRIP, noSuchDay, NOT_A_TRIP_LINK, slugFromLink } from "./trip-link";
 
 /**
  * As many as one typed search answers with, and what the planner's search
@@ -31,8 +31,6 @@ import { NO_SUCH_TRIP, NOT_A_TRIP_LINK, slugFromLink } from "./trip-link";
 const SEARCHED = 5;
 
 const SEARCHING = { many: "searches", again: "search again" };
-
-const NO_KEY = "Place search is not switched on for this server.";
 
 /** The places provider, or null on a server with no key, where nothing can be searched. */
 function placesProvider(): PlacesProvider | null {
@@ -89,7 +87,7 @@ export function registerPlaceTools(server: McpServer): void {
           }
           const provider = placesProvider();
           if (provider === null) {
-            return refuse(NO_KEY);
+            return refuse(NO_PLACE_SEARCH);
           }
 
           const found = await searchPlaces(
@@ -157,7 +155,7 @@ export function registerPlaceTools(server: McpServer): void {
           }
           const provider = placesProvider();
           if (provider === null) {
-            return refuse(NO_KEY);
+            return refuse(NO_PLACE_SEARCH);
           }
 
           const trip = await prismaTripRepository.findBySlug(slug);
@@ -167,10 +165,7 @@ export function registerPlaceTools(server: McpServer): void {
           const index = day - 1;
           const plan = trip.days[index];
           if (plan === undefined) {
-            const count = trip.days.length;
-            return refuse(
-              `This trip has no Day ${String(day)}. It has ${String(count)} ${count === 1 ? "day" : "days"}.`,
-            );
+            return refuse(noSuchDay(day, trip.days.length));
           }
 
           // A typed search looks first where the day already goes, as the
