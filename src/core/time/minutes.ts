@@ -25,6 +25,22 @@ export function clockToMinutes(hours: number, minutes: number): number {
   return hours * MINUTES_PER_HOUR + minutes;
 }
 
+/** A time on the 24-hour clock as someone types it: "09:15", or "9:15" with the hour's nought left off. */
+const CLOCK = /^([01]?\d|2[0-3]):([0-5]\d)$/;
+
+/**
+ * Minutes from midnight for a time written on the 24-hour clock, or null for
+ * anything that is not one: "24:00", "9.15" and "9:15 am" among them.
+ */
+export function parseClock(text: string): number | null {
+  const match = CLOCK.exec(text.trim());
+  const hours = match?.[1];
+  const minutes = match?.[2];
+  return hours === undefined || minutes === undefined
+    ? null
+    : clockToMinutes(Number(hours), Number(minutes));
+}
+
 /**
  * "09:15", "12:00", "16:30": the 24-hour clock, two digits each, so a column
  * of times lines up and no time needs a word after it. Values at or beyond

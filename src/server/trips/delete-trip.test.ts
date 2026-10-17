@@ -53,6 +53,7 @@ function repositoryFor(known: string): {
       updateStop: () => Promise.reject<StopChanged>(new Error(NOT_STUBBED)),
       removeStop: () => Promise.reject<StopChanged>(new Error(NOT_STUBBED)),
       moveStop: () => Promise.reject<StopChanged>(new Error(NOT_STUBBED)),
+      moveStopToDay: () => Promise.reject<StopChanged>(new Error(NOT_STUBBED)),
     },
   };
 }

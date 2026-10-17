@@ -30,6 +30,7 @@ import type {
   LegModeUpdate,
   NewStop,
   StopChanged,
+  StopDayMove,
   StopMove,
   StopRemoval,
   StopUpdate,
@@ -225,6 +226,53 @@ function toTrip(row: TripRow): Trip {
       toDay(day, row.timeZone, row.startDate, cities[index] ?? null),
     ),
   };
+}
+
+/** What a move reads about the stop it moves: where it is, and how long its day is. */
+const placedStop = {
+  id: true,
+  dayId: true,
+  position: true,
+  day: { select: { _count: { select: { stops: true } } } },
+} satisfies Prisma.StopSelect;
+
+type PlacedStop = Prisma.StopGetPayload<{ select: typeof placedStop }>;
+
+/**
+ * Moves a stop to another place in its own day, kept inside the day's range.
+ *
+ * Only the stops between the two places move, and each by one step: down
+ * when the stop is dragged past them, up when it is dragged back over
+ * them. Three statements however long the day is, because a day's
+ * positions are unique and a row on its way to its new place must not
+ * land on one that has not moved yet: the block is parked out of the way,
+ * closed up by a step, and the stop dropped into the gap that leaves.
+ */
+async function reorderWithinDay(stop: PlacedStop, toPosition: number): Promise<void> {
+  const from = stop.position;
+  const to = Math.max(0, Math.min(toPosition, stop.day._count.stops - 1));
+  if (from === to) {
+    return;
+  }
+
+  const low = Math.min(from, to);
+  const high = Math.max(from, to);
+  const step = from < to ? -1 : 1;
+  await db.$transaction([
+    db.stop.updateMany({
+      where: { dayId: stop.dayId, position: { gte: low, lte: high } },
+      data: { position: { increment: PARKING_OFFSET } },
+    }),
+    db.stop.updateMany({
+      where: {
+        dayId: stop.dayId,
+        id: { not: stop.id },
+        position: { gte: low + PARKING_OFFSET, lte: high + PARKING_OFFSET },
+      },
+      data: { position: { decrement: PARKING_OFFSET - step } },
+    }),
+    db.stop.update({ where: { id: stop.id }, data: { position: to } }),
+  ]);
 }
 
 function isSlugTaken(error: unknown): boolean {
@@ -476,46 +524,64 @@ export const prismaTripRepository: TripRepository = {
           trip: { slug: move.slug, editKeyHash: move.editKeyHash },
         },
       },
-      select: {
-        id: true,
-        dayId: true,
-        position: true,
-        day: { select: { _count: { select: { stops: true } } } },
-      },
+      select: placedStop,
     });
     if (stop === null) {
       return { status: "refused" };
     }
 
-    const from = stop.position;
-    const to = Math.max(0, Math.min(move.toPosition, stop.day._count.stops - 1));
-    if (from === to) {
+    await reorderWithinDay(stop, move.toPosition);
+    return { status: "changed" };
+  },
+
+  async moveStopToDay(move: StopDayMove): Promise<StopChanged> {
+    // Scoped to the tokens the browser holds, so finding the stop and the day
+    // is also the check that this trip may be changed, and a day on another
+    // trip moves nothing. Each comes back with its day's length, which is all
+    // the clamp needs.
+    const trip = { slug: move.slug, editKeyHash: move.editKeyHash };
+    const [stop, day] = await Promise.all([
+      db.stop.findFirst({ where: { id: move.stopId, day: { trip } }, select: placedStop }),
+      db.day.findFirst({
+        where: { id: move.dayId, trip },
+        select: { id: true, _count: { select: { stops: true } } },
+      }),
+    ]);
+    if (stop === null || day === null) {
+      return { status: "refused" };
+    }
+    if (stop.dayId === day.id) {
+      await reorderWithinDay(stop, move.toPosition);
       return { status: "changed" };
     }
 
-    // Only the stops between the two places move, and each by one step: down
-    // when the stop is dragged past them, up when it is dragged back over
-    // them. Three statements however long the day is, because a day's
-    // positions are unique and a row on its way to its new place must not
-    // land on one that has not moved yet: the block is parked out of the way,
-    // closed up by a step, and the stop dropped into the gap that leaves.
-    const low = Math.min(from, to);
-    const high = Math.max(from, to);
-    const step = from < to ? -1 : 1;
+    // The stop is not on the day yet, so the end of the day is one place
+    // further on than a move within it can reach.
+    const to = Math.max(0, Math.min(move.toPosition, day._count.stops));
+
+    // Five statements however long either day is, each leaving both days'
+    // positions unique, as a removal and a reorder do: the stops from where it
+    // lands are parked out of the way and brought back a step further down,
+    // it is dropped into the gap that leaves, and the stops after where it was
+    // are parked and brought back a step up to close the gap behind it.
     await db.$transaction([
       db.stop.updateMany({
-        where: { dayId: stop.dayId, position: { gte: low, lte: high } },
+        where: { dayId: day.id, position: { gte: to } },
         data: { position: { increment: PARKING_OFFSET } },
       }),
       db.stop.updateMany({
-        where: {
-          dayId: stop.dayId,
-          id: { not: stop.id },
-          position: { gte: low + PARKING_OFFSET, lte: high + PARKING_OFFSET },
-        },
-        data: { position: { decrement: PARKING_OFFSET - step } },
+        where: { dayId: day.id, position: { gte: to + PARKING_OFFSET } },
+        data: { position: { decrement: PARKING_OFFSET - 1 } },
       }),
-      db.stop.update({ where: { id: stop.id }, data: { position: to } }),
+      db.stop.update({ where: { id: stop.id }, data: { dayId: day.id, position: to } }),
+      db.stop.updateMany({
+        where: { dayId: stop.dayId, position: { gt: stop.position } },
+        data: { position: { increment: PARKING_OFFSET } },
+      }),
+      db.stop.updateMany({
+        where: { dayId: stop.dayId, position: { gt: stop.position + PARKING_OFFSET } },
+        data: { position: { decrement: PARKING_OFFSET + 1 } },
+      }),
     ]);
     return { status: "changed" };
   },

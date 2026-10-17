@@ -195,6 +195,18 @@ function dayHeading(day: PlannedDay, number: number): string {
     .join(" · ");
 }
 
+/**
+ * Days one after another, by the numbers the tools know them by, as the
+ * planner's dates name the days a shorter trip loses: "Day 6", "Days 6 and
+ * 7", "Days 6 to 9".
+ */
+export function dayRun(first: number, last: number): string {
+  if (last <= first) {
+    return `Day ${String(first)}`;
+  }
+  return `Days ${String(first)} ${last === first + 1 ? "and" : "to"} ${String(last)}`;
+}
+
 /** One day whole: its heading, what it comes to, and its rows. */
 export function dayText(day: PlannedDay, number: number): string {
   const opening = day.plan.stops.length === 0 ? "Nothing planned yet." : dayStats(day);

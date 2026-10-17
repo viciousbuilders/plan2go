@@ -6,7 +6,7 @@ import type { Stop } from "@/core/model/stop";
 import type { Trip } from "@/core/model/trip";
 import type { TravelProvider } from "@/core/ports/travel-provider";
 import { computeTrip } from "@/features/day-planner/compute-trip";
-import { tripText } from "./trip-text";
+import { dayRun, tripText } from "./trip-text";
 
 const ALL_DAY: WeeklyOpeningHours = {
   0: [{ opensAt: 480, closesAt: 1020 }],
@@ -275,5 +275,13 @@ describe("tripText", () => {
       "             Other ways: Drive 5 min, Public transport unavailable",
       "00:40-01:10 next day  Stop 2: Ta Hien Street (30 min)",
     ]);
+  });
+});
+
+describe("dayRun", () => {
+  it("names one day, two days, and a longer run by its ends", () => {
+    expect(dayRun(6, 6)).toBe("Day 6");
+    expect(dayRun(6, 7)).toBe("Days 6 and 7");
+    expect(dayRun(6, 9)).toBe("Days 6 to 9");
   });
 });

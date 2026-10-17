@@ -1,16 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { checkEditAccess } from "@/server/ownership/edit-access";
-import { placeCardFor } from "@/server/places/place-card";
-import type { RateLimitPolicy } from "@/server/rate-limit/window";
+import { CARD_POLICY, CARD_ROUTE, placeCardFor } from "@/server/places/place-card";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
 import { placesRead } from "../places-read";
-
-/**
- * A card is asked for once per place opened, and a person opens a handful of
- * places in a sitting. Anything asking more often is not a person.
- */
-const POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 30 };
 
 const querySchema = z.object({
   slug: z.string().min(1).max(80),
@@ -28,8 +21,8 @@ const querySchema = z.object({
  * place in the world on our account.
  */
 export const GET = placesRead({
-  route: "places-card",
-  policy: POLICY,
+  route: CARD_ROUTE,
+  policy: CARD_POLICY,
   asking: { many: "places opened", again: "open it again", service: "place service" },
   query: querySchema,
   failing: "Place card failed",

@@ -2,7 +2,17 @@ import { z } from "zod";
 import type { PlaceCard } from "@/core/model/place";
 import type { PlacesProvider } from "@/core/ports/places-provider";
 import { db } from "../db";
+import type { RateLimitPolicy } from "../rate-limit/window";
 import { MILLIS_PER_HOUR } from "@/core/time/minutes";
+
+/** What opening a place's card is counted under, whoever opens it. */
+export const CARD_ROUTE = "places-card";
+
+/**
+ * A card is asked for once per place opened, and a person opens a handful of
+ * places in a sitting. Anything asking more often is not a person.
+ */
+export const CARD_POLICY: RateLimitPolicy = { windowSeconds: 60, maxRequests: 30 };
 
 /**
  * How long a card is kept. A day: the rating and the reviews are other

@@ -1,4 +1,5 @@
-import type { DayPlan } from "@/core/model/day";
+import type { DayId, DayPlan } from "@/core/model/day";
+import type { Stop } from "@/core/model/stop";
 import type { StopChanged, TripRepository } from "../repositories/trip-repository";
 import type { TravelFor } from "./leg-modes";
 import { refreshLegModes } from "./leg-modes";
@@ -178,5 +179,67 @@ export async function moveStop(
     repository,
     travelFor,
   );
+  return moved;
+}
+
+/** The day with a stop put into it where storage puts it: inside the day, so past the end is last. */
+function joined(day: DayPlan, stop: Stop, toPosition: number): DayPlan {
+  const at = Math.max(0, Math.min(toPosition, day.stops.length));
+  return { ...day, stops: [...day.stops.slice(0, at), stop, ...day.stops.slice(at)] };
+}
+
+/**
+ * Moves a stop onto another day of its trip. The position is where it lands
+ * on that day counted from the top, and storage keeps it inside the day, so a
+ * drop past the end puts it last. How long it is worth staying and the note
+ * on it go with it; they are the place's, whichever day it is seen on. Named
+ * with the day it is on already, it is a move within that day.
+ *
+ * Both days are left with legs running between places they did not before:
+ * on the day it left, the one that now closes over where it was, and on the
+ * day it joined, the one into it and the one out of it. Each is given the
+ * fastest way, as after a reorder, and every other leg keeps the mode it had.
+ */
+export async function moveStopToDay(
+  edit: StopEdit & { readonly dayId: DayId; readonly toPosition: number },
+  repository: TripRepository,
+  travelFor: TravelFor,
+): Promise<StopChanged> {
+  const trip = await repository.findBySlug(edit.slug);
+  const from = trip?.days.find((day) => day.stops.some((stop) => stop.id === edit.stopId));
+  if (from?.id === edit.dayId) {
+    return moveStop(edit, repository, travelFor);
+  }
+  const onto = trip?.days.find((day) => day.id === edit.dayId);
+
+  const moved = await repository.moveStopToDay({
+    slug: edit.slug,
+    editKeyHash: edit.editKeyHash,
+    stopId: edit.stopId,
+    dayId: edit.dayId,
+    toPosition: edit.toPosition,
+  });
+  const stop = from?.stops.find((candidate) => candidate.id === edit.stopId);
+  if (moved.status === "refused" || from === undefined || onto === undefined || stop === undefined) {
+    return moved;
+  }
+
+  const scope = { slug: edit.slug, editKeyHash: edit.editKeyHash };
+  await Promise.all([
+    refreshLegModes(
+      {
+        ...scope,
+        before: from,
+        after: { ...from, stops: from.stops.filter((candidate) => candidate.id !== edit.stopId) },
+      },
+      repository,
+      travelFor,
+    ),
+    refreshLegModes(
+      { ...scope, before: onto, after: joined(onto, stop, edit.toPosition) },
+      repository,
+      travelFor,
+    ),
+  ]);
   return moved;
 }

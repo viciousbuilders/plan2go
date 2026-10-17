@@ -216,8 +216,7 @@ export function registerEditTools(server: McpServer): void {
           }
           return afterChange(
             edit.slug,
-            editing.plan.id,
-            day,
+            [editing.plan.id],
             `Added ${added.placeName} to Day ${String(day)}.`,
           );
         },

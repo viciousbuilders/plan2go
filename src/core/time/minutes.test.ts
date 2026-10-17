@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { durationParts, formatClock, formatDuration, wholeMinutes } from "./minutes";
+import { durationParts, formatClock, formatDuration, parseClock, wholeMinutes } from "./minutes";
 
 describe("formatClock", () => {
   it("reads midnight and noon the way a person says them", () => {
@@ -15,6 +15,31 @@ describe("formatClock", () => {
   it("wraps past midnight, because the day is carried separately", () => {
     expect(formatClock(1440)).toBe("00:00");
     expect(formatClock(1470)).toBe("00:30");
+  });
+});
+
+describe("parseClock", () => {
+  it("reads a time on the 24-hour clock back to minutes from midnight", () => {
+    expect(parseClock("00:00")).toBe(0);
+    expect(parseClock("08:30")).toBe(510);
+    expect(parseClock("23:59")).toBe(1439);
+  });
+
+  it("takes an hour written without its nought, and spaces round the time", () => {
+    expect(parseClock("8:30")).toBe(510);
+    expect(parseClock(" 16:05 ")).toBe(965);
+  });
+
+  it("is what formatClock wrote", () => {
+    for (const minutes of [0, 5, 545, 720, 1439]) {
+      expect(parseClock(formatClock(minutes))).toBe(minutes);
+    }
+  });
+
+  it("is null for anything that is not a time on the clock", () => {
+    for (const text of ["24:00", "9:60", "9.15", "915", "9:15 am", "8:5", "", "noon"]) {
+      expect(parseClock(text)).toBeNull();
+    }
   });
 });
 

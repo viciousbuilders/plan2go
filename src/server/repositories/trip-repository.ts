@@ -123,6 +123,11 @@ export interface StopMove {
   readonly toPosition: number;
 }
 
+/** The day a stop is being moved to, and where in it, counted from the top. */
+export interface StopDayMove extends StopMove {
+  readonly dayId: DayId;
+}
+
 /**
  * Everything storage needs to change how one leg is travelled. The mode lives
  * on the stop the leg arrives at, or on the day itself for the leg out to where
@@ -265,4 +270,14 @@ export interface TripRepository {
    * allowed to make it impossible, and the day says so where it is read.
    */
   moveStop(move: StopMove): Promise<StopChanged>;
+
+  /**
+   * Moves a stop onto another day of its trip, at a place in that day's order
+   * counted from the top, kept inside the day so a place past the end is the
+   * last. Its time there and its note go with it. The stops after it on the
+   * day it left close the gap and the stops from where it lands make room, so
+   * both days stay numbered from the top without a gap. A day on another trip
+   * moves nothing, and the day it is on already is a move within that day.
+   */
+  moveStopToDay(move: StopDayMove): Promise<StopChanged>;
 }

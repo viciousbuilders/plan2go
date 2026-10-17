@@ -1,13 +1,17 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createGooglePlacesProvider } from "@/adapters/places/google-places";
+import { cityRun } from "@/core/model/day-city";
 import { TRAVEL_MODES } from "@/core/model/leg";
+import { formatClock, parseClock } from "@/core/time/minutes";
 import { endpointName } from "@/features/day-planner/endpoint-name";
 import { MODE_WORDS } from "@/features/day-planner/leg-marks";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
+import { setDayCity } from "@/server/trips/set-day-city";
 import { setDayEndpoint } from "@/server/trips/set-day-endpoint";
+import { setDayStart } from "@/server/trips/set-day-start";
 import { setLegMode } from "@/server/trips/set-leg-mode";
 import { travelProviderFor } from "@/app/t/[slug]/travel";
 import { guarded, NO_PLACE_SEARCH, overBudget, refuse } from "./tool-call";
@@ -21,12 +25,14 @@ import {
   readingOurTableFirst,
   stopOn,
 } from "./trip-edit";
+import { dayRun } from "./trip-text";
 
 /**
  * The tools that change a day itself rather than one stop on it: how a leg of
- * it is travelled, and where it starts and ends. Each goes through the server
- * function the planner's own action calls, with the hash of the key out of
- * the editing link, and gives back the day as the change has left it.
+ * it is travelled, where it starts and ends, the city it is in, and when it
+ * leaves. Each goes through the server function the planner's own action
+ * calls, with the hash of the key out of the editing link, and gives back the
+ * day as the change has left it.
  */
 export function registerDayTools(server: McpServer): void {
   server.registerTool(
@@ -103,8 +109,7 @@ export function registerDayTools(server: McpServer): void {
           }
           return afterChange(
             edit.slug,
-            plan.id,
-            day,
+            [plan.id],
             `The way to ${toName} on Day ${String(day)} is now ${MODE_WORDS[mode]}.`,
           );
         },
@@ -205,10 +210,158 @@ export function registerDayTools(server: McpServer): void {
           // The planner offers where a day ends to the next day as its start,
           // when that day starts nowhere yet. Said when it took the offer.
           const nextStartedNowhere = trip.days[day]?.start === null;
-          return afterChange(edit.slug, plan.id, day, said, (now) =>
+          return afterChange(edit.slug, [plan.id], said, (now) =>
             which === "end" && nextStartedNowhere && (now.days[day]?.start ?? null) !== null
               ? `Day ${String(day + 1)} started nowhere, so it now starts there too.`
               : null,
+          );
+        },
+      ),
+  );
+
+  server.registerTool(
+    "set_day_city",
+    {
+      title: "Put a day in another city",
+      description:
+        "Put a day in another city, as the city at the front of the planner's search does. The days straight after it that were in the same city, with nothing planned yet, go with it, and every stop stays where it is. A day's city is where find_places looks for it. Needs the trip's editing link. Returns each day that moved.",
+      inputSchema: z.object({
+        link: editLinkInput,
+        day: dayInput,
+        city: z.string().trim().min(1).max(300).describe("The city's place id, from find_cities."),
+      }),
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+    },
+    async ({ link, day, city }, ctx) =>
+      guarded(
+        "MCP set_day_city failed",
+        "Could not move the day to the city. Check the city is a place id from find_cities, and read the trip with get_trip before trying again.",
+        async () => {
+          const edit = editLinkFrom(link);
+          if ("refusal" in edit) {
+            return edit.refusal;
+          }
+          // The city may have to be looked up, which is counted with the
+          // planner's look at a place, where the same details are paid for.
+          const over = await overBudget(ctx, PREVIEW_ROUTE, PREVIEW_POLICY, {
+            many: "places looked up",
+            again: "set it again",
+          });
+          if (over !== null) {
+            return over;
+          }
+          const apiKey = googleMapsApiKey();
+          if (apiKey === null) {
+            return refuse(NO_PLACE_SEARCH);
+          }
+          // The key is compared here, before the city is paid for, and again
+          // by the write, which is what authorises the change.
+          const editing = await editingDay(edit, day);
+          if ("refusal" in editing) {
+            return editing.refusal;
+          }
+          const { plan, trip } = editing;
+          const moving = cityRun(trip.days, plan.id);
+
+          // The planner also works out the cities worth going to from the
+          // new one, for its picker to open on. Nobody here is about to open
+          // it, and the picker asks for itself.
+          const set = await setDayCity(
+            {
+              slug: edit.slug,
+              editKeyHash: edit.editKeyHash,
+              dayId: plan.id,
+              providerPlaceId: city,
+            },
+            prismaTripRepository,
+            createGooglePlacesProvider({ apiKey }),
+          );
+          if (set.status === "refused") {
+            return refuse(NOT_YOURS);
+          }
+          if (set.status === "no-such-city") {
+            return refuse(
+              "That city could not be found. Find it again with find_cities and pass the place id it gives.",
+            );
+          }
+
+          const followers = set.days - 1;
+          const was = plan.city === null ? "" : ` in ${plan.city.name}`;
+          const said = [
+            `Day ${String(day)} is now in ${set.city.name}.`,
+            followers === 0
+              ? null
+              : `${dayRun(day + 1, day + followers)} went with it, as ${followers === 1 ? "it" : "they"} came straight after it${was} with nothing planned yet.`,
+          ]
+            .filter((line) => line !== null)
+            .join(" ");
+          return afterChange(edit.slug, moving, said);
+        },
+      ),
+  );
+
+  server.registerTool(
+    "set_leaving_time",
+    {
+      title: "Set when a day leaves",
+      description:
+        "Set the time a day sets out, as the leaving time on a day in the planner does: when it leaves where it starts, or when it reaches its first stop if it starts nowhere. Every other time on the day follows from this one. Needs the trip's editing link. Returns the day as it now stands, with its new times and every conflict.",
+      inputSchema: z.object({
+        link: editLinkInput,
+        day: dayInput,
+        time: z
+          .string()
+          .max(20)
+          .describe("When the day sets out, on the 24-hour clock as HH:MM, such as 08:30."),
+      }),
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async ({ link, day, time }) =>
+      guarded(
+        "MCP set_leaving_time failed",
+        "Could not change when the day leaves. Read the day with get_trip to see where it stands before trying again.",
+        async () => {
+          const minutes = parseClock(time);
+          if (minutes === null) {
+            return refuse(
+              "That is not a time on the 24-hour clock. Give it as HH:MM, such as 08:30.",
+            );
+          }
+          const edit = editLinkFrom(link);
+          if ("refusal" in edit) {
+            return edit.refusal;
+          }
+          const editing = await editingDay(edit, day);
+          if ("refusal" in editing) {
+            return editing.refusal;
+          }
+
+          const set = await setDayStart(
+            {
+              slug: edit.slug,
+              editKeyHash: edit.editKeyHash,
+              dayId: editing.plan.id,
+              startAtMinutes: minutes,
+            },
+            prismaTripRepository,
+          );
+          if (set.status === "refused") {
+            return refuse(NOT_YOURS);
+          }
+          return afterChange(
+            edit.slug,
+            [editing.plan.id],
+            `Day ${String(day)} now leaves at ${formatClock(minutes)}.`,
           );
         },
       ),

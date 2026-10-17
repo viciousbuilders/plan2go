@@ -161,6 +161,7 @@ describe("addStopFromSearch", () => {
         updateStop: unstubbed,
         removeStop: unstubbed,
         moveStop: unstubbed,
+        moveStopToDay: unstubbed,
       },
     };
   }
