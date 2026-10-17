@@ -1,9 +1,11 @@
 import { createMcpHandler } from "mcp-handler";
 import { consumeRateLimit } from "@/server/rate-limit/ip-rate-limit";
 import type { RateLimitPolicy } from "@/server/rate-limit/window";
+import { registerDayTools } from "./day-tools";
 import { registerEditTools } from "./edit-tools";
 import { registerPlaceTools } from "./place-tools";
-import { registerTripTool } from "./trip-tool";
+import { registerStopTools } from "./stop-tools";
+import { registerTripTools } from "./trip-tool";
 
 /**
  * A model calls tools much faster than a person presses anything, and a client
@@ -22,13 +24,17 @@ const INSTRUCTIONS = [
   "A trip has two links. The read only link, /t/<slug>, shows it, and the editing link, /t/<slug>/edit/<key>, changes it.",
   "Whoever holds the editing link can change the trip, so it goes only to whoever is planning, and the read only link to everyone else.",
   "To plan a trip, find each city with find_cities, open the trip with open_trip, look for places on a day with find_places, put them on the day with add_place, and read the days back with get_trip, which gives every time and every conflict.",
+  "Rework a day with move_stop, remove_stop, set_time_at_place, set_travel_mode and set_day_endpoint, each of which gives back the day with its new times.",
+  "get_pdf gives a link to the trip as a PDF, to print or to send.",
 ].join(" ");
 
 const handler = createMcpHandler(
   (server) => {
-    registerTripTool(server);
+    registerTripTools(server);
     registerPlaceTools(server);
     registerEditTools(server);
+    registerStopTools(server);
+    registerDayTools(server);
   },
   {
     serverInfo: { name: "plan2go", version: "0.1.0" },

@@ -40,9 +40,13 @@ function under(what: string): string {
 
 /**
  * When a stop is reached and left, "08:45-10:15". The day is said once, at
- * the end, when both fall on the same one: "00:30-01:30 next day".
+ * the end, when both fall on the same one: "00:30-01:30 next day". A stop
+ * passed by, with no time there, has the one time it is passed at.
  */
 function span(from: ClockTime, to: ClockTime): string {
+  if (from.epochMinutes === to.epochMinutes) {
+    return formatDayTime(from);
+  }
   const start =
     from.dayOffset === to.dayOffset ? formatClock(from.minutesFromMidnight) : formatDayTime(from);
   return `${start}-${formatDayTime(to)}`;

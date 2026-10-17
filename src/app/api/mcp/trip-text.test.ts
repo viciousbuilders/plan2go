@@ -237,6 +237,24 @@ describe("tripText", () => {
     );
   });
 
+  it("gives a stop passed by the one time it is passed at", async () => {
+    const days = [
+      day({
+        id: "passing",
+        date: "2026-10-24",
+        stops: [stop("s1", nightMarket, 0, "walk"), stop("s2", pubStreet, 30, "walk")],
+      }),
+    ];
+    const planned = await computeTrip(trip(days), travel);
+
+    expect(tripText(trip(days), planned, LINK).split("\n").slice(8)).toEqual([
+      "09:00        Stop 1: Hanoi Night Market (0 min)",
+      "             Walk 10 min · 600 m",
+      "             Other ways: Drive 5 min, Public transport unavailable",
+      "09:10-09:40  Stop 2: Ta Hien Street (30 min)",
+    ]);
+  });
+
   it("says which day a time falls on once the day runs past midnight", async () => {
     const days = [
       day({

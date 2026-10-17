@@ -1,16 +1,12 @@
 import type { McpServer } from "@modelcontextprotocol/server";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createGooglePlacesProvider } from "@/adapters/places/google-places";
 import { createGoogleTimeZoneProvider } from "@/adapters/time-zone/google-time-zone";
-import { MAX_STOP_DAYS, MAX_STOPS, MAX_TRIP_DAYS } from "@/core/model/trip";
-import type { PlacesProvider } from "@/core/ports/places-provider";
+import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
 import { computeTrip } from "@/features/day-planner/compute-trip";
-import { EDIT_KEY_PATTERN, hashEditKey } from "@/server/ownership/edit-key";
 import { googleMapsApiKey } from "@/server/places/google-key";
-import { placeDetailsFor, PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
+import { PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
-import { legWrites } from "@/server/travel/leg-cache";
 import { addStopFromSearch } from "@/server/trips/add-stop";
 import { calendarDate } from "@/server/trips/calendar-date";
 import { lookUpNewTrip } from "@/server/trips/look-up-new-trip";
@@ -28,29 +24,16 @@ import {
   refuse,
 } from "./tool-call";
 import {
-  editLinkParts,
-  NO_SUCH_TRIP,
-  noSuchDay,
-  NOT_A_TRIP_LINK,
-  READ_ONLY_LINK,
-  slugFromLink,
-} from "./trip-link";
-import { dayText, tripText } from "./trip-text";
-
-/**
- * Said for a key that is not the trip's and for a trip that is not there
- * alike: telling the two apart would turn this into a way to test slugs.
- */
-const NOT_YOURS =
-  "That editing link does not open a trip for changes. Check the whole link was passed, key and all.";
-
-/**
- * The places provider, reading a place from our own table before paying for
- * it, as the front page and the planner's own add do.
- */
-function readingOurTableFirst(google: PlacesProvider): PlacesProvider {
-  return { ...google, details: (id, session) => placeDetailsFor(id, google, session) };
-}
+  afterChange,
+  dayInput,
+  editingDay,
+  editLinkFrom,
+  editLinkInput,
+  NOT_YOURS,
+  readingOurTableFirst,
+} from "./trip-edit";
+import { NO_SUCH_TRIP } from "./trip-link";
+import { tripText } from "./trip-text";
 
 /**
  * The tools that change trips: opening one, and putting a place on a day.
@@ -168,17 +151,8 @@ export function registerEditTools(server: McpServer): void {
       description:
         "Put a place on one day of a plan2go trip, as the planner's own add does: it goes at the end of the day, with an hour there, reached the quickest way. Needs the trip's editing link. Returns the day as it now stands, with its new times and every conflict.",
       inputSchema: z.object({
-        link: z
-          .string()
-          .min(1)
-          .max(500)
-          .describe("The trip's editing link, /t/<slug>/edit/<key>. The read only link cannot change it."),
-        day: z
-          .number()
-          .int()
-          .min(1)
-          .max(MAX_TRIP_DAYS)
-          .describe("Which day of the trip, counting the first as 1."),
+        link: editLinkInput,
+        day: dayInput,
         place: z
           .string()
           .trim()
@@ -196,15 +170,11 @@ export function registerEditTools(server: McpServer): void {
     async ({ link, day, place }, ctx) =>
       guarded(
         "MCP add_place failed",
-        "Could not add the place, and the trip is as it was. Check the place id came from find_places, and try again in a moment.",
+        "Could not add the place. Check the place id came from find_places, and read the day with get_trip before trying again.",
         async () => {
-          const edit = editLinkParts(link);
-          if (edit === null) {
-            return refuse(slugFromLink(link) === null ? NOT_A_TRIP_LINK : READ_ONLY_LINK);
-          }
-          // A key shaped wrong is turned away before anything is counted or read.
-          if (!EDIT_KEY_PATTERN.test(edit.key)) {
-            return refuse(NOT_YOURS);
+          const edit = editLinkFrom(link);
+          if ("refusal" in edit) {
+            return edit.refusal;
           }
           // Counted with the planner's look at a place before adding it, which
           // is where the planner pays for the same details this add looks up.
@@ -219,23 +189,16 @@ export function registerEditTools(server: McpServer): void {
           if (apiKey === null) {
             return refuse(NO_PLACE_SEARCH);
           }
-
-          const trip = await prismaTripRepository.findBySlug(edit.slug);
-          if (trip === null) {
-            return refuse(NOT_YOURS);
-          }
-          const plan = trip.days[day - 1];
-          if (plan === undefined) {
-            return refuse(noSuchDay(day, trip.days.length));
+          const editing = await editingDay(edit, day);
+          if ("refusal" in editing) {
+            return editing.refusal;
           }
 
-          // The key is checked again before anything is paid for, and once
-          // more by the write itself, which is what authorises the change.
           const added = await addStopFromSearch(
             {
               slug: edit.slug,
-              editKeyHash: hashEditKey(edit.key),
-              dayId: plan.id,
+              editKeyHash: edit.editKeyHash,
+              dayId: editing.plan.id,
               providerPlaceId: place,
               session: null,
             },
@@ -251,22 +214,12 @@ export function registerEditTools(server: McpServer): void {
               "That place could not be found. Find it again with find_places and pass the place id it gives.",
             );
           }
-          revalidatePath(`/t/${edit.slug}`, "layout");
-
-          // The day as it now stands, timed as its page will time it.
-          const changed = await prismaTripRepository.findBySlug(edit.slug);
-          const now = changed?.days.find((candidate) => candidate.id === plan.id);
-          if (changed === null || now === undefined) {
-            return answer(`Added ${added.placeName} to Day ${String(day)}.`);
-          }
-          const writes = legWrites();
-          const [timed] = await computeTrip(
-            { ...changed, days: [now] },
-            await travelProviderFor([now], writes),
+          return afterChange(
+            edit.slug,
+            editing.plan.id,
+            day,
+            `Added ${added.placeName} to Day ${String(day)}.`,
           );
-          await writes.landed();
-          const heading = `Added ${added.placeName} to Day ${String(day)}. All times are local time in ${changed.timeZone}.`;
-          return answer(timed === undefined ? heading : [heading, dayText(timed, day)].join("\n\n"));
         },
       ),
   );
