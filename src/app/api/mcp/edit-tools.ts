@@ -13,6 +13,7 @@ import { lookUpNewTrip } from "@/server/trips/look-up-new-trip";
 import { newTripInputSchema } from "@/server/trips/new-trip-input";
 import { openTrip } from "@/server/trips/open-trip";
 import { openingTimeZone } from "@/server/trips/time-zones";
+import { tripTitleSchema } from "@/server/trips/trip-settings-input";
 import { travelProviderFor, tripTravelProvider } from "@/app/t/[slug]/travel";
 import {
   answer,
@@ -46,7 +47,7 @@ export function registerEditTools(server: McpServer): void {
     {
       title: "Open a trip",
       description:
-        "Open a new plan2go trip, as the front page does: the cities it goes to in order, how many days in each, and the day it departs. Each city is a place id from find_cities, and the first sets the clock the trip keeps. The days start empty. Returns the trip's two links and its days. Whoever holds the editing link can change the trip, so give it only to whoever is planning, and the read only link to everyone else.",
+        "Open a new plan2go trip, as the front page does: the cities it goes to in order, how many days in each, and the day it departs, and what to call it if it has a name already. Each city is a place id from find_cities, and the first sets the clock the trip keeps. The days start empty. Returns the trip's two links and its days. Whoever holds the editing link can change the trip, so give it only to whoever is planning, and the read only link to everyone else.",
       inputSchema: z.object({
         stops: z
           .array(
@@ -71,6 +72,11 @@ export function registerEditTools(server: McpServer): void {
         departs: calendarDate("The day the trip departs is missing. Give it as YYYY-MM-DD.").describe(
           "The day the trip departs, as YYYY-MM-DD.",
         ),
+        name: tripTitleSchema
+          .optional()
+          .describe(
+            "What to call the trip, up to 80 characters, such as Hanoi with the kids. Leave out to name it later with rename_trip; it is Untitled trip until then.",
+          ),
       }),
       annotations: {
         readOnlyHint: false,
@@ -79,7 +85,7 @@ export function registerEditTools(server: McpServer): void {
         openWorldHint: true,
       },
     },
-    async ({ stops, departs }, ctx) =>
+    async ({ stops, departs, name }, ctx) =>
       guarded(
         "MCP open_trip failed",
         // The provider refuses a malformed place id outright rather than
@@ -104,15 +110,18 @@ export function registerEditTools(server: McpServer): void {
           // The front page also works out the cities worth going to from the
           // first one, for the planner it is about to land on. Nobody opening
           // a trip here is on their way to it, and the picker asks for itself.
+          // The front page takes no name, so a trip opened there is named in
+          // the planner; one named here has it in the same write that opens it.
           const headers = headersOf(ctx);
-          const opened = await openTrip(headers, prismaTripRepository, () =>
-            lookUpNewTrip(
+          const opened = await openTrip(headers, prismaTripRepository, async () => {
+            const request = await lookUpNewTrip(
               parsed.data,
               readingOurTableFirst(createGooglePlacesProvider({ apiKey })),
               createGoogleTimeZoneProvider({ apiKey }),
               openingTimeZone(headers),
-            ),
-          );
+            );
+            return request === null || name === undefined ? request : { ...request, title: name };
+          });
           if (opened.status === "too-many") {
             return refuse(
               `Too many new trips have been started from this connection. Wait ${String(opened.retryAfterSeconds)} seconds and try again.`,

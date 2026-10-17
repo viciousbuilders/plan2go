@@ -32,7 +32,7 @@ export function registerTripTools(server: McpServer): void {
     {
       title: "Read a trip",
       description:
-        "Read a plan2go trip from its link. Gives every day in order: when it leaves and from where, each stop with the times it is reached and left, its opening hours that day and any note, the travel between stops by the way chosen and how long the other ways would take, and every conflict, such as a place that closes before you arrive, with the times in it. The times are plan2go's own, worked out from real travel times.",
+        "Read a plan2go trip from its link. Gives every day in order: when it leaves and from where, each stop with the times it is reached and left, its opening hours that day and any note, the travel between stops by the way chosen and how long the other ways would take, and every conflict, such as a place that closes before you arrive, with the times in it. The times are plan2go's own, worked out from real travel times. Each leg that can be made has a Google Maps link to the same journey at the moment the day sets out on it, for live traffic and timetables on the day.",
       inputSchema: z.object({ link: readLinkInput }),
       annotations: { readOnlyHint: true },
     },

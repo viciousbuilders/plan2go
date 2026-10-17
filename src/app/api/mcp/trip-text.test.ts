@@ -6,7 +6,7 @@ import type { Stop } from "@/core/model/stop";
 import type { Trip } from "@/core/model/trip";
 import type { TravelProvider } from "@/core/ports/travel-provider";
 import { computeTrip } from "@/features/day-planner/compute-trip";
-import { dayRun, tripText } from "./trip-text";
+import { dayRun, dayText, tripText } from "./trip-text";
 
 const ALL_DAY: WeeklyOpeningHours = {
   0: [{ opensAt: 480, closesAt: 1020 }],
@@ -171,6 +171,16 @@ const travel: TravelProvider = {
 
 const LINK = "https://plan2go.vietbrosinaus.com/t/teal-pier-23456789ab";
 
+/**
+ * The line a leg's link is written on, from the link the day was planned
+ * with, which directions-url's own tests hold to what Google Maps reads.
+ * Checked to be one first, so a leg with none cannot pass for one.
+ */
+function live(url: string | null | undefined): string {
+  expect(url).toMatch(/^https:\/\/www\.google\.com\/maps\/dir\//);
+  return `             Live times in Google Maps: ${url ?? ""}`;
+}
+
 describe("tripText", () => {
   it("writes the trip out day by day, with its legs, hours, notes and conflicts", async () => {
     const days = [
@@ -208,18 +218,21 @@ describe("tripText", () => {
         "Leave 08:30 · Back by 11:49 · 2 stops · Travelling 49 min",
         "08:30        Leave from Hotel, La Siesta Classic Ma May",
         "             Walk 15 min · 1.2 km",
+        live(planned[0]?.legs[0]?.directions),
         "             Other ways: Drive 6 min, Public transport unavailable",
         "08:45-10:15  Stop 1: Temple of Literature (1 hr 30 min)",
         "             Open 08:00-17:00",
         "             Note: Buy tickets at the south gate",
         "             Public transport 25 min · 3.4 km",
         "             Bus 09 towards Long Bien · Van Mieu to Hoan Kiem · 6 stops · 14 min",
+        live(planned[0]?.legs[1]?.directions),
         "             Other ways: Drive 9 min, Walk 41 min",
         "10:40-11:40  Stop 2: Hoa Lo Prison (1 hr)",
         "             Open 08:00-11:30",
         "             Conflict: Closes at 11:30 and you are still there at 11:40.",
         "             Drive about 9 min · 2.1 km",
         "             No drive route was found here. The time is a guess from the distance.",
+        live(planned[0]?.legs[2]?.directions),
         "             Other ways: Public transport 20 min, Walk 28 min",
         "11:49        Back at Hotel, La Siesta Classic Ma May",
         "",
@@ -250,6 +263,7 @@ describe("tripText", () => {
     expect(tripText(trip(days), planned, LINK).split("\n").slice(8)).toEqual([
       "09:00        Stop 1: Hanoi Night Market (0 min)",
       "             Walk 10 min · 600 m",
+      live(planned[0]?.legs[0]?.directions),
       "             Other ways: Drive 5 min, Public transport unavailable",
       "09:10-09:40  Stop 2: Ta Hien Street (30 min)",
     ]);
@@ -272,9 +286,29 @@ describe("tripText", () => {
       "Leave 23:00 · Done by 01:10 next day · 2 stops · Travelling 10 min",
       "23:00-00:30 next day  Stop 1: Hanoi Night Market (1 hr 30 min)",
       "             Walk 10 min · 600 m",
+      live(planned[0]?.legs[0]?.directions),
       "             Other ways: Drive 5 min, Public transport unavailable",
       "00:40-01:10 next day  Stop 2: Ta Hien Street (30 min)",
     ]);
+  });
+});
+
+describe("dayText", () => {
+  it("leaves the links to Google Maps off a day unless they are asked for", async () => {
+    const days = [
+      day({
+        id: "passing",
+        date: "2026-10-24",
+        stops: [stop("s1", nightMarket, 0, "walk"), stop("s2", pubStreet, 30, "walk")],
+      }),
+    ];
+    const [planned] = await computeTrip(trip(days), travel);
+    if (planned === undefined) {
+      throw new Error("The day was not planned.");
+    }
+
+    expect(dayText(planned, 1)).not.toContain("Google Maps");
+    expect(dayText(planned, 1, true).split("\n")).toContain(live(planned.legs[0]?.directions));
   });
 });
 

@@ -22,7 +22,8 @@ each a city and how many days in it, and the day it departs. The first city is t
 own and sets its time zone. Submitting it opens a trip and lands on `/t/[slug]`.
 The New trip link inside a trip opens this same page in a new tab. The one other way in
 is the `open_trip` tool on the MCP route, `src/app/api/mcp`, which takes the same stops
-and day and looks them up the same way, in `lookUpNewTrip`. Both come through
+and day, and a name for the trip when it is given one, and looks them up the same way,
+in `lookUpNewTrip`. Both come through
 `openTrip`, with one rate limit and one place that hands out the edit token, and
 nothing else opens a trip.
 

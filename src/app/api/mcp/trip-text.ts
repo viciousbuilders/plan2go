@@ -66,8 +66,12 @@ function optionWords(option: LegOption): string {
  * other ways and what they would take, which is what someone deciding how to
  * get there chooses between. A guess says it is one, and a leg nobody could
  * answer says so with the conflict it causes.
+ *
+ * With `directions`, a leg that can be made also has the link the page puts
+ * under it, to the same journey in Google Maps on the day and at the moment
+ * it is made, where the traffic and the timetable live.
  */
-function legLines(day: PlannedDay, legIndex: number): readonly string[] {
+function legLines(day: PlannedDay, legIndex: number, directions: boolean): readonly string[] {
   const leg = day.computed.legs[legIndex];
   const planned = day.legs[legIndex];
   if (leg === undefined || planned === undefined) {
@@ -95,6 +99,9 @@ function legLines(day: PlannedDay, legIndex: number): readonly string[] {
     if (leg.mode === "transit") {
       lines.push(...(chosen?.rides ?? []).map(rideSentence));
     }
+    if (directions && planned.directions !== null) {
+      lines.push(`Live times in Google Maps: ${planned.directions}`);
+    }
   }
 
   const others = planned.options.filter((option) => option.mode !== planned.chosen);
@@ -110,7 +117,7 @@ function legLines(day: PlannedDay, legIndex: number): readonly string[] {
  * after a leg nobody could answer has no times, and says so rather than
  * showing made up ones.
  */
-function dayRows(day: PlannedDay): readonly string[] {
+function dayRows(day: PlannedDay, directions: boolean): readonly string[] {
   const { plan, computed } = day;
   /** With no start point the first stop has no leg arriving at it. */
   const legOffset = plan.start === null ? -1 : 0;
@@ -123,7 +130,7 @@ function dayRows(day: PlannedDay): readonly string[] {
   computed.stops.forEach((stop, index) => {
     const arriving = index + legOffset;
     if (arriving >= 0) {
-      lines.push(...legLines(day, arriving));
+      lines.push(...legLines(day, arriving, directions));
     }
     const when =
       stop.arrival === null || stop.departure === null ? null : span(stop.arrival, stop.departure);
@@ -151,7 +158,7 @@ function dayRows(day: PlannedDay): readonly string[] {
   const toEnd = computed.legs[computed.legs.length - 1];
   if (plan.end !== null && toEnd !== undefined) {
     const back = plan.start !== null && plan.start.place.id === plan.end.place.id;
-    lines.push(...legLines(day, toEnd.index));
+    lines.push(...legLines(day, toEnd.index, directions));
     lines.push(
       row(
         computed.ends === null ? "" : formatDayTime(computed.ends),
@@ -207,15 +214,20 @@ export function dayRun(first: number, last: number): string {
   return `Days ${String(first)} ${last === first + 1 ? "and" : "to"} ${String(last)}`;
 }
 
-/** One day whole: its heading, what it comes to, and its rows. */
-export function dayText(day: PlannedDay, number: number): string {
+/**
+ * One day whole: its heading, what it comes to, and its rows. The links to
+ * Google Maps are left off unless asked for: a day given back after a change
+ * is read for its times, and the next change moves the moments they open on.
+ */
+export function dayText(day: PlannedDay, number: number, directions = false): string {
   const opening = day.plan.stops.length === 0 ? "Nothing planned yet." : dayStats(day);
-  return [dayHeading(day, number), opening, ...dayRows(day)].join("\n");
+  return [dayHeading(day, number), opening, ...dayRows(day, directions)].join("\n");
 }
 
 /**
  * The whole trip: its name, when it runs and where it goes, the clock every
- * time is on, the link to hand to the people travelling, and then each day.
+ * time is on, the link to hand to the people travelling, and then each day,
+ * with the link to Google Maps the page puts under every leg that can be made.
  * The editing link is never written here, whichever link the trip was read by.
  */
 export function tripText(trip: Trip, days: readonly PlannedDay[], readLink: string): string {
@@ -234,5 +246,7 @@ export function tripText(trip: Trip, days: readonly PlannedDay[], readLink: stri
     `Read only link: ${readLink}`,
   ].filter((line) => line !== null);
 
-  return [heading.join("\n"), ...days.map((day, index) => dayText(day, index + 1))].join("\n\n");
+  return [heading.join("\n"), ...days.map((day, index) => dayText(day, index + 1, true))].join(
+    "\n\n",
+  );
 }

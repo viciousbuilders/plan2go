@@ -3,6 +3,13 @@ import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import { daysBetween } from "@/core/time/zoned";
 import { calendarDate } from "./calendar-date";
 
+/** The trip's name, held to what its field holds, wherever the trip is named. */
+export const tripTitleSchema = z
+  .string()
+  .trim()
+  .min(1, "Give the trip a name.")
+  .max(80, "Use 80 characters or fewer.");
+
 /**
  * What a traveller may change about a trip once it is open. A trip is not one
  * city, so the name is whatever they call the whole thing rather than a place.
@@ -22,11 +29,7 @@ import { calendarDate } from "./calendar-date";
 export const tripSettingsSchema = z
   .object({
     slug: z.string().min(1).max(80),
-    title: z
-      .string()
-      .trim()
-      .min(1, "Give the trip a name.")
-      .max(80, "Use 80 characters or fewer."),
+    title: tripTitleSchema,
     startDate: calendarDate("The first day is missing. Enter a date."),
     endDate: calendarDate("The last day is missing. Enter a date."),
   })
