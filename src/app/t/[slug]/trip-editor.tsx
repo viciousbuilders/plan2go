@@ -33,12 +33,13 @@ import { addStopAction } from "./add-stop-action";
 import { deleteTripAction } from "./delete-trip-action";
 import {
   moveStopAction,
+  moveStopToDayAction,
   removeStopAction,
   setStopNoteAction,
   setStopStayAction,
 } from "./edit-stop-actions";
 import { setDayCityAction } from "./set-day-city-action";
-import { setDayEndpointAction } from "./set-day-endpoint-action";
+import { setDayEndpointAction, setDayEndpointLabelAction } from "./set-day-endpoint-action";
 import { setDayStartAction } from "./set-day-start-action";
 import { setLegModeAction } from "./set-leg-mode-action";
 import { updateTripAction } from "./update-trip-action";
@@ -725,6 +726,16 @@ export function TripEditor({
                         session: null,
                       }),
                     ),
+                  setEndpointLabel: ({ which, label }) =>
+                    recording(
+                      setDayEndpointLabelAction({
+                        slug,
+                        editKey,
+                        dayId: selected.plan.id,
+                        which,
+                        label,
+                      }),
+                    ),
                   setNote: ({ stopId, note }) =>
                     recording(setStopNoteAction({ slug, editKey, stopId, note })),
                   removeStop: ({ stopId }) =>
@@ -732,6 +743,10 @@ export function TripEditor({
                   moveStop: ({ stopId, toPosition }) =>
                     recording(
                       moveStopAction({ slug, editKey, stopId, toPosition }),
+                    ),
+                  moveStopToDay: ({ stopId, dayId, toPosition }) =>
+                    recording(
+                      moveStopToDayAction({ slug, editKey, stopId, dayId, toPosition }),
                     ),
                 }
               : null
@@ -904,6 +919,7 @@ export function TripEditor({
               <StopDetails
                 day={openedStopPlanned}
                 dayIndex={openedStopDay}
+                days={days.map((day) => day.plan)}
                 stopId={opened.stopId}
                 actions={
                   editKey === null
@@ -915,6 +931,10 @@ export function TripEditor({
                           recording(setStopNoteAction({ slug, editKey, stopId, note })),
                         moveStop: ({ stopId, toPosition }) =>
                           recording(moveStopAction({ slug, editKey, stopId, toPosition })),
+                        moveStopToDay: ({ stopId, dayId, toPosition }) =>
+                          recording(
+                            moveStopToDayAction({ slug, editKey, stopId, dayId, toPosition }),
+                          ),
                       }
                 }
               />

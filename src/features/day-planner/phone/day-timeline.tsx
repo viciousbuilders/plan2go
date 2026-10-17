@@ -14,6 +14,7 @@ import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
 import { ENDS, MARKS, nearestPoint, useEndEdit } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
+import { EndLabel } from "../end-label";
 import { endpointName } from "../endpoint-name";
 import { EndpointPicker } from "../endpoint-picker";
 import { formatDayTime } from "../format-day-time";
@@ -80,7 +81,7 @@ function EndLine({
   readonly actions: DayActions | null;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
-  const { picking, setPicking, saving, error, write } = useEndEdit(which, actions);
+  const { picking, setPicking, saving, error, write, writeLabel } = useEndEdit(which, actions);
   const words = ENDS[which];
   const Mark = MARKS[which];
   const hours = endpoint === null ? null : hoursOn(endpoint.place, day);
@@ -150,6 +151,24 @@ function EndLine({
                 </button>
               </span>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* What the traveller calls the end, under its words on the same
+          column, and apart from the words themselves, which open the place. */}
+      {endpoint === null || actions === null || picking ? null : (
+        <div className={RAIL_ROW}>
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <div className="flex min-w-0 flex-col pb-1">
+            <EndLabel
+              placeName={endpoint.place.name}
+              label={endpoint.label}
+              hint={words.hint}
+              onSave={writeLabel}
+              disabled={saving}
+            />
           </div>
         </div>
       )}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cardUnder, edgeScroll } from "./touch-carry";
+import { cardUnder, dayUnder, edgeScroll } from "./touch-carry";
 
 const cards = [
   { index: 0, top: 100, bottom: 260 },
@@ -51,5 +51,23 @@ describe("edgeScroll", () => {
 
   it("moves in whole pixels", () => {
     expect(Number.isInteger(edgeScroll(781, 200, 800))).toBe(true);
+  });
+});
+
+describe("dayUnder", () => {
+  const days = [
+    { index: 0, left: 100, right: 182, top: 20, bottom: 64 },
+    { index: 2, left: 272, right: 354, top: 20, bottom: 64 },
+  ];
+
+  it("is the day the finger is over", () => {
+    expect(dayUnder(140, 40, days)).toBe(0);
+    expect(dayUnder(354, 64, days)).toBe(2);
+  });
+
+  it("is no day between two, or anywhere off the strip", () => {
+    expect(dayUnder(220, 40, days)).toBeNull();
+    expect(dayUnder(140, 300, days)).toBeNull();
+    expect(dayUnder(140, 40, [])).toBeNull();
   });
 });

@@ -332,7 +332,14 @@ last tab, eight off, the button that adds a day: a 32px dashed ring in `rule-str
 with a 15px plus in `ink-muted`, still shorter than the tabs so it reads as an offer.
 Under the pointer its dash takes the whole accent, its plus `terracotta-700`, over the
 same `paper-sunken`. The focus ring is drawn outside every tab and the button, as it is
-everywhere, and the strip keeps four pixels round them so no ring is clipped. When the day leaves
+everywhere, and the strip keeps four pixels round them so no ring is clipped. While a
+stop is carried, by the pointer or by a finger on its grip, every day but the open one
+is offered as somewhere to let it go: a dashed edge 1.5px wide in `rule-strong`, drawn
+2px out as the focus ring is, so the strip's room for a ring holds it. The day the stop
+is over takes the accent's dashed edge at 2px over `paper-sunken`, as a card does under
+a drop. Letting go there puts the stop last on that day. The open day stays open: the
+stop leaves it at once, and the day fades under "Working out the new times." until both
+days have their new times, as after a reorder. When the day leaves
 is set on the day itself. Then the day itself: stops on raised cards, legs between them on pills of paper, and the ends of the
 day on shorter rows of paper inside a hairline, dashed where an end is not there yet.
 A day with no stops says so straight on the ground, with no card under it, since a card
@@ -445,7 +452,8 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   600 square with one corner cut, with the end's glyph, and what the day does there,
   "Leave Central Station", "Finish at", "Back at", at the body step in 600. The words
   open the place, its hours are under them when it keeps any, and for someone who may
-  edit the pencil and the cross follow them, 40px each. Without an end, someone who may
+  edit the pencil and the cross follow them, 40px each, and under the words the label
+  as a desk draws it, its field at 16px across the column. Without an end, someone who may
   edit is offered one beside the same marker, as a desk offers it, in sage 800 over what
   kind of place goes there. The start's time is the pill that sets when the day leaves,
   its chevron left off to fit the column.
@@ -474,9 +482,14 @@ A stop pressed opens its place, the whole window (see A place, opened), and on a
 stop is changed there rather than on the day: under the place's name, its hours, "Day 1
 · arrive 09:13, leave 10:28", "Stay for" with a minus and a plus a quarter of an hour
 at a time on a 44px disc of `neutral-200` either side of the stay, on a card of `sheet`;
-the note; and two pills that move the stop one place earlier or later in the day, which
-on a desk is done by dragging its card. The stepper writes once its presses stop, so an
-hour more is one write rather than four.
+the note; two pills that move the stop one place earlier or later in the day; and
+"Move to another day" in bold at the body step over the other days as pills of the
+same kind, as wide as their words and in the words the map's chips use, "Day 2 · Sun 8",
+running to the sheet's edges and scrolling sideways on a long trip, any of which takes
+the stop to the end of that day. On a desk both are done by dragging its card, along
+the day or onto a day in the strip. The sheet stays on the stop, which then says the day
+it is on. The stepper writes once its presses stop, so an hour more is one write rather
+than four.
 
 The search is on the map, as design 1b of "PlanToGo iPhone app" draws it, and **Add a
 place** goes there with the cursor in the field and the keyboard up.
@@ -568,6 +581,18 @@ place, which a reader gets too, and for someone who may edit a pencil that chang
 end and the cross that takes it off, each named for what it does and drawn at 55
 percent until the pointer is over the row, as a card's are.
 
+What the traveller calls an end, "Hotel", is said in front of its place's name wherever
+the end is drawn, "Hotel, La Siesta Classic Ma May", on the day, on a phone's rail and
+on paper. For someone who may edit it is written under the end's address and hours,
+where a card keeps its note, and drawn the way a note is: the one line offering to
+start one, **Add a label** behind its plus at the micro step in `ink-muted`, and once
+there is a label a field holding it, on `paper-raised` inside a `rule` edge at the
+`chip` radius, at the meta step and no wider than 260px. The field's empty words are
+the kinds of place the end's offer names, "Hotel, home or pickup". Leaving the field
+or Enter writes it, Escape puts it back, and a field emptied takes the label off. It
+writes the label alone: the place stays, and so does every leg. Choosing another place
+with the pencil starts the end without one.
+
 A stop says when it is arrived at and when it is left, the pair at the top right with an
 arrow between them. The second is the first plus the stay set underneath, which is
 arithmetic a person should not have to do to find out when they are done somewhere.
@@ -598,7 +623,9 @@ place.
 The grip on a card carries the card under a finger on a touch screen as wide as a desk,
 which has no drag of its own: the card goes where the finger takes it, on the shadow of
 what floats, the card it is over is outlined as a drop is under a pointer, and letting go
-puts it there, brought into sight if it landed past the edge of the list. Held near the
+puts it there, brought into sight if it landed past the edge of the list. Carried up
+over the strip, it goes under it, and the day the finger is over is outlined as under
+a pointer, and letting go takes the stop to that day. Held near the
 top or the foot of what can be seen of the day, the day scrolls on under it. A press on
 the grip that goes nowhere is only a press. A phone has no cards and no grip: a stop is
 moved from its place's sheet (see Layout).

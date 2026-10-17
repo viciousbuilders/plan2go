@@ -110,6 +110,53 @@ export function visibleBand(scroller: HTMLElement | null): { readonly top: numbe
 }
 
 /**
+ * Where a day in the strip is in the window, left to right and top to bottom,
+ * for a stop carried off its own day onto another. Measured in the window
+ * rather than down what scrolls, since the strip stays put while the day
+ * scrolls under it.
+ */
+export interface DaySpan {
+  readonly index: number;
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly bottom: number;
+}
+
+/**
+ * The day in the strip a finger at x and y is over, or null when it is over
+ * none: there is no nearest day to fall back on, as there is a nearest card,
+ * since letting go anywhere off the strip is letting go on the day itself.
+ */
+export function dayUnder(x: number, y: number, days: readonly DaySpan[]): number | null {
+  return (
+    days.find((day) => x >= day.left && x <= day.right && y >= day.top && y <= day.bottom)
+      ?.index ?? null
+  );
+}
+
+/**
+ * The days in the strip that take a carried stop, which are the ones marked
+ * with their place in the trip, measured where they are now. Only what can be
+ * seen of each counts: the strip scrolls sideways, and a day scrolled out of
+ * it is under whatever is beside it rather than under the finger.
+ */
+export function daySpans(): readonly DaySpan[] {
+  return Array.from(document.querySelectorAll<HTMLElement>("[data-day-drop]")).flatMap(
+    (element) => {
+      const box = element.getBoundingClientRect();
+      const strip = element.closest(".day-tabs")?.getBoundingClientRect() ?? box;
+      const left = Math.max(box.left, strip.left);
+      const right = Math.min(box.right, strip.right);
+      const index = Number(element.dataset.dayDrop);
+      return left < right && Number.isInteger(index)
+        ? [{ index, left, right, top: box.top, bottom: box.bottom }]
+        : [];
+    },
+  );
+}
+
+/**
  * Every card on the day, measured down the content of what it scrolls in. The
  * cards are the elements marked with their place in the day, beside the one
  * being picked up.

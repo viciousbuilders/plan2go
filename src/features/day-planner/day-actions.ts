@@ -43,6 +43,15 @@ export interface DayActions {
     readonly providerPlaceId: string | null;
   }) => Promise<EditOutcome>;
 
+  /**
+   * What the traveller calls an end the day has, "Hotel", or null to call it
+   * by its place's name alone. The place stays where it is.
+   */
+  readonly setEndpointLabel: (input: {
+    readonly which: "start" | "end";
+    readonly label: string | null;
+  }) => Promise<EditOutcome>;
+
   readonly setNote: (input: {
     readonly stopId: string;
     readonly note: string | null;
@@ -53,6 +62,16 @@ export interface DayActions {
   /** Where the stop lands, counted from the top of the day. */
   readonly moveStop: (input: {
     readonly stopId: string;
+    readonly toPosition: number;
+  }) => Promise<EditOutcome>;
+
+  /**
+   * A stop taken to another day of the trip, landing at a place in that day's
+   * order counted from the top. Its time there and its note go with it.
+   */
+  readonly moveStopToDay: (input: {
+    readonly stopId: string;
+    readonly dayId: string;
     readonly toPosition: number;
   }) => Promise<EditOutcome>;
 }

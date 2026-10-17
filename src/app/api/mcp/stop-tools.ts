@@ -160,7 +160,7 @@ export function registerStopTools(server: McpServer): void {
     {
       title: "Move a stop to another day",
       description:
-        "Move a stop from its day to another day of the trip. It keeps its time there and its note, and goes last on that day unless to says where. The leg that now closes over the gap it leaves, and the legs into and out of it on its new day, are given the quickest way. Needs the trip's editing link. Returns both days as they now stand, with their new times and every conflict.",
+        "Move a stop from its day to another day of the trip, as dragging its card onto that day in the planner does. It keeps its time there and its note, and goes last on that day unless to says where. The leg that now closes over the gap it leaves, and the legs into and out of it on its new day, are given the quickest way. Needs the trip's editing link. Returns both days as they now stand, with their new times and every conflict.",
       inputSchema: z.object({
         link: editLinkInput,
         day: dayInput,

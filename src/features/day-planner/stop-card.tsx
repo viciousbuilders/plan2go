@@ -7,6 +7,7 @@ import type { ComputedStop } from "@/core/time/compute-day";
 import { formatDuration } from "@/core/time/minutes";
 import { ArrowRightIcon, ClockIcon, CloseIcon, GripIcon, InfoIcon } from "@/ui/icons";
 import type { DayActions } from "./day-actions";
+import { useDayDrop } from "./day-drop";
 import { ConflictNotice } from "./conflict-notice";
 import { formatDayTime } from "./format-day-time";
 import { StayPicker } from "./stay-picker";
@@ -15,6 +16,8 @@ import type { CardSpan } from "./touch-carry";
 import {
   CARRY_SLOP,
   cardUnder,
+  dayUnder,
+  daySpans,
   edgeScroll,
   scrolledBy,
   scrollerOf,
@@ -42,9 +45,12 @@ interface Carry {
   /** Whether the finger has gone far enough for this to be a carry rather than a press. */
   carried: boolean;
   /** Where the finger is now, in the window. */
+  x: number;
   y: number;
   /** The card it is over, which is where the stop goes when it is let go. */
   over: number;
+  /** The day in the strip it is over instead, which takes the stop to that day. */
+  overDay: number | null;
   /** The frame that runs the day on under a finger held near an edge. */
   frame: number;
 }
@@ -182,6 +188,8 @@ export function StopCard({
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const [busy, setBusy] = useState<Busy>(null);
+  /** The strip of days, which a card carried by a finger can be let go on too. */
+  const dayDrop = useDayDrop();
 
   /**
    * Which of the card's own controls is waiting on the server, so only that
@@ -270,11 +278,20 @@ export function StopCard({
     [],
   );
 
-  /** The card under the finger, and the card drawn as far down as the finger has gone. */
+  /**
+   * The card under the finger, or the day in the strip, and the card drawn as
+   * far down as the finger has gone. Over a day, no card is the target: the
+   * carried card is its own, which outlines nothing.
+   */
   const follow = (held: Carry): void => {
     const scrolled = scrolledBy(held.scroller);
     setLift(held.y + scrolled - (held.fromY + held.fromScrolled));
-    const under = cardUnder(held.y + scrolled, held.cards, held.over);
+    const day = dayUnder(held.x, held.y, daySpans());
+    if (day !== held.overDay) {
+      held.overDay = day;
+      dayDrop.setOverDay(day);
+    }
+    const under = day === null ? cardUnder(held.y + scrolled, held.cards, held.over) : index;
     if (under !== held.over) {
       held.over = under;
       onDragOver(under);
@@ -310,8 +327,10 @@ export function StopCard({
       scroller,
       cards: spansBeside(element, scroller),
       carried: false,
+      x: event.clientX,
       y: event.clientY,
       over: index,
+      overDay: null,
       frame: 0,
     };
   };
@@ -321,6 +340,7 @@ export function StopCard({
     if (held === null || event.pointerId !== held.pointer) {
       return;
     }
+    held.x = event.clientX;
     held.y = event.clientY;
     if (!held.carried) {
       if (Math.abs(held.y - held.fromY) < CARRY_SLOP) {
@@ -345,7 +365,10 @@ export function StopCard({
     if (!held.carried) {
       return;
     }
-    if (drop) {
+    if (drop && held.overDay !== null) {
+      dayDrop.dropOnDay(held.overDay);
+      onDragEnd();
+    } else if (drop) {
       landing.current = held.over === index ? null : index;
       onDrop(held.over);
     } else {
@@ -485,7 +508,7 @@ export function StopCard({
                       rather than the day. */}
                   <button
                     type="button"
-                    title="Drag to reorder"
+                    title="Drag to reorder, or onto another day"
                     aria-label={`Move ${stop.placeName} by dragging it`}
                     onPointerDown={pickUp}
                     onPointerMove={move}

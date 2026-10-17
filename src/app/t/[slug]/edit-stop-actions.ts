@@ -9,6 +9,7 @@ import {
   MAX_NOTE_LENGTH,
   MAX_STAY_MINUTES,
   moveStop,
+  moveStopToDay,
   removeStop,
   setStopNote,
   setStopStay,
@@ -49,6 +50,12 @@ const noteSchema = z.object({
 const removeSchema = z.object(stop);
 
 const moveSchema = z.object({ ...stop, toPosition: z.number().int().min(0).max(200) });
+
+const moveToDaySchema = z.object({
+  ...stop,
+  dayId: z.string().min(1).max(40),
+  toPosition: z.number().int().min(0).max(200),
+});
 
 const UNREADABLE = "That change could not be read. Try it again.";
 
@@ -121,6 +128,22 @@ export async function moveStopAction(input: unknown): Promise<StopEditState> {
   return finish(
     parsed.data.slug,
     moveStop(
+      scoped(parsed.data),
+      prismaTripRepository,
+      travelProviderFor,
+    ),
+  );
+}
+
+/** A stop let go on another day of the trip, at a place in that day's order. */
+export async function moveStopToDayAction(input: unknown): Promise<StopEditState> {
+  const parsed = moveToDaySchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: UNREADABLE };
+  }
+  return finish(
+    parsed.data.slug,
+    moveStopToDay(
       scoped(parsed.data),
       prismaTripRepository,
       travelProviderFor,

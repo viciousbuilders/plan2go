@@ -9,8 +9,10 @@ import { formatClock } from "@/core/time/minutes";
 import { ClockIcon, CloseIcon, PencilIcon, PlusIcon } from "@/ui/icons";
 import type { PlannedDay } from "./compute-trip";
 import type { DayActions } from "./day-actions";
+import { useDayDrop } from "./day-drop";
 import { ENDS, MARKS, nearestPoint, useEndEdit } from "./day-ends";
 import { EmptyDay } from "./empty-day";
+import { EndLabel } from "./end-label";
 import { endpointName } from "./endpoint-name";
 import { EndpointPicker } from "./endpoint-picker";
 import { formatDayDate } from "./format-day-date";
@@ -58,6 +60,12 @@ interface DayItineraryProps {
   readonly actions: DayActions | null;
   /** Takes the reader to the search field, from a day with nothing on it or from the foot of its last stop. Null for a reader who cannot edit. */
   readonly onFindPlace: (() => void) | null;
+  /** Tells the planner which stop is being carried, or that none is, for the strip of days. */
+  readonly onCarry: (stopId: string | null) => void;
+  /** A stop let go on another day and on its way there, which this day no longer shows. */
+  readonly leaving: string | null;
+  /** Why the last stop let go on another day did not go, or null. */
+  readonly leaveError: string | null;
 }
 
 /** The list with one entry carried from one place to another, the rest closing up. */
@@ -112,6 +120,7 @@ function Anchor({
   time,
   setTime,
   hours,
+  labelField,
   onChange,
   onRemove,
   saving,
@@ -136,6 +145,8 @@ function Anchor({
   readonly setTime: React.ReactNode;
   /** When the place is open on this day, or null when we do not know. */
   readonly hours: string | null;
+  /** What the traveller calls this end, as it is changed; null for a reader. */
+  readonly labelField: React.ReactNode;
   /** Null for a reader who cannot change this end, or while its picker is open. */
   readonly onChange: (() => void) | null;
   readonly onRemove: (() => void) | null;
@@ -192,7 +203,7 @@ function Anchor({
       {/* Words, not a button, as a stop's name and address are: what can be
           done to the place is in the tools, and a name that changed the
           place when it was pressed was a change nobody asked for. */}
-      <div className="min-w-0 self-start">
+      <div className="flex min-w-0 flex-col self-start">
         <p className="break-words font-display text-place text-ink">{endpointName(endpoint)}</p>
         <p className="mt-[3px] break-words text-meta text-ink-faint">
           {endpoint.place.address ?? fallback}
@@ -206,6 +217,9 @@ function Anchor({
             {hours}
           </p>
         )}
+        {/* What the traveller calls the end, last, where a stop card keeps
+            its note: the other thing on the row that is theirs to write. */}
+        {labelField}
       </div>
 
       {/* The time, and under it what can be done to this end of the day: the
@@ -298,7 +312,7 @@ function EndpointSlot({
   readonly onHoverEndpoint: (placeId: string | null) => void;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
-  const { picking, setPicking, saving, error, write } = useEndEdit(which, actions);
+  const { picking, setPicking, saving, error, write, writeLabel } = useEndEdit(which, actions);
   const words = ENDS[which];
 
   return (
@@ -311,6 +325,17 @@ function EndpointSlot({
           time={time}
           setTime={setTime}
           hours={hoursOn(endpoint.place, day)}
+          labelField={
+            actions === null || picking ? null : (
+              <EndLabel
+                placeName={endpoint.place.name}
+                label={endpoint.label}
+                hint={words.hint}
+                onSave={writeLabel}
+                disabled={saving}
+              />
+            )
+          }
           onChange={actions === null || picking ? null : () => setPicking(true)}
           onRemove={actions === null || picking ? null : () => write(null)}
           saving={saving}
@@ -403,11 +428,16 @@ export function DayItinerary({
   onHoverEndpoint,
   actions,
   onFindPlace,
+  onCarry,
+  leaving,
+  leaveError,
 }: DayItineraryProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
   const [moving, startMoving] = useTransition();
+  /** Whether a carried stop is over a day in the strip, where the cards are not what it lands on. */
+  const overDay = useDayDrop().overDay;
   /**
    * The order as it was dropped, shown at once, while the server works out
    * what the new order does to the times. The times on the cards are the old
@@ -446,16 +476,35 @@ export function DayItinerary({
   const legToEnd = day.end === null ? undefined : computed.legs[computed.legs.length - 1];
   const plannedToEnd = legToEnd === undefined ? undefined : legs[legToEnd.index];
 
+  /**
+   * The stops as shown: the order as it was dropped, less a stop let go on
+   * another day, which leaves at once. While either is being written the day
+   * is busy, faded under the line saying so, and nothing on it is picked up.
+   */
+  const listed =
+    leaving === null ? shownStops : shownStops.filter((stop) => stop.stopId !== leaving);
+  const busy = moving || leaving !== null;
+
   const clearDrag = (): void => {
     setDragIndex(null);
     setOverIndex(null);
+    onCarry(null);
+  };
+
+  const pickUp = (index: number): void => {
+    const stop = listed[index];
+    if (busy || stop === undefined) {
+      return;
+    }
+    setDragIndex(index);
+    onCarry(stop.stopId);
   };
 
   const drop = (toIndex: number): void => {
     const from = dragIndex;
     clearDrag();
     const dragged = from === null ? undefined : computed.stops[from];
-    if (actions === null || moving || from === null || dragged === undefined || from === toIndex) {
+    if (actions === null || busy || from === null || dragged === undefined || from === toIndex) {
       return;
     }
     startMoving(async () => {
@@ -491,8 +540,8 @@ export function DayItinerary({
         </div>
       ) : null}
 
-      <div className={moving ? "opacity-55" : ""} aria-busy={moving}>
-        {shownStops.map((stop, index) => {
+      <div className={busy ? "opacity-55" : ""} aria-busy={busy}>
+        {listed.map((stop, index) => {
           const leg = computed.legs[index + legOffset];
           const planned = leg === undefined ? undefined : legs[leg.index];
           const place = places.get(stop.stopId);
@@ -526,10 +575,10 @@ export function DayItinerary({
                    number on the rail, since that is where a place found in
                    the search is added. The last as shown, so while a move is
                    being saved it is on whichever card has been dropped last. */
-                onAddNext={index === shownStops.length - 1 ? onFindPlace : null}
+                onAddNext={index === listed.length - 1 ? onFindPlace : null}
                 dragging={dragIndex === index}
-                dragOver={overIndex === index}
-                onDragStart={setDragIndex}
+                dragOver={overIndex === index && overDay === null}
+                onDragStart={pickUp}
                 onDragOver={setOverIndex}
                 onDrop={drop}
                 onDragEnd={clearDrag}
@@ -549,7 +598,7 @@ export function DayItinerary({
         )}
       </div>
 
-      {moving ? (
+      {busy ? (
         <p className="mt-2 px-[10px] text-micro text-ink-muted">Working out the new times.</p>
       ) : null}
 
@@ -567,9 +616,9 @@ export function DayItinerary({
         onOpen={onOpenEndpoint}
       />
 
-      {moveError === null ? null : (
+      {(moveError ?? leaveError) === null ? null : (
         <Notice role="alert" className="mt-3">
-            {moveError}
+            {moveError ?? leaveError}
         </Notice>
       )}
     </div>

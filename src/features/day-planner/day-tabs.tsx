@@ -8,6 +8,7 @@ import { CityDot } from "@/ui/city-dot";
 import { FINGER_ROOM } from "@/ui/finger-room";
 import { PlusIcon } from "@/ui/icons";
 import type { EditOutcome } from "./day-actions";
+import { useDayDrop } from "./day-drop";
 import { formatDayDate, formatDayTab } from "./format-day-date";
 import { formatStops } from "./format-stops";
 import { useLocalToday } from "@/ui/use-local-today";
@@ -111,6 +112,20 @@ function dayCard(selected: boolean, isToday: boolean): string {
     : "max-lg:border-rule max-lg:bg-paper-raised max-lg:text-ink max-lg:hover:bg-paper-sunken";
 }
 
+/**
+ * A day offered as somewhere to let a carried stop go: dashed, as everything
+ * still to be chosen is, in the dashed outlines' own ink. Two pixels out, as
+ * the focus ring is, so the strip's room for a ring holds it whole.
+ */
+const OFFERED = "outline-[1.5px] outline-offset-2 outline-dashed outline-rule-strong";
+
+/**
+ * The day the stop is over, which is where letting go takes it: the dash
+ * takes the accent at a card's drop width, over the step a day takes under
+ * the pointer, which a drag does not give it.
+ */
+const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed outline-terracotta";
+
 export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProps) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const list = useRef<HTMLDivElement | null>(null);
@@ -123,6 +138,12 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
   const watchStrip = useScrollBar("x");
   const [error, setError] = useState<string | null>(null);
   const [adding, startAdding] = useTransition();
+  /**
+   * A stop carried off the open day. Every other day takes it while it is,
+   * by the browser's drag under a pointer, and by a finger, which finds the
+   * days by the mark each one carries.
+   */
+  const dayDrop = useDayDrop();
 
   /**
    * The new day is the last one, and it is opened: adding a day is asking for
@@ -251,6 +272,9 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
             const isToday = day.date === today;
             /** A day's words on a desk, the same whether or not it is the one chosen. */
             const words = isToday ? "lg:text-sage-800" : "lg:text-ink-muted lg:hover:text-ink";
+            /** A carried stop can go to any day but the one it is on, which is the open one. */
+            const takes = dayDrop.carrying && !selected;
+            const over = takes && dayDrop.overDay === index;
             return (
               <button
                 key={day.id}
@@ -264,11 +288,36 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                 aria-controls={`day-panel-${day.id}`}
                 tabIndex={selected ? 0 : -1}
                 title={day.city?.name}
+                data-day-drop={takes ? index : undefined}
                 onClick={() => {
                   onSelect(index);
                 }}
                 onKeyDown={(event) => {
                   move(event, index);
+                }}
+                onDragOver={(event) => {
+                  if (!takes) {
+                    return;
+                  }
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                  if (!over) {
+                    dayDrop.setOverDay(index);
+                  }
+                }}
+                // Leaving the day for one of its own words is not leaving it.
+                onDragLeave={(event) => {
+                  const into = event.relatedTarget;
+                  if (over && !(into instanceof Node && event.currentTarget.contains(into))) {
+                    dayDrop.setOverDay(null);
+                  }
+                }}
+                onDrop={(event) => {
+                  if (!takes) {
+                    return;
+                  }
+                  event.preventDefault();
+                  dayDrop.dropOnDay(index);
                 }}
                 // Under the pointer a day that is not chosen takes the step
                 // every control on paper takes, paper-sunken, and its words
@@ -281,7 +330,7 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                     : isToday
                       ? "lg:bg-sage-100 lg:hover:bg-sage-200"
                       : "lg:hover:bg-paper-sunken"
-                }`}
+                } ${over ? OVER : takes ? OFFERED : ""}`}
               >
                 {/* The tab draws the day's number and a short date, and a
                     reader who cannot see the strip hears the date in full and

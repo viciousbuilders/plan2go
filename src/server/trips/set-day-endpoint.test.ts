@@ -9,6 +9,7 @@ import type { TravelProvider } from "@/core/ports/travel-provider";
 import type {
   CreatedTrip,
   DayCitySet,
+  DayEndpointLabelUpdate,
   DayEndpointSet,
   DayEndpointUpdate,
   DayStartSet,
@@ -21,7 +22,8 @@ import type {
   TripRepository,
 } from "../repositories/trip-repository";
 import type { TravelFor } from "./leg-modes";
-import { setDayEndpoint } from "./set-day-endpoint";
+import { MAX_LABEL_LENGTH } from "@/core/model/day";
+import { setDayEndpoint, setDayEndpointLabel } from "./set-day-endpoint";
 
 const NOT_STUBBED = "This stub only answers the endpoint question.";
 
@@ -91,6 +93,7 @@ function repositoryFor(
       findEditKeyHash: () => Promise.resolve<string | null>(null),
       findPlaceByProviderId: () => Promise.resolve(options.stored ?? null),
       setDayStart: () => Promise.reject<DayStartSet>(new Error(NOT_STUBBED)),
+      setDayEndpointLabel: () => Promise.reject<DayEndpointSet>(new Error(NOT_STUBBED)),
       setDayEndpoint: (update) => {
         written.push(update);
         return Promise.resolve<DayEndpointSet>(
@@ -372,5 +375,61 @@ describe("setDayEndpoint", () => {
 
     expect(result).toEqual({ status: "refused" });
     expect(written).toHaveLength(1);
+  });
+});
+
+describe("setDayEndpointLabel", () => {
+  /** Keeps every label written, and answers each as the stub says. */
+  function labelling(answer: DayEndpointSet = { status: "set" }): {
+    readonly repository: TripRepository;
+    readonly labels: DayEndpointLabelUpdate[];
+  } {
+    const labels: DayEndpointLabelUpdate[] = [];
+    return {
+      labels,
+      repository: {
+        ...repositoryFor(tripOf([day("d1")])).repository,
+        setDayEndpointLabel: (update) => {
+          labels.push(update);
+          return Promise.resolve(answer);
+        },
+      },
+    };
+  }
+
+  const request = { slug: SLUG, editKeyHash: HASH, dayId: "d1", which: "start" } as const;
+
+  it("writes the label alone, without the spaces round it", async () => {
+    const { repository, labels } = labelling();
+
+    expect(await setDayEndpointLabel({ ...request, label: "  Hotel " }, repository)).toEqual({
+      status: "set",
+    });
+    expect(labels).toEqual([{ ...request, label: "Hotel" }]);
+  });
+
+  it("calls the point nothing for a label of only spaces, as for none", async () => {
+    const { repository, labels } = labelling();
+
+    await setDayEndpointLabel({ ...request, label: "   " }, repository);
+    await setDayEndpointLabel({ ...request, label: null }, repository);
+
+    expect(labels.map((written) => written.label)).toEqual([null, null]);
+  });
+
+  it("keeps a label to the length a label may be", async () => {
+    const { repository, labels } = labelling();
+
+    await setDayEndpointLabel({ ...request, label: "h".repeat(MAX_LABEL_LENGTH + 5) }, repository);
+
+    expect(labels[0]?.label).toHaveLength(MAX_LABEL_LENGTH);
+  });
+
+  it("passes on a refusal, which is what a day with no end there answers", async () => {
+    const { repository } = labelling({ status: "refused" });
+
+    expect(await setDayEndpointLabel({ ...request, label: "Hotel" }, repository)).toEqual({
+      status: "refused",
+    });
   });
 });

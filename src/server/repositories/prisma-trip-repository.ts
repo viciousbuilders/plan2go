@@ -22,6 +22,7 @@ import type {
   CreatedTrip,
   DayCitySet,
   DayCityUpdate,
+  DayEndpointLabelUpdate,
   DayEndpointSet,
   DayEndpointUpdate,
   DayStartSet,
@@ -397,6 +398,24 @@ export const prismaTripRepository: TripRepository = {
           : { endPlaceId: placeId, endLabel: update.label },
     });
     return { status: "set" };
+  },
+
+  async setDayEndpointLabel(update: DayEndpointLabelUpdate): Promise<DayEndpointSet> {
+    // Scoped to the tokens the browser holds and to an end the day has, so the
+    // write is also the check that this trip may be changed, and an end taken
+    // off in the meantime is not given a label it has no place to hang on.
+    const trip = { slug: update.slug, editKeyHash: update.editKeyHash };
+    const changed =
+      update.which === "start"
+        ? await db.day.updateMany({
+            where: { id: update.dayId, trip, startPlaceId: { not: null } },
+            data: { startLabel: update.label },
+          })
+        : await db.day.updateMany({
+            where: { id: update.dayId, trip, endPlaceId: { not: null } },
+            data: { endLabel: update.label },
+          });
+    return changed.count === 0 ? { status: "refused" } : { status: "set" };
   },
 
   async setDayStart(update: DayStartUpdate): Promise<DayStartSet> {

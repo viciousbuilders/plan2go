@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { PlannedDay } from "./compute-trip";
+import { DayDropContext } from "./day-drop";
 import type { EndpointRef } from "./day-itinerary";
 import { DayItinerary } from "./day-itinerary";
 import { DayTabs } from "./day-tabs";
@@ -112,8 +114,48 @@ export function DayPlanner({
   const range = dateRange(days);
   const watchList = useScrollBar("y");
 
+  /** The stop being carried on the open day, by its id, while one is. */
+  const [carried, setCarried] = useState<string | null>(null);
+  const [overDay, setOverDay] = useState<number | null>(null);
+  /**
+   * The stop let go on another day, gone from this one at once while the
+   * server moves it and works out both days' times, which is what a reorder
+   * shows too. The trip as it now is replaces it when the answer lands, and
+   * the stop comes back if the move was refused.
+   */
+  const [leaving, setLeaving] = useOptimistic<string | null>(null);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
+  const [, startLeaving] = useTransition();
+
+  const carry = (stopId: string | null): void => {
+    setCarried(stopId);
+    if (stopId === null) {
+      setOverDay(null);
+    }
+  };
+
+  /** Puts the carried stop last on the day it was let go on, or nowhere for its own day. */
+  const dropOnDay = (index: number): void => {
+    const stopId = carried;
+    const onto = days[index];
+    carry(null);
+    if (actions === null || stopId === null || onto === undefined || onto === selected) {
+      return;
+    }
+    setLeaveError(null);
+    startLeaving(async () => {
+      setLeaving(stopId);
+      const outcome = await actions.moveStopToDay({
+        stopId,
+        dayId: onto.plan.id,
+        toPosition: onto.plan.stops.length,
+      });
+      setLeaveError(outcome.error);
+    });
+  };
+
   return (
-    <>
+    <DayDropContext value={{ carrying: carried !== null, overDay, setOverDay, dropOnDay }}>
       {/* One block: the trip's name and the days. An editor gets both from
           the settings form, because the trip's name and dates are set there.
           A reader who cannot edit gets the heading and the strip on their
@@ -203,6 +245,9 @@ export function DayPlanner({
               onHoverEndpoint={onHoverEndpoint}
               actions={actions}
               onFindPlace={onFindPlace}
+              onCarry={carry}
+              leaving={leaving}
+              leaveError={leaveError}
             />
           </div>
           <div className="lg:hidden">
@@ -218,6 +263,6 @@ export function DayPlanner({
           </div>
         </section>
       )}
-    </>
+    </DayDropContext>
   );
 }

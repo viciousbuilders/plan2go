@@ -4,14 +4,16 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { formatDuration } from "@/core/time/minutes";
 import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, MinusIcon, PlusIcon } from "@/ui/icons";
 import { Notice } from "@/ui/notice";
+import type { DayPlan } from "@/core/model/day";
 import type { PlannedDay } from "../compute-trip";
 import type { DayActions } from "../day-actions";
+import { formatDayDate, formatDayTab } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
 import { hoursOn } from "../format-opening-hours";
 import { StopNote } from "../stop-note";
 
 /** What can be done to a stop from its sheet. */
-export type StopActions = Pick<DayActions, "setStay" | "setNote" | "moveStop">;
+export type StopActions = Pick<DayActions, "setStay" | "setNote" | "moveStop" | "moveStopToDay">;
 
 /** A quarter of an hour a press: the smallest amount of time worth naming on a day. */
 const STAY_STEP = 15;
@@ -29,6 +31,13 @@ const STEP =
 
 const MOVE =
   "flex h-11 flex-1 items-center justify-center gap-2 rounded-pill border-[1.5px] border-rule text-small/none font-semibold text-ink hover:bg-neutral-200 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+
+/**
+ * Another day the stop can go to: one of the moving pills, as wide as its
+ * words rather than half the sheet, in the words the map's chips name a day.
+ */
+const DAY_CHIP =
+  "flex h-11 shrink-0 items-center rounded-pill border-[1.5px] border-rule px-4 text-small/none font-semibold whitespace-nowrap text-ink tabular-nums hover:bg-neutral-200 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 /**
  * How long the stop lasts, stepped a quarter of an hour at a time, as design
@@ -135,6 +144,8 @@ interface StopDetailsProps {
   readonly day: PlannedDay;
   /** Where that day is in the trip, counted from zero, for the words that name it. */
   readonly dayIndex: number;
+  /** Every day of the trip, in order, for the others the stop can be moved to. */
+  readonly days: readonly DayPlan[];
   readonly stopId: string;
   /** Null for a reader who holds no edit link, who reads all of this and changes none of it. */
   readonly actions: StopActions | null;
@@ -146,12 +157,13 @@ interface StopDetailsProps {
  * reaches it and leaves it, and how long is spent there. On a phone the day
  * is read on its rail and a stop is changed here, so for someone who may edit
  * the stay is a stepper, the note is a field, and the stop can be moved one
- * place earlier or later in the day, which on a desk is done by dragging its
- * card. It is taken off the day by the sheet's own button.
+ * place earlier or later in the day, or to the end of another day, which on a
+ * desk is done by dragging its card, along the day or onto a day in the
+ * strip. It is taken off the day by the sheet's own button.
  *
  * On a desk the card beside the map carries all of it, and this is not drawn.
  */
-export function StopDetails({ day, dayIndex, stopId, actions }: StopDetailsProps) {
+export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetailsProps) {
   const [error, setError] = useState<string | null>(null);
   const [moving, startMoving] = useTransition();
   const [, startWriting] = useTransition();
@@ -182,6 +194,27 @@ export function StopDetails({ day, dayIndex, stopId, actions }: StopDetailsProps
     }
     startMoving(async () => {
       setError((await actions.moveStop({ stopId, toPosition })).error);
+    });
+  };
+
+  /**
+   * To the end of another day, as a stop let go on a day in a desk's strip
+   * goes. The sheet stays on the stop, which is now on that day, and says so.
+   */
+  const moveTo = (other: DayPlan): void => {
+    if (actions === null) {
+      return;
+    }
+    startMoving(async () => {
+      setError(
+        (
+          await actions.moveStopToDay({
+            stopId,
+            dayId: other.id,
+            toPosition: other.stops.length,
+          })
+        ).error,
+      );
     });
   };
 
@@ -253,6 +286,33 @@ export function StopDetails({ day, dayIndex, stopId, actions }: StopDetailsProps
             <ChevronDownIcon size={15} strokeWidth={2.75} />
             Move later
           </button>
+        </div>
+      )}
+
+      {/* The other days, as the map's foot names them, in a row that runs to
+          the sheet's edges and scrolls sideways on a trip too long for it, as
+          the sheet's strip of photos does. */}
+      {actions === null || days.length < 2 ? null : (
+        <div className="flex flex-col gap-2" aria-busy={moving}>
+          <p className="text-body font-bold text-ink">Move to another day</p>
+          <div className="scroll-line scroll-shy -mx-6 flex gap-2 overflow-x-auto px-6 pb-[6px]">
+            {days.map((other, at) =>
+              at === dayIndex ? null : (
+                <button
+                  key={other.id}
+                  type="button"
+                  disabled={moving}
+                  onClick={() => {
+                    moveTo(other);
+                  }}
+                  aria-label={`Move to Day ${String(at + 1)}, ${formatDayDate(other.date)}`}
+                  className={DAY_CHIP}
+                >
+                  {`Day ${String(at + 1)} · ${formatDayTab(other.date)}`}
+                </button>
+              ),
+            )}
+          </div>
         </div>
       )}
 
