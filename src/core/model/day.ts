@@ -18,13 +18,6 @@ export interface DayEndpoint {
 }
 
 /**
- * The longest a label may be: a word or two for a point, not a sentence about
- * it. Here rather than beside what writes it, because the field the label is
- * typed into is held to it too.
- */
-export const MAX_LABEL_LENGTH = 80;
-
-/**
  * The city a day is spent in. A trip can move, a few days in one city and the
  * rest in the next, so the map opens on this for an empty day and a search
  * looks here first, rather than both reading one city off the whole trip.

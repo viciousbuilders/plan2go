@@ -121,7 +121,7 @@ export function registerDayTools(server: McpServer): void {
     {
       title: "Set where a day starts or ends",
       description:
-        'Set where a day starts or where it ends, such as a hotel, a station or an airport, as the planner\'s start and end points do, or take one off with null. A point is passed through and takes none of the day\'s time. A label names it in front of the place, "Hotel, La Siesta Classic Ma May", wherever the trip is shown; to change only the label, pass the same place again. Setting where a day ends also makes it where the next day starts, label and all, when the next day starts nowhere yet. The legs to and from the point are given the quickest way. Needs the trip\'s editing link. Returns the day as it now stands, with its new times and every conflict.',
+        "Set where a day starts or where it ends, such as a hotel, a station or an airport, as the planner's start and end points do, or take one off with null. A point is passed through and takes none of the day's time. Setting where a day ends also makes it where the next day starts, when the next day starts nowhere yet. The legs to and from the point are given the quickest way. Needs the trip's editing link. Returns the day as it now stands, with its new times and every conflict.",
       inputSchema: z.object({
         link: editLinkInput,
         day: dayInput,
@@ -135,14 +135,6 @@ export function registerDayTools(server: McpServer): void {
           .describe(
             "The place's place id, from find_places, or null to take that end off, so the day starts at its first stop or ends at its last.",
           ),
-        label: z
-          .string()
-          .trim()
-          .max(80)
-          .optional()
-          .describe(
-            "What to call the point, up to 80 characters, such as Hotel or Airport. Leave out for none.",
-          ),
       }),
       annotations: {
         readOnlyHint: false,
@@ -151,7 +143,7 @@ export function registerDayTools(server: McpServer): void {
         openWorldHint: true,
       },
     },
-    async ({ link, day, which, place, label }, ctx) =>
+    async ({ link, day, which, place }, ctx) =>
       guarded(
         "MCP set_day_endpoint failed",
         "Could not change where the day starts or ends. Check the place id came from find_places, and read the day with get_trip before trying again.",
@@ -183,8 +175,6 @@ export function registerDayTools(server: McpServer): void {
             return editing.refusal;
           }
           const { plan, trip } = editing;
-          // An empty label is none, and an end taken off takes its label with it.
-          const called = place === null || label === undefined || label === "" ? null : label;
 
           const set = await setDayEndpoint(
             {
@@ -193,7 +183,7 @@ export function registerDayTools(server: McpServer): void {
               dayId: plan.id,
               which,
               providerPlaceId: place,
-              label: called,
+              label: null,
               session: null,
             },
             prismaTripRepository,
@@ -215,7 +205,7 @@ export function registerDayTools(server: McpServer): void {
               ? which === "start"
                 ? `${named} no longer starts anywhere set, so it begins at its first stop.`
                 : `${named} no longer ends anywhere set, so it ends at its last stop.`
-              : `${named} now ${which === "start" ? "starts" : "ends"} at ${called === null ? "" : `${called}, `}${set.placeName}.`;
+              : `${named} now ${which === "start" ? "starts" : "ends"} at ${set.placeName}.`;
 
           // The planner offers where a day ends to the next day as its start,
           // when that day starts nowhere yet. Said when it took the offer.

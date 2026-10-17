@@ -12,7 +12,6 @@ import type { DayActions } from "./day-actions";
 import { useDayDrop } from "./day-drop";
 import { ENDS, MARKS, nearestPoint, useEndEdit } from "./day-ends";
 import { EmptyDay } from "./empty-day";
-import { EndLabel } from "./end-label";
 import { endpointName } from "./endpoint-name";
 import { EndpointPicker } from "./endpoint-picker";
 import { formatDayDate } from "./format-day-date";
@@ -120,7 +119,6 @@ function Anchor({
   time,
   setTime,
   hours,
-  labelField,
   onChange,
   onRemove,
   saving,
@@ -145,8 +143,6 @@ function Anchor({
   readonly setTime: React.ReactNode;
   /** When the place is open on this day, or null when we do not know. */
   readonly hours: string | null;
-  /** What the traveller calls this end, as it is changed; null for a reader. */
-  readonly labelField: React.ReactNode;
   /** Null for a reader who cannot change this end, or while its picker is open. */
   readonly onChange: (() => void) | null;
   readonly onRemove: (() => void) | null;
@@ -203,7 +199,7 @@ function Anchor({
       {/* Words, not a button, as a stop's name and address are: what can be
           done to the place is in the tools, and a name that changed the
           place when it was pressed was a change nobody asked for. */}
-      <div className="flex min-w-0 flex-col self-start">
+      <div className="min-w-0 self-start">
         <p className="break-words font-display text-place text-ink">{endpointName(endpoint)}</p>
         <p className="mt-[3px] break-words text-meta text-ink-faint">
           {endpoint.place.address ?? fallback}
@@ -217,9 +213,6 @@ function Anchor({
             {hours}
           </p>
         )}
-        {/* What the traveller calls the end, last, where a stop card keeps
-            its note: the other thing on the row that is theirs to write. */}
-        {labelField}
       </div>
 
       {/* The time, and under it what can be done to this end of the day: the
@@ -312,7 +305,7 @@ function EndpointSlot({
   readonly onHoverEndpoint: (placeId: string | null) => void;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
-  const { picking, setPicking, saving, error, write, writeLabel } = useEndEdit(which, actions);
+  const { picking, setPicking, saving, error, write } = useEndEdit(which, actions);
   const words = ENDS[which];
 
   return (
@@ -325,17 +318,6 @@ function EndpointSlot({
           time={time}
           setTime={setTime}
           hours={hoursOn(endpoint.place, day)}
-          labelField={
-            actions === null || picking ? null : (
-              <EndLabel
-                placeName={endpoint.place.name}
-                label={endpoint.label}
-                hint={words.hint}
-                onSave={writeLabel}
-                disabled={saving}
-              />
-            )
-          }
           onChange={actions === null || picking ? null : () => setPicking(true)}
           onRemove={actions === null || picking ? null : () => write(null)}
           saving={saving}

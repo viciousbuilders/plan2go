@@ -43,15 +43,6 @@ export interface DayActions {
     readonly providerPlaceId: string | null;
   }) => Promise<EditOutcome>;
 
-  /**
-   * What the traveller calls an end the day has, "Hotel", or null to call it
-   * by its place's name alone. The place stays where it is.
-   */
-  readonly setEndpointLabel: (input: {
-    readonly which: "start" | "end";
-    readonly label: string | null;
-  }) => Promise<EditOutcome>;
-
   readonly setNote: (input: {
     readonly stopId: string;
     readonly note: string | null;

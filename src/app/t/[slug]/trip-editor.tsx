@@ -39,7 +39,7 @@ import {
   setStopStayAction,
 } from "./edit-stop-actions";
 import { setDayCityAction } from "./set-day-city-action";
-import { setDayEndpointAction, setDayEndpointLabelAction } from "./set-day-endpoint-action";
+import { setDayEndpointAction } from "./set-day-endpoint-action";
 import { setDayStartAction } from "./set-day-start-action";
 import { setLegModeAction } from "./set-leg-mode-action";
 import { updateTripAction } from "./update-trip-action";
@@ -724,16 +724,6 @@ export function TripEditor({
                         providerPlaceId,
                         label: null,
                         session: null,
-                      }),
-                    ),
-                  setEndpointLabel: ({ which, label }) =>
-                    recording(
-                      setDayEndpointLabelAction({
-                        slug,
-                        editKey,
-                        dayId: selected.plan.id,
-                        which,
-                        label,
                       }),
                     ),
                   setNote: ({ stopId, note }) =>

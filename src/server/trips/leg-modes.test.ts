@@ -159,7 +159,6 @@ describe("refreshLegModes", () => {
         addStop: unstubbed,
         setDayEndpoint: unstubbed,
         setDayStart: unstubbed,
-        setDayEndpointLabel: unstubbed,
         setDayCity: unstubbed,
         updateStop: unstubbed,
         removeStop: unstubbed,

@@ -99,7 +99,6 @@ function repositoryFor(
       addStop: unstubbed,
       setDayEndpoint: unstubbed,
       setDayStart: unstubbed,
-      setDayEndpointLabel: unstubbed,
       setDayCity: unstubbed,
       setLegMode: (update) => {
         modes.push(update);

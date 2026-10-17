@@ -6,8 +6,7 @@ import { createGooglePlacesProvider } from "@/adapters/places/google-places";
 import { EDIT_KEY_PATTERN, hashEditKey } from "@/server/ownership/edit-key";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
-import { MAX_LABEL_LENGTH } from "@/core/model/day";
-import { setDayEndpoint, setDayEndpointLabel } from "@/server/trips/set-day-endpoint";
+import { setDayEndpoint } from "@/server/trips/set-day-endpoint";
 import { travelProviderFor } from "./travel";
 
 export interface DayEndpointState {
@@ -56,45 +55,6 @@ export async function setDayEndpointAction(input: unknown): Promise<DayEndpointS
   if (result.status === "no-such-place") {
     return { error: "That place could not be found. Search for it again." };
   }
-  if (result.status === "refused") {
-    return {
-      error:
-        "This trip is not yours to change. Ask whoever sent you the link to change it, or start your own trip.",
-    };
-  }
-
-  revalidatePath(`/t/${parsed.data.slug}`, "layout");
-  return { error: null };
-}
-
-const labelSchema = z.object({
-  slug: z.string().min(1).max(80),
-  editKey: z.string().regex(EDIT_KEY_PATTERN),
-  dayId: z.string().min(1).max(40),
-  which: z.enum(["start", "end"]),
-  /** Null calls the point by its place's name alone. */
-  label: z.string().max(MAX_LABEL_LENGTH).nullable(),
-});
-
-/**
- * What the traveller calls an end of a day, written where the end is read.
- *
- * The same key in the same place as every other change, checked inside the
- * query that writes, and the same sentence for a day that is not there as
- * for a trip that is not yours.
- */
-export async function setDayEndpointLabelAction(input: unknown): Promise<DayEndpointState> {
-  const parsed = labelSchema.safeParse(input);
-  if (!parsed.success) {
-    return { error: "That label could not be read. Write it again." };
-  }
-
-  const { editKey, ...rest } = parsed.data;
-  const result = await setDayEndpointLabel(
-    { ...rest, editKeyHash: hashEditKey(editKey) },
-    prismaTripRepository,
-  );
-
   if (result.status === "refused") {
     return {
       error:

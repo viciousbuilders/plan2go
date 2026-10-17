@@ -1,9 +1,8 @@
 import type { DayEndpoint, DayId, DayPlan } from "@/core/model/day";
-import { MAX_LABEL_LENGTH } from "@/core/model/day";
 import type { Place } from "@/core/model/place";
 import type { PlacesProvider } from "@/core/ports/places-provider";
 import type { Trip } from "@/core/model/trip";
-import type { DayEnd, DayEndpointSet, TripRepository } from "../repositories/trip-repository";
+import type { DayEnd, TripRepository } from "../repositories/trip-repository";
 import type { TravelFor } from "./leg-modes";
 import { refreshLegModes } from "./leg-modes";
 
@@ -24,37 +23,6 @@ export type SetDayEndpointResult =
   | { readonly status: "set"; readonly placeName: string | null }
   | { readonly status: "refused" }
   | { readonly status: "no-such-place" };
-
-export interface SetDayEndpointLabelRequest {
-  readonly slug: string;
-  /** The hash of the key out of the edit link. No key, no write. */
-  readonly editKeyHash: string;
-  readonly dayId: DayId;
-  readonly which: DayEnd;
-  /** What the traveller calls the point, or null to call it by its place's name alone. */
-  readonly label: string | null;
-}
-
-/**
- * What the traveller calls one end of a day, "Hotel", written on its own: the
- * place stays where it is, so nothing is looked up and no leg changes. Spaces
- * round it are no part of it, and a label of only spaces is none, as a note
- * of only spaces is. Kept to its length rather than refused for it, since the
- * only thing that could send a longer one is a stale page.
- */
-export function setDayEndpointLabel(
-  request: SetDayEndpointLabelRequest,
-  repository: TripRepository,
-): Promise<DayEndpointSet> {
-  const label = request.label?.trim().slice(0, MAX_LABEL_LENGTH) ?? "";
-  return repository.setDayEndpointLabel({
-    slug: request.slug,
-    editKeyHash: request.editKeyHash,
-    dayId: request.dayId,
-    which: request.which,
-    label: label === "" ? null : label,
-  });
-}
 
 /** The day with one of its ends changed, which is what the legs are refreshed against. */
 function withEnd(day: DayPlan, which: DayEnd, endpoint: DayEndpoint | null): DayPlan {

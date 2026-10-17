@@ -48,7 +48,6 @@ function repositoryFor(known: string): {
       addStop: () => Promise.reject<StopAdded>(new Error(NOT_STUBBED)),
       setDayEndpoint: () => Promise.reject<DayEndpointSet>(new Error(NOT_STUBBED)),
       setDayStart: () => Promise.reject<DayStartSet>(new Error(NOT_STUBBED)),
-      setDayEndpointLabel: () => Promise.reject<DayEndpointSet>(new Error(NOT_STUBBED)),
       setDayCity: () => Promise.reject<DayCitySet>(new Error(NOT_STUBBED)),
       setLegMode: () => Promise.reject<LegModeSet>(new Error(NOT_STUBBED)),
       updateStop: () => Promise.reject<StopChanged>(new Error(NOT_STUBBED)),

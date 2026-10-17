@@ -78,16 +78,6 @@ export type DayEndpointSet =
   | { readonly status: "set" }
   | { readonly status: "refused" };
 
-/** What the traveller calls an end a day already has, leaving the place where it is. */
-export interface DayEndpointLabelUpdate {
-  readonly slug: string;
-  readonly editKeyHash: EditKeyHash;
-  readonly dayId: DayId;
-  readonly which: DayEnd;
-  /** Null calls it nothing but its place's name. */
-  readonly label: string | null;
-}
-
 /** When a day begins, as minutes from local midnight. */
 export interface DayStartUpdate {
   readonly slug: string;
@@ -240,13 +230,6 @@ export interface TripRepository {
    * passes through, taking none of its time.
    */
   setDayEndpoint(update: DayEndpointUpdate): Promise<DayEndpointSet>;
-
-  /**
-   * Writes what the traveller calls one end of a day, and nothing else: the
-   * place stays, and so do the legs to and from it. Refused for an end the
-   * day does not have, since there is nothing there to call anything.
-   */
-  setDayEndpointLabel(update: DayEndpointLabelUpdate): Promise<DayEndpointSet>;
 
   /**
    * Sets the time a day begins. Every time on the day follows from it, so this

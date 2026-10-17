@@ -54,8 +54,6 @@ export interface EndEdit {
   readonly error: string | null;
   /** The place chosen for this end, or null to take it off the day. */
   readonly write: (providerPlaceId: string | null) => void;
-  /** What the traveller calls the end, or null to call it by its place's name alone. */
-  readonly writeLabel: (label: string | null) => void;
 }
 
 /**
@@ -80,15 +78,5 @@ export function useEndEdit(which: "start" | "end", actions: DayActions | null): 
     });
   };
 
-  const writeLabel = (label: string | null): void => {
-    if (actions === null) {
-      return;
-    }
-    const change = actions.setEndpointLabel;
-    startSaving(async () => {
-      setError((await change({ which, label })).error);
-    });
-  };
-
-  return { picking, setPicking, saving, error, write, writeLabel };
+  return { picking, setPicking, saving, error, write };
 }
