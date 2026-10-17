@@ -28,7 +28,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 - **Conflicts named with their numbers.** "Fish Market closes at 16:00 and you arrive at 16:30", rather than a warning icon.
 - **Days you can rearrange.** Drag stops into a new order or onto another day, set the time at each place and when the day leaves, add notes, move a day to another city, and start or end a day at a hotel, station or airport.
 - **The trip's own clock.** Times are kept in the trip's time zone, across midnight and daylight saving changes.
-- **Sharing.** A read-only link for everyone going, and a PDF of the days with an optional cover page, notes pages and leg distances.
+- **Sharing.** A read-only link for everyone going, and a PDF with a cover page, a route map for each day, the travel between stops and pages for notes, on A4 or A5, in colour or black and white.
 - **Planning with Claude.** An MCP server lets Claude open a trip, find places, rework the days and read back every time and conflict. See [Plan with Claude](#plan-with-claude).
 
 > [!IMPORTANT]
@@ -139,10 +139,15 @@ Enable the five APIs below in your Google Cloud project, then create two API key
 > [!IMPORTANT]
 > A deployment keeps the variables it was built with, and the browser key is written into its bundle, so redeploy after changing one. The build never touches the database, so a missing `DATABASE_URL` builds cleanly and then fails on the first trip page.
 
-The build does not apply schema changes. Run `pnpm db:push` against the production database before deploying a change to `prisma/schema.prisma`.
-
 > [!NOTE]
 > The PDF export, `/api/export`, starts a Chromium inside the function and prints `/t/<slug>/print` from the same deployment. It is allowed 60 seconds and needs about 1 GB of memory, which a standard Vercel function has. A Preview deployment behind Vercel Authentication cannot export, because that browser is turned away like any other visitor.
+
+### Changing the schema
+
+The build does not apply schema changes. Run `pnpm db:push` against the production database yourself, in the order the change needs:
+
+1. **Adding** to `prisma/schema.prisma`: push first, then deploy the code that uses it.
+2. **Removing** from it: deploy first, then push. The deployment still running reads every column it knows, and fails on every trip page once one is gone.
 
 ## Plan with Claude
 
@@ -150,9 +155,9 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 
 | Client | Connect it |
 | --- | --- |
-| claude.ai | Add a custom connector with the URL `https://<your-domain>/api/mcp`. |
+| claude.ai and the Claude apps | In Settings, under Connectors, add a custom connector with the URL `https://<your-domain>/api/mcp`. |
 | Claude Code | `claude mcp add --transport http plan2go https://<your-domain>/api/mcp` |
-| A local dev server | `http://localhost:3000/api/mcp`, from a client on the same machine. |
+| A local dev server | `http://localhost:3000/api/mcp`, from a client on the same machine, such as Claude Code. |
 
 | Tools | What they do |
 | --- | --- |
@@ -167,7 +172,7 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 > The tools that change a trip take its editing link, so anyone who can read the conversation can change or delete that trip. Give Claude the editing link only in a conversation you keep to yourself.
 
 > [!NOTE]
-> Every call is counted by IP address, by the MCP route itself and against the same budgets as the pages. Calls from claude.ai come from Anthropic's servers, so everyone using one deployment from claude.ai shares those budgets.
+> Every call is counted by IP address: 60 requests a minute on the MCP route itself, and the pages' own budgets for searches, place lookups and new trips. Calls from claude.ai come from Anthropic's servers, so everyone using one deployment from claude.ai shares those budgets.
 
 ## Project layout
 
@@ -193,3 +198,4 @@ The rules the code keeps, from which way dependencies point to what counts as do
 - **"DATABASE_URL is not set."** Put the pooled Neon connection string in `.env`.
 - **502 from anything using a new table after `pnpm db:push`.** A dev server started before the push still holds the old Prisma client. Restart it.
 - **"No browser to print with."** The PDF export found no Chrome. Set `PDF_CHROME_PATH`.
+- **claude.ai cannot connect to `http://localhost:3000/api/mcp`.** claude.ai calls connectors from Anthropic's servers, which cannot reach your machine. Connect it to a deployment, or use Claude Code against the local server.
