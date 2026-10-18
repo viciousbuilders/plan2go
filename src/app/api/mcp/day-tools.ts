@@ -120,7 +120,7 @@ export function registerDayTools(server: McpServer): void {
     {
       title: "Set where a day starts or ends",
       description:
-        "Set where a day starts or where it ends, such as a hotel, a station or an airport, as the planner's start and end points do, or take one off with null. A point is passed through and takes none of the day's time. Setting where a day ends also makes it where the next day starts, when the next day starts nowhere yet. The legs to and from the point are given the quickest way. Needs the trip's editing link. Returns the day as it now stands, with its new times and every conflict.",
+        "Set where a day starts or where it ends, such as a hotel, a station or an airport, as the planner's start and end points do, or take one off with null. A point is passed through and takes none of the day's time. Setting where a day ends also makes it where the next day starts, when the next day starts nowhere yet. The legs to and from the point are given the quickest way. Needs the trip's editing link. Returns the day as it now stands, and the next day too when it now starts there, with their new times and every conflict.",
       inputSchema: z.object({
         link: editLinkInput,
         day: dayInput,
@@ -206,10 +206,12 @@ export function registerDayTools(server: McpServer): void {
               : `${named} now ${which === "start" ? "starts" : "ends"} at ${set.placeName}.`;
 
           // The planner offers where a day ends to the next day as its start,
-          // when that day starts nowhere yet. Said when it took the offer.
-          const nextStartedNowhere = trip.days[day]?.start === null;
-          return afterChange(edit.slug, [plan.id], said, (now) =>
-            which === "end" && nextStartedNowhere && (now.days[day]?.start ?? null) !== null
+          // when that day starts nowhere yet. Said when it took the offer, and
+          // that day given back with this one, since its times move with it.
+          const next = trip.days[day];
+          const offered = which === "end" && set.placeName !== null && next?.start === null;
+          return afterChange(edit.slug, offered ? [plan.id, next.id] : [plan.id], said, (now) =>
+            offered && (now.days[day]?.start ?? null) !== null
               ? `Day ${String(day + 1)} started nowhere, so it now starts there too.`
               : null,
           );
