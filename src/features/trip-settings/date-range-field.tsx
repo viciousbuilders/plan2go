@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import type { IsoDate } from "@/core/model/day";
 import { addDays, isoDateAsUtc, parseIsoDate } from "@/core/time/zoned";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/ui/icons";
@@ -21,6 +22,15 @@ import {
 
 /** Two at once, so a trip that crosses the end of a month is one gesture. */
 const MONTHS_SHOWN = 2;
+
+/**
+ * Tailwind's sm, from which the two months sit side by side under the field.
+ * Narrower, they would stand one over the other, taller than a phone's window.
+ */
+const WIDE = "(min-width: 40rem)";
+
+/** Six weeks, the most a month spans, so a phone's sheet is one height from month to month. */
+const WEEKS_MOST = 6;
 
 /** Matches the panel's own width class, for the edge test when it opens. */
 const PANEL_WIDTH = 600;
@@ -84,7 +94,25 @@ const SIZES = {
 } as const;
 
 const STEP =
-  "grid h-[30px] w-[30px] shrink-0 place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+  "grid shrink-0 place-items-center rounded-pill text-terracotta-700 hover:bg-terracotta-100 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+
+/**
+ * How big the steps between months and the days are drawn: for a pointer
+ * under the field, and for a finger on a phone's sheet, where a day is as
+ * wide as its column allows up to 44px and as tall as it is wide.
+ */
+const TARGETS = {
+  desk: { step: "h-[30px] w-[30px]", glyph: 20, week: "h-[36px]", day: "h-[32px] w-[32px]" },
+  phone: { step: "h-11 w-11", glyph: 22, week: "h-12", day: "aspect-square w-full max-w-11" },
+} as const;
+
+function watchWidth(onChange: () => void): () => void {
+  const wide = window.matchMedia(WIDE);
+  wide.addEventListener("change", onChange);
+  return () => {
+    wide.removeEventListener("change", onChange);
+  };
+}
 
 interface DateRangeFieldProps {
   readonly id: string;
@@ -183,6 +211,62 @@ export function DateRangeWaiting({ id, label }: { readonly id: string; readonly 
   );
 }
 
+interface CalendarFrameProps {
+  readonly wide: boolean;
+  readonly label: string;
+  /** Where the panel under the field starts, from the field's left edge. */
+  readonly shift: number;
+  readonly onClose: () => void;
+  readonly children: ReactNode;
+}
+
+/**
+ * Where the calendar is drawn. On a wide window, under the field, centred on
+ * it and kept inside the window. On a phone, a sheet fixed to the foot of the
+ * window over the page dimmed, put at the root of the document: the field is
+ * a size container, and a container is what anything fixed inside it is
+ * fixed to, so in the field the sheet would have hung off the field instead.
+ */
+function CalendarFrame({ wide, label, shift, onClose, children }: CalendarFrameProps) {
+  if (wide) {
+    return (
+      <div
+        role="dialog"
+        aria-label={label}
+        style={{ left: shift }}
+        className="absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md"
+      >
+        {children}
+      </div>
+    );
+  }
+  return createPortal(
+    <div className="fixed inset-0 z-50">
+      {/* The page behind, dimmed, and putting the sheet away when pressed. */}
+      <div aria-hidden="true" onClick={onClose} className="absolute inset-0 touch-none bg-ink/32" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={label}
+        onKeyDown={(event) => {
+          // The days answer Escape themselves; this is for the steps over them.
+          if (event.key === "Escape" && !event.defaultPrevented) {
+            event.preventDefault();
+            onClose();
+          }
+        }}
+        // The shadow cast upwards in the accent's darkest brown, and room at
+        // the foot for a phone's own edge where it has one.
+        className="absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-paper-raised px-5 pt-3 pb-[max(32px,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)]"
+      >
+        <span aria-hidden="true" className="mb-4 h-[5px] w-10 flex-none self-center rounded-pill bg-ink/18" />
+        {children}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 /**
  * Both ends of a trip, chosen from one calendar.
  *
@@ -206,6 +290,12 @@ export function DateRangeWaiting({ id, label }: { readonly id: string; readonly 
  * by buttons naming the month they go to, which is what a calendar of two
  * months has room for. Each carries the month it moves to as its label, so
  * nothing here is an icon on its own.
+ *
+ * On a window too narrow for the two months side by side it does not open
+ * under the field, where it ran off the foot of a phone's window. It comes up
+ * from the foot of the window as a sheet fixed there, over the page dimmed,
+ * one month at a time and every day and step a finger's size; a press on the
+ * dimmed page puts it away, as Escape does.
  */
 export function DateRangeField({
   id,
@@ -223,6 +313,18 @@ export function DateRangeField({
   size = "inline",
 }: DateRangeFieldProps) {
   const dressed = SIZES[size];
+  /**
+   * Whether the calendar opens under the field, two months side by side, or
+   * as a phone's sheet, one month at a time. Taken as wide on the server,
+   * which cannot know; the calendar only ever opens in the browser.
+   */
+  const wide = useSyncExternalStore(
+    watchWidth,
+    () => window.matchMedia(WIDE).matches,
+    () => true,
+  );
+  const monthsShown = wide ? MONTHS_SHOWN : 1;
+  const targets = wide ? TARGETS.desk : TARGETS.phone;
   const [open, setOpen] = useState(false);
   /** The left of the two months on show. */
   const [leftMonth, setLeftMonth] = useState<IsoDate>(firstOfMonth(start));
@@ -263,22 +365,27 @@ export function DateRangeField({
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
   }, [open, focused]);
 
-  useOutsidePress(container, open, () => {
+  // The calendar under the field goes at a press anywhere outside it. A
+  // phone's sheet stands at the root of the document, outside the field, where
+  // a press inside it would read as one outside; the dimmed page around it
+  // puts it away instead.
+  useOutsidePress(container, open && wide, () => {
     setOpen(false);
     setDrawingFrom(null);
     closing.current?.();
   });
 
-  const months = Array.from({ length: MONTHS_SHOWN }, (_unused, at) =>
+  const months = Array.from({ length: monthsShown }, (_unused, at) =>
     shiftMonths(leftMonth, at),
   );
-  const afterShown = shiftMonths(leftMonth, MONTHS_SHOWN);
+  const afterShown = shiftMonths(leftMonth, monthsShown);
   /**
    * As many rows as the taller of the two months needs. Both are drawn to the
    * same count so their weeks line up, and no more, so nothing hangs empty
-   * under a pair that fits in five.
+   * under a pair that fits in five. A phone's sheet always has six, so it is
+   * one height and its arrows stay where the finger left them.
    */
-  const weeksShown = Math.max(...months.map(weeksIn));
+  const weeksShown = wide ? Math.max(...months.map(weeksIn)) : WEEKS_MOST;
 
   /**
    * What the grid paints, and what the field above reads while it is open.
@@ -341,7 +448,7 @@ export function DateRangeField({
     if (date < leftMonth) {
       setLeftMonth(firstOfMonth(date));
     } else if (date >= afterShown) {
-      setLeftMonth(shiftMonths(firstOfMonth(date), -(MONTHS_SHOWN - 1)));
+      setLeftMonth(shiftMonths(firstOfMonth(date), -(monthsShown - 1)));
     }
   };
 
@@ -376,7 +483,7 @@ export function DateRangeField({
   };
 
   const before = shiftMonths(leftMonth, -1);
-  const after = shiftMonths(leftMonth, MONTHS_SHOWN);
+  const after = shiftMonths(leftMonth, monthsShown);
 
   return (
     <div className={`relative ${dressed.stack}`} ref={container}>
@@ -424,11 +531,11 @@ export function DateRangeField({
       </button>
 
       {open ? (
-        <div
-          role="dialog"
-          aria-label={`Choose the ${label.toLowerCase()}`}
-          style={{ left: shift }}
-          className="absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md"
+        <CalendarFrame
+          wide={wide}
+          label={`Choose the ${label.toLowerCase()}`}
+          shift={shift}
+          onClose={close}
         >
           {/* The line over the months: which click comes next, and a step of
               one month at either end of it. */}
@@ -439,9 +546,9 @@ export function DateRangeField({
               onClick={() => {
                 setLeftMonth(before);
               }}
-              className={STEP}
+              className={`${STEP} ${targets.step}`}
             >
-              <ArrowLeftIcon size={20} strokeWidth={1.75} />
+              <ArrowLeftIcon size={targets.glyph} strokeWidth={1.75} />
             </button>
             <p aria-live="polite" className="text-body/none font-medium text-ink-muted">
               {drawingFrom === null ? "Choose the first day" : "Now choose the last day"}
@@ -452,9 +559,9 @@ export function DateRangeField({
               onClick={() => {
                 setLeftMonth(shiftMonths(leftMonth, 1));
               }}
-              className={STEP}
+              className={`${STEP} ${targets.step}`}
             >
-              <ArrowRightIcon size={20} strokeWidth={1.75} />
+              <ArrowRightIcon size={targets.glyph} strokeWidth={1.75} />
             </button>
           </div>
 
@@ -533,7 +640,7 @@ export function DateRangeField({
                                 key={date}
                                 aria-selected={isStart || isEnd}
                                 className={[
-                                  "grid h-[36px] place-items-center",
+                                  `grid ${targets.week} place-items-center`,
                                   banded ? "bg-terracotta-200/70" : "",
                                   banded && date === shownStart ? "rounded-l-pill" : "",
                                   banded && date === shownEnd ? "rounded-r-pill" : "",
@@ -556,7 +663,7 @@ export function DateRangeField({
                                     setPreviewing(date);
                                   }}
                                   className={[
-                                    "grid h-[32px] w-[32px] place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta",
+                                    `grid ${targets.day} place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta`,
                                     isStart || isEnd
                                       ? "border-terracotta bg-terracotta text-terracotta-900"
                                       : date === today
@@ -592,7 +699,7 @@ export function DateRangeField({
           {footer === undefined || footer === null ? null : (
             <div className="mt-3 border-t border-rule pt-3 pb-3">{footer}</div>
           )}
-        </div>
+        </CalendarFrame>
       ) : null}
     </div>
   );
