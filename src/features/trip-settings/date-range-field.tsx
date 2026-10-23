@@ -24,10 +24,13 @@ import {
 const MONTHS_SHOWN = 2;
 
 /**
- * Tailwind's sm, from which the two months sit side by side under the field.
- * Narrower, they would stand one over the other, taller than a phone's window.
+ * Tailwind's sm, from which the two months sit side by side under the field,
+ * on a window at least 480px tall, which the panel needs under a field. Any
+ * narrower and the months would stand one over the other, taller than a
+ * phone's window; any shorter is a phone held sideways, which gets the sheet
+ * a phone does.
  */
-const WIDE = "(min-width: 40rem)";
+const WIDE = "(min-width: 40rem) and (min-height: 30rem)";
 
 /** Six weeks, the most a month spans, so a phone's sheet is one height from month to month. */
 const WEEKS_MOST = 6;
@@ -226,6 +229,11 @@ interface CalendarFrameProps {
  * window over the page dimmed, put at the root of the document: the field is
  * a size container, and a container is what anything fixed inside it is
  * fixed to, so in the field the sheet would have hung off the field instead.
+ *
+ * The sheet is the whole width of a phone held upright and no wider than
+ * 480px on one held sideways, centred. Too short for its month, as a phone
+ * held sideways is, it scrolls inside itself, and the line with the steps
+ * stays at its top.
  */
 function CalendarFrame({ wide, label, shift, onClose, children }: CalendarFrameProps) {
   if (wide) {
@@ -256,10 +264,12 @@ function CalendarFrame({ wide, label, shift, onClose, children }: CalendarFrameP
           }
         }}
         // The shadow cast upwards in the accent's darkest brown, and room at
-        // the foot for a phone's own edge where it has one.
-        className="absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-paper-raised px-5 pt-3 pb-[max(32px,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)]"
+        // the foot for a phone's own edge where it has one. No padding over
+        // the handle: the line held at the top holds to the padding's inner
+        // edge, and anything scrolled past would show through above it.
+        className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[85dvh] w-full max-w-[480px] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-paper-raised px-5 pb-[max(32px,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)]"
       >
-        <span aria-hidden="true" className="mb-4 h-[5px] w-10 flex-none self-center rounded-pill bg-ink/18" />
+        <span aria-hidden="true" className="mt-3 mb-4 h-[5px] w-10 flex-none self-center rounded-pill bg-ink/18" />
         {children}
       </div>
     </div>,
@@ -291,8 +301,9 @@ function CalendarFrame({ wide, label, shift, onClose, children }: CalendarFrameP
  * months has room for. Each carries the month it moves to as its label, so
  * nothing here is an icon on its own.
  *
- * On a window too narrow for the two months side by side it does not open
- * under the field, where it ran off the foot of a phone's window. It comes up
+ * On a window too narrow for the two months side by side, or too short for
+ * them under the field, it does not open there, where it ran off the foot of
+ * a phone's window, held either way up. It comes up
  * from the foot of the window as a sheet fixed there, over the page dimmed,
  * one month at a time and every day and step a finger's size; a press on the
  * dimmed page puts it away, as Escape does.
@@ -538,8 +549,10 @@ export function DateRangeField({
           onClose={close}
         >
           {/* The line over the months: which click comes next, and a step of
-              one month at either end of it. */}
-          <div className="flex items-center justify-between gap-3">
+              one month at either end of it. Held at the top of a sheet too
+              short for its month, so the steps are there however far down
+              the days have been scrolled. */}
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-paper-raised">
             <button
               type="button"
               aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}
@@ -579,7 +592,7 @@ export function DateRangeField({
             onMouseLeave={() => {
               setPreviewing(null);
             }}
-            className="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2"
+            className={`mt-4 grid gap-x-6 gap-y-5 ${wide ? "grid-cols-2" : ""}`}
           >
             {months.map((month) => {
               const cells = Array.from(

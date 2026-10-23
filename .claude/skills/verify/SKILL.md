@@ -127,10 +127,12 @@ edit key gets no such button.
   field's Last day follows the pointer; the second click commits.
 - In the trip header the Save dates footer only appears once the range differs from
   the saved one, and saving leaves the panel open.
-- Under 640px wide the front door's calendar is a sheet fixed to the foot of the
-  window, one month at a time, put at the root of the document rather than in the
-  form, over the page dimmed. Pressing the dimmed page or Escape puts it away. Same
-  dialog name and day buttons; step months with `button[aria-label^="Go to"]`.
+- Under 640px wide, or under 480px tall as a phone held sideways is, the front door's
+  calendar is a sheet fixed to the foot of the window, at most 480px wide, one month
+  at a time, put at the root of the document rather than in the form, over the page
+  dimmed. Too short for its month it scrolls inside itself, the line with the steps
+  held at its top. Pressing the dimmed page or Escape puts it away. Same dialog name
+  and day buttons; step months with `button[aria-label^="Go to"]`.
 
 ## A place, opened
 
