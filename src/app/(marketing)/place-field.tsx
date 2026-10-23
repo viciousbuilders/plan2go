@@ -7,6 +7,7 @@ import { useEffect, useEffectEvent, useId, useRef, useState } from "react";
 import { array, nullable, object, optional, safeParse, string } from "zod/mini";
 import { SearchIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
+import { useScrollBar } from "@/ui/use-scroll-bar";
 import { FIELD_GROUND, FIELD_LABEL, FIELD_SHELL, FIELD_STACK } from "./field-styles";
 
 /** Long enough that typing does not spend money on every letter. */
@@ -118,6 +119,10 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
    * asks may not set state on the way in, only in the answer.
    */
   const askedForWorld = useRef(false);
+  /** The list on screen, whose rows the arrow keys bring into its sight. */
+  const list = useRef<HTMLUListElement | null>(null);
+  /** Clear of the panel's rounded corners, which would clip the ends of a thumb run into them. */
+  const watchList = useScrollBar("y", { inset: 14 });
   const listId = `${useId()}-places`;
 
   const trimmed = query.trim();
@@ -220,6 +225,15 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
     setOpen(false);
   };
 
+  /**
+   * Picks out a row from the keys, with the list scrolled as far as it needs
+   * to show it, since a list longer than the panel has rows out of sight.
+   */
+  const moveTo = (index: number): void => {
+    setActive(index);
+    list.current?.children.item(index)?.scrollIntoView({ block: "nearest" });
+  };
+
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     if (event.key === "Escape") {
       setOpen(false);
@@ -244,10 +258,10 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActive((at) => (at + 1) % rows.length);
+      moveTo((active + 1) % rows.length);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActive((at) => (at === 0 ? rows.length - 1 : at - 1));
+      moveTo(active === 0 ? rows.length - 1 : active - 1);
     } else if (event.key === "Enter") {
       const picked = rows[active];
       if (picked !== undefined) {
@@ -264,6 +278,21 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
    * none shows nothing at all.
    */
   const shown = open && (offering ? world === null || world.length > 0 : searched);
+  /** The cities offered are on screen, under the heading that says what they are. */
+  const headed = listed && offering;
+
+  /**
+   * The row Enter takes, brought into the list's sight as the list comes up,
+   * since it can be a city picked from further down than the panel shows.
+   */
+  const showActive = useEffectEvent(() => {
+    list.current?.children.item(active)?.scrollIntoView({ block: "nearest" });
+  });
+  useEffect(() => {
+    if (listed) {
+      showActive();
+    }
+  }, [listed]);
 
   return (
     <div className={`relative ${FIELD_STACK}`} ref={container}>
@@ -302,24 +331,47 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
       </div>
 
       {shown ? (
-        <div className="absolute top-full right-0 left-0 z-30 mt-2 rounded-panel border border-rule bg-paper-raised p-[7px] shadow-md">
-          {listed ? (
-            <>
-              {offering ? (
-                <p className="px-[11px] pt-[6px] pb-1 text-label font-semibold text-ink-muted">
-                  {SUGGESTED}
-                </p>
-              ) : null}
-              <ul id={listId} role="listbox" aria-label={offering ? SUGGESTED : label}>
+        <div className="absolute top-full right-0 left-0 z-30 mt-2 overflow-hidden rounded-panel border border-rule bg-paper-raised shadow-md">
+          {/* Outside the rows' scroll, so it stays where it is while they go
+              out of sight under it, and with room of its own beneath, so a
+              row going is cut clear of its words rather than against them. */}
+          {headed ? (
+            <p className="px-[18px] pt-[13px] pb-2 text-label font-semibold text-ink-muted">
+              {SUGGESTED}
+            </p>
+          ) : null}
+
+          {/* Five cities and half of the next at most, the half saying there
+              are more, which scroll inside the panel; less on a window with
+              little height to spare. A search answers with five at most, so
+              its list never scrolls. Scrolled to by the keys with its padding
+              kept, so the first and last rows stand where they do at rest. */}
+          <div
+            ref={watchList}
+            className={`scroll-line max-h-[min(268px,45dvh)] overflow-y-auto overscroll-contain px-[7px] pb-[7px] scroll-pb-[7px] ${
+              headed ? "" : "pt-[7px] scroll-pt-[7px]"
+            }`}
+          >
+            {listed ? (
+              <ul
+                ref={list}
+                id={listId}
+                role="listbox"
+                aria-label={offering ? SUGGESTED : label}
+              >
                 {rows.map((place, index) => (
                   <li
                     key={place.providerPlaceId}
                     role="option"
                     aria-selected={place.providerPlaceId === chosen?.providerPlaceId}
                   >
+                    {/* Picked out by the pointer moving over it, and not by
+                        it arriving: the keys scroll the list under a pointer
+                        standing still, and the row that came under it would
+                        take the pick back from them. */}
                     <button
                       type="button"
-                      onMouseEnter={() => {
+                      onMouseMove={() => {
                         setActive(index);
                       }}
                       onClick={() => {
@@ -341,12 +393,12 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
                   </li>
                 ))}
               </ul>
-            </>
-          ) : (
-            <p className="px-[11px] py-[10px] text-meta text-ink-muted">
-              {offering ? LOOKING : (message ?? (searching ? LOOKING : NO_MATCH))}
-            </p>
-          )}
+            ) : (
+              <p className="px-[11px] py-[10px] text-meta text-ink-muted">
+                {offering ? LOOKING : (message ?? (searching ? LOOKING : NO_MATCH))}
+              </p>
+            )}
+          </div>
         </div>
       ) : null}
     </div>

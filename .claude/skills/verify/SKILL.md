@@ -39,7 +39,11 @@ touching one that exists. Front door at `/`:
    `[role="listbox"][aria-label="Suggested cities"]` under a "Suggested cities"
    heading, asked once per page from `/api/places/cities/world` as the pointer comes
    onto the field or the panel opens; picking one fills the field and the hidden
-   `cityPlaceId` as a searched city does.
+   `cityPlaceId` as a searched city does. The panel shows five cities and part of
+   a sixth (less on a short window); the rest scroll inside its `.scroll-line`
+   box, under a heading that stays put, and the arrow keys scroll the row they
+   pick out into sight. A row is picked out by the pointer moving over it, not
+   by it arriving, so scrolling under a still pointer does not steal the keys'.
 2. Dates are prefilled. Click `button[type="submit"]`.
 
 It lands on `/t/<slug>/edit/<key>`. The key in the URL is the whole of the edit
