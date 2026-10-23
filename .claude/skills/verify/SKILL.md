@@ -35,6 +35,11 @@ touching one that exists. Front door at `/`:
 
 1. `#cityPlaceId` is a Google backed search over cities anywhere; fill it, wait for
    `[role="listbox"][aria-label="First city"] [role="option"]` and click one.
+   Focused while empty, it offers eight cities from around the world instead, as
+   `[role="listbox"][aria-label="Suggested cities"]` under a "Suggested cities"
+   heading, asked once per page from `/api/places/cities/world` as the pointer comes
+   onto the field or the panel opens; picking one fills the field and the hidden
+   `cityPlaceId` as a searched city does.
 2. Dates are prefilled. Click `button[type="submit"]`.
 
 It lands on `/t/<slug>/edit/<key>`. The key in the URL is the whole of the edit

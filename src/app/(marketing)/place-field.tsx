@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useId, useRef, useState } from "react";
 // zod/mini, by name: this file reaches the browser, and the classic import
 // carries every locale zod has with it. See export-query.ts.
 import { array, nullable, object, optional, safeParse, string } from "zod/mini";
@@ -20,6 +20,7 @@ const suggestionSchema = object({
   address: nullable(string()),
 });
 
+/** How both lists come: the cities a search found, and the cities known the world over. */
 const responseSchema = object({ suggestions: array(suggestionSchema) });
 
 const refusalSchema = object({ error: string(), action: optional(string()) });
@@ -43,6 +44,28 @@ const FIELD = `${FIELD_SHELL} flex items-center gap-3 px-5 focus-within:border-t
 const LOOKING = "Looking for cities.";
 const NO_MATCH = "No city matches that. Check the spelling.";
 
+/**
+ * Over the cities the empty field offers, so they are not taken for the
+ * answer to anything typed.
+ */
+const SUGGESTED = "Suggested cities";
+
+/**
+ * The cities known the world over, which the empty field offers, or none.
+ * Never throws, and every refusal is an offer of none: nobody asked for this
+ * list out loud, so the field says nothing about one it never got, and typing
+ * a city still works.
+ */
+async function askForWorldCities(): Promise<readonly ChosenPlace[]> {
+  try {
+    const response = await fetch("/api/places/cities/world");
+    const parsed = response.ok ? safeParse(responseSchema, await response.json()) : null;
+    return parsed === null || !parsed.success ? [] : parsed.data.suggestions;
+  } catch {
+    return [];
+  }
+}
+
 interface PlaceFieldProps {
   readonly id: string;
   /** Submitted with the form. What is stored is the provider's own identifier. */
@@ -61,10 +84,26 @@ interface PlaceFieldProps {
  * possible from a line of text. The answers are whole cities, from anywhere:
  * the country each is in is written under its name, which is the one place
  * the difference between two Barcelonas matters.
+ *
+ * Before anything is typed it offers cities known the world over instead,
+ * under a heading that says they are suggestions, for a reader with nowhere
+ * in mind yet. One picked from them is picked as one searched for is, and
+ * the field holding it offers them again when it is reached for.
  */
 export function PlaceField({ id, name, label, placeholder, chosen, onChange }: PlaceFieldProps) {
   const [query, setQuery] = useState("");
   const [found, setFound] = useState<readonly ChosenPlace[]>([]);
+  /**
+   * The cities known the world over, which the field offers before anything
+   * is typed in it, or null until they have answered.
+   */
+  const [world, setWorld] = useState<readonly ChosenPlace[] | null>(null);
+  /**
+   * Whether the city in the field was picked from the cities offered rather
+   * than from a search, so reaching for the field again brings back the list
+   * it was picked from.
+   */
+  const [pickedOffered, setPickedOffered] = useState(false);
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -73,11 +112,24 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
   const container = useRef<HTMLDivElement | null>(null);
   /** Answers can arrive out of order, so only the newest is allowed to land. */
   const newest = useRef(0);
+  /**
+   * Whether the cities offered have been asked for, so they are asked for once
+   * however often the field is reached for. A ref, because the effect that
+   * asks may not set state on the way in, only in the answer.
+   */
+  const askedForWorld = useRef(false);
   const listId = `${useId()}-places`;
 
   const trimmed = query.trim();
   const searched = trimmed.length >= MINIMUM_LETTERS;
   const searching = searched && answered !== trimmed;
+  /**
+   * The list is the cities offered rather than the cities found: nothing is
+   * typed, or the field holds a city picked from them, as it was picked.
+   */
+  const offering =
+    trimmed === "" || (pickedOffered && chosen !== null && chosen.name === trimmed);
+  const rows: readonly ChosenPlace[] = offering ? (world ?? []) : searched ? found : [];
 
   useEffect(() => {
     // A picked place writes its own name into the field. Searching for that
@@ -126,16 +178,45 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
     };
   }, [trimmed, searched, chosen]);
 
+  /**
+   * The cities the empty field offers, asked for as the field is reached for,
+   * the pointer coming onto it or the cursor going into it, and not as the
+   * page opens: somebody who never reaches for the field should never cause
+   * it. On its way before the press rather than after it, and usually a read
+   * of what the server kept. A list that did not come is kept as an empty
+   * one, so the field stops saying it is looking and leaves finding the city
+   * to the typing.
+   */
+  const lookUpWorld = (): void => {
+    if (askedForWorld.current) {
+      return;
+    }
+    askedForWorld.current = true;
+    void askForWorldCities().then(setWorld);
+  };
+  const lookingUpWorld = useEffectEvent(lookUpWorld);
+  // Asked for as well when the panel opens on them, for a field reached by
+  // the keys rather than the pointer.
+  useEffect(() => {
+    if (open && offering) {
+      lookingUpWorld();
+    }
+  }, [open, offering]);
+
   useOutsidePress(container, open, () => {
     setOpen(false);
   });
 
   const pick = (place: ChosenPlace): void => {
+    // An answer still on its way is to a question nobody is asking any more,
+    // and landing it would open the list back over the place just picked.
+    newest.current += 1;
     onChange(place);
     setQuery(place.name);
     // The field now holds a place that was picked rather than a question
     // waiting on an answer, so nothing is left looking.
     setAnswered(place.name);
+    setPickedOffered(offering);
     setOpen(false);
   };
 
@@ -150,7 +231,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
     // it has been put away or is still on its way.
     if (event.key === "Enter" && chosen === null && searched) {
       event.preventDefault();
-      const picked = open ? found[active] : undefined;
+      const picked = open ? rows[active] : undefined;
       if (picked !== undefined) {
         pick(picked);
       } else {
@@ -158,17 +239,17 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
       }
       return;
     }
-    if (found.length === 0 || !open) {
+    if (rows.length === 0 || !open) {
       return;
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActive((at) => (at + 1) % found.length);
+      setActive((at) => (at + 1) % rows.length);
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActive((at) => (at === 0 ? found.length - 1 : at - 1));
+      setActive((at) => (at === 0 ? rows.length - 1 : at - 1));
     } else if (event.key === "Enter") {
-      const picked = found[active];
+      const picked = rows[active];
       if (picked !== undefined) {
         event.preventDefault();
         pick(picked);
@@ -176,7 +257,13 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
     }
   };
 
-  const listed = open && found.length > 0;
+  const listed = open && rows.length > 0;
+  /**
+   * Whether the panel is up, with cities in it or a sentence. The cities
+   * offered have a sentence only while they are on their way, and an offer of
+   * none shows nothing at all.
+   */
+  const shown = open && (offering ? world === null || world.length > 0 : searched);
 
   return (
     <div className={`relative ${FIELD_STACK}`} ref={container}>
@@ -199,54 +286,65 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
           placeholder={placeholder}
           onChange={(event) => {
             setQuery(event.target.value);
+            // The first row is the one Enter takes, until the arrow keys move
+            // it, in whichever list the words bring up.
+            setActive(0);
             onChange(null);
             setOpen(true);
           }}
           onFocus={() => {
             setOpen(true);
           }}
+          onPointerEnter={lookUpWorld}
           onKeyDown={onKeyDown}
           className="min-w-0 flex-1 bg-transparent py-[17px] text-[16px] leading-[1.2] text-ink caret-terracotta outline-none placeholder:text-ink-faint"
         />
       </div>
 
-      {open && searched ? (
+      {shown ? (
         <div className="absolute top-full right-0 left-0 z-30 mt-2 rounded-panel border border-rule bg-paper-raised p-[7px] shadow-md">
           {listed ? (
-            <ul id={listId} role="listbox" aria-label={label}>
-              {found.map((place, index) => (
-                <li
-                  key={place.providerPlaceId}
-                  role="option"
-                  aria-selected={place.providerPlaceId === chosen?.providerPlaceId}
-                >
-                  <button
-                    type="button"
-                    onMouseEnter={() => {
-                      setActive(index);
-                    }}
-                    onClick={() => {
-                      pick(place);
-                    }}
-                    className={`block w-full rounded-chip px-[11px] py-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
-                      index === active ? "bg-terracotta-100" : ""
-                    }`}
+            <>
+              {offering ? (
+                <p className="px-[11px] pt-[6px] pb-1 text-label font-semibold text-ink-muted">
+                  {SUGGESTED}
+                </p>
+              ) : null}
+              <ul id={listId} role="listbox" aria-label={offering ? SUGGESTED : label}>
+                {rows.map((place, index) => (
+                  <li
+                    key={place.providerPlaceId}
+                    role="option"
+                    aria-selected={place.providerPlaceId === chosen?.providerPlaceId}
                   >
-                    <span className="block text-meta font-semibold text-ink">
-                      {place.name}
-                    </span>
-                    {place.address === null ? null : (
-                      <span className="block text-micro text-ink-muted">
-                        {place.address}
+                    <button
+                      type="button"
+                      onMouseEnter={() => {
+                        setActive(index);
+                      }}
+                      onClick={() => {
+                        pick(place);
+                      }}
+                      className={`block w-full rounded-chip px-[11px] py-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
+                        index === active ? "bg-terracotta-100" : ""
+                      }`}
+                    >
+                      <span className="block text-meta font-semibold text-ink">
+                        {place.name}
                       </span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
+                      {place.address === null ? null : (
+                        <span className="block text-micro text-ink-muted">
+                          {place.address}
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
           ) : (
             <p className="px-[11px] py-[10px] text-meta text-ink-muted">
-              {message ?? (searching ? LOOKING : NO_MATCH)}
+              {offering ? LOOKING : (message ?? (searching ? LOOKING : NO_MATCH))}
             </p>
           )}
         </div>

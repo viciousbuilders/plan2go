@@ -22,7 +22,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 
 ### Features
 
-- **A city and dates first.** The front page takes the city and the trip's first and last day, then opens a trip with a day for each. Days can be moved to other cities from inside the trip.
+- **A city and dates first.** The front page takes the city and the trip's first and last day, then opens a trip with a day for each. Before anything is typed, the city field suggests cities from around the world. Days can be moved to other cities from inside the trip.
 - **Places from search.** Search a city's places or use a quick search such as parks or museums, and look at a place's photos, rating and reviews before adding it.
 - **Real travel times.** Every leg is timed by Google Routes, by car, public transport or on foot, with public transport looked up for the time the day reaches it.
 - **Conflicts named with their numbers.** "Fish Market closes at 16:00 and you arrive at 16:30", rather than a warning icon.
