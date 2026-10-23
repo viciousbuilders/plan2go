@@ -21,11 +21,10 @@ exist.
 and its first and last day. The city is the trip's own and sets its time zone.
 Submitting it opens a trip and lands on `/t/[slug]`. The New trip link inside a trip
 opens this same page in a new tab. The one other way in is the `open_trip` tool on the
-MCP route, `src/app/api/mcp`, which takes the cities the trip goes to, each with how
-many days in it, the day it departs, and a name for the trip when it is given one. The
-page's city and dates are read as one such stop, in `newTripFormSchema`, so both are
-looked up the same way, in `lookUpNewTrip`. Both come through `openTrip`, with one rate
-limit and one place that hands out the edit token, and nothing else opens a trip.
+MCP route, `src/app/api/mcp`, which takes the same city and dates, and a name for the
+trip when it is given one. Both are checked by `newTripInputSchema` and looked up the
+same way, in `lookUpNewTrip`, and both come through `openTrip`, with one rate limit and
+one place that hands out the edit token, and nothing else opens a trip.
 
 **Stack.** Next.js App Router, TypeScript, Prisma, Tailwind, the Google Maps
 JavaScript API, Vitest. Postgres only, never SQLite, deployed to Vercel. Package

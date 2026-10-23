@@ -161,7 +161,7 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 
 | Tools | What they do |
 | --- | --- |
-| `find_cities`, `open_trip` | Find cities and open a trip of one city or several, named if you like |
+| `find_cities`, `open_trip` | Find a city and open a trip in it, as the front page does, named if you like |
 | `find_places`, `get_place`, `add_place` | Look for places on a day, read about one, and put it on the day |
 | `get_trip`, `get_pdf` | Read the trip with every time, conflict and Google Maps link, or get a PDF with the export's choices |
 | `move_stop`, `move_stop_to_day`, `remove_stop`, `set_time_at_place`, `set_note` | Change the stops on a day |

@@ -37,12 +37,12 @@ export default function MarketingPage() {
         />
 
         <h1 className="font-display text-[clamp(28px,3.2vw,42px)] leading-[1.14] font-semibold tracking-[-0.01em] text-pretty text-ink">
-          Plan it, sort it, share it.
+          Plan it, map it, share it.
         </h1>
 
         <p className="max-w-[34ch] text-[17px] leading-[1.65] text-pretty text-ink-muted">
-          Drop in your spots, sort out the order, and see if the day actually works.
-          When it&apos;s ready, export it as a clean PDF to share with whoever&apos;s coming.
+          Add your cities, fill each day with places, see real travel times, and share it as a
+          link or PDF.
         </p>
       </div>
 

@@ -10,7 +10,7 @@ import { googleMapsApiKey } from "@/server/places/google-key";
 import { placeDetailsFor } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
 import { lookUpNewTrip } from "@/server/trips/look-up-new-trip";
-import { newTripFormSchema } from "@/server/trips/new-trip-input";
+import { newTripInputSchema } from "@/server/trips/new-trip-input";
 import { openTrip } from "@/server/trips/open-trip";
 import { openingTimeZone } from "@/server/trips/time-zones";
 
@@ -30,7 +30,7 @@ export async function createTripAction(
   _previous: CreateTripFormState,
   formData: FormData,
 ): Promise<CreateTripFormState> {
-  const parsed = newTripFormSchema.safeParse({
+  const parsed = newTripInputSchema.safeParse({
     cityPlaceId: formData.get("cityPlaceId"),
     startDate: formData.get("startDate"),
     endDate: formData.get("endDate"),

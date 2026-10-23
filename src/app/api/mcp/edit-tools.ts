@@ -2,7 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createGooglePlacesProvider } from "@/adapters/places/google-places";
 import { createGoogleTimeZoneProvider } from "@/adapters/time-zone/google-time-zone";
-import { MAX_STOP_DAYS, MAX_STOPS } from "@/core/model/trip";
+import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import { computeTrip } from "@/features/day-planner/compute-trip";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
@@ -46,31 +46,14 @@ export function registerEditTools(server: McpServer): void {
     "open_trip",
     {
       title: "Open a trip",
-      description:
-        "Open a new plan2go trip: the cities it goes to in order, how many days in each, and the day it departs, and what to call it if it has a name already. Each city is a place id from find_cities, and the first sets the clock the trip keeps. The days start empty. Returns the trip's two links and its days. Whoever holds the editing link can change the trip, so give it only to whoever is planning, and the read only link to everyone else.",
+      description: `Open a new plan2go trip, as the front page does: the city it is in, its first and last day, and what to call it if it has a name already. The city is a place id from find_cities, and sets the clock the trip keeps. A trip runs to ${String(MAX_TRIP_DAYS)} days at most. The days start empty and in that city; put a day in another city afterwards with set_day_city. Returns the trip's two links and its days. Whoever holds the editing link can change the trip, so give it only to whoever is planning, and the read only link to everyone else.`,
       inputSchema: z.object({
-        stops: z
-          .array(
-            z.object({
-              city: z
-                .string()
-                .trim()
-                .min(1)
-                .max(300)
-                .describe("The city's place id, from find_cities."),
-              days: z
-                .number()
-                .int()
-                .min(1)
-                .max(MAX_STOP_DAYS)
-                .describe("How many days the trip spends there."),
-            }),
-          )
-          .min(1)
-          .max(MAX_STOPS)
-          .describe("The cities the trip goes to, in the order it goes. A city can come twice."),
-        departs: calendarDate("The day the trip departs is missing. Give it as YYYY-MM-DD.").describe(
-          "The day the trip departs, as YYYY-MM-DD.",
+        city: z.string().trim().min(1).max(300).describe("The city's place id, from find_cities."),
+        first_day: calendarDate("The first day is missing. Give it as YYYY-MM-DD.").describe(
+          "The trip's first day, as YYYY-MM-DD.",
+        ),
+        last_day: calendarDate("The last day is missing. Give it as YYYY-MM-DD.").describe(
+          "The trip's last day, as YYYY-MM-DD. The same as the first day for a trip of one day.",
         ),
         name: tripTitleSchema
           .optional()
@@ -85,21 +68,20 @@ export function registerEditTools(server: McpServer): void {
         openWorldHint: true,
       },
     },
-    async ({ stops, departs, name }, ctx) =>
+    async ({ city, first_day, last_day, name }, ctx) =>
       guarded(
         "MCP open_trip failed",
         // The provider refuses a malformed place id outright rather than
         // finding nothing, and that is the likeliest failure when a model is
-        // passing the ids, so this says to check them as well as to wait.
-        "Could not open the trip. Check each city is a place id from find_cities, and try again in a moment.",
+        // passing the id, so this says to check it as well as to wait.
+        "Could not open the trip. Check the city is a place id from find_cities, and try again in a moment.",
         async () => {
-          // Checked by the schema a trip of stops is opened under, which holds
-          // how many stops it has and how many days each is given. The front
-          // page reads its one city and dates into the same shape with a
-          // schema of its own.
+          // Checked by the same schema as the front page's form, so a trip
+          // opened here can be nothing that one opened there could not be.
           const parsed = newTripInputSchema.safeParse({
-            stops: stops.map(({ city, days }) => ({ cityPlaceId: city, days })),
-            startDate: departs,
+            cityPlaceId: city,
+            startDate: first_day,
+            endDate: last_day,
           });
           if (!parsed.success) {
             return refuse(parsed.error.issues[0]?.message ?? "Check the trip and send it again.");
@@ -110,7 +92,7 @@ export function registerEditTools(server: McpServer): void {
           }
 
           // The front page also works out the cities worth going to from the
-          // first one, for the planner it is about to land on. Nobody opening
+          // trip's city, for the planner it is about to land on. Nobody opening
           // a trip here is on their way to it, and the picker asks for itself.
           // The front page takes no name, so a trip opened there is named in
           // the planner; one named here has it in the same write that opens it.
@@ -131,7 +113,7 @@ export function registerEditTools(server: McpServer): void {
           }
           if (opened.status === "nowhere") {
             return refuse(
-              "A city on the trip could not be found. Find it again with find_cities and pass the place id it gives.",
+              "That city could not be found. Find it again with find_cities and pass the place id it gives.",
             );
           }
 
