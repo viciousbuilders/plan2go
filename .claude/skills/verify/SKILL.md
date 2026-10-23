@@ -34,7 +34,7 @@ Every dev run writes to the one shared Neon database, so open a fresh trip rathe
 touching one that exists. Front door at `/`:
 
 1. `#cityPlaceId` is a Google backed search over cities anywhere; fill it, wait for
-   `[role="listbox"][aria-label="City"] [role="option"]` and click one.
+   `[role="listbox"][aria-label="First city"] [role="option"]` and click one.
 2. Dates are prefilled. Click `button[type="submit"]`.
 
 It lands on `/t/<slug>/edit/<key>`. The key in the URL is the whole of the edit

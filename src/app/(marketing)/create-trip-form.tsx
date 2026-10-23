@@ -65,7 +65,7 @@ export function CreateTripForm() {
         <PlaceField
           id="cityPlaceId"
           name="cityPlaceId"
-          label="City"
+          label="First city"
           placeholder="Type the city"
           chosen={city}
           onChange={changeCity}
