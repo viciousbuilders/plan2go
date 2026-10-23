@@ -17,15 +17,15 @@ is kept in a cookie or anywhere else in the browser: whoever holds the edit link
 the trip, on any device. `Trip.userId` is nullable and stays that way until accounts
 exist.
 
-**The front door.** `/` is the page in `src/app/(marketing)`: the stops the trip makes,
-each a city and how many days in it, and the day it departs. The first city is the trip's
-own and sets its time zone. Submitting it opens a trip and lands on `/t/[slug]`.
-The New trip link inside a trip opens this same page in a new tab. The one other way in
-is the `open_trip` tool on the MCP route, `src/app/api/mcp`, which takes the same stops
-and day, and a name for the trip when it is given one, and looks them up the same way,
-in `lookUpNewTrip`. Both come through
-`openTrip`, with one rate limit and one place that hands out the edit token, and
-nothing else opens a trip.
+**The front door.** `/` is the page in `src/app/(marketing)`: the city the trip is in,
+and its first and last day. The city is the trip's own and sets its time zone.
+Submitting it opens a trip and lands on `/t/[slug]`. The New trip link inside a trip
+opens this same page in a new tab. The one other way in is the `open_trip` tool on the
+MCP route, `src/app/api/mcp`, which takes the cities the trip goes to, each with how
+many days in it, the day it departs, and a name for the trip when it is given one. The
+page's city and dates are read as one such stop, in `newTripFormSchema`, so both are
+looked up the same way, in `lookUpNewTrip`. Both come through `openTrip`, with one rate
+limit and one place that hands out the edit token, and nothing else opens a trip.
 
 **Stack.** Next.js App Router, TypeScript, Prisma, Tailwind, the Google Maps
 JavaScript API, Vitest. Postgres only, never SQLite, deployed to Vercel. Package

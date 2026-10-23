@@ -22,7 +22,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 
 ### Features
 
-- **Cities and days first.** The front page takes the stops the trip makes, each a city and a number of days, and the day it departs, then opens a trip with a day for each.
+- **A city and dates first.** The front page takes the city and the trip's first and last day, then opens a trip with a day for each. Days can be moved to other cities from inside the trip.
 - **Places from search.** Search a city's places or use a quick search such as parks or museums, and look at a place's photos, rating and reviews before adding it.
 - **Real travel times.** Every leg is timed by Google Routes, by car, public transport or on foot, with public transport looked up for the time the day reaches it.
 - **Conflicts named with their numbers.** "Fish Market closes at 16:00 and you arrive at 16:30", rather than a warning icon.
@@ -161,7 +161,7 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 
 | Tools | What they do |
 | --- | --- |
-| `find_cities`, `open_trip` | Find cities and open a trip, as the front page does, named if you like |
+| `find_cities`, `open_trip` | Find cities and open a trip of one city or several, named if you like |
 | `find_places`, `get_place`, `add_place` | Look for places on a day, read about one, and put it on the day |
 | `get_trip`, `get_pdf` | Read the trip with every time, conflict and Google Maps link, or get a PDF with the export's choices |
 | `move_stop`, `move_stop_to_day`, `remove_stop`, `set_time_at_place`, `set_note` | Change the stops on a day |

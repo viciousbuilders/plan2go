@@ -47,7 +47,7 @@ export function registerEditTools(server: McpServer): void {
     {
       title: "Open a trip",
       description:
-        "Open a new plan2go trip, as the front page does: the cities it goes to in order, how many days in each, and the day it departs, and what to call it if it has a name already. Each city is a place id from find_cities, and the first sets the clock the trip keeps. The days start empty. Returns the trip's two links and its days. Whoever holds the editing link can change the trip, so give it only to whoever is planning, and the read only link to everyone else.",
+        "Open a new plan2go trip: the cities it goes to in order, how many days in each, and the day it departs, and what to call it if it has a name already. Each city is a place id from find_cities, and the first sets the clock the trip keeps. The days start empty. Returns the trip's two links and its days. Whoever holds the editing link can change the trip, so give it only to whoever is planning, and the read only link to everyone else.",
       inputSchema: z.object({
         stops: z
           .array(
@@ -93,8 +93,10 @@ export function registerEditTools(server: McpServer): void {
         // passing the ids, so this says to check them as well as to wait.
         "Could not open the trip. Check each city is a place id from find_cities, and try again in a moment.",
         async () => {
-          // Checked by the same schema as the front page's form, so a trip
-          // opened here can be nothing that one opened there could not be.
+          // Checked by the schema a trip of stops is opened under, which holds
+          // how many stops it has and how many days each is given. The front
+          // page reads its one city and dates into the same shape with a
+          // schema of its own.
           const parsed = newTripInputSchema.safeParse({
             stops: stops.map(({ city, days }) => ({ cityPlaceId: city, days })),
             startDate: departs,

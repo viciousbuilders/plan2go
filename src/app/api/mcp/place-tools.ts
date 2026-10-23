@@ -172,7 +172,7 @@ export function registerPlaceTools(server: McpServer): void {
     {
       title: "Find a city",
       description:
-        "Look up cities by name, with the same search as the stop field on the plan2go front page. Each city comes with the country it is in, which tells two cities of the same name apart, and its place id.",
+        "Look up cities by name, with the same search as the city field on the plan2go front page. Each city comes with the country it is in, which tells two cities of the same name apart, and its place id.",
       inputSchema: z.object({
         name: z
           .string()

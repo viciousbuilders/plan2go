@@ -1,44 +1,52 @@
 import Image from "next/image";
 // Imported rather than served from public/, so Next sizes and hashes it.
 import lockup from "../../../logo/logo-text.png";
-import { StartTicket } from "./start-ticket";
+import { CreateTripForm } from "./create-trip-form";
 
 /**
  * Built once and served as it is, from the edge nearest the reader, rather
  * than drawn afresh on every visit. Nothing on it depends on who is asking:
- * today, which the trip departs on until another day is chosen, is read from
- * the reader's own clock in the browser, and the zone a trip keeps is decided
- * when it is opened.
+ * today, which the form opens on, is read from the reader's own clock in the
+ * browser, and the zone a trip keeps is decided when it is opened.
  */
 export default function MarketingPage() {
   return (
     /*
-     * The start page's design: the lockup, and under it what the product does,
-     * in a line and a sentence, over the ticket that starts a trip. On a desk
-     * they are centred in the page, one over the other; on a phone they are
-     * written down its left edge, the way the page is read there.
+     * What the product is on one side, the form that starts one on the other.
+     * The columns are auto-fit rather than a breakpoint, so the pair splits when
+     * there is room for both and stacks when there is not, without this page
+     * having to name the width at which that happens. A column is never wider
+     * than the page, so a phone narrower than one still gets a column that fits
+     * rather than a page that scrolls sideways.
+     *
+     * Aligned along their tops, as the canvas has them: the lockup sits level
+     * with the top of the card, and the words hang from it. The pair as a whole
+     * is centred in the page by the layout around it, so what is left over
+     * below the shorter column is shared out above and beneath the pair rather
+     * than piled under it.
      */
-    <main className="mx-auto flex w-full max-w-[560px] grow flex-col md:max-w-[1040px] md:items-center md:justify-center md:gap-10 md:pt-8 md:pb-14">
-      <div className="flex flex-col gap-8 pt-14 pb-8 md:items-center md:gap-6 md:p-0">
+    <div className="grid items-start gap-14 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+      <div className="flex flex-col gap-[26px] pt-[6px]">
         <Image
           src={lockup}
           alt="plan2go"
-          sizes="140px"
+          width={300}
+          height={111}
           preload
-          className="h-auto w-[112px] md:w-[140px]"
+          className="h-auto w-[min(300px,80%)]"
         />
-        <div className="flex flex-col gap-3 md:items-center md:gap-4 md:text-center">
-          <h1 className="font-display text-[32px] leading-[1.1] font-semibold tracking-[-0.01em] text-balance text-ink md:text-[clamp(36px,5vw,52px)]">
-            Plan it, map it, share it.
-          </h1>
-          <p className="text-[16px] leading-[1.6] text-balance text-ink-muted md:max-w-[44ch] md:text-[18px]">
-            Add your cities, fill each day with places, see real travel times, and share it as a
-            link or PDF.
-          </p>
-        </div>
+
+        <h1 className="font-display text-[clamp(28px,3.2vw,42px)] leading-[1.14] font-semibold tracking-[-0.01em] text-pretty text-ink">
+          Plan it, sort it, share it.
+        </h1>
+
+        <p className="max-w-[34ch] text-[17px] leading-[1.65] text-pretty text-ink-muted">
+          Drop in your spots, sort out the order, and see if the day actually works.
+          When it&apos;s ready, export it as a clean PDF to share with whoever&apos;s coming.
+        </p>
       </div>
 
-      <StartTicket />
-    </main>
+      <CreateTripForm />
+    </div>
   );
 }

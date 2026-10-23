@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { ViewTransition } from "react";
 import { Credit } from "@/ui/credit";
 
 /**
  * The public face of the site: everything a person sees before they have a
- * trip. It owns the page shell and the credit at the foot, so a second page
- * out here inherits both instead of copying them. The lockup is the start
- * page's own, over its line, since on a desk it is centred with it.
+ * trip. It owns the page shell and the footer, so a second page out here
+ * inherits both instead of copying them.
  */
 const DESCRIPTION =
   "Plan a multi-day trip, see how far apart the places really are, and see how long a day actually takes. No account needed.";
@@ -25,31 +23,19 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-/** As wide as the start page's design: a phone's column, or a desk's. */
-const COLUMN = "mx-auto w-full max-w-[560px] md:max-w-[1040px]";
+const COLUMN = "mx-auto w-full max-w-[1060px] px-8";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    /*
-     * When the ticket opens a trip, the whole page goes off to the left as the
-     * trip comes in from the right, in globals.css. Here rather than on the
-     * page: the trip is not under this layout, so going to it takes the layout
-     * away too, and React looks for a <ViewTransition> only above the first
-     * element of what is taken away, which is this one's div. Only going,
-     * since the one way here from inside the app, deleting a trip, is not a
-     * journey on.
-     */
-    <ViewTransition exit="trip-leave" default="none">
-      <div className="flex min-h-dvh flex-col px-5 md:px-6">
-        {children}
-        <footer
-          className={`${COLUMN} py-8 text-center text-[13px] font-medium text-ink-muted md:py-6`}
-        >
-          <p>
+    <div className="flex min-h-dvh flex-col">
+      <main className={`${COLUMN} flex grow flex-col justify-center pt-12 pb-16`}>{children}</main>
+      <footer className="border-t border-rule bg-paper-sunken">
+        <div className={`${COLUMN} py-6 text-meta text-ink-muted`}>
+          <p className="text-center">
             <Credit />
           </p>
-        </footer>
-      </div>
-    </ViewTransition>
+        </div>
+      </footer>
+    </div>
   );
 }

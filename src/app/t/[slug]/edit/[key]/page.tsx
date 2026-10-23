@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { ViewTransition } from "react";
 import { checkEditAccess } from "@/server/ownership/edit-access";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
 import { TripPage } from "../../trip-page";
@@ -39,12 +38,5 @@ export default async function TripEditPage({
     notFound();
   }
 
-  // Comes in from the right when the front page's ticket has just opened it,
-  // the one way this page is arrived at from inside the app; reached by its
-  // link, it is simply there. The motion is in globals.css.
-  return (
-    <ViewTransition enter="trip-arrive" default="none">
-      <TripPage trip={trip} editKey={key} />
-    </ViewTransition>
-  );
+  return <TripPage trip={trip} editKey={key} />;
 }
