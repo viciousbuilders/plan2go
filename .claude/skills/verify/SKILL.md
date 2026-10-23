@@ -53,6 +53,13 @@ has no search field.
 Every trip opened this way is a row in the shared database. Delete them when done with
 `db.trip.deleteMany({ where: { slug: { in: [...] } } })`, which cascades.
 
+Under the form, the `section` headed "Plan it with Claude" has three Copy buttons, named
+"Copy the connector address", "Copy the Claude Code command" and "Copy the example
+prompt"; grant `clipboard-read` and `clipboard-write` to read back what they copied.
+The address is the browser's own origin plus `/api/mcp`, so a dev run shows
+`http://localhost:3000/api/mcp`. The built HTML carries the live site's address
+instead: load the page with `javaScriptEnabled: false` to see how that one wraps.
+
 ## The search field
 
 The bar is `.place-search .search-bar`; its field is `input[aria-keyshortcuts="/"]`,

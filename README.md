@@ -151,7 +151,7 @@ The build does not apply schema changes. Run `pnpm db:push` against the producti
 
 ## Plan with Claude
 
-Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.io) server at `/api/mcp`, with nothing more to configure. Claude can open a trip, find places, rework the days and read back every time and conflict, through the same server code as the planner, rate limited and cached the same way. It speaks the 2026-07-28 protocol and 2025 Streamable HTTP, without sessions and without a sign in.
+Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.io) server at `/api/mcp`, with nothing more to configure. Claude can open a trip, find places, rework the days and read back every time and conflict, through the same server code as the planner, rate limited and cached the same way. It speaks the 2026-07-28 protocol and 2025 Streamable HTTP, without sessions and without a sign in. The front page shows the same under its form, with the address of whichever deployment serves it and an example prompt, each with a Copy button.
 
 | Client | Connect it |
 | --- | --- |
