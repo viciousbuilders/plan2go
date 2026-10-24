@@ -39,9 +39,10 @@ function Step({ number, title, children }: StepProps) {
 }
 
 /**
- * The other way to plan a trip: by asking Claude, which reaches plan2go
- * through the MCP server every deployment serves. Under the hero rather than
- * in it, which keeps to its headline, its one sentence and its form.
+ * The other way to plan a trip: by asking an AI assistant, which reaches
+ * plan2go through the MCP server every deployment serves, from any app that
+ * can connect to one. Under the hero rather than in it, which keeps to its
+ * headline, its one sentence and its form.
  *
  * The heading with its one line beside it, and under them the two steps,
  * connecting and then asking, in the same two columns as the hero and
@@ -50,18 +51,19 @@ function Step({ number, title, children }: StepProps) {
  * Drawn on the server. Only the connecting step's tabs and its copying need
  * the browser, so only they are sent to it.
  */
-export function PlanWithClaude() {
+export function PlanWithAi() {
   return (
-    <section aria-labelledby="plan-with-claude" className="flex flex-col gap-6">
+    <section aria-labelledby="plan-with-ai" className="flex flex-col gap-6">
       <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
         <h2
-          id="plan-with-claude"
+          id="plan-with-ai"
           className={`${headlineFont.className} text-[clamp(28px,2.5vw,32px)] leading-[1.15] text-ink`}
         >
-          Plan it with Claude
+          Plan it with AI
         </h2>
         <p className="text-[16px] leading-6 text-pretty text-ink-muted">
-          Ask for a trip in your own words. Claude fills the days and checks every travel time.
+          Ask your AI assistant for a trip in your own words. It fills the days and checks every
+          travel time.
         </p>
       </div>
 

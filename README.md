@@ -8,9 +8,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![Postgres on Neon](https://img.shields.io/badge/Postgres-Neon-00a37a?style=flat-square&logo=postgresql&logoColor=white)
 
-Plan a multi-day trip on a map, see real travel times between the places, and share the days as a link or a PDF. No account needed, and Claude can plan it with you.
+Plan a multi-day trip on a map, see real travel times between the places, and share the days as a link or a PDF. No account needed, and an AI assistant can plan it with you.
 
-[Overview](#overview) • [Getting started](#getting-started) • [Configuration](#configuration) • [Deploy](#deploy-to-vercel) • [Plan with Claude](#plan-with-claude) • [Project layout](#project-layout) • [Troubleshooting](#troubleshooting)
+[Overview](#overview) • [Getting started](#getting-started) • [Configuration](#configuration) • [Deploy](#deploy-to-vercel) • [Plan with AI](#plan-with-an-ai-assistant) • [Project layout](#project-layout) • [Troubleshooting](#troubleshooting)
 
 <img src="src/app/(marketing)/opengraph-image.png" alt="The plan2go mascot, a map pin with a backpack, waving beside the words Plan it, map it, share it." width="640">
 
@@ -29,7 +29,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 - **Days you can rearrange.** Drag stops into a new order or onto another day, set the time at each place and when the day leaves, add notes, move a day to another city, and start or end a day at a hotel, station or airport.
 - **The trip's own clock.** Times are kept in the trip's time zone, across midnight and daylight saving changes.
 - **Sharing.** A read-only link for everyone going, and a PDF with a cover page, a route map for each day, the travel between stops and pages for notes, on A4 or A5, in colour or black and white.
-- **Planning with Claude.** An MCP server lets Claude open a trip, find places, rework the days and read back every time and conflict. See [Plan with Claude](#plan-with-claude).
+- **Planning with an AI assistant.** An MCP server lets an assistant open a trip, find places, rework the days and read back every time and conflict, from any app that can connect to one. See [Plan with an AI assistant](#plan-with-an-ai-assistant).
 
 > [!IMPORTANT]
 > There are no accounts. A trip has two links: `/t/<slug>` reads it, and `/t/<slug>/edit/<key>` changes it. Only a hash of the key is stored and nothing is kept in cookies, so a lost editing link cannot be recovered.
@@ -39,7 +39,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 ```mermaid
 flowchart LR
   B["Browser"] -- "pages, server actions" --> A["Next.js on Vercel"]
-  M["Claude or another<br/>MCP client"] -- "MCP, /api/mcp" --> A
+  M["AI assistant<br/>in any MCP client"] -- "MCP, /api/mcp" --> A
   B -- "map, browser key" --> J["Maps JavaScript API"]
   A -- "Prisma, Neon driver" --> D[("Neon Postgres<br/>trips, caches, rate limits")]
   A -- "server key" --> G["Places API (New)<br/>Routes API<br/>Time Zone API<br/>Maps Static API"]
@@ -149,15 +149,15 @@ The build does not apply schema changes. Run `pnpm db:push` against the producti
 1. **Adding** to `prisma/schema.prisma`: push first, then deploy the code that uses it.
 2. **Removing** from it: deploy first, then push. The deployment still running reads every column it knows, and fails on every trip page once one is gone.
 
-## Plan with Claude
+## Plan with an AI assistant
 
-Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.io) server at `/api/mcp`, with nothing more to configure. Claude can open a trip, find places, rework the days and read back every time and conflict, through the same server code as the planner, rate limited and cached the same way. It speaks the 2026-07-28 protocol and 2025 Streamable HTTP, without sessions and without a sign in. The front page shows the same under its form, in two steps: the address of whichever deployment serves it for the Claude app, or the command for Claude Code, each with a Copy button, and then an example prompt.
+Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.io) server at `/api/mcp`, with nothing more to configure. An AI assistant connected to it can open a trip, find places, rework the days and read back every time and conflict, through the same server code as the planner, rate limited and cached the same way. It speaks the 2026-07-28 protocol and 2025 Streamable HTTP, without sessions and without a sign in. Nothing in it is written for one assistant in particular, so any app that can connect to an MCP server can use it. The front page shows the same under its form, in two steps: the address of whichever deployment serves it, or the bridge command for an app that only runs servers on your computer, each with a Copy button, and then an example prompt.
 
 | Client | Connect it |
 | --- | --- |
-| claude.ai and the Claude apps | In Settings, under Connectors, add a custom connector with the URL `https://<your-domain>/api/mcp`. |
-| Claude Code | `claude mcp add --transport http plan2go https://<your-domain>/api/mcp` |
-| A local dev server | `http://localhost:3000/api/mcp`, from a client on the same machine, such as Claude Code. |
+| An app that connects to remote MCP servers | Add a server with the URL `https://<your-domain>/api/mcp`, which some apps call a custom connector. If the app asks how to sign in, choose no authentication. |
+| An app that only runs MCP servers on your computer | Add a server with the command `npx -y mcp-remote https://<your-domain>/api/mcp`. [mcp-remote](https://www.npmjs.com/package/mcp-remote) passes each call on to the deployment, and needs Node.js. |
+| A local dev server | `http://localhost:3000/api/mcp`, from an app that connects from the same machine rather than from its maker's servers. |
 
 | Tools | What they do |
 | --- | --- |
@@ -169,10 +169,10 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 | `rename_trip`, `set_trip_dates`, `add_day`, `delete_trip` | Change the trip as a whole |
 
 > [!CAUTION]
-> The tools that change a trip take its editing link, so anyone who can read the conversation can change or delete that trip. Give Claude the editing link only in a conversation you keep to yourself.
+> The tools that change a trip take its editing link, so anyone who can read the conversation can change or delete that trip. Give an assistant the editing link only in a conversation you keep to yourself.
 
 > [!NOTE]
-> Every call is counted by IP address: 60 requests a minute on the MCP route itself, and the pages' own budgets for searches, place lookups and new trips. Calls from claude.ai come from Anthropic's servers, so everyone using one deployment from claude.ai shares those budgets.
+> Every call is counted by IP address: 60 requests a minute on the MCP route itself, and the pages' own budgets for searches, place lookups and new trips. Some apps, claude.ai and ChatGPT among them, call from their maker's servers rather than from your computer, so everyone using one deployment from the same app shares those budgets.
 
 ## Project layout
 
@@ -198,4 +198,4 @@ The rules the code keeps, from which way dependencies point to what counts as do
 - **"DATABASE_URL is not set."** Put the pooled Neon connection string in `.env`.
 - **502 from anything using a new table after `pnpm db:push`.** A dev server started before the push still holds the old Prisma client. Restart it.
 - **"No browser to print with."** The PDF export found no Chrome. Set `PDF_CHROME_PATH`.
-- **claude.ai cannot connect to `http://localhost:3000/api/mcp`.** claude.ai calls connectors from Anthropic's servers, which cannot reach your machine. Connect it to a deployment, or use Claude Code against the local server.
+- **An app cannot connect to `http://localhost:3000/api/mcp`.** Apps that call from their maker's servers, such as claude.ai and ChatGPT, cannot reach your machine. Connect them to a deployment, or point an app that connects from your own computer at the local server.

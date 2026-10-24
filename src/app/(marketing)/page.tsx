@@ -3,14 +3,14 @@ import Image from "next/image";
 import lockup from "../../../logo/logo-text.png";
 import { CreateTripForm } from "./create-trip-form";
 import { headlineFont } from "./headline-font";
-import { PlanWithClaude } from "./plan-with-claude";
+import { PlanWithAi } from "./plan-with-ai";
 
 /**
  * Built once and served as it is, from the edge nearest the reader, rather
  * than drawn afresh on every visit. Nothing on it depends on who is asking:
  * today, which the form opens on, is read from the reader's own clock in the
- * browser, the address Claude is given from the browser's own, and the zone a
- * trip keeps is decided when it is opened.
+ * browser, the address an AI app is given from the browser's own, and the
+ * zone a trip keeps is decided when it is opened.
  */
 export default function MarketingPage() {
   return (
@@ -27,7 +27,7 @@ export default function MarketingPage() {
        *
        * Aligned along their tops, as the canvas has them: the lockup sits level
        * with the top of the card, and the words hang from it. The pair and the
-       * way to plan with Claude under it are centred in the page together by
+       * way to plan with AI under it are centred in the page together by
        * the layout around them, so what is left over is shared out above and
        * beneath them rather than piled under them.
        */}
@@ -63,7 +63,7 @@ export default function MarketingPage() {
         <CreateTripForm />
       </div>
 
-      <PlanWithClaude />
+      <PlanWithAi />
     </div>
   );
 }

@@ -18,12 +18,16 @@ const MCP_PATH = "/api/mcp";
 /** How long a button says it has copied before it offers to copy again. */
 const COPIED_MILLIS = 2000;
 
-/** The two places a reader might use Claude, each with its own way of adding plan2go. */
-type Client = "app" | "code";
+/**
+ * The two things an app asks for to add an MCP server: its address, or a
+ * command to run on the reader's own computer, here a bridge that passes
+ * every call on to the address.
+ */
+type Way = "address" | "command";
 
-const CLIENTS: readonly { readonly id: Client; readonly label: string }[] = [
-  { id: "app", label: "Claude app" },
-  { id: "code", label: "Claude Code" },
+const WAYS: readonly { readonly id: Way; readonly label: string }[] = [
+  { id: "address", label: "Address" },
+  { id: "command", label: "Command" },
 ];
 
 /** Where the page is being read from never changes while it is open, so nothing is listened for. */
@@ -34,7 +38,7 @@ function subscribeToNothing(): () => void {
 /**
  * Where the page is being read from: the live site, a preview or a dev
  * server, each of which serves an MCP server of its own, so the address
- * Claude is given is the one in front of the reader.
+ * an app is given is the one in front of the reader.
  */
 function useOrigin(): string {
   return useSyncExternalStore(
@@ -54,7 +58,7 @@ interface CopyBoxProps {
    * may wrap a command marked, which copying leaves out.
    */
   readonly shown?: ReactNode;
-  /** What the button copies, as a screen reader hears it: "the Claude Code command". */
+  /** What the button copies, as a screen reader hears it: "the command". */
   readonly what: string;
 }
 
@@ -142,11 +146,11 @@ function CopyBox({ text, shown = text, what }: CopyBoxProps) {
 }
 
 /**
- * How to add plan2go to Claude, in the two places a reader might use it: the
- * Claude app, claude.ai among them, which takes the address as a custom
- * connector, and Claude Code, which takes a command in a terminal. One at a
- * time, under tabs, the app first, since that is where most people meet
- * Claude.
+ * How to add plan2go to the reader's AI app, in the two ways apps add an MCP
+ * server: by its address, as a custom connector or a remote server, or by a
+ * command they run on the reader's own computer, for an app that only runs
+ * servers there. One at a time, under tabs, the address first, since most
+ * apps take one.
  *
  * Tabs as the pattern has them: the arrow keys, Home and End move between
  * them and show the one they land on, and only the one shown is on the way
@@ -155,8 +159,8 @@ function CopyBox({ text, shown = text, what }: CopyBoxProps) {
  */
 export function ConnectPlan2go() {
   const origin = useOrigin();
-  const [client, setClient] = useState<Client>("app");
-  const tabs = useRef<Partial<Record<Client, HTMLButtonElement | null>>>({});
+  const [way, setWay] = useState<Way>("address");
+  const tabs = useRef<Partial<Record<Way, HTMLButtonElement | null>>>({});
   const id = useId();
 
   const address = `${origin}${MCP_PATH}`;
@@ -171,8 +175,8 @@ export function ConnectPlan2go() {
   );
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    const at = CLIENTS.findIndex((one) => one.id === client);
-    const last = CLIENTS.length - 1;
+    const at = WAYS.findIndex((one) => one.id === way);
+    const last = WAYS.length - 1;
     const to =
       event.key === "ArrowRight"
         ? at === last
@@ -187,12 +191,12 @@ export function ConnectPlan2go() {
             : event.key === "End"
               ? last
               : null;
-    const next = to === null ? undefined : CLIENTS[to];
+    const next = to === null ? undefined : WAYS[to];
     if (next === undefined) {
       return;
     }
     event.preventDefault();
-    setClient(next.id);
+    setWay(next.id);
     tabs.current[next.id]?.focus();
   };
 
@@ -200,12 +204,12 @@ export function ConnectPlan2go() {
     <>
       <div
         role="tablist"
-        aria-label="Where you use Claude"
+        aria-label="What your app asks for"
         onKeyDown={onKeyDown}
         className="inline-flex self-start rounded-pill bg-paper p-1"
       >
-        {CLIENTS.map((one) => {
-          const selected = one.id === client;
+        {WAYS.map((one) => {
+          const selected = one.id === way;
           return (
             <button
               key={one.id}
@@ -219,7 +223,7 @@ export function ConnectPlan2go() {
               aria-controls={`${id}-${one.id}-panel`}
               tabIndex={selected ? 0 : -1}
               onClick={() => {
-                setClient(one.id);
+                setWay(one.id);
               }}
               className={`flex h-7 items-center rounded-pill px-3 text-[13px] leading-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
                 selected
@@ -235,38 +239,40 @@ export function ConnectPlan2go() {
 
       <div
         role="tabpanel"
-        id={`${id}-app-panel`}
-        aria-labelledby={`${id}-app-tab`}
-        hidden={client !== "app"}
+        id={`${id}-address-panel`}
+        aria-labelledby={`${id}-address-tab`}
+        hidden={way !== "address"}
         className="flex flex-col gap-4 [&[hidden]]:hidden"
       >
         <p className={FIELD_HINT}>
-          In claude.ai or the Claude app, add a custom connector in Settings, under Connectors,
-          with this address:
+          In your AI app, add a custom connector or MCP server in its settings, with this address:
         </p>
-        <CopyBox text={address} shown={shownAddress} what="the connector address" />
+        <CopyBox text={address} shown={shownAddress} what="the address" />
+        <p className={FIELD_HINT}>If the app asks how to sign in, choose no authentication.</p>
       </div>
 
       <div
         role="tabpanel"
-        id={`${id}-code-panel`}
-        aria-labelledby={`${id}-code-tab`}
-        hidden={client !== "code"}
+        id={`${id}-command-panel`}
+        aria-labelledby={`${id}-command-tab`}
+        hidden={way !== "command"}
         className="flex flex-col gap-4 [&[hidden]]:hidden"
       >
-        <p className={FIELD_HINT}>For Claude Code, run this in a terminal:</p>
-        {/* The flag kept whole: the page wraps its lines prettily, moving
-            words down to lengthen the last one, and took the flag apart at
-            its hyphens to do it. */}
+        <p className={FIELD_HINT}>
+          If your app only runs MCP servers on your own computer, add plan2go with this command,
+          which needs Node.js:
+        </p>
+        {/* The command kept on one line ahead of the address: the page wraps
+            its lines prettily, moving words down to lengthen the last one,
+            and takes words apart at their hyphens to do it. */}
         <CopyBox
-          text={`claude mcp add --transport http plan2go ${address}`}
+          text={`npx -y mcp-remote ${address}`}
           shown={
             <>
-              claude mcp add <span className="whitespace-nowrap">--transport</span> http plan2go{" "}
-              {shownAddress}
+              <span className="whitespace-nowrap">npx -y mcp-remote</span> {shownAddress}
             </>
           }
-          what="the Claude Code command"
+          what="the command"
         />
       </div>
     </>
