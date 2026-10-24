@@ -53,12 +53,17 @@ has no search field.
 Every trip opened this way is a row in the shared database. Delete them when done with
 `db.trip.deleteMany({ where: { slug: { in: [...] } } })`, which cascades.
 
-Under the form, the `section` headed "Plan it with Claude" has three Copy buttons, named
-"Copy the connector address", "Copy the Claude Code command" and "Copy the example
-prompt"; grant `clipboard-read` and `clipboard-write` to read back what they copied.
-The address is the browser's own origin plus `/api/mcp`, so a dev run shows
+Under the form, the `section` headed "Plan it with Claude" (`#plan-with-claude`) is an
+`ol` of two cards. The first has tabs, `getByRole("tab", { name: "Claude app" })` and
+"Claude Code", over two `tabpanel`s, the one not shown `hidden`; each panel has one Copy
+button, "Copy the connector address" or "Copy the Claude Code command", so switch tabs
+before pressing the second. Grant `clipboard-read` and `clipboard-write` to read back
+what they copied. The second card's example prompt has no Copy button. The address is
+the browser's own origin plus `/api/mcp`, so a dev run shows
 `http://localhost:3000/api/mcp`. The built HTML carries the live site's address
-instead: load the page with `javaScriptEnabled: false` to see how that one wraps.
+instead: load the page with `javaScriptEnabled: false` to see how that one wraps. The
+two headings and the step numbers are Caprasimo, loaded by `headline-font.ts` for this
+page alone.
 
 ## The search field
 

@@ -88,7 +88,10 @@ const SIZES = {
     stack: "shrink-0 max-lg:hidden",
   },
   large: {
-    trigger: "gap-2 px-5 py-[14px]",
+    // A control on two lines, 72px, on the starter page's scale. Roomier on a
+    // desk, from a width well past the ones the day's formats change at, so
+    // those still hold where they were measured.
+    trigger: "h-18 gap-2 px-5 @min-[400px]:px-6",
     change: "sr-only",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
@@ -164,9 +167,9 @@ interface DateRangeFieldProps {
 function End({ name, date }: { readonly name: string; readonly date: IsoDate | null }) {
   const day = date === null ? null : isoDateAsUtc(date);
   return (
-    <span className="flex min-w-0 flex-1 flex-col gap-[5px]">
+    <span className="flex min-w-0 flex-1 flex-col gap-1">
       <span className="text-[13px] leading-none font-semibold text-ink-muted">{name}</span>
-      <span className="truncate text-[14px] leading-[1.2] tabular-nums">
+      <span className="truncate text-[14px] leading-5 tabular-nums @min-[400px]:text-[16px]">
         {day === null ? (
           // Written as its escape because it is invisible: a space that does
           // not collapse, so the empty line keeps the height of a day.

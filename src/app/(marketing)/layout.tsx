@@ -23,14 +23,22 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-const COLUMN = "mx-auto w-full max-w-[1060px] px-8";
+/**
+ * As wide as the canvas draws the page: 1152px of it at 1280 and wider, two
+ * columns of 564 either side of a 24px gap, 64px in from the window's edges,
+ * and 32px in on anything narrower than a laptop.
+ */
+const COLUMN = "mx-auto w-full max-w-[1280px] px-8 lg:px-16";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className={`${COLUMN} flex grow flex-col justify-center pt-12 pb-16`}>{children}</main>
-      <footer className="border-t border-rule bg-paper-sunken">
-        <div className={`${COLUMN} py-6 text-meta text-ink-muted`}>
+      <main className={`${COLUMN} flex grow flex-col justify-center py-16`}>{children}</main>
+      {/* A step lighter than the page rather than a step darker, and with no
+          rule over it, as the canvas has it: the foot of the page, not a
+          band across it. */}
+      <footer className="bg-paper-raised">
+        <div className={`${COLUMN} py-5 text-[13px] leading-5 text-ink-muted`}>
           <p className="text-center">
             <Credit />
           </p>

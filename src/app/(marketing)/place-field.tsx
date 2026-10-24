@@ -34,8 +34,12 @@ export interface ChosenPlace {
   readonly address: string | null;
 }
 
-/** No vertical padding here: the input inside sets the height for both. */
-const FIELD = `${FIELD_SHELL} flex items-center gap-3 px-5 focus-within:border-terracotta`;
+/**
+ * A control's height, which the input inside fills, so the field is as tall
+ * as the button under it whatever the text in it. Set further in on a desk,
+ * where the card has the room.
+ */
+const FIELD = `${FIELD_SHELL} flex h-14 items-center gap-3 px-5 focus-within:border-terracotta md:px-6`;
 
 /**
  * What the panel says while it is looking and when it finds nothing. Both name
@@ -326,7 +330,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
           }}
           onPointerEnter={lookUpWorld}
           onKeyDown={onKeyDown}
-          className="min-w-0 flex-1 bg-transparent py-[17px] text-[16px] leading-[1.2] text-ink caret-terracotta outline-none placeholder:text-ink-faint"
+          className="h-full min-w-0 flex-1 bg-transparent text-[16px] leading-6 text-ink caret-terracotta outline-none placeholder:text-ink-faint"
         />
       </div>
 
@@ -336,20 +340,21 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
               out of sight under it, and with room of its own beneath, so a
               row going is cut clear of its words rather than against them. */}
           {headed ? (
-            <p className="px-[18px] pt-[13px] pb-2 text-label font-semibold text-ink-muted">
+            <p className="px-5 pt-3 pb-2 text-[12px] leading-4 font-semibold text-ink-muted">
               {SUGGESTED}
             </p>
           ) : null}
 
           {/* Five cities and half of the next at most, the half saying there
               are more, which scroll inside the panel; less on a window with
-              little height to spare. A search answers with five at most, so
-              its list never scrolls. Scrolled to by the keys with its padding
-              kept, so the first and last rows stand where they do at rest. */}
+              little height to spare. A row is 56px, a control's height, and a
+              search answers with five at most, so its list never scrolls.
+              Scrolled to by the keys with its padding kept, so the first and
+              last rows stand where they do at rest. */}
           <div
             ref={watchList}
-            className={`scroll-line max-h-[min(268px,45dvh)] overflow-y-auto overscroll-contain px-[7px] pb-[7px] scroll-pb-[7px] ${
-              headed ? "" : "pt-[7px] scroll-pt-[7px]"
+            className={`scroll-line max-h-[min(calc(5.5*56px),45dvh)] overflow-y-auto overscroll-contain px-2 pb-2 scroll-pb-2 ${
+              headed ? "" : "pt-2 scroll-pt-2"
             }`}
           >
             {listed ? (
@@ -377,15 +382,15 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
                       onClick={() => {
                         pick(place);
                       }}
-                      className={`block w-full rounded-chip px-[11px] py-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
+                      className={`block w-full rounded-chip px-3 py-2 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
                         index === active ? "bg-terracotta-100" : ""
                       }`}
                     >
-                      <span className="block text-meta font-semibold text-ink">
+                      <span className="block text-[14px] leading-5 font-semibold text-ink">
                         {place.name}
                       </span>
                       {place.address === null ? null : (
-                        <span className="block text-micro text-ink-muted">
+                        <span className="block text-[13px] leading-5 text-ink-muted">
                           {place.address}
                         </span>
                       )}
@@ -394,7 +399,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
                 ))}
               </ul>
             ) : (
-              <p className="px-[11px] py-[10px] text-meta text-ink-muted">
+              <p className="px-3 py-3 text-[14px] leading-5 text-ink-muted">
                 {offering ? LOOKING : (message ?? (searching ? LOOKING : NO_MATCH))}
               </p>
             )}
