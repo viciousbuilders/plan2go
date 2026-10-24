@@ -46,7 +46,8 @@ function Step({ number, title, children }: StepProps) {
  *
  * The heading with its one line beside it, and under them the two steps,
  * connecting and then asking, in the same two columns as the hero and
- * stacking where they do, each card as tall as the taller.
+ * stacking where they do, each card only as tall as what it holds, since an
+ * app's steps for connecting run far longer than the asking does.
  *
  * Drawn on the server. Only the connecting step's tabs and its copying need
  * the browser, so only they are sent to it.
@@ -67,7 +68,7 @@ export function PlanWithAi() {
         </p>
       </div>
 
-      <ol className="grid items-stretch gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
+      <ol className="grid items-start gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
         <Step number={1} title="Connect plan2go">
           <ConnectPlan2go />
         </Step>

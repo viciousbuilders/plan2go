@@ -54,13 +54,20 @@ Every trip opened this way is a row in the shared database. Delete them when don
 `db.trip.deleteMany({ where: { slug: { in: [...] } } })`, which cascades.
 
 Under the form, the `section` headed "Plan it with AI" (`#plan-with-ai`) is an `ol` of
-two cards. The first has tabs, `getByRole("tab", { name: "Address" })` and "Command",
-over two `tabpanel`s, the one not shown `hidden`; each panel has one Copy button, "Copy
-the address" or "Copy the command", so switch tabs before pressing the second. Grant
-`clipboard-read` and `clipboard-write` to read back what they copied. The second card's
-example prompt has no Copy button. The address is the browser's own origin plus
-`/api/mcp`, so a dev run shows `http://localhost:3000/api/mcp`, and the command is
-`npx -y mcp-remote` and that address. The built HTML carries the live site's address
+two cards, each only as tall as what it holds. The first has a `tablist` named "Your AI
+app" with seven tabs, Claude, ChatGPT, Claude Code, Codex, Cursor, VS Code and Other
+apps, over seven `tabpanel`s, the ones not shown `hidden`. Name the first tab with
+`exact: true`, since "Claude" also matches "Claude Code". The tabs are one row that
+scrolls sideways: at 1280px wide Other apps is beyond its right end, and the round
+arrows "Scroll back through the apps" and "Scroll on through the apps" are there only
+while there is more of the row that way. Each panel has its own Copy buttons, named for
+what they copy ("Copy the address", "Copy the Claude Code command", "Copy the Codex
+command", "Copy the Cursor settings", "Copy the command"), and the Cursor and VS Code
+panels have links named "Add to Cursor" and "Add to VS Code", whose `cursor://` and
+`vscode:` hrefs carry the address in their settings. Grant `clipboard-read` and
+`clipboard-write` to read back what they copied. The second card's example prompt has no
+Copy button. The address is the browser's own origin plus `/api/mcp`, so a dev run
+shows `http://localhost:3000/api/mcp`. The built HTML carries the live site's address
 instead: load the page with `javaScriptEnabled: false` to see how that one wraps. The
 two headings and the step numbers are Caprasimo, loaded by `headline-font.ts` for this
 page alone.
