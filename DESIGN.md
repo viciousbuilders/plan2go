@@ -153,7 +153,7 @@ Warm cream paper, over-rounded shapes, a terracotta accent with sage as a second
 voice, and the times louder than anything else on the page.
 
 This file is the source of truth for `src/app/t/`, `src/features/`, and `src/ui/`. It
-overrides the vendored `design-taste-frontend` skill inside the app shell.
+overrides the `design-taste-frontend` skill inside the app shell.
 
 The token values above are mirrored in the `@theme` block of `src/app/globals.css`.
 When one changes the other changes in the same commit.

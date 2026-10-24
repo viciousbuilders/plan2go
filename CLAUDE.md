@@ -78,7 +78,7 @@ own on the server (`puppeteer-core` and `@sparticuz/chromium`, in `src/server/pd
 so the sheets are written once and the file is the preview.
 
 **Design.** `DESIGN.md` is the source of truth for anything under `src/app/t/`,
-`src/features/`, or `src/ui/`, and it overrides the vendored `design-taste-frontend`
+`src/features/`, or `src/ui/`, and it overrides the `design-taste-frontend`
 skill there. That skill governs the marketing page and the share view only.
 
 ## Conventions

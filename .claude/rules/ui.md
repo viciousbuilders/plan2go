@@ -9,7 +9,7 @@ paths:
 
 Defer to `DESIGN.md`. It holds the palette, the type scale, the radius system, the two
 layouts, the motion policy, the print rules, and the banned list. Where it disagrees
-with any general design guidance, including the vendored `design-taste-frontend` skill,
+with any general design guidance, including the `design-taste-frontend` skill,
 `DESIGN.md` wins.
 
 A component that would be meaningless in another product belongs to a feature, not to
