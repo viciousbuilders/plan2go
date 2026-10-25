@@ -34,12 +34,13 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <div className="relative flex min-h-dvh flex-col">
       <main className={MAIN}>{children}</main>
-      {/* Who made this, small in the bottom corner, as "plan2go First Page
-          v5" has it: over the foot of the form's panel on a desk, which
-          keeps that room clear for it, and after everything on a phone,
-          where the panel is in the middle of the page. In the muted ink
-          rather than the canvas's lighter one, which is too faint to read
-          at this size on that panel. */}
+      {/* Who made this, small in the bottom corner where "plan2go First
+          Page v5" puts it: over the foot of the form's panel on a desk,
+          which keeps that room clear for it, and after everything on a
+          phone, where the panel is in the middle of the page. Said as the
+          band at the foot of the page said it before, heart and all: the
+          words in the muted ink, the heart and the name a shade darker
+          than the accent. */}
       <footer className="px-[clamp(24px,5vw,60px)] pb-[30px] text-right text-[12px] leading-none text-ink-muted min-[860px]:absolute min-[860px]:right-10 min-[860px]:bottom-[30px] min-[860px]:p-0">
         <Credit />
       </footer>

@@ -61,9 +61,9 @@ as the v3 Mobile canvas had it, and no Kyoto. On a desk 600px tall or more the p
 the window's height and never scrolls: from 980px tall down to 700 the room, lockup,
 headline and form spacing come down (`page.css`), and the Kyoto card takes the height
 left and is scaled to fit, gone under 0.6 of its 277px. Check a size by
-`document.documentElement.scrollHeight` against the window's. "Made by viciousbuilders",
-a link, sits in the bottom right corner, over the form's panel on a desk and last on a
-phone. The
+`document.documentElement.scrollHeight` against the window's. "Made with ♥ by
+viciousbuilders", the heart and the linked name in `terracotta-700`, sits in the bottom
+right corner, over the form's panel on a desk and last on a phone. The
 form's "Start planning" is disabled until a city is chosen, with a line under it saying
 what comes next, and the "Dates" row over the dates field has a `role="status"` pill,
 "5 days" as the form opens. Beside the form on a desk, under it below 860px, is the
