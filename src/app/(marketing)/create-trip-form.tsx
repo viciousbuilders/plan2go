@@ -1,15 +1,17 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useId, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
-import { addDays } from "@/core/time/zoned";
+import { addDays, daysBetween } from "@/core/time/zoned";
 import { DateRangeField, DateRangeWaiting } from "@/features/trip-settings/date-range-field";
+import { ArrowRightIcon } from "@/ui/icons";
 import { useLocalToday } from "@/ui/use-local-today";
 import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import type { ChosenPlace } from "./place-field";
 import { PlaceField } from "./place-field";
 import { createTripAction } from "./create-trip-action";
 import type { CreateTripFormState } from "./create-trip-action";
+import { FIELD_LABEL } from "./field-styles";
 import { Notice } from "@/ui/notice";
 
 // Lives here, not beside the action: a "use server" file may export only async
@@ -55,11 +57,14 @@ export function CreateTripForm() {
     setCityChangedUnder(state);
   };
   const error = state.field === "city" && cityChangedUnder === state ? null : state.error;
+  /** How many days the trip runs, both ends counted, as the pill over the dates says it. */
+  const days = chosen === null ? OPENING_SPAN_DAYS + 1 : daysBetween(chosen.start, chosen.end) + 1;
+  const helperId = useId();
 
   return (
     <form
       action={submit}
-      className="flex flex-col gap-6 rounded-card border border-rule bg-paper-sunken p-6 shadow-md md:p-8"
+      className="flex flex-col gap-[18px] rounded-[28px] bg-paper-raised p-5 shadow-md sm:gap-5 sm:rounded-[32px] sm:p-8"
     >
       <div>
         <PlaceField
@@ -72,7 +77,19 @@ export function CreateTripForm() {
         />
       </div>
 
-      <div>
+      <div className="flex flex-col gap-2.5">
+        <div className="flex items-center justify-between gap-3">
+          {/* For the eye: the field names itself to a screen reader. */}
+          <span aria-hidden="true" className={FIELD_LABEL}>
+            Dates
+          </span>
+          <span
+            role="status"
+            className="rounded-pill bg-sage-100 px-2.5 py-1.5 text-[13px] leading-none font-bold text-sage-800"
+          >
+            {`${String(days)} ${days === 1 ? "day" : "days"}`}
+          </span>
+        </div>
         {today === null ? (
           <DateRangeWaiting id="tripDates" label="Dates" />
         ) : (
@@ -98,17 +115,36 @@ export function CreateTripForm() {
         </Notice>
       )}
 
-      {/* Not open to a press until the dates are there to send. The page is
-          served without them, and a form sent before the browser has said
-          what today is would come back saying the first day is missing, with
-          nowhere yet to enter one. */}
-      <button
-        type="submit"
-        disabled={pending || today === null}
-        className="h-14 w-full rounded-pill bg-terracotta px-6 font-body text-[16px] leading-none font-bold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-      >
-        {pending ? "Making the trip" : "Start planning"}
-      </button>
+      {/* Not open to a press until there is a city and the dates are there
+          to send, with the line under it saying which is still to come. The
+          page is served without the dates, and a form sent before the
+          browser has said what today is would come back saying the first day
+          is missing, with nowhere yet to enter one. */}
+      <div className="flex flex-col gap-3 pt-1">
+        <button
+          type="submit"
+          disabled={pending || today === null || city === null}
+          aria-describedby={helperId}
+          className="flex h-14 w-full items-center justify-center gap-2.5 rounded-pill bg-terracotta px-6 font-body text-[17px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          {pending ? (
+            "Making the trip"
+          ) : (
+            <>
+              Start planning
+              <ArrowRightIcon size={18} strokeWidth={2.75} />
+            </>
+          )}
+        </button>
+        <p
+          id={helperId}
+          className="text-center text-[14px] leading-[1.4] font-medium text-pretty text-ink-muted"
+        >
+          {city === null
+            ? "Type your first city to begin. You can add more cities next."
+            : "Next, add more cities and fill each day."}
+        </p>
+      </div>
     </form>
   );
 }

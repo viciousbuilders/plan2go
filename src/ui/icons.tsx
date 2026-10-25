@@ -592,3 +592,31 @@ export function ChartIcon(props: IconProps) {
     </Glyph>
   );
 }
+
+/** A four pointed star: something an assistant does for you. */
+export function SparkleIcon(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+    </Glyph>
+  );
+}
+
+/** Two sheets, one over the other: put a copy of this on the clipboard. */
+export function CopyIcon(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <rect x="8" y="8" width="14" height="14" rx="3" />
+      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+    </Glyph>
+  );
+}
+
+/** A closed book: somebody else's guide to the same thing. */
+export function BookIcon(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    </Glyph>
+  );
+}

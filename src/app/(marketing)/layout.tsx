@@ -24,16 +24,20 @@ export const metadata: Metadata = {
 };
 
 /**
- * As wide as the canvas draws the page: 1152px of it at 1280 and wider, two
- * columns of 564 either side of a 24px gap, 64px in from the window's edges,
- * and 32px in on anything narrower than a laptop.
+ * As wide as the canvas draws the page: 1200px at most, 32px in from the
+ * window's edges, and 20px in on a phone. Down from the top by 48px, and by 8
+ * on a phone, whose own bar is already over the top of it, with the foot of
+ * the page kept to the bottom of the window however little is above it.
  */
+const MAIN = "mx-auto flex w-full max-w-[1200px] grow flex-col px-5 pt-2 pb-12 sm:px-8 sm:pt-12 sm:pb-24";
+
+/** The foot's own measure, as the earlier canvas drew the whole page. */
 const COLUMN = "mx-auto w-full max-w-[1280px] px-8 lg:px-16";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className={`${COLUMN} flex grow flex-col justify-center py-16`}>{children}</main>
+      <main className={MAIN}>{children}</main>
       {/* A step lighter than the page rather than a step darker, and with no
           rule over it, as the canvas has it: the foot of the page, not a
           band across it. */}

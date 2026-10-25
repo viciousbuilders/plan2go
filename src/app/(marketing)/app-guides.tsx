@@ -1,24 +1,25 @@
 import type { ReactNode } from "react";
-import { ArrowRightIcon } from "@/ui/icons";
+import { ArrowRightIcon, BookIcon, InfoIcon, SparkleIcon } from "@/ui/icons";
 import { CopyBox } from "./copy-box";
-import { FIELD_HINT } from "./field-styles";
 
-/** Every app the connecting step has a tab for. */
-export type AppId = "claude" | "chatgpt" | "claude-code" | "codex" | "cursor" | "vscode" | "other";
+/** Every app the steps for connecting have a page for. */
+export type AppId = "claude" | "chatgpt" | "other" | "claude-code" | "codex" | "cursor" | "vscode";
 
 interface GuideProps {
   /** The deployment's MCP address, as it is copied. */
   readonly address: string;
-  /** The same address as it is shown, free to wrap before its path. */
-  readonly shownAddress: ReactNode;
 }
 
-interface AppGuide {
+export interface AppGuide {
   readonly id: AppId;
-  /** The app's own name, as its tab says it. */
+  /** The app's own name, as the list of apps says it. */
   readonly label: string;
-  /** How that app adds plan2go, step by step, in the words on its own screens. */
+  /** What the steps call the app: its name, or "your app" for the catch-all. */
+  readonly called: string;
+  /** Anything the app needs said first, its one-click link, and its steps. */
   readonly Guide: (props: GuideProps) => ReactNode;
+  /** What is worth knowing once the steps are done, under them. */
+  readonly notes: readonly string[];
   /**
    * The app maker's own page on adding a server, for when its screens have
    * moved on from these steps. Every app but the catch-all has one.
@@ -28,42 +29,49 @@ interface AppGuide {
 
 /** A name on the app's own screen, set off so the reader can look for it there. */
 function Ui({ children }: { readonly children: ReactNode }) {
-  return <b className="font-semibold text-ink">{children}</b>;
+  return <b className="font-bold text-ink">{children}</b>;
 }
 
 /** A file's path, in the face the code is in. */
 function Path({ children }: { readonly children: ReactNode }) {
-  return <code className="font-mono text-[13px] text-ink">{children}</code>;
+  return <code className="font-mono text-[13px]">{children}</code>;
 }
 
-/** The steps, numbered, in the size and colour of a hint, the numbers a step quieter. */
-function Steps({ children }: { readonly children: ReactNode }) {
-  return (
-    <ol
-      className={`${FIELD_HINT} flex list-decimal flex-col gap-3 pl-5 marker:font-semibold marker:text-ink-faint`}
-    >
-      {children}
-    </ol>
-  );
-}
-
-/** What a step says to copy, under its words. */
-function ToCopy({ children }: { readonly children: ReactNode }) {
-  return <div className="mt-3">{children}</div>;
+function StepList({ children }: { readonly children: ReactNode }) {
+  return <ol className="flex flex-col gap-3">{children}</ol>;
 }
 
 /**
- * A link that opens the app on its own offer to add plan2go, in the colours
- * and the size of the Copy button, with an arrow, as it goes somewhere.
+ * One step: its number, right aligned in a narrow column so the words of
+ * every step start on one line, then the words and anything to copy under
+ * them. Left without a number it is an aside, such as "Or add it yourself",
+ * and runs the width of the list.
+ */
+function Step({ n, children }: { readonly n?: number; readonly children: ReactNode }) {
+  return (
+    <li className="flex gap-2 text-[15px] leading-normal text-ink/80">
+      {n === undefined ? null : <span className="w-[18px] flex-none text-right">{n}.</span>}
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5">{children}</div>
+    </li>
+  );
+}
+
+function Words({ children }: { readonly children: ReactNode }) {
+  return <span className="text-pretty">{children}</span>;
+}
+
+/**
+ * A link that opens the app on its own offer to add plan2go, in the
+ * accent's lightest tint, with an arrow, as it goes somewhere.
  */
 function AddTo({ app, href }: { readonly app: string; readonly href: string }) {
   return (
     <a
       href={href}
-      className="inline-flex h-7 items-center gap-1.5 self-start rounded-pill bg-terracotta-100 px-3 text-[13px] leading-none font-bold text-terracotta-800 hover:bg-terracotta-200 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      className="flex h-[34px] items-center gap-1.5 self-start rounded-pill bg-terracotta-100 px-3.5 text-[14px] leading-none font-bold text-terracotta-800 hover:bg-terracotta-200 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
       Add to {app}
-      <ArrowRightIcon size={12} strokeWidth={3} />
+      <ArrowRightIcon size={14} strokeWidth={2.75} />
     </a>
   );
 }
@@ -72,32 +80,37 @@ function AddTo({ app, href }: { readonly app: string; readonly href: string }) {
  * Claude, on the web or in the desktop app, which adds a server as a custom
  * connector, asks how to sign in to it, and has it turned on chat by chat.
  */
-function ClaudeGuide({ address, shownAddress }: GuideProps) {
+function ClaudeGuide({ address }: GuideProps) {
   return (
-    <>
-      <Steps>
-        <li>
+    <StepList>
+      <Step n={1}>
+        <Words>
           In Claude on the web or the desktop app, open <Ui>Customize</Ui>, then{" "}
           <Ui>Connectors</Ui>.
-        </li>
-        <li>
+        </Words>
+      </Step>
+      <Step n={2}>
+        <Words>
           Select <Ui>+ Add</Ui>, then <Ui>Add custom connector</Ui>, and name it plan2go.
-        </li>
-        <li>
+        </Words>
+      </Step>
+      <Step n={3}>
+        <Words>
           Paste this address and select <Ui>Continue</Ui>:
-          <ToCopy>
-            <CopyBox text={address} shown={shownAddress} what="the address" />
-          </ToCopy>
-        </li>
-        <li>
+        </Words>
+        <CopyBox text={address} what="the address" kind="code" />
+      </Step>
+      <Step n={4}>
+        <Words>
           Under <Ui>Authentication</Ui>, choose <Ui>No sign in</Ui>, then select <Ui>Add</Ui>.
-        </li>
-        <li>
+        </Words>
+      </Step>
+      <Step n={5}>
+        <Words>
           In a chat, select <Ui>+</Ui>, then <Ui>Connectors</Ui>, and turn plan2go on.
-        </li>
-      </Steps>
-      <p className={FIELD_HINT}>On the Free plan, Claude allows one custom connector.</p>
-    </>
+        </Words>
+      </Step>
+    </StepList>
   );
 }
 
@@ -106,62 +119,85 @@ function ClaudeGuide({ address, shownAddress }: GuideProps) {
  * one make changes, as opening and planning a trip does, only on the plans
  * for workplaces and schools, once developer mode is on.
  */
-function ChatGptGuide({ address, shownAddress }: GuideProps) {
+function ChatGptGuide({ address }: GuideProps) {
   return (
     <>
-      <p className={FIELD_HINT}>
+      <p className="text-[15px] leading-normal text-pretty text-ink/75">
         Planning a trip needs an app that can open and change trips, which ChatGPT allows on
         Business, Enterprise and Edu plans, once an admin turns on developer mode.
       </p>
-      <Steps>
-        <li>
-          In ChatGPT on the web, open <Ui>Plugins</Ui>, select <Ui>+</Ui>, then{" "}
-          <Ui>Add custom MCP server</Ui>.
-        </li>
-        <li>
-          Paste this address:
-          <ToCopy>
-            <CopyBox text={address} shown={shownAddress} what="the address" />
-          </ToCopy>
-        </li>
-        <li>
-          Under authentication, choose <Ui>No authentication</Ui>.
-        </li>
-        <li>
-          Select <Ui>I understand and want to continue</Ui>, then <Ui>Create as a plugin</Ui>.
-        </li>
-      </Steps>
+      <StepList>
+        <Step n={1}>
+          <Words>
+            In ChatGPT on the web, open <Ui>Plugins</Ui>, select <Ui>+</Ui>, then{" "}
+            <Ui>Add custom MCP server</Ui>.
+          </Words>
+        </Step>
+        <Step n={2}>
+          <Words>Paste this address:</Words>
+          <CopyBox text={address} what="the address" kind="code" />
+        </Step>
+        <Step n={3}>
+          <Words>
+            Under authentication, choose <Ui>No authentication</Ui>.
+          </Words>
+        </Step>
+        <Step n={4}>
+          <Words>
+            Select <Ui>I understand and want to continue</Ui>, then <Ui>Create as a plugin</Ui>.
+          </Words>
+        </Step>
+      </StepList>
     </>
   );
 }
 
-/** Claude Code, which adds a server with a command in a terminal. */
-function ClaudeCodeGuide({ address, shownAddress }: GuideProps) {
+/**
+ * Any other app that speaks MCP: the address, which most take, or, for an
+ * app that only runs servers on the reader's own computer, a bridge to it.
+ */
+function OtherGuide({ address }: GuideProps) {
   return (
-    <Steps>
-      <li>
-        In a terminal, run:
-        <ToCopy>
-          {/* The flag kept whole: the page wraps its lines prettily, moving
-              words down to lengthen the last one, and took the flag apart at
-              its hyphens to do it. */}
-          <CopyBox
-            text={`claude mcp add --transport http plan2go ${address}`}
-            shown={
-              <>
-                claude mcp add <span className="whitespace-nowrap">--transport</span> http
-                plan2go {shownAddress}
-              </>
-            }
-            what="the Claude Code command"
-          />
-        </ToCopy>
-      </li>
-      <li>
-        Start Claude Code and ask for a trip. Typing <Ui>/mcp</Ui> shows whether plan2go is
-        connected.
-      </li>
-    </Steps>
+    <StepList>
+      <Step n={1}>
+        <Words>
+          In your app, add a custom connector or MCP server in its settings, with this address:
+        </Words>
+        <CopyBox text={address} what="the address" kind="code" />
+      </Step>
+      <Step n={2}>
+        <Words>If the app asks how to sign in, choose no authentication.</Words>
+      </Step>
+      <Step n={3}>
+        <Words>
+          If your app only runs MCP servers on your own computer, add plan2go with this command
+          instead, which needs Node.js:
+        </Words>
+        <CopyBox text={`npx -y mcp-remote ${address}`} what="the command" kind="code" />
+      </Step>
+    </StepList>
+  );
+}
+
+/** Claude Code, which adds a server with a command in a terminal. */
+function ClaudeCodeGuide({ address }: GuideProps) {
+  return (
+    <StepList>
+      <Step n={1}>
+        <Words>In a terminal, run:</Words>
+        <CopyBox
+          text={`claude mcp add --transport http plan2go ${address}`}
+          what="the Claude Code command"
+          kind="code"
+        />
+      </Step>
+      <Step n={2}>
+        <Words>
+          Start Claude Code and ask for a trip. Typing <Ui>/mcp</Ui> shows whether plan2go is
+          connected.
+        </Words>
+      </Step>
+    </StepList>
   );
 }
 
@@ -169,31 +205,21 @@ function ClaudeCodeGuide({ address, shownAddress }: GuideProps) {
  * Codex, which adds a server with a command in a terminal, to a setup that
  * the ChatGPT desktop app and Codex in a code editor read as well.
  */
-function CodexGuide({ address, shownAddress }: GuideProps) {
+function CodexGuide({ address }: GuideProps) {
   return (
-    <>
-      <Steps>
-        <li>
-          In a terminal, run:
-          <ToCopy>
-            <CopyBox
-              text={`codex mcp add plan2go --url ${address}`}
-              shown={
-                <>
-                  codex mcp add plan2go <span className="whitespace-nowrap">--url</span>{" "}
-                  {shownAddress}
-                </>
-              }
-              what="the Codex command"
-            />
-          </ToCopy>
-        </li>
-        <li>Start Codex and ask for a trip.</li>
-      </Steps>
-      <p className={FIELD_HINT}>
-        The ChatGPT desktop app and Codex in your code editor share this setup.
-      </p>
-    </>
+    <StepList>
+      <Step n={1}>
+        <Words>In a terminal, run:</Words>
+        <CopyBox
+          text={`codex mcp add plan2go --url ${address}`}
+          what="the Codex command"
+          kind="code"
+        />
+      </Step>
+      <Step n={2}>
+        <Words>Start Codex and ask for a trip.</Words>
+      </Step>
+    </StepList>
   );
 }
 
@@ -210,10 +236,14 @@ function CursorGuide({ address }: GuideProps) {
   return (
     <>
       <AddTo app="Cursor" href={link} />
-      <p className={FIELD_HINT}>
-        Or add it yourself, in <Path>~/.cursor/mcp.json</Path>:
-      </p>
-      <CopyBox text={file} what="the Cursor settings" lines />
+      <StepList>
+        <Step>
+          <Words>
+            Or add it yourself, in <Path>~/.cursor/mcp.json</Path>:
+          </Words>
+          <CopyBox text={file} what="the Cursor settings" kind="code" />
+        </Step>
+      </StepList>
     </>
   );
 }
@@ -222,117 +252,164 @@ function CursorGuide({ address }: GuideProps) {
  * VS Code, which opens on its own offer to add a server from a link carrying
  * its name and settings, or adds one from the Command Palette.
  */
-function VsCodeGuide({ address, shownAddress }: GuideProps) {
+function VsCodeGuide({ address }: GuideProps) {
   const settings = JSON.stringify({ name: "plan2go", type: "http", url: address });
   const link = `vscode:mcp/install?${encodeURIComponent(settings)}`;
   return (
     <>
       <AddTo app="VS Code" href={link} />
-      <p className={FIELD_HINT}>Or add it yourself:</p>
-      <Steps>
-        <li>
-          Open the Command Palette and run <Ui>MCP: Add Server</Ui>.
-        </li>
-        <li>
-          Choose <Ui>HTTP</Ui> and paste this address:
-          <ToCopy>
-            <CopyBox text={address} shown={shownAddress} what="the address" />
-          </ToCopy>
-        </li>
-        <li>
-          Name it plan2go, then choose <Ui>Global</Ui>, and <Ui>Copilot Global</Ui> if it asks.
-        </li>
-      </Steps>
+      <StepList>
+        <Step>
+          <Words>Or add it yourself:</Words>
+        </Step>
+        <Step n={1}>
+          <Words>
+            Open the Command Palette and run <Ui>MCP: Add Server</Ui>.
+          </Words>
+        </Step>
+        <Step n={2}>
+          <Words>
+            Choose <Ui>HTTP</Ui> and paste this address:
+          </Words>
+          <CopyBox text={address} what="the address" kind="code" />
+        </Step>
+        <Step n={3}>
+          <Words>
+            Name it plan2go, then choose <Ui>Global</Ui>, and <Ui>Copilot Global</Ui> if it asks.
+          </Words>
+        </Step>
+      </StepList>
     </>
   );
 }
 
+const ASIDE = "flex items-start gap-2 text-[13px] leading-normal font-medium text-ink/70";
+
 /**
- * Any other app that speaks MCP: the address, which most take, or, for an
- * app that only runs servers on the reader's own computer, a bridge to it.
+ * One app's way of connecting, as the steps show it: its own steps, then the
+ * one thing every app comes to once they are done, asking for the trip, then
+ * whatever is worth knowing and where its maker keeps the latest steps.
  */
-function OtherGuide({ address, shownAddress }: GuideProps) {
+export function AppSteps({ guide, address }: { readonly guide: AppGuide; readonly address: string }) {
+  const { Guide, called, notes, help } = guide;
   return (
-    <Steps>
-      <li>
-        In your app, add a custom connector or MCP server in its settings, with this address:
-        <ToCopy>
-          <CopyBox text={address} shown={shownAddress} what="the address" />
-        </ToCopy>
-      </li>
-      <li>If the app asks how to sign in, choose no authentication.</li>
-      <li>
-        If your app only runs MCP servers on your own computer, add plan2go with this command
-        instead, which needs Node.js:
-        <ToCopy>
-          {/* The command kept on one line ahead of the address: the page wraps
-              its lines prettily, moving words down to lengthen the last one,
-              and takes words apart at their hyphens to do it. */}
-          <CopyBox
-            text={`npx -y mcp-remote ${address}`}
-            shown={
-              <>
-                <span className="whitespace-nowrap">npx -y mcp-remote</span> {shownAddress}
-              </>
-            }
-            what="the command"
-          />
-        </ToCopy>
-      </li>
-    </Steps>
+    <div className="flex flex-col gap-4">
+      <Guide address={address} />
+      <div className="flex items-center gap-3 rounded-[20px] bg-sage-100 px-4 py-3.5 text-sage-900">
+        <span className="grid size-8 flex-none place-items-center rounded-pill bg-sage text-sheet">
+          <SparkleIcon size={16} strokeWidth={2.75} />
+        </span>
+        <span className="text-[15px] leading-[1.45] font-semibold text-pretty">
+          Once it’s connected, ask {called} in your own words to create the trip for you.
+        </span>
+      </div>
+      {notes.length === 0 && help === null ? null : (
+        <div className="flex flex-col gap-2 px-1 pt-0.5">
+          {notes.map((note) => (
+            <p key={note} className={ASIDE}>
+              <InfoIcon size={15} strokeWidth={2.75} className="mt-0.5 flex-none" />
+              <span>{note}</span>
+            </p>
+          ))}
+          {help === null ? null : (
+            <p className={ASIDE}>
+              <BookIcon size={15} strokeWidth={2.75} className="mt-0.5 flex-none" />
+              <span>
+                Screen looks different?{" "}
+                <a
+                  href={help.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-terracotta-800 underline hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                >
+                  {help.name}
+                </a>{" "}
+                has the latest steps.
+              </span>
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
 /**
- * The apps in the order their tabs stand: the two chat apps most people meet
- * an assistant in, Claude first since every plan there can add plan2go, then
- * the coding tools, then every other app.
+ * The apps in their two groups, as the list beside the steps stands: the
+ * chat apps most people meet an assistant in, Claude first since every plan
+ * there can add plan2go, with the catch-all for every other app after them,
+ * then the coding tools.
  */
-export const APP_GUIDES: readonly AppGuide[] = [
+export const APP_GROUPS: readonly { readonly name: string; readonly apps: readonly AppGuide[] }[] = [
   {
-    id: "claude",
-    label: "Claude",
-    Guide: ClaudeGuide,
-    help: {
-      name: "Claude's guide",
-      href: "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
-    },
+    name: "Chat apps",
+    apps: [
+      {
+        id: "claude",
+        label: "Claude",
+        called: "Claude",
+        Guide: ClaudeGuide,
+        notes: ["On the Free plan, Claude allows one custom connector."],
+        help: {
+          name: "Claude's guide",
+          href: "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
+        },
+      },
+      {
+        id: "chatgpt",
+        label: "ChatGPT",
+        called: "ChatGPT",
+        Guide: ChatGptGuide,
+        notes: [],
+        help: {
+          name: "OpenAI's guide",
+          href: "https://developers.openai.com/plugins/deploy/connect-chatgpt",
+        },
+      },
+      { id: "other", label: "Other apps", called: "your app", Guide: OtherGuide, notes: [], help: null },
+    ],
   },
   {
-    id: "chatgpt",
-    label: "ChatGPT",
-    Guide: ChatGptGuide,
-    help: {
-      name: "OpenAI's guide",
-      href: "https://developers.openai.com/plugins/deploy/connect-chatgpt",
-    },
+    name: "Code tools",
+    apps: [
+      {
+        id: "claude-code",
+        label: "Claude Code",
+        called: "Claude Code",
+        Guide: ClaudeCodeGuide,
+        notes: [],
+        help: { name: "the Claude Code guide", href: "https://code.claude.com/docs/en/mcp" },
+      },
+      {
+        id: "codex",
+        label: "Codex",
+        called: "Codex",
+        Guide: CodexGuide,
+        notes: ["The ChatGPT desktop app and Codex in your code editor share this setup."],
+        help: { name: "the Codex guide", href: "https://developers.openai.com/codex/mcp" },
+      },
+      {
+        id: "cursor",
+        label: "Cursor",
+        called: "Cursor",
+        Guide: CursorGuide,
+        notes: [],
+        help: { name: "the Cursor guide", href: "https://cursor.com/docs/mcp" },
+      },
+      {
+        id: "vscode",
+        label: "VS Code",
+        called: "VS Code",
+        Guide: VsCodeGuide,
+        notes: [],
+        help: {
+          name: "the VS Code guide",
+          href: "https://code.visualstudio.com/docs/agent-customization/mcp-servers",
+        },
+      },
+    ],
   },
-  {
-    id: "claude-code",
-    label: "Claude Code",
-    Guide: ClaudeCodeGuide,
-    help: { name: "the Claude Code guide", href: "https://code.claude.com/docs/en/mcp" },
-  },
-  {
-    id: "codex",
-    label: "Codex",
-    Guide: CodexGuide,
-    help: { name: "the Codex guide", href: "https://developers.openai.com/codex/mcp" },
-  },
-  {
-    id: "cursor",
-    label: "Cursor",
-    Guide: CursorGuide,
-    help: { name: "the Cursor guide", href: "https://cursor.com/docs/mcp" },
-  },
-  {
-    id: "vscode",
-    label: "VS Code",
-    Guide: VsCodeGuide,
-    help: {
-      name: "the VS Code guide",
-      href: "https://code.visualstudio.com/docs/agent-customization/mcp-servers",
-    },
-  },
-  { id: "other", label: "Other apps", Guide: OtherGuide, help: null },
 ];
+
+/** Every app, in the order the list stands. */
+export const APP_GUIDES: readonly AppGuide[] = APP_GROUPS.flatMap((group) => group.apps);

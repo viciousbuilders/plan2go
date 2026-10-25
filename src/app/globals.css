@@ -358,6 +358,15 @@
     }
   }
 
+  /*
+   * While a modal dialog is up over the page, as the front page's steps for
+   * connecting an assistant are, the page under it stays where it was rather
+   * than scrolling on behind the backdrop.
+   */
+  html:has(dialog:modal) {
+    overflow: hidden;
+  }
+
   body {
     background-color: var(--color-paper);
     color: var(--color-ink);

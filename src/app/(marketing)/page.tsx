@@ -1,9 +1,9 @@
 import Image from "next/image";
 // Imported rather than served from public/, so Next sizes and hashes it.
 import lockup from "../../../logo/logo-text.png";
+import { AiBox } from "./ai-box";
 import { CreateTripForm } from "./create-trip-form";
 import { headlineFont } from "./headline-font";
-import { PlanWithAi } from "./plan-with-ai";
 
 /**
  * Built once and served as it is, from the edge nearest the reader, rather
@@ -14,56 +14,44 @@ import { PlanWithAi } from "./plan-with-ai";
  */
 export default function MarketingPage() {
   return (
-    <div className="flex flex-col gap-16 md:gap-20">
-      {/*
-       * What the product is on one side, the form that starts one on the other.
-       * The columns are auto-fit rather than a breakpoint, so the pair splits
-       * when there is room for both and stacks when there is not, without this
-       * page having to name the width at which that happens. A column is never
-       * wider than the page, so a phone narrower than one still gets a column
-       * that fits rather than a page that scrolls sideways. Two columns sit
-       * 24px apart, the same gap as the cards under them; stacked, the words
-       * and the form keep more room between them than that.
-       *
-       * Aligned along their tops, as the canvas has them: the lockup sits level
-       * with the top of the card, and the words hang from it. The pair and the
-       * way to plan with AI under it are centred in the page together by
-       * the layout around them, so what is left over is shared out above and
-       * beneath them rather than piled under them.
-       */}
-      <div className="grid items-start gap-x-6 gap-y-12 [grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))]">
-        <div className="flex flex-col gap-6">
-          {/* Raised by the 4px of clear margin the picture has over its
-              drawing, so the drawing itself is level with the card's top. */}
-          <Image
-            src={lockup}
-            alt="plan2go"
-            width={336}
-            height={124}
-            preload
-            className="-mt-1 h-auto w-[min(336px,80%)]"
-          />
+    // Drawn to "plan2go First Page v3" and its mobile canvas. On a desk, what
+    // the product is in the left column with the way to plan it with AI under
+    // it, and the form that starts a trip in the right, centred against the
+    // two of them. Below the width where two columns of 440px and the gap
+    // between them fit, one column, the form straight after the words and
+    // the way with AI after the form, as the phone has them.
+    <section className="grid gap-6 [grid-template-areas:'hero'_'form'_'ai'] min-[1000px]:grid-cols-2 min-[1000px]:items-center min-[1000px]:gap-x-14 min-[1000px]:gap-y-7 min-[1000px]:[grid-template-areas:'hero_form'_'ai_form']">
+      <div className="flex max-w-[520px] flex-col gap-4 [grid-area:hero] sm:gap-7">
+        {/* Out to the left by the clear margin the picture has round its
+            drawing, so the mascot's hand lines up with the words under it. */}
+        <Image
+          src={lockup}
+          alt="plan2go"
+          width={280}
+          height={103}
+          preload
+          className="-ml-1.5 h-auto w-[168px] max-w-full sm:-ml-2 sm:w-[280px]"
+        />
 
-          {/* Broken after "map it," at every size, since the measure is in the
-              type's own ems: the first line fits and "share" does not. Left
-              to the page's pretty wrapping, a browser without it would put
-              "share" on the first line and leave "it." on its own. */}
-          <h1
-            className={`${headlineFont.className} max-w-[8em] text-[clamp(36px,4.375vw,56px)] leading-[1.05] text-ink`}
-          >
-            Plan it, map it, share it.
-          </h1>
+        <h1
+          className={`${headlineFont.className} text-[38px] leading-[1.05] text-balance text-ink sm:text-[clamp(40px,5vw,60px)]`}
+        >
+          Plan it, map it, share it.
+        </h1>
 
-          <p className="max-w-[36rem] text-[18px] leading-7 text-pretty text-ink-muted">
-            Add your cities, fill each day with places, see real travel times, and share it as a
-            link or PDF.
-          </p>
-        </div>
+        <p className="text-[17px] leading-normal text-pretty text-ink/75 sm:text-[19px] sm:leading-[1.55]">
+          Add your cities, fill each day with places, see real travel times, and share it as a
+          link or PDF.
+        </p>
+      </div>
 
+      <div className="[grid-area:form]">
         <CreateTripForm />
       </div>
 
-      <PlanWithAi />
-    </div>
+      <div className="max-w-[520px] [grid-area:ai]">
+        <AiBox />
+      </div>
+    </section>
   );
 }
