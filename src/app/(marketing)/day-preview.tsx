@@ -18,17 +18,20 @@ export function DayPreview() {
       <div className="relative flex max-w-[300px] flex-col gap-2.5 rounded-[24px] bg-sheet px-5 pt-[18px] pb-5 shadow-md">
         <div className="mb-1 flex items-center justify-between gap-2">
           <span className={`${headlineFont.className} text-[17px] leading-none text-ink`}>
-            Day 2 · Kyoto
+            Day 2 · Sydney
           </span>
           <span className="rounded-pill bg-sage-100 px-2 py-[5px] text-[11px] leading-none font-bold text-sage-800">
             3 places
           </span>
         </div>
-        <Stop at="1" name="Fushimi Inari" area="Fushimi" />
-        <Leg icon={<TrainIcon size={14} strokeWidth={2.75} className="flex-none" />} time="14 min" />
-        <Stop at="2" name="Kiyomizu-dera" area="Higashiyama" />
-        <Leg icon={<WalkIcon size={14} strokeWidth={2.75} className="flex-none" />} time="9 min" />
-        <Stop at="3" name="Gion" area="Higashiyama" last />
+        {/* Sydney's three best known sights, in the order a day takes them:
+            on foot round the harbour from the Opera House to the Bridge,
+            then out to the beach on a train and a bus. */}
+        <Stop at="1" name="Sydney Opera House" area="Bennelong Point" />
+        <Leg icon={<WalkIcon size={14} strokeWidth={2.75} className="flex-none" />} time="17 min" />
+        <Stop at="2" name="Sydney Harbour Bridge" area="The Rocks" />
+        <Leg icon={<TrainIcon size={14} strokeWidth={2.75} className="flex-none" />} time="42 min" />
+        <Stop at="3" name="Bondi Beach" area="Eastern Suburbs" last />
       </div>
     </div>
   );
