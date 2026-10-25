@@ -1,0 +1,82 @@
+/*
+ * Start planning ends in a plane where an arrow would be, pointing on and
+ * tipped up a little, the way the trip is about to go. Under the pointer the
+ * plane steps on. Only while the button can be pressed, and only where there
+ * is a pointer to hover with, so a tap on a phone does not leave it there.
+ *
+ * The plane stands in a strip of its own at the end of the words, which is
+ * where it flies while the trip is being made: off from where it stood past
+ * the strip's far end, in again from past the near one, and round, climbing a
+ * little, so the press is seen to send it and the wait is seen to be going
+ * somewhere. The strip fades at both ends while it flies, so the plane goes
+ * into nothing and comes out of it rather than being cut off at an edge.
+ *
+ * As the front page's ticket had it before this form, from 435d805. Under
+ * reduced motion the plane stands still, and the words say the trip is being
+ * made.
+ */
+.start-go-runway {
+  width: 28px;
+  height: 18px;
+  margin-left: 2px;
+  overflow: hidden;
+}
+
+.start-go-plane {
+  display: block;
+  margin: 1px auto 0;
+  rotate: 40deg;
+  transition: translate 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .start-go:enabled:hover .start-go-plane {
+    translate: 3px -1px;
+  }
+}
+
+.start-go[data-pending] .start-go-runway {
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* No easing back from where the pointer had stepped it on: Safari would run
+   that over the flight's first quarter second and then jump into the flight. */
+.start-go[data-pending] .start-go-plane {
+  transition: none;
+  animation: start-go-fly 1.2s linear infinite;
+}
+
+/* Out past the strip's far end and in again from past its near one, the jump
+   between made where neither end shows it. */
+@keyframes start-go-fly {
+  0% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 25px -3px;
+  }
+
+  50.1% {
+    translate: -25px 3px;
+  }
+
+  100% {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start-go-plane {
+    transition: none;
+  }
+
+  .start-go[data-pending] .start-go-plane {
+    animation: none;
+  }
+
+  .start-go:enabled:hover .start-go-plane {
+    translate: none;
+  }
+}

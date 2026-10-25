@@ -4,7 +4,7 @@ import { useActionState, useId, useState } from "react";
 import type { IsoDate } from "@/core/model/day";
 import { addDays, daysBetween } from "@/core/time/zoned";
 import { DateRangeField, DateRangeWaiting } from "@/features/trip-settings/date-range-field";
-import { ArrowRightIcon } from "@/ui/icons";
+import { PlaneIcon } from "@/ui/icons";
 import { useLocalToday } from "@/ui/use-local-today";
 import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import type { ChosenPlace } from "./place-field";
@@ -13,6 +13,7 @@ import { createTripAction } from "./create-trip-action";
 import type { CreateTripFormState } from "./create-trip-action";
 import { FIELD_LABEL } from "./field-styles";
 import { Notice } from "@/ui/notice";
+import "./create-trip-form.css";
 
 // Lives here, not beside the action: a "use server" file may export only async
 // functions, so the starting state cannot sit next to it.
@@ -119,22 +120,36 @@ export function CreateTripForm() {
           to send, with the line under it saying which is still to come. The
           page is served without the dates, and a form sent before the
           browser has said what today is would come back saying the first day
-          is missing, with nowhere yet to enter one. */}
+          is missing, with nowhere yet to enter one. Making the trip, it is
+          shut to a second press without fading as a button that cannot be
+          pressed does: it is busy, not out of reach. How its plane moves,
+          under the pointer and while the trip is being made, is in
+          create-trip-form.css. */}
       <div className="flex flex-col gap-3 pt-1">
         <button
           type="submit"
           disabled={pending || today === null || city === null}
+          data-pending={pending || undefined}
           aria-describedby={helperId}
-          className="flex h-14 w-full items-center justify-center gap-2.5 rounded-pill bg-terracotta px-6 font-body text-[17px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className={`start-go flex h-14 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[17px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+            pending ? "cursor-progress" : "disabled:opacity-45"
+          }`}
         >
-          {pending ? (
-            "Making the trip"
-          ) : (
-            <>
-              Start planning
-              <ArrowRightIcon size={18} strokeWidth={2.75} />
-            </>
-          )}
+          {/* Laid out as Start planning whichever words are showing, so the
+              plane flies off from where it stood rather than jumping as the
+              words change. Making the trip is the wider, and is laid over
+              the same place from its right-hand end. */}
+          <span className="relative">
+            <span className={pending ? "invisible" : undefined}>Start planning</span>
+            {pending ? (
+              <span className="absolute top-0 right-0 whitespace-nowrap">Making the trip</span>
+            ) : null}
+          </span>
+          {/* The one plane either way, so a press sends it off from where it
+              stood rather than putting another in its place. */}
+          <span aria-hidden="true" className="start-go-runway">
+            <PlaneIcon size={16} strokeWidth={2.75} className="start-go-plane" />
+          </span>
         </button>
         <p
           id={helperId}
