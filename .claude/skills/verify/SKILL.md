@@ -53,24 +53,33 @@ has no search field.
 Every trip opened this way is a row in the shared database. Delete them when done with
 `db.trip.deleteMany({ where: { slug: { in: [...] } } })`, which cascades.
 
-Under the form, the `section` headed "Plan it with AI" (`#plan-with-ai`) is an `ol` of
-two cards, each only as tall as what it holds. The first has a `tablist` named "Your AI
-app" with seven tabs, Claude, ChatGPT, Claude Code, Codex, Cursor, VS Code and Other
-apps, over seven `tabpanel`s, the ones not shown `hidden`. Name the first tab with
-`exact: true`, since "Claude" also matches "Claude Code". The tabs are one row that
-scrolls sideways: at 1280px wide Other apps is beyond its right end, and the round
-arrows "Scroll back through the apps" and "Scroll on through the apps" are there only
-while there is more of the row that way. Each panel has its own Copy buttons, named for
-what they copy ("Copy the address", "Copy the Claude Code command", "Copy the Codex
-command", "Copy the Cursor settings", "Copy the command"), and the Cursor and VS Code
-panels have links named "Add to Cursor" and "Add to VS Code", whose `cursor://` and
-`vscode:` hrefs carry the address in their settings. Grant `clipboard-read` and
-`clipboard-write` to read back what they copied. The second card's example prompt has no
-Copy button. The address is the browser's own origin plus `/api/mcp`, so a dev run
-shows `http://localhost:3000/api/mcp`. The built HTML carries the live site's address
+The page is drawn to `storage/plan2go First Page v3.dc.html` and its Mobile twin. The
+form's "Start planning" is disabled until a city is chosen, with a line under it saying
+what comes next, and the "Dates" row over the dates field has a `role="status"` pill,
+"5 days" as the form opens. Beside the form on a desk, under it below 1000px, is the
+"Or plan it with AI" box, an `h2` of that name: its "Copy the sentence" button copies
+"Add the plan2go MCP server to your settings using this link: <address>. Tell me when
+it's connected.", and its "Set it up manually" button opens a native modal `dialog` of
+that name. In it, a `nav` named "Your AI app" holds `aria-pressed` buttons in two
+groups, Chat apps (Claude, ChatGPT, Other apps) and Code tools (Claude Code, Codex,
+Cursor, VS Code); name Claude with `exact: true`, since "Claude" also matches "Claude
+Code". Every app's steps are drawn in one grid cell, the ones not chosen `invisible`
+and `inert`, under an `h3`, "Connect plan2go to <app>", so the dialog keeps one height,
+1120 by 612 at 1280 by 900. Each code box has a round Copy button named for what it
+copies ("Copy the address", "Copy the Claude Code command", "Copy the Codex command",
+"Copy the Cursor settings", "Copy the command"), and Cursor and VS Code have links
+named "Add to Cursor" and "Add to VS Code", whose `cursor://` and `vscode:` hrefs carry
+the address in their settings. Choosing an app writes `?client=<id>` into the address,
+and a page opened with one opens the steps on that app. Escape, Close or a press on the
+dimmed page closes it, and the page behind does not scroll while it is up. Under 640px
+it is a sheet up from the foot of the window, the apps one row that scrolls sideways.
+Grant `clipboard-read` and `clipboard-write` to read back what was copied. The address
+is the browser's own origin plus `/api/mcp`, so a dev run shows
+`http://localhost:3000/api/mcp`. The built HTML carries the live site's address
 instead: load the page with `javaScriptEnabled: false` to see how that one wraps. The
-two headings and the step numbers are Caprasimo, loaded by `headline-font.ts` for this
-page alone.
+headline and the dialog's heading are Caprasimo, loaded by `headline-font.ts` for this
+page alone. Wait for `load`, not `networkidle`: the dev server keeps a connection open,
+so the network never goes quiet.
 
 ## The search field
 
