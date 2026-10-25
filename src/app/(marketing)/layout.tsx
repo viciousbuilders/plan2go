@@ -38,11 +38,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-dvh flex-col">
       <main className={MAIN}>{children}</main>
-      {/* A step lighter than the page rather than a step darker, and with no
-          rule over it, as the canvas has it: the foot of the page, not a
-          band across it. */}
-      <footer className="bg-paper-raised">
-        <div className={`${COLUMN} py-5 text-[13px] leading-5 text-ink-muted`}>
+      {/* A band a step darker than the page under a rule, so the foot of the
+          page reads as its floor rather than as more of the page. */}
+      <footer className="border-t border-rule bg-paper-sunken">
+        <div className={`${COLUMN} py-6 text-meta text-ink-muted`}>
           <p className="text-center">
             <Credit />
           </p>
