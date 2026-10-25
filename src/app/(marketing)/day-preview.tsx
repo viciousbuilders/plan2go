@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
-import { TrainIcon, WalkIcon } from "@/ui/icons";
+import { HomeIcon, TrainIcon, WalkIcon } from "@/ui/icons";
 import { headlineFont } from "./headline-font";
 
 /**
- * A day as the planner lays one out, for the eye only: its places in order,
- * numbered, and how long the way from each to the next takes, which is what
- * the words over it promise. Drawn to "plan2go First Page v5", on a round of
- * each of the page's two accents, with the planner's own marks for getting
- * there. It is nobody's trip, so a screen reader is not given it, and the
- * sentence above says the same.
+ * A day as the planner lays one out, for the eye only: where it sets out
+ * from, its places in order, numbered, and how long the way from each to the
+ * next takes, which is what the words over it promise. Drawn to "plan2go
+ * First Page v5", on a round of each of the page's two accents, with the
+ * planner's own marks for where a day starts and for getting there. It is
+ * nobody's trip, so a screen reader is not given it, and the sentence above
+ * says the same.
  */
 export function DayPreview() {
   return (
@@ -24,40 +25,33 @@ export function DayPreview() {
             3 places
           </span>
         </div>
-        {/* Sydney's three best known sights, in the order a day takes them:
-            on foot round the harbour from the Opera House to the Bridge,
-            then out to the beach on a train and a bus. */}
-        <Stop at="1" name="Sydney Opera House" area="Bennelong Point" />
+        {/* Out from the hotel to Sydney's two best known sights: in on a
+            train to the Opera House, then on foot round the harbour to the
+            Bridge. The hotel is the reader's own rather than one named, so
+            the page sends nobody to any one hotel. */}
+        <Place mark={<StartMark />} name="Your hotel" area="Darling Harbour" />
+        <Leg icon={<TrainIcon size={14} strokeWidth={2.75} className="flex-none" />} time="21 min" />
+        <Place mark={<StopNumber at="1" />} name="Sydney Opera House" area="Bennelong Point" />
         <Leg icon={<WalkIcon size={14} strokeWidth={2.75} className="flex-none" />} time="17 min" />
-        <Stop at="2" name="Sydney Harbour Bridge" area="The Rocks" />
-        <Leg icon={<TrainIcon size={14} strokeWidth={2.75} className="flex-none" />} time="42 min" />
-        <Stop at="3" name="Bondi Beach" area="Eastern Suburbs" last />
+        <Place mark={<StopNumber at="2" />} name="Sydney Harbour Bridge" area="The Rocks" />
       </div>
     </div>
   );
 }
 
-/** A place on the day, under its number: in the accent, and the last in the second accent. */
-function Stop({
-  at,
+/** A place on the day, beside its mark. */
+function Place({
+  mark,
   name,
   area,
-  last = false,
 }: {
-  readonly at: string;
+  readonly mark: ReactNode;
   readonly name: string;
   readonly area: string;
-  readonly last?: boolean;
 }) {
   return (
     <div className="flex items-center gap-3">
-      <span
-        className={`${headlineFont.className} grid size-7 flex-none place-items-center rounded-pill text-[14px] leading-none text-sheet ${
-          last ? "bg-sage" : "bg-terracotta"
-        }`}
-      >
-        {at}
-      </span>
+      {mark}
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className="text-[14px] leading-[1.2] font-bold text-ink">{name}</span>
         <span className="text-[12px] leading-[1.2] font-medium text-ink/66">{area}</span>
@@ -66,7 +60,31 @@ function Stop({
   );
 }
 
-/** The way from one place to the next: a rule down from the number, and how long it takes. */
+/** A stop's mark, as the planner draws one: its number on a disc in the accent. */
+function StopNumber({ at }: { readonly at: string }) {
+  return (
+    <span
+      className={`${headlineFont.className} grid size-7 flex-none place-items-center rounded-pill bg-terracotta text-[14px] leading-none text-sheet`}
+    >
+      {at}
+    </span>
+  );
+}
+
+/**
+ * Where the day starts, marked as the planner marks it: a house on a square
+ * in the second accent with one corner cut, a different shape from a stop
+ * rather than only a different colour. Drawn at this card's size, 28px.
+ */
+function StartMark() {
+  return (
+    <span className="grid size-7 flex-none place-items-center rounded-[12px_12px_12px_4px] bg-sage-600 text-paper">
+      <HomeIcon size={14} strokeWidth={2.75} />
+    </span>
+  );
+}
+
+/** The way from one place to the next: a rule down from the mark, and how long it takes. */
 function Leg({ icon, time }: { readonly icon: ReactNode; readonly time: string }) {
   return (
     <div className="flex items-center gap-2 pl-[13px]">

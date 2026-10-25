@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ArrowRightIcon } from "@/ui/icons";
 import type { AppId } from "./app-guides";
-import { APP_GUIDES } from "./app-guides";
+import { APP_GUIDES, AskForTrip } from "./app-guides";
 import { CopyBox } from "./copy-box";
 import { SetUpDialog } from "./set-up-dialog";
 import { useClientInAddress, useMcpAddress } from "./use-mcp-address";
@@ -39,9 +39,12 @@ export function AiBox() {
     <div className="flex flex-col gap-3">
       <h2 className="text-[15px] leading-[1.3] font-bold text-ink">Or build it with AI</h2>
       <p className="text-[14px] leading-[1.55] text-pretty text-ink/66">
-        Paste this into your AI agent’s chat. Then ask it for your trip in your own words.
+        Paste this into your AI agent’s chat.
       </p>
       <CopyBox text={sentence} what="the sentence" kind="words" />
+      {/* What to do next, as the dialog's steps end, and of the agent rather
+          than an app by name: the box is for any of them. */}
+      <AskForTrip called="your agent" compact />
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] leading-normal font-medium text-ink/66">
         <span>Works with Claude Code, Cursor, Codex.</span>
         <button

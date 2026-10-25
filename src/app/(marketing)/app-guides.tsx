@@ -286,6 +286,39 @@ function VsCodeGuide({ address }: GuideProps) {
 const ASIDE = "flex items-start gap-2 text-[13px] leading-normal font-medium text-ink/70";
 
 /**
+ * The one thing every way of connecting comes to once it is done: asking
+ * for the trip, of whatever was connected, by the name the reader knows it
+ * by. One sentence for the dialog's steps and for the AI box beside the form,
+ * which shows it smaller, so the two say it alike.
+ */
+export function AskForTrip({
+  called,
+  compact = false,
+}: {
+  readonly called: string;
+  readonly compact?: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center bg-sage-100 text-sage-900 ${
+        compact ? "gap-2.5 rounded-2xl px-3 py-2.5" : "gap-3 rounded-[20px] px-4 py-3.5"
+      }`}
+    >
+      <span
+        className={`grid flex-none place-items-center rounded-pill bg-sage text-sheet ${compact ? "size-6" : "size-8"}`}
+      >
+        <SparkleIcon size={compact ? 13 : 16} strokeWidth={2.75} />
+      </span>
+      <span
+        className={`leading-[1.45] font-semibold text-pretty ${compact ? "text-[13px]" : "text-[15px]"}`}
+      >
+        Once it’s connected, ask {called} in your own words to create the trip for you.
+      </span>
+    </div>
+  );
+}
+
+/**
  * One app's way of connecting, as the steps show it: its own steps, then the
  * one thing every app comes to once they are done, asking for the trip, then
  * whatever is worth knowing and where its maker keeps the latest steps.
@@ -295,14 +328,7 @@ export function AppSteps({ guide, address }: { readonly guide: AppGuide; readonl
   return (
     <div className="flex flex-col gap-4">
       <Guide address={address} />
-      <div className="flex items-center gap-3 rounded-[20px] bg-sage-100 px-4 py-3.5 text-sage-900">
-        <span className="grid size-8 flex-none place-items-center rounded-pill bg-sage text-sheet">
-          <SparkleIcon size={16} strokeWidth={2.75} />
-        </span>
-        <span className="text-[15px] leading-[1.45] font-semibold text-pretty">
-          Once it’s connected, ask {called} in your own words to create the trip for you.
-        </span>
-      </div>
+      <AskForTrip called={called} />
       {notes.length === 0 && help === null ? null : (
         <div className="flex flex-col gap-2 px-1 pt-0.5">
           {notes.map((note) => (
