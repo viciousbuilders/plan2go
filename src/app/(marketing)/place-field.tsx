@@ -39,7 +39,7 @@ export interface ChosenPlace {
  * as the button under it whatever the text in it. Set further in on a desk,
  * where the card has the room.
  */
-const FIELD = `${FIELD_SHELL} flex h-14 items-center gap-3 px-5 focus-within:border-terracotta md:px-6`;
+const FIELD = `${FIELD_SHELL} flex h-14 items-center gap-3 px-5 focus-within:border-terracotta-300 md:px-6`;
 
 /**
  * What the panel says while it is looking and when it finds nothing. Both name
@@ -306,7 +306,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
       <input type="hidden" name={name} value={chosen?.providerPlaceId ?? ""} />
 
       <div className={`${FIELD} ${FIELD_GROUND}`}>
-        <SearchIcon size={18} strokeWidth={2.75} className="shrink-0 text-ink-faint" />
+        <SearchIcon size={18} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
         <input
           id={id}
           type="text"

@@ -8,8 +8,10 @@
  * The values come from the design canvas in storage/, "plan2go First Page
  * v3", mapped onto this product's own tokens rather than copied as raw
  * colours: its accent is our terracotta, its second accent our sage, its
- * raised ground our paper-raised, its ink alphas our ink at the same alpha.
- * Nothing here reaches for a value the palette does not already have.
+ * ground and raised ground our paper and paper-raised, its ink alphas our
+ * ink at the same alpha. Nothing here reaches for a value the palette does
+ * not already have. A field is a well of the page's own ground in the raised
+ * card, with no edge until it has the cursor, as the canvas draws them.
  *
  * Neither the padding nor the ground is baked into the shell, and that is
  * deliberate. Two Tailwind utilities for one property do not resolve by the
@@ -33,9 +35,9 @@
  *   a phone; the boxes inside them at 28, 20 and 16.
  */
 export const FIELD_SHELL =
-  "w-full rounded-pill border border-rule text-[16px] leading-6 text-ink";
+  "w-full rounded-pill border-2 border-transparent text-[16px] leading-6 text-ink";
 
-export const FIELD_GROUND = "bg-paper-raised";
+export const FIELD_GROUND = "bg-paper";
 
 export const FIELD_LABEL = "text-[15px] leading-none font-bold text-ink";
 

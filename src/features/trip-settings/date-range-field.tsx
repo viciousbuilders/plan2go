@@ -54,8 +54,12 @@ const DAY_MONTH_YEAR = new Intl.DateTimeFormat("en-AU", {
   timeZone: "UTC",
 });
 
-const TRIGGER =
-  "flex w-full items-center rounded-pill border border-rule bg-paper-raised text-left text-ink hover:border-rule-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+/** The pill at either size: its shape, its words, and the ring the keyboard puts round it. */
+const PILL =
+  "flex w-full items-center rounded-pill border text-left text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+
+/** The pill on the trip's name row, before that size's own colours over it. */
+const TRIGGER = `${PILL} border-rule bg-paper-raised hover:border-rule-strong`;
 
 /**
  * Two homes, two shapes of the same control.
@@ -78,12 +82,18 @@ const TRIGGER =
  * The starter page's numbers are those of the fields beside it, from
  * field-styles, rather than the type scale that governs the planner. DESIGN.md
  * says as much: it owns src/app/t, src/features and src/ui, and the marketing
- * page answers to the skill instead.
+ * page answers to the skill instead. So do its colours, those of the dates in
+ * the "plan2go First Page v3" canvas: a well of the page's own ground in the
+ * lighter card, with no edge, an arrow in the accent, and the accent's
+ * lightest tint under the pointer and while the calendar is open.
+ *
+ * Each size carries the whole of its pill, the shape and its own colours, so
+ * no colour of one size is laid over another's for the stylesheet's order to
+ * settle.
  */
 const SIZES = {
   inline: {
-    trigger:
-      "w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700",
+    trigger: `${TRIGGER} w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700`,
     change: "sr-only",
     stack: "shrink-0 max-lg:hidden",
   },
@@ -91,7 +101,7 @@ const SIZES = {
     // A control on two lines, 72px, on the starter page's scale. Roomier on a
     // desk, from a width well past the ones the day's formats change at, so
     // those still hold where they were measured.
-    trigger: "h-18 gap-2 px-5 @min-[400px]:px-6",
+    trigger: `${PILL} h-18 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
     change: "sr-only",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
@@ -207,9 +217,9 @@ export function DateRangeWaiting({ id, label }: { readonly id: string; readonly 
       <label className="sr-only" htmlFor={id}>
         {label}
       </label>
-      <button id={id} type="button" disabled aria-busy="true" className={`${TRIGGER} ${dressed.trigger}`}>
+      <button id={id} type="button" disabled aria-busy="true" className={dressed.trigger}>
         <End name="First day" date={null} />
-        <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+        <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-terracotta-700" />
         <End name="Last day" date={null} />
         <span className={dressed.change}>Change</span>
       </button>
@@ -530,12 +540,12 @@ export function DateRangeField({
           setDrawingFrom(null);
           setOpen(true);
         }}
-        className={`${TRIGGER} ${dressed.trigger}`}
+        className={dressed.trigger}
       >
         {size === "large" ? (
           <>
             <End name="First day" date={open ? shownStart : start} />
-            <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+            <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-terracotta-700" />
             <End name="Last day" date={open ? shownEnd : end} />
           </>
         ) : (
