@@ -7,10 +7,11 @@
  *
  * What comes down is the room: above and below the left-hand column and
  * between its parts, round the form and between its questions, and with it
- * the lockup and the headline. Each runs in a straight line from its least,
- * in a window 700px tall or under, to v5's own in one 980px tall or over.
- * What stays is what is read and pressed, the sentences, the fields and the
- * button, at the sizes they are.
+ * the lockup. Each runs in a straight line from its least, in a window 700px
+ * tall or under, to v5's own in one 980px tall or over. What stays is what is
+ * read and pressed, the sentences, the fields and the button, at the sizes
+ * they are. The headline is sized by the width of its column instead, to
+ * keep it on one line, in page.tsx.
  *
  * The day takes whatever height its column has left over and is drawn as
  * large as fits it, up to its own size, as a picture is fitted to a frame.
@@ -27,14 +28,12 @@
 
     /* Above and below the left-hand column, never more than v5 gives it for the window's width. */
     --room: min(clamp(32px, 5vw, 56px), calc(24px + 32 * var(--tall) / 280));
-    /* Between the lockup, the words, the day and the way with AI. */
+    /* Between the words, the day and the way with AI. */
     --step: calc(20px + 28 * var(--tall) / 280);
     --lockup: calc(104px + 36 * var(--tall) / 280);
-    --headline: min(clamp(40px, 4vw, 54px), calc(36px + 18 * var(--tall) / 280));
     --under-headline: calc(12px + 8 * var(--tall) / 280);
 
-    /* Over the form in its panel, round the form, and between its questions. */
-    --panel-top: min(clamp(40px, 5vw, 60px), calc(24px + 36 * var(--tall) / 280));
+    /* Round the form, and between its questions. */
     --form-room: min(clamp(24px, 4vw, 48px), calc(24px + 24 * var(--tall) / 280));
     --form-step: calc(20px + 12 * var(--tall) / 280);
   }

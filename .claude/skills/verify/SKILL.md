@@ -54,13 +54,15 @@ Every trip opened this way is a row in the shared database. Delete them when don
 `db.trip.deleteMany({ where: { slug: { in: [...] } } })`, which cascades.
 
 The page is drawn to `storage/plan2go First Page v5.dc.html`: two panels the height of
-the window, the form in the middle of the right one, in `neutral-200`, and in the left
-the headline, a day in Sydney drawn for the eye (`aria-hidden`) and the AI box at its
-foot. Under 860px it is one column, the words, the form in its panel, then the AI box,
-as the v3 Mobile canvas had it, and no Sydney day. On a desk 600px tall or more the page is
-the window's height and never scrolls: from 980px tall down to 700 the room, lockup,
-headline and form spacing come down (`page.css`), and the Sydney card takes the height
-left and is scaled to fit, gone under 0.6 of its 277px. Check a size by
+the window, the form in the middle of the right one, in `neutral-200`, the lockup in its
+top right corner level with the headline, and in the left the headline, a day in Sydney
+drawn for the eye (`aria-hidden`) and the AI box at its foot. The headline is one line on
+a desk from about 1260px wide, sized to its column (36 to 54px), and two lines under
+that. Under 860px it is one column, the lockup at the right over the words, the form in
+its panel, then the AI box, as the v3 Mobile canvas had it, and no Sydney day. On a desk
+600px tall or more the page is the window's height and never scrolls: from 980px tall
+down to 700 the room, lockup and form spacing come down (`page.css`), and the Sydney
+card takes the height left and is scaled to fit, gone under 0.6 of its 277px. Check a size by
 `document.documentElement.scrollHeight` against the window's. "Made with ♥ by
 viciousbuilders", the heart and the linked name in `terracotta-700`, sits in the bottom
 right corner, over the form's panel on a desk and last on a phone. The
