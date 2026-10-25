@@ -37,10 +37,17 @@ export function AiBox() {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-[15px] leading-[1.3] font-bold text-ink">Or build it with AI</h2>
-      <p className="text-[14px] leading-[1.55] text-pretty text-ink/66">
-        Paste this into your AI agent’s chat.
-      </p>
+      {/* The heading and its line as one, closer to each other than to what
+          follows. In the body face, as the page's other small headings are:
+          the planner's own face is the site's default for a heading. */}
+      <div className="flex flex-col gap-1.5">
+        <h2 className="font-body text-[15px] leading-[1.3] font-bold text-ink">
+          Or build it with AI
+        </h2>
+        <p className="text-[14px] leading-normal text-pretty text-ink-muted">
+          Paste this into your AI agent’s chat.
+        </p>
+      </div>
       <CopyBox text={sentence} what="the sentence" kind="words" />
       {/* What to do next, as the dialog's steps end, and of the agent rather
           than an app by name: the box is for any of them. */}
@@ -53,7 +60,7 @@ export function AiBox() {
         className="flex items-center gap-1 self-start text-[13px] leading-normal font-bold text-terracotta-800 underline underline-offset-[3px] hover:text-terracotta-900 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         Set it up manually
-        <ArrowRightIcon size={13} strokeWidth={2.75} />
+        <ArrowRightIcon size={14} strokeWidth={2.75} />
       </button>
       <SetUpDialog
         open={open}

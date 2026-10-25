@@ -219,7 +219,7 @@ export function DateRangeWaiting({ id, label }: { readonly id: string; readonly 
       </label>
       <button id={id} type="button" disabled aria-busy="true" className={dressed.trigger}>
         <End name="First day" date={null} />
-        <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-terracotta-700" />
+        <ArrowRightIcon size={18} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
         <End name="Last day" date={null} />
         <span className={dressed.change}>Change</span>
       </button>
@@ -545,7 +545,7 @@ export function DateRangeField({
         {size === "large" ? (
           <>
             <End name="First day" date={open ? shownStart : start} />
-            <ArrowRightIcon size={18} strokeWidth={1.75} className="shrink-0 text-terracotta-700" />
+            <ArrowRightIcon size={18} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
             <End name="Last day" date={open ? shownEnd : end} />
           </>
         ) : (

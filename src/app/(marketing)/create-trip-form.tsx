@@ -155,7 +155,7 @@ export function CreateTripForm() {
         </button>
         <p
           id={helperId}
-          className="text-center text-[14px] leading-[1.4] font-medium text-pretty text-ink-muted"
+          className="text-center text-[14px] leading-normal font-medium text-pretty text-ink-muted"
         >
           {city === null
             ? "Type your first city to begin. You can add more cities next."

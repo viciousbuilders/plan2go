@@ -49,7 +49,7 @@ function StepList({ children }: { readonly children: ReactNode }) {
  */
 function Step({ n, children }: { readonly n?: number; readonly children: ReactNode }) {
   return (
-    <li className="flex gap-2 text-[15px] leading-normal text-ink/80">
+    <li className="flex gap-2 text-[15px] leading-normal text-ink">
       {n === undefined ? null : <span className="w-[18px] flex-none text-right">{n}.</span>}
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">{children}</div>
     </li>
@@ -122,7 +122,7 @@ function ClaudeGuide({ address }: GuideProps) {
 function ChatGptGuide({ address }: GuideProps) {
   return (
     <>
-      <p className="text-[15px] leading-normal text-pretty text-ink/75">
+      <p className="text-[15px] leading-normal text-pretty text-ink-muted">
         Planning a trip needs an app that can open and change trips, which ChatGPT allows on
         Business, Enterprise and Edu plans, once an admin turns on developer mode.
       </p>
@@ -283,7 +283,7 @@ function VsCodeGuide({ address }: GuideProps) {
   );
 }
 
-const ASIDE = "flex items-start gap-2 text-[13px] leading-normal font-medium text-ink/70";
+const ASIDE = "flex items-start gap-2 text-[13px] leading-normal font-medium text-ink-muted";
 
 /**
  * The one thing every way of connecting comes to once it is done: asking
@@ -300,17 +300,17 @@ export function AskForTrip({
 }) {
   return (
     <div
-      className={`flex items-center bg-sage-100 text-sage-900 ${
-        compact ? "gap-2.5 rounded-2xl px-3 py-2.5" : "gap-3 rounded-[20px] px-4 py-3.5"
+      className={`flex items-center rounded-[20px] bg-sage-100 px-4 text-sage-900 ${
+        compact ? "gap-2.5 py-3" : "gap-3 py-3.5"
       }`}
     >
       <span
         className={`grid flex-none place-items-center rounded-pill bg-sage text-sheet ${compact ? "size-6" : "size-8"}`}
       >
-        <ChatIcon size={compact ? 14 : 18} strokeWidth={2.5} />
+        <ChatIcon size={compact ? 14 : 18} strokeWidth={2.75} />
       </span>
       <span
-        className={`leading-[1.45] font-semibold text-pretty ${compact ? "text-[13px]" : "text-[15px]"}`}
+        className={`leading-normal font-semibold text-pretty ${compact ? "text-[13px]" : "text-[15px]"}`}
       >
         Once it’s connected, ask {called} in your own words to create the trip for you.
       </span>

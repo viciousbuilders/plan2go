@@ -1,17 +1,23 @@
 /*
- * The front page on a desk fits the window it is read in: its two panels are
- * the window's height and nothing is under the fold, from a large screen down
- * to a laptop's. v5 is drawn for a window about 980px tall, and in a shorter
- * one its sizes come down with the height rather than running on past the
- * foot of the window.
+ * The front page's frame and how it fits the window, set on the layout's
+ * shell so the credit at its foot keeps to the same frame as the page.
  *
- * What comes down is the room: above and below the left-hand column and
- * between its parts, round the form and between its questions, and with it
- * the lockup. Each runs in a straight line from its least, in a window 700px
- * tall or under, to v5's own in one 980px tall or over. What stays is what is
- * read and pressed, the sentences, the fields and the button, at the sizes
- * they are. The headline is sized by the width of its column instead, to
- * keep it on one line, in page.tsx.
+ * One frame for everything: the words on the left, the form's panel, the
+ * lockup in the top right corner and the credit in the bottom right are all
+ * in from the window's sides by --across, and down from its top or up from
+ * its foot by --room.
+ *
+ * On a desk the page fits the window it is read in: its two panels are the
+ * window's height and nothing is under the fold, from a large screen down to
+ * a laptop's. v5 is drawn for a window about 980px tall, and in a shorter one
+ * its sizes come down with the height rather than running on past the foot
+ * of the window. What comes down is the room: the frame's top and foot, the
+ * steps between the left-hand column's parts, round the form and between its
+ * questions, and with it the lockup. Each runs in a straight line from its
+ * least, in a window 700px tall or under, to v5's own in one 980px tall or
+ * over. What stays is what is read and pressed, the sentences, the fields and
+ * the button, at the sizes they are. The headline is sized by the width it
+ * has instead, to keep it on one line, in page.tsx.
  *
  * The day takes whatever height its column has left over and is drawn as
  * large as fits it, up to its own size, as a picture is fitted to a frame.
@@ -21,12 +27,17 @@
  * On a phone the page is one column, read by scrolling, at v5's sizes. So is
  * a desk's window under 600px tall, which even the least of these overflow.
  */
+.first-page {
+  --across: clamp(24px, 5vw, 60px);
+  --room: clamp(32px, 5vw, 56px);
+}
+
 @media (width >= 860px) {
   .first-page {
     /* How far past 700px tall the window is, up to the 280px that reach v5's own sizes. */
     --tall: clamp(0px, 100dvh - 700px, 280px);
 
-    /* Above and below the left-hand column, never more than v5 gives it for the window's width. */
+    /* The frame's top and foot, never more than v5 gives it for the window's width. */
     --room: min(clamp(32px, 5vw, 56px), calc(24px + 32 * var(--tall) / 280));
     /* Between the words, the day and the way with AI. */
     --step: calc(20px + 28 * var(--tall) / 280);
@@ -43,14 +54,14 @@
     container: day / size;
   }
 
-  /* As large as fits that height, up to its own size, which is 277px tall.
+  /* As large as fits that height, up to its own size, which is 280px tall.
      Two lengths divide into a number only by way of an angle. */
   .first-page-day > * {
     transform-origin: top left;
-    scale: min(1, tan(atan2(100cqh, 277px)));
+    scale: min(1, tan(atan2(100cqh, 280px)));
   }
 
-  @container day (height < 166px) {
+  @container day (height < 168px) {
     .first-page-day > * {
       display: none;
     }
@@ -59,7 +70,7 @@
 
 /* The window's height and no more, once the window can hold the page at its least. */
 @media (width >= 860px) and (height >= 600px) {
-  .first-page {
+  .first-page-grid {
     height: 100dvh;
   }
 }

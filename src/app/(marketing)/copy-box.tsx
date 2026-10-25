@@ -77,7 +77,7 @@ export function CopyBox({ text, what, kind }: CopyBoxProps) {
               {text}
             </pre>
           ) : (
-            <p className="text-[13px] leading-[1.55] font-medium text-pretty text-ink [overflow-wrap:anywhere]">
+            <p className="text-[13px] leading-normal font-medium text-pretty text-ink [overflow-wrap:anywhere]">
               {text}
             </p>
           )}

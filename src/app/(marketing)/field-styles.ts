@@ -9,9 +9,10 @@
  * v5", mapped onto this product's own tokens rather than copied as raw
  * colours: its accent is our terracotta, its second accent our sage, its
  * ground and raised ground our paper and paper-raised, its lightest card
- * our sheet, its ink alphas our ink at the same alpha. Nothing here reaches
- * for a value the palette does not already have. A field is a well of the
- * page's own ground in the raised card, with no edge until it has the
+ * our sheet, and its many greys of ink the two the product has, ink-muted
+ * for whatever is said second and ink-faint for a placeholder. Nothing here
+ * reaches for a value the palette does not already have. A field is a well
+ * of the page's own ground in the raised card, with no edge until it has the
  * cursor, under a label in small capitals, as the canvas draws them.
  *
  * Neither the padding nor the ground is baked into the shell, and that is
@@ -24,19 +25,31 @@
  * The whole page keeps to one scale, so a new piece of it has values to pick
  * from rather than to invent:
  *
- * - Type: 40 to 54 for the headline as the window widens, and 32 for the
- *   dialog's heading, 26 on a phone, both in the headline face, as are the
- *   day and its numbers on the card that shows a day; 22 for the city as it
- *   is typed; 17 for the sentence under the headline and the button; 15 for
- *   the AI box's heading and the dialog's steps; 14 and 13 for the smaller
- *   lines, code and the labels, which are in capitals; 12 and 11 for the
- *   day card's small print, the names of the groups of apps and the credit.
- * - Lines: ratios, 1.08 for the headline and 1.5 to 1.6 for most text.
- * - Height: 64 for the button, 68 for the city, 72 for the dates, 36 or 40
- *   for a round button such as a Copy.
- * - Cards: the form 24 to 48 in from its edges as the window widens, at a
- *   28px radius; the day card at 24, the sentence to paste at 20, and the
- *   dialog's code at 16.
+ * - Frame: one, from first-page.css. Everything is in from the window's
+ *   sides by --across and down from the top or up from the foot by --room:
+ *   the words on the left, the form's panel, and the lockup and the credit in
+ *   the right hand corners. The words on the left run out to one edge,
+ *   560px at most, the headline filling it on its one line.
+ * - Type: the headline sized to that measure, 36 to 54, and the dialog's
+ *   heading 32, 26 on a phone, in the headline face, as are the day and its
+ *   numbers on the card that shows a day; 22 for the city as it is typed; 17
+ *   for the sentence under the headline and the button; 15 for the AI box's
+ *   heading and the dialog's steps, in the body face as every heading under
+ *   the headline is; 14 for the lines that say what to do; 13 for the
+ *   labels, in capitals, the sentence to paste and the links; 12 for the
+ *   card's small print and the credit.
+ * - Lines: 1.08 for the headline, 1.6 for the sentence under it, 1.5 for any
+ *   other text that can run to two lines, and 1 or 1.2 for text on one.
+ * - Height: 64 for the button, 68 for the city, 72 for the dates, 24 for a
+ *   pill on the card, 36 or 40 for a round button such as a Copy.
+ * - Corners: 28 for a card, the form and the day; 20 for a box in the left
+ *   hand column, the sentence to paste and what to ask next, which are the
+ *   same box in two colours and padded alike; 16 for the dialog's code; a
+ *   pill for every field, button and count.
+ * - Icons: one stroke, 2.75, at 14 beside 12 and 13px words and in the
+ *   card's marks, 18 in a round button or badge and beside larger words, and
+ *   20 in the city's field. The plane on the button keeps the size and turn
+ *   it was given in commit 435d805.
  */
 export const FIELD_SHELL =
   "w-full rounded-pill border-2 border-transparent text-[16px] leading-6 text-ink";

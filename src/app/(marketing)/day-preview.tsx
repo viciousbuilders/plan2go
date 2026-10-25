@@ -13,15 +13,15 @@ import { headlineFont } from "./headline-font";
  */
 export function DayPreview() {
   return (
-    <div aria-hidden="true" className="relative max-w-[400px] py-2 pl-2">
+    <div aria-hidden="true" className="relative max-w-[400px] py-2">
       <span className="absolute -top-6 -right-2 size-[180px] rounded-pill bg-sage-100" />
       <span className="absolute -bottom-4 -left-5 size-24 rounded-pill bg-terracotta-100" />
-      <div className="relative flex max-w-[300px] flex-col gap-2.5 rounded-[24px] bg-sheet px-5 pt-[18px] pb-5 shadow-md">
+      <div className="relative flex max-w-[300px] flex-col gap-2.5 rounded-[28px] bg-sheet px-5 pt-[18px] pb-5 shadow-md">
         <div className="mb-1 flex items-center justify-between gap-2">
           <span className={`${headlineFont.className} text-[17px] leading-none text-ink`}>
             Day 2 · Sydney
           </span>
-          <span className="rounded-pill bg-sage-100 px-2 py-[5px] text-[11px] leading-none font-bold text-sage-800">
+          <span className="flex h-6 items-center rounded-pill bg-sage-100 px-2.5 text-[12px] leading-none font-bold text-sage-800">
             3 places
           </span>
         </div>
@@ -54,7 +54,7 @@ function Place({
       {mark}
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className="text-[14px] leading-[1.2] font-bold text-ink">{name}</span>
-        <span className="text-[12px] leading-[1.2] font-medium text-ink/66">{area}</span>
+        <span className="text-[12px] leading-[1.2] font-medium text-ink-muted">{area}</span>
       </span>
     </div>
   );
@@ -89,7 +89,7 @@ function Leg({ icon, time }: { readonly icon: ReactNode; readonly time: string }
   return (
     <div className="flex items-center gap-2 pl-[13px]">
       <span className="h-5 w-0.5 rounded-[2px] bg-neutral-300" />
-      <span className="flex h-6 items-center gap-1.5 rounded-pill bg-paper px-2.5 text-[12px] leading-none font-semibold text-ink/66">
+      <span className="flex h-6 items-center gap-1.5 rounded-pill bg-paper px-2.5 text-[12px] leading-none font-semibold text-ink-muted">
         {icon}
         {time}
       </span>

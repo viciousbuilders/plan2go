@@ -5,20 +5,23 @@ import { AiBox } from "./ai-box";
 import { CreateTripForm } from "./create-trip-form";
 import { DayPreview } from "./day-preview";
 import { headlineFont } from "./headline-font";
-import "./page.css";
-
-/** How far in from the window's edges the words on the page's own ground sit, as v5 has them. */
-const ACROSS = "px-[clamp(24px,5vw,60px)]";
 
 /**
- * And how far down from the top of their column they start and up from its
- * foot they end: v5's on a phone, and on a desk as much as the window's
- * height leaves, from page.css, which gives every size that comes down in a
- * shorter window. Each side said once per block, so no two rules for one
- * side are left for the stylesheet's order to settle.
+ * The frame every block keeps to, from first-page.css, which the layout's
+ * shell carries: in from the window's sides, and down from the top of a
+ * column or up from its foot. Each side said once per block, so no two rules
+ * for one side are left for the stylesheet's order to settle.
  */
-const TOP = "pt-[clamp(32px,5vw,56px)] min-[860px]:pt-[var(--room)]";
-const FOOT = "pb-[clamp(32px,5vw,56px)] min-[860px]:pb-[var(--room)]";
+const ACROSS = "px-[var(--across)]";
+const TOP = "pt-[var(--room)]";
+const FOOT = "pb-[var(--room)]";
+
+/**
+ * How far the words on the left run at most: the headline on its one line,
+ * the sentence under it and the way with AI all out to one edge, the
+ * sentence about 65 characters to a line.
+ */
+const MEASURE = "max-w-[560px]";
 
 /**
  * Built once and served as it is, from the edge nearest the reader, rather
@@ -39,38 +42,40 @@ export default function MarketingPage() {
     // column: the words, the form in its panel, then the way with AI, as the
     // phone has had them, and not the day, which would push the form down
     // out of reach of a thumb.
-    <section className="first-page relative grid grow grid-cols-[minmax(0,1fr)] [grid-template-areas:'hero'_'form'_'ai'] min-[860px]:grid-cols-[minmax(0,calc((100%_-_860px)_*_0.4_+_380px))_minmax(0,1fr)] min-[860px]:grid-rows-[auto_minmax(0,1fr)_auto] min-[860px]:gap-y-[var(--step)] min-[860px]:[grid-template-areas:'hero_form'_'day_form'_'ai_form']">
+    <section className="first-page-grid relative grid grow grid-cols-[minmax(0,1fr)] [grid-template-areas:'hero'_'form'_'ai'] min-[860px]:grid-cols-[minmax(0,calc((100%_-_860px)_*_0.4_+_380px))_minmax(0,1fr)] min-[860px]:grid-rows-[auto_minmax(0,1fr)_auto] min-[860px]:gap-y-[var(--step)] min-[860px]:[grid-template-areas:'hero_form'_'day_form'_'ai_form']">
       <div
-        className={`flex flex-col gap-12 ${ACROSS} ${TOP} pb-[clamp(32px,5vw,56px)] [grid-area:hero] min-[860px]:pb-0`}
+        className={`flex flex-col gap-[var(--room)] ${ACROSS} ${TOP} pb-[var(--room)] [grid-area:hero] min-[860px]:pb-0`}
       >
-        {/* In the top right corner: over the form's panel on a desk, level
-            with the headline and as far in as the credit is in the bottom
-            right, and over the words on a phone. */}
+        {/* In the frame's top right corner, as the credit is in its bottom
+            right: over the form's panel on a desk, level with the headline,
+            and over the words on a phone. */}
         <Image
           src={lockup}
           alt="plan2go"
           width={140}
           height={52}
           preload
-          className="h-auto w-[140px] max-w-full self-end min-[860px]:absolute min-[860px]:top-[var(--room)] min-[860px]:right-10 min-[860px]:w-[var(--lockup)]"
+          className="h-auto w-[140px] max-w-full self-end min-[860px]:absolute min-[860px]:top-[var(--room)] min-[860px]:right-[var(--across)] min-[860px]:w-[var(--lockup)]"
         />
 
         {/* Sized by the width it is given, so the headline can fill it. */}
-        <div className="@container flex flex-col gap-5 min-[860px]:gap-[var(--under-headline)]">
-          {/* On one line on a desk, as large as its column lets it be, up to
-              v5's 54px: one line of it is 11.48 times as wide as its type is
-              large, and 8.6 of every hundred of the column keeps a little
-              over. Under 36px it takes two lines instead, at 36. Each "it" is
-              held to the word before it, so a line breaks between the three
-              and never inside one, as the canvas reads: "Plan it, map it,"
-              and then "share it.". On a phone, two lines at v5's size. */}
+        <div
+          className={`@container flex ${MEASURE} flex-col gap-5 min-[860px]:gap-[var(--under-headline)]`}
+        >
+          {/* On one line on a desk, as large as the measure lets it be: one
+              line of it is 11.48 times as wide as its type is large, and 8.6
+              of every hundred of the measure keeps a little over. Under 36px
+              it takes two lines instead, at 36. Each "it" is held to the word
+              before it, so a line breaks between the three and never inside
+              one, as the canvas reads: "Plan it, map it," and then "share
+              it.". On a phone, two lines at v5's size. */}
           <h1
             className={`${headlineFont.className} text-[clamp(40px,4vw,54px)] leading-[1.08] text-ink min-[860px]:text-[length:clamp(36px,8.6cqw,54px)]`}
           >
             {"Plan it, map it, share it."}
           </h1>
 
-          <p className="max-w-[440px] text-[17px] leading-[1.6] text-pretty text-ink/66">
+          <p className="text-[17px] leading-[1.6] text-pretty text-ink-muted">
             Add your cities, fill each day with places, see real travel times, and share it as a
             link or PDF.
           </p>
@@ -81,15 +86,18 @@ export default function MarketingPage() {
         <DayPreview />
       </div>
 
-      <div className={`${ACROSS} pt-[clamp(32px,5vw,56px)] ${FOOT} [grid-area:ai] min-[860px]:pt-0`}>
-        <div className="max-w-[440px]">
+      <div className={`${ACROSS} ${TOP} ${FOOT} [grid-area:ai] min-[860px]:pt-0`}>
+        <div className={MEASURE}>
           <AiBox />
         </div>
       </div>
 
-      {/* Its top and foot kept clear on a desk, where the lockup and the
-          credit sit in its corners, so the form never runs up under either. */}
-      <div className="flex min-w-0 items-center justify-center bg-neutral-200 px-[clamp(20px,5vw,60px)] py-[clamp(40px,5vw,60px)] [grid-area:form] min-[860px]:py-20">
+      {/* In from the sides as the words are. Its top and foot kept clear on a
+          desk, where the lockup and the credit sit in its corners, so the
+          form never runs up under either. */}
+      <div
+        className={`flex min-w-0 items-center justify-center bg-neutral-200 ${ACROSS} py-[var(--room)] [grid-area:form] min-[860px]:py-20`}
+      >
         <CreateTripForm />
       </div>
     </section>

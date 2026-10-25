@@ -4,6 +4,7 @@ import { useEffect, useId, useRef } from "react";
 import { CloseIcon } from "@/ui/icons";
 import type { AppId } from "./app-guides";
 import { APP_GROUPS, APP_GUIDES, AppSteps } from "./app-guides";
+import { FIELD_LABEL } from "./field-styles";
 import { headlineFont } from "./headline-font";
 
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
@@ -90,7 +91,7 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
           >
             Set it up manually
           </h2>
-          <p className="text-[16px] leading-normal text-ink/75">
+          <p className="text-[16px] leading-normal text-ink-muted">
             Pick your AI app and follow its steps to connect plan2go.
           </p>
         </div>
@@ -111,11 +112,9 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
                 >
                   {/* Named on a desk, where the list stands in its two
                       groups; on a phone's one row the names would only be
-                      in the way, so only a screen reader hears them. */}
-                  <span
-                    id={groupId}
-                    className="px-3.5 pb-1.5 text-[12px] leading-none font-bold tracking-[0.06em] text-ink/60 uppercase max-sm:sr-only"
-                  >
+                      in the way, so only a screen reader hears them. Drawn
+                      as the form's labels are, in small capitals. */}
+                  <span id={groupId} className={`${FIELD_LABEL} px-3.5 pb-1.5 max-sm:sr-only`}>
                     {group.name}
                   </span>
                   {group.apps.map((one) => {
@@ -129,7 +128,7 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
                           onPick(one.id);
                         }}
                         className={`flex h-10 items-center rounded-pill px-3.5 text-left text-[14px] leading-none font-bold ${FOCUS} max-sm:h-11 max-sm:flex-none max-sm:px-4 max-sm:whitespace-nowrap ${
-                          chosen ? "bg-sheet text-ink shadow-sm" : "text-ink/78 hover:bg-terracotta-100"
+                          chosen ? "bg-sheet text-ink shadow-sm" : "text-ink-muted hover:bg-terracotta-100"
                         }`}
                       >
                         {one.label}
@@ -142,7 +141,7 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
           </nav>
 
           <div className="scroll-quiet flex min-h-0 min-w-0 flex-col gap-[18px] overflow-auto p-7 max-sm:flex-1 max-sm:gap-4 max-sm:px-3.5 max-sm:py-[18px]">
-            <h3 className="text-[18px] leading-[1.2] font-bold">Connect plan2go to {called}</h3>
+            <h3 className="font-body text-[18px] leading-[1.2] font-bold">Connect plan2go to {called}</h3>
             <div className="grid">
               {APP_GUIDES.map((one) => (
                 <div
