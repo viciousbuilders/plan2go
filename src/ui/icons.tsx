@@ -602,11 +602,11 @@ export function ChartIcon(props: IconProps) {
   );
 }
 
-/** A four pointed star: something an assistant does for you. */
-export function SparkleIcon(props: IconProps) {
+/** A round speech bubble, its tail to the lower left: something said to someone in a chat. */
+export function ChatIcon(props: IconProps) {
   return (
     <Glyph {...props}>
-      <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" />
+      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
     </Glyph>
   );
 }

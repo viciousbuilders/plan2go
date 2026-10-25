@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowRightIcon, BookIcon, InfoIcon, SparkleIcon } from "@/ui/icons";
+import { ArrowRightIcon, BookIcon, ChatIcon, InfoIcon } from "@/ui/icons";
 import { CopyBox } from "./copy-box";
 
 /** Every app the steps for connecting have a page for. */
@@ -307,7 +307,7 @@ export function AskForTrip({
       <span
         className={`grid flex-none place-items-center rounded-pill bg-sage text-sheet ${compact ? "size-6" : "size-8"}`}
       >
-        <SparkleIcon size={compact ? 13 : 16} strokeWidth={2.75} />
+        <ChatIcon size={compact ? 14 : 18} strokeWidth={2.5} />
       </span>
       <span
         className={`leading-[1.45] font-semibold text-pretty ${compact ? "text-[13px]" : "text-[15px]"}`}
