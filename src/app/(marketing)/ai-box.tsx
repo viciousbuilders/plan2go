@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightIcon, SparkleIcon } from "@/ui/icons";
+import { ArrowRightIcon } from "@/ui/icons";
 import type { AppId } from "./app-guides";
 import { APP_GUIDES } from "./app-guides";
 import { CopyBox } from "./copy-box";
@@ -10,8 +10,9 @@ import { useClientInAddress, useMcpAddress } from "./use-mcp-address";
 
 /**
  * The other way to plan a trip: by asking an AI assistant, which reaches
- * plan2go through the MCP server every deployment serves. In the sage of the
- * page's second accent, so it reads as the way round rather than the way in.
+ * plan2go through the MCP server every deployment serves. Set plainly, in
+ * small type with no card of its own, so it reads as the way round rather
+ * than the way in.
  *
  * A sentence to paste into an agent that can change its own settings, which
  * then adds plan2go itself, and for any other app the steps by hand, in a
@@ -35,30 +36,23 @@ export function AiBox() {
   };
 
   return (
-    <div className="flex flex-col gap-3.5 rounded-[28px] bg-sage-100 px-[18px] pt-5 pb-4 sm:px-[22px] sm:pt-[22px] sm:pb-[18px]">
-      <div className="flex items-center gap-2.5 text-sage-800">
-        <SparkleIcon size={18} strokeWidth={2.75} className="flex-none" />
-        <h2 className="text-[17px] leading-[1.2] font-bold">Or plan it with AI</h2>
-      </div>
-      <p className="text-[15px] leading-normal text-pretty text-ink/78">
-        Paste this into your AI agent’s chat. It connects plan2go for you. Then ask it for your
-        trip in your own words.
+    <div className="flex flex-col gap-3">
+      <h2 className="text-[15px] leading-[1.3] font-bold text-ink">Or build it with AI</h2>
+      <p className="text-[14px] leading-[1.55] text-pretty text-ink/66">
+        Paste this into your AI agent’s chat. Then ask it for your trip in your own words.
       </p>
       <CopyBox text={sentence} what="the sentence" kind="words" />
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <span className="text-[13px] leading-[1.4] font-medium text-ink/68">
-          Works in agents that can change their own settings, like Claude Code, Codex, Cursor and
-          VS Code.
-        </span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] leading-normal font-medium text-ink/66">
+        <span>Works with Claude Code, Cursor, Codex.</span>
         <button
           type="button"
           onClick={() => {
             setOpen(true);
           }}
-          className="flex h-9 items-center gap-1.5 rounded-pill px-3 text-[14px] leading-none font-bold text-sage-800 underline underline-offset-[3px] hover:bg-sage-200 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="flex items-center gap-1 font-bold text-terracotta-800 underline underline-offset-[3px] hover:text-terracotta-900 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
           Set it up manually
-          <ArrowRightIcon size={14} strokeWidth={2.75} />
+          <ArrowRightIcon size={13} strokeWidth={2.75} />
         </button>
       </div>
       <SetUpDialog

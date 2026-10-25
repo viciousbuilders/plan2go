@@ -1011,7 +1011,7 @@ of their own, and the thread is kept: it runs down that gap to the next mark ins
 
 A sheet to write on after a day is headed as the day's sheet is, "Notes" ahead of which
 day, and ruled every 34px in `neutral-200` from a rule of ink to its foot. Every sheet
-ends in the same foot, over a hairline: made with plan2go, as the front door says it,
+ends in the same foot, over a hairline: who made it, with the credit's heart,
 and which sheet it is of how many, counting every sheet.
 
 Every run of sheets is dealt by measuring it: the cover, whose rows are the trip's

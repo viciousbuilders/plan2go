@@ -110,13 +110,13 @@ interface SheetNumber {
 /** How tall a sheet is: at least a page, or exactly one, clipping what runs past its foot. */
 type SheetHeight = "at-least-a-page" | "one-page";
 
-/** The foot of every sheet: who made this, as the front door says it, and which sheet it is. */
+/** The foot of every sheet: who made this, heart and all, and which sheet it is. */
 function SheetFoot({ sheet }: { readonly sheet: SheetNumber }) {
   return (
     <footer className="printed-foot">
       <div className="printed-foot-row">
         <p className="printed-foot-credit">
-          <Credit quiet />
+          <Credit heart />
         </p>
         <p className="printed-foot-page">
           Page {sheet.at} of {sheet.of}

@@ -15,8 +15,8 @@ interface CopyBoxProps {
   readonly what: string;
   /**
    * Code, in the code face on the page's own ground and broken wherever a
-   * line runs out, or a sentence to paste, in the body face on the ground a
-   * card is drawn in.
+   * line runs out, or a sentence to paste, in the body face on the lightest
+   * card, ringed, as the AI box draws it on the page's own ground.
    */
   readonly kind: "code" | "words";
 }
@@ -68,7 +68,7 @@ export function CopyBox({ text, what, kind }: CopyBoxProps) {
         className={
           kind === "code"
             ? "relative rounded-2xl bg-paper py-3.5 pr-14 pl-4"
-            : "relative rounded-[20px] bg-paper-raised py-4 pr-14 pl-[18px]"
+            : "relative rounded-[20px] bg-sheet py-3 pr-12 pl-4 ring-2 ring-neutral-200"
         }
       >
         <div ref={words}>
@@ -77,7 +77,7 @@ export function CopyBox({ text, what, kind }: CopyBoxProps) {
               {text}
             </pre>
           ) : (
-            <p className="text-[14px] leading-[1.6] font-medium text-pretty text-ink [overflow-wrap:anywhere]">
+            <p className="text-[13px] leading-[1.55] font-medium text-pretty text-ink [overflow-wrap:anywhere]">
               {text}
             </p>
           )}
@@ -89,8 +89,8 @@ export function CopyBox({ text, what, kind }: CopyBoxProps) {
           onClick={() => {
             void copy();
           }}
-          className={`absolute grid size-10 place-items-center rounded-pill hover:bg-terracotta-100 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-            kind === "code" ? "top-1.5 right-1.5" : "top-2 right-2"
+          className={`absolute grid place-items-center rounded-pill hover:bg-terracotta-100 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+            kind === "code" ? "top-1.5 right-1.5 size-10" : "top-1.5 right-1.5 size-9"
           } ${copied ? "text-sage-800" : "text-terracotta-700"}`}
         >
           {copied ? (

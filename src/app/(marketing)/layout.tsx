@@ -24,28 +24,24 @@ export const metadata: Metadata = {
 };
 
 /**
- * As wide as the canvas draws the page: 1200px at most, 32px in from the
- * window's edges, and 20px in on a phone. Down from the top by 48px, and by 8
- * on a phone, whose own bar is already over the top of it, with the foot of
- * the page kept to the bottom of the window however little is above it.
+ * The whole width of the window, since the page's panels run to its edges,
+ * and at least its height, so they run to its foot as well. How far in the
+ * words sit is the page's own.
  */
-const MAIN = "mx-auto flex w-full max-w-[1200px] grow flex-col px-5 pt-2 pb-12 sm:px-8 sm:pt-12 sm:pb-24";
-
-/** The foot's own measure, as the earlier canvas drew the whole page. */
-const COLUMN = "mx-auto w-full max-w-[1280px] px-8 lg:px-16";
+const MAIN = "flex grow flex-col";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="relative flex min-h-dvh flex-col">
       <main className={MAIN}>{children}</main>
-      {/* A band a step darker than the page under a rule, so the foot of the
-          page reads as its floor rather than as more of the page. */}
-      <footer className="border-t border-rule bg-paper-sunken">
-        <div className={`${COLUMN} py-6 text-meta text-ink-muted`}>
-          <p className="text-center">
-            <Credit />
-          </p>
-        </div>
+      {/* Who made this, small in the bottom corner, as "plan2go First Page
+          v5" has it: over the foot of the form's panel on a desk, which
+          keeps that room clear for it, and after everything on a phone,
+          where the panel is in the middle of the page. In the muted ink
+          rather than the canvas's lighter one, which is too faint to read
+          at this size on that panel. */}
+      <footer className="px-[clamp(24px,5vw,60px)] pb-[30px] text-right text-[12px] leading-none text-ink-muted min-[860px]:absolute min-[860px]:right-10 min-[860px]:bottom-[30px] min-[860px]:p-0">
+        <Credit />
       </footer>
     </div>
   );

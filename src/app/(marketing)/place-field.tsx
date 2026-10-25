@@ -35,11 +35,12 @@ export interface ChosenPlace {
 }
 
 /**
- * A control's height, which the input inside fills, so the field is as tall
- * as the button under it whatever the text in it. Set further in on a desk,
- * where the card has the room.
+ * The first question on the page and the largest field on it, 68px, which the
+ * input inside fills whatever the text in it, its words set large for the one
+ * answer the page needs most. In 22px at its start and 10px at its end, so a
+ * long city has nearly the whole width to run in.
  */
-const FIELD = `${FIELD_SHELL} flex h-14 items-center gap-3 px-5 focus-within:border-terracotta-300 md:px-6`;
+const FIELD = `${FIELD_SHELL} flex h-[68px] items-center gap-3 pr-2.5 pl-[22px] focus-within:border-terracotta-300`;
 
 /**
  * What the panel says while it is looking and when it finds nothing. Both name
@@ -306,7 +307,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
       <input type="hidden" name={name} value={chosen?.providerPlaceId ?? ""} />
 
       <div className={`${FIELD} ${FIELD_GROUND}`}>
-        <SearchIcon size={18} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
+        <SearchIcon size={20} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
         <input
           id={id}
           type="text"
@@ -330,7 +331,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
           }}
           onPointerEnter={lookUpWorld}
           onKeyDown={onKeyDown}
-          className="h-full min-w-0 flex-1 bg-transparent text-[16px] leading-6 text-ink caret-terracotta outline-none placeholder:text-ink-faint"
+          className="h-full min-w-0 flex-1 bg-transparent text-[22px] leading-none font-medium text-ink caret-terracotta outline-none placeholder:text-ink-faint"
         />
       </div>
 

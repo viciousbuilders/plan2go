@@ -65,7 +65,7 @@ export function CreateTripForm() {
   return (
     <form
       action={submit}
-      className="flex flex-col gap-[18px] rounded-[28px] bg-paper-raised p-5 shadow-md sm:gap-5 sm:rounded-[32px] sm:p-8"
+      className="flex w-full max-w-[540px] flex-col gap-8 rounded-[28px] bg-paper-raised p-[clamp(24px,4vw,48px)] shadow-md"
     >
       <div>
         <PlaceField
@@ -131,7 +131,7 @@ export function CreateTripForm() {
           disabled={pending || today === null || city === null}
           data-pending={pending || undefined}
           aria-describedby={helperId}
-          className={`start-go flex h-14 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[17px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+          className={`start-go flex h-16 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[17px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
             pending ? "cursor-progress" : "disabled:opacity-45"
           }`}
         >

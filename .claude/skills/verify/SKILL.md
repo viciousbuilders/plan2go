@@ -53,11 +53,16 @@ has no search field.
 Every trip opened this way is a row in the shared database. Delete them when done with
 `db.trip.deleteMany({ where: { slug: { in: [...] } } })`, which cascades.
 
-The page is drawn to `storage/plan2go First Page v3.dc.html` and its Mobile twin. The
+The page is drawn to `storage/plan2go First Page v5.dc.html`: two panels the height of
+the window, the form in the middle of the right one, in `neutral-200`, and in the left
+the headline, a day in Kyoto drawn for the eye (`aria-hidden`) and the AI box at its
+foot. Under 860px it is one column, the words, the form in its panel, then the AI box,
+as the v3 Mobile canvas had it, and no Kyoto. "Made by viciousbuilders", a link, sits in
+the bottom right corner, over the form's panel on a desk and last on a phone. The
 form's "Start planning" is disabled until a city is chosen, with a line under it saying
 what comes next, and the "Dates" row over the dates field has a `role="status"` pill,
-"5 days" as the form opens. Beside the form on a desk, under it below 1000px, is the
-"Or plan it with AI" box, an `h2` of that name: its "Copy the sentence" button copies
+"5 days" as the form opens. Beside the form on a desk, under it below 860px, is the
+"Or build it with AI" box, an `h2` of that name: its "Copy the sentence" button copies
 "Add the plan2go MCP server to your settings using this link: <address>. Tell me when
 it's connected.", and its "Set it up manually" button opens a native modal `dialog` of
 that name. In it, a `nav` named "Your AI app" holds `aria-pressed` buttons in two
