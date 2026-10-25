@@ -57,8 +57,13 @@ The page is drawn to `storage/plan2go First Page v5.dc.html`: two panels the hei
 the window, the form in the middle of the right one, in `neutral-200`, and in the left
 the headline, a day in Kyoto drawn for the eye (`aria-hidden`) and the AI box at its
 foot. Under 860px it is one column, the words, the form in its panel, then the AI box,
-as the v3 Mobile canvas had it, and no Kyoto. "Made by viciousbuilders", a link, sits in
-the bottom right corner, over the form's panel on a desk and last on a phone. The
+as the v3 Mobile canvas had it, and no Kyoto. On a desk 600px tall or more the page is
+the window's height and never scrolls: from 980px tall down to 700 the room, lockup,
+headline and form spacing come down (`page.css`), and the Kyoto card takes the height
+left and is scaled to fit, gone under 0.6 of its 277px. Check a size by
+`document.documentElement.scrollHeight` against the window's. "Made by viciousbuilders",
+a link, sits in the bottom right corner, over the form's panel on a desk and last on a
+phone. The
 form's "Start planning" is disabled until a city is chosen, with a line under it saying
 what comes next, and the "Dates" row over the dates field has a `role="status"` pill,
 "5 days" as the form opens. Beside the form on a desk, under it below 860px, is the

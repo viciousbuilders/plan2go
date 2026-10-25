@@ -63,9 +63,11 @@ export function CreateTripForm() {
   const helperId = useId();
 
   return (
+    // The room round it and between its questions are the page's on a desk,
+    // where they come down in a shorter window, and v5's otherwise.
     <form
       action={submit}
-      className="flex w-full max-w-[540px] flex-col gap-8 rounded-[28px] bg-paper-raised p-[clamp(24px,4vw,48px)] shadow-md"
+      className="flex w-full max-w-[540px] flex-col gap-[var(--form-step,32px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,48px))] shadow-md"
     >
       <div>
         <PlaceField
