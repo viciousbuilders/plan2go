@@ -73,7 +73,7 @@ export function CopyBox({ text, what, kind }: CopyBoxProps) {
       >
         <div ref={words}>
           {kind === "code" ? (
-            <pre className="font-mono text-[13px] leading-[1.6] font-medium break-all whitespace-pre-wrap text-ink">
+            <pre className="font-mono text-[13px] leading-normal font-medium break-all whitespace-pre-wrap text-ink">
               {text}
             </pre>
           ) : (
@@ -102,7 +102,7 @@ export function CopyBox({ text, what, kind }: CopyBoxProps) {
       </div>
       <p
         role="status"
-        className={state === "refused" ? "mt-2 text-[13px] leading-5 text-ink-muted" : "sr-only"}
+        className={state === "refused" ? "mt-2 text-[13px] leading-normal text-ink-muted" : "sr-only"}
       >
         {copied
           ? `Copied ${what}.`

@@ -41,7 +41,7 @@ export function AiBox() {
           follows. In the body face, as the page's other small headings are:
           the planner's own face is the site's default for a heading. */}
       <div className="flex flex-col gap-1.5">
-        <h2 className="font-body text-[15px] leading-[1.3] font-bold text-ink">
+        <h2 className="font-body text-[16px] leading-[1.2] font-bold text-ink">
           Or build it with AI
         </h2>
         <p className="text-[14px] leading-normal text-pretty text-ink-muted">

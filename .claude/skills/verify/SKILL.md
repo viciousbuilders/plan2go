@@ -78,7 +78,7 @@ groups, Chat apps (Claude, ChatGPT, Other apps) and Code tools (Claude Code, Cod
 Cursor, VS Code); name Claude with `exact: true`, since "Claude" also matches "Claude
 Code". Every app's steps are drawn in one grid cell, the ones not chosen `invisible`
 and `inert`, under an `h3`, "Connect plan2go to <app>", so the dialog keeps one height,
-1120 by 612 at 1280 by 900. Each code box has a round Copy button named for what it
+1120 by 609 at 1280 by 900. Each code box has a round Copy button named for what it
 copies ("Copy the address", "Copy the Claude Code command", "Copy the Codex command",
 "Copy the Cursor settings", "Copy the command"), and Cursor and VS Code have links
 named "Add to Cursor" and "Add to VS Code", whose `cursor://` and `vscode:` hrefs carry

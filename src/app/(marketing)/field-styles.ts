@@ -33,20 +33,29 @@
  *   560px at most, the headline filling it on its one line. The form is
  *   480px at most, which leaves the dates the 400px they need for their
  *   16px and their longest form.
- * - Type: the headline sized to that measure, 36 to 54, and the dialog's
- *   heading 32, 26 on a phone, in the headline face, as are the day and its
- *   numbers on the card that shows a day; 20 for the city as it is typed; 19
- *   for the button, the least at which bold words are large type, as words
- *   on the accent have to be at its contrast; 17 for the sentence under the
- *   headline; 15 for the AI box's heading and the dialog's steps, in the
- *   body face as every heading under the headline is; 14 for the lines that
- *   say what to do; 13 for the labels, in capitals, the sentence to paste and
- *   the links; 12 for the card's small print and the credit.
- * - Lines: 1.08 for the headline, 1.6 for the sentence under it, 1.5 for any
- *   other text that can run to two lines, and 1 or 1.2 for text on one.
- * - Height: 56 for the button, 60 for the city, 64 for the dates, each a
- *   step of 8 under v5's, 24 for a pill on the card, 36 or 40 for a round
- *   button such as a Copy.
+ * - Type: eight steps and nothing between them, 12, 13, 14, 16, 18, 20, 24
+ *   and 32, and the headline. The headline is sized to that measure, 36 to
+ *   48 on a desk and 40 on a phone, and the dialog's heading is 32, 24 on a
+ *   phone, in the headline face, as are the day and its numbers on the card
+ *   that shows a day. 20 for the answer and the action, the city as it is
+ *   typed and the button, which at 20 is large type, as bold words on the
+ *   accent have to be at its contrast. 18 for the sentence under the
+ *   headline, the day on its card and the heading over an app's steps. 16
+ *   for the AI box's heading, the dialog's steps and the line under its
+ *   heading, and the dates, which are 14 in a field under 400px wide; the
+ *   headings in the body face, as every heading under the headline is. 14
+ *   for the lines that say what to do, the dialog's buttons, a city in the
+ *   list and a place on the card. 13 for the labels, in capitals, the count
+ *   of days, the sentence to paste, code, the links, the notes under an
+ *   app's steps and a city's country in the list. 12 for small print: the
+ *   card's, the list's heading, the credit, and an error under the form, at
+ *   the planner's own size for one.
+ * - Lines: 1.08 for the headline face, 1.6 for the sentence under the
+ *   headline, 1.5 for any other text that can run to two lines, and 1 or 1.2
+ *   for text on one.
+ * - Height: 64 for a field, the city and the dates, and 56 for the button,
+ *   each a step of 8 under v5's dates and button; 24 for a pill, the count of
+ *   days and the card's; 36 or 40 for a round button such as a Copy.
  * - Corners: 28 for a card, the form and the day; 20 for a box in the left
  *   hand column, the sentence to paste and what to ask next, which are the
  *   same box in two colours and padded alike; 16 for the dialog's code; a

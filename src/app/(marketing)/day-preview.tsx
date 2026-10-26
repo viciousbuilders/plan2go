@@ -18,7 +18,7 @@ export function DayPreview() {
       <span className="absolute -bottom-4 -left-5 size-24 rounded-pill bg-terracotta-100" />
       <div className="relative flex max-w-[300px] flex-col gap-2.5 rounded-[28px] bg-sheet px-5 pt-[18px] pb-5 shadow-md">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <span className={`${headlineFont.className} text-[17px] leading-none text-ink`}>
+          <span className={`${headlineFont.className} text-[18px] leading-none text-ink`}>
             Day 2 · Sydney
           </span>
           {/* The two numbered stops. The hotel is where the day sets out

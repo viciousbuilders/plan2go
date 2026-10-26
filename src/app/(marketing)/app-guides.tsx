@@ -49,7 +49,7 @@ function StepList({ children }: { readonly children: ReactNode }) {
  */
 function Step({ n, children }: { readonly n?: number; readonly children: ReactNode }) {
   return (
-    <li className="flex gap-2 text-[15px] leading-normal text-ink">
+    <li className="flex gap-2 text-[16px] leading-normal text-ink">
       {n === undefined ? null : <span className="w-[18px] flex-none text-right">{n}.</span>}
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">{children}</div>
     </li>
@@ -122,7 +122,7 @@ function ClaudeGuide({ address }: GuideProps) {
 function ChatGptGuide({ address }: GuideProps) {
   return (
     <>
-      <p className="text-[15px] leading-normal text-pretty text-ink-muted">
+      <p className="text-[16px] leading-normal text-pretty text-ink-muted">
         Planning a trip needs an app that can open and change trips, which ChatGPT allows on
         Business, Enterprise and Edu plans, once an admin turns on developer mode.
       </p>
@@ -310,7 +310,7 @@ export function AskForTrip({
         <ChatIcon size={compact ? 14 : 18} strokeWidth={2.75} />
       </span>
       <span
-        className={`leading-normal font-semibold text-pretty ${compact ? "text-[13px]" : "text-[15px]"}`}
+        className={`leading-normal font-semibold text-pretty ${compact ? "text-[13px]" : "text-[16px]"}`}
       >
         Once it’s connected, ask {called} in your own words to create the trip for you.
       </span>

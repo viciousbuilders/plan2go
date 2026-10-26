@@ -87,7 +87,7 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
         <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 pr-12 max-sm:flex-col max-sm:items-start max-sm:gap-1.5 max-sm:pt-1 max-sm:pr-[52px] max-sm:pl-1">
           <h2
             id={titleId}
-            className={`${headlineFont.className} text-[32px] leading-[1.1] max-sm:text-[26px]`}
+            className={`${headlineFont.className} text-[32px] leading-[1.08] max-sm:text-[24px]`}
           >
             Set it up manually
           </h2>

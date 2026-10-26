@@ -64,18 +64,19 @@ export default function MarketingPage() {
         >
           {/* On one line on a desk, as large as the measure lets it be: one
               line of it is 11.48 times as wide as its type is large, and 8.6
-              of every hundred of the measure keeps a little over. Under 36px
-              it takes two lines instead, at 36. Each "it" is held to the word
-              before it, so a line breaks between the three and never inside
-              one, as the canvas reads: "Plan it, map it," and then "share
-              it.". On a phone, two lines at v5's size. */}
+              of every hundred of the measure keeps a little over, which at
+              the measure's 560px is 48. Under 36px it takes two lines
+              instead, at 36. Each "it" is held to the word before it, so a
+              line breaks between the three and never inside one, as the
+              canvas reads: "Plan it, map it," and then "share it.". On a
+              phone, two lines at v5's 40. */}
           <h1
-            className={`${headlineFont.className} text-[clamp(40px,4vw,54px)] leading-[1.08] text-ink min-[860px]:text-[length:clamp(36px,8.6cqw,54px)]`}
+            className={`${headlineFont.className} text-[40px] leading-[1.08] text-ink min-[860px]:text-[length:clamp(36px,8.6cqw,48px)]`}
           >
             {"Plan it, map it, share it."}
           </h1>
 
-          <p className="text-[17px] leading-[1.6] text-pretty text-ink-muted">
+          <p className="text-[18px] leading-[1.6] text-pretty text-ink-muted">
             Add your cities, fill each day with places, see real travel times, and share it as a
             link or PDF.
           </p>
