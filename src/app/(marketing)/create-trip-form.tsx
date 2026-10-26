@@ -127,31 +127,35 @@ export function CreateTripForm() {
           to send, with the line under it saying which is still to come. The
           page is served without the dates, and a form sent before the
           browser has said what today is would come back saying the first day
-          is missing, with nowhere yet to enter one. Making the trip, it is
-          shut to a second press without fading as a button that cannot be
-          pressed does: it is busy, not out of reach. Its words are 18px and
-          bold, as large as the city's. Light words on the accent stand 3.5:1
-          from it, which DESIGN.md tunes the accent to and which is enough
-          for large type. Bold words are large type from 18px by the taste
-          skill's count and from 18.67px by WCAG's, so these are a hair
-          under WCAG's line, where the 20px they were before was over it. How
-          its plane moves, under the pointer and while the trip is being
-          made, is in create-trip-form.css. */}
+          is missing, with nowhere yet to enter one. Until then it stands in
+          the warm grey a control that is not ready takes, its words in the
+          muted ink, 4.9:1 from it, so it reads as waiting and is still read:
+          faded, its words stood 1.7:1. Making the trip, it is shut to a
+          second press without that grey, as it is busy, not out of reach.
+          Its words are 20px and bold, which is large type by WCAG's count,
+          from 18.67px: light words on the accent stand 3.5:1 from it, enough
+          for large type, which DESIGN.md tunes the accent for, and short of
+          the 4.5:1 smaller words would need. How its plane moves, under the
+          pointer and while the trip is being made, is in
+          create-trip-form.css. */}
       <div className="flex flex-col gap-3 pt-1">
         <button
           type="submit"
           disabled={pending || today === null || city === null}
           data-pending={pending || undefined}
           aria-describedby={helperId}
-          className={`start-go flex h-12 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[18px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-            pending ? "cursor-progress" : "disabled:opacity-45"
+          className={`start-go flex h-12 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[20px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+            pending ? "cursor-progress" : "disabled:bg-neutral-300 disabled:text-ink-muted"
           }`}
         >
           {/* Laid out as Start planning whichever words are showing, so the
               plane flies off from where it stood rather than jumping as the
               words change. Making the trip is the wider, and is laid over
-              the same place from its right-hand end. */}
-          <span className="relative">
+              the same place from its right-hand end. On one line always: on
+              the narrowest phone the words and the plane come to more than
+              the room inside the button, and run on into its sides rather
+              than breaking, which stood Making the trip at the button's top. */}
+          <span className="relative whitespace-nowrap">
             <span className={pending ? "invisible" : undefined}>Start planning</span>
             {pending ? (
               <span className="absolute top-0 right-0 whitespace-nowrap">Making the trip</span>

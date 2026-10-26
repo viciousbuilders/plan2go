@@ -55,10 +55,13 @@ Every trip opened this way is a row in the shared database. Delete them when don
 
 The page is drawn to `storage/plan2go First Page v5.dc.html`: two panels the height of
 the window, the form in the middle of the right one, in `neutral-200`, the lockup in its
-top right corner level with the headline, and in the left the headline, a day in Sydney
-drawn for the eye (`aria-hidden`) and the AI box at its foot. The headline is one line on
-a desk from about 1260px wide, sized to its column (36 to 54px), and two lines under
-that. Under 860px it is one column, the lockup at the right over the words, the form in
+top right corner level with the headline (160px wide, up to 192 on a tall window), and in
+the left the headline, a day in Sydney drawn for the eye (`aria-hidden`) and the AI box at
+its foot. Past 1440px wide all of it holds to a 1440 stage in the middle of the window,
+the two panels' grounds running on to the window's edges (`--stage`, `--inset` in
+`first-page.css`), the lockup and the credit in the stage's corners. The headline is one
+line on a desk from about 1260px wide, sized to its column (36 to 48px), and two lines
+under that. Under 860px it is one column, the lockup at the right over the words, the form in
 its panel, then the AI box, as the v3 Mobile canvas had it, and no Sydney day. On a desk
 600px tall or more the page is the window's height and never scrolls: from 980px tall
 down to 700 the room, lockup and form spacing come down (`first-page.css`), and the Sydney
@@ -75,7 +78,8 @@ right corner, over the form's panel on a desk and last on a phone. The form come
 straight after the words in the markup, so Tab goes city, dates, Start planning (once it
 can be pressed), the AI box's Copy and Set it up manually, then the credit, on a desk as
 on a phone, every stop ringed 2px in `terracotta`. The
-form's "Start planning" is disabled until a city is chosen, with a line under it saying
+form's "Start planning" (20px bold) is disabled until a city is chosen, drawn till then
+in `neutral-300` with its words in the muted ink rather than faded, with a line under it saying
 what comes next, and the "Dates" row over the dates field has a `role="status"` pill,
 "5 days" as the form opens. Beside the form on a desk, under it below 860px, is the
 "Or build it with AI" box, an `h2` of that name: its "Copy the sentence" button copies
@@ -99,7 +103,9 @@ is the browser's own origin plus `/api/mcp`, so a dev run shows
 `http://localhost:3000/api/mcp`. The built HTML carries the live site's address
 instead: load the page with `javaScriptEnabled: false` to see how that one wraps. The
 headline and the dialog's heading are Caprasimo, loaded by `headline-font.ts` for this
-page alone. Wait for `load`, not `networkidle`: the dev server keeps a connection open,
+page alone, and everything else is Be Vietnam Pro, the open calendar's months and days
+included (the dates field's "large" size sets them in the body face; the planner's
+"inline" size keeps Baloo 2). Wait for `load`, not `networkidle`: the dev server keeps a connection open,
 so the network never goes quiet.
 
 ## The search field

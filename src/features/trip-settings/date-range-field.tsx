@@ -94,6 +94,9 @@ const SIZES = {
     trigger: `${TRIGGER} w-auto rounded-pill border-transparent bg-transparent px-2 py-[5px] text-small/none font-semibold text-ink-muted hover:border-transparent hover:bg-terracotta-100 hover:text-terracotta-700`,
     change: "sr-only",
     stack: "shrink-0 max-lg:hidden",
+    // The face the calendar's months and days are set in: the planner's
+    // display face, as its other numbers are.
+    face: "font-display",
   },
   large: {
     // A control on two lines, 48px, on the starter page's scale. Roomier on a
@@ -104,6 +107,9 @@ const SIZES = {
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
     stack: "@container flex flex-col",
+    // The starter page's body face, so the page keeps to the two faces it
+    // has, its headline's and its body's, with the calendar open as well.
+    face: "font-body",
   },
 } as const;
 
@@ -659,7 +665,7 @@ export function DateRangeField({
 
               return (
                 <div key={month}>
-                  <p className="text-center font-display text-place/none font-bold text-ink">
+                  <p className={`text-center ${dressed.face} text-place/none font-bold text-ink`}>
                     {MONTH_AND_YEAR.format(isoDateAsUtc(month))}
                   </p>
 
@@ -732,7 +738,7 @@ export function DateRangeField({
                                     setPreviewing(date);
                                   }}
                                   className={[
-                                    `grid ${targets.day} place-items-center rounded-pill border font-display text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta`,
+                                    `grid ${targets.day} place-items-center rounded-pill border ${dressed.face} text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta`,
                                     isStart || isEnd
                                       ? "border-terracotta bg-terracotta text-terracotta-900"
                                       : date === today

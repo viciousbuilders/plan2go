@@ -30,10 +30,38 @@
  *
  * On a phone the page is one column, read by scrolling, at v5's sizes. So is
  * a desk's window under 600px tall, which even the least of these overflow.
+ *
+ * Past 1440px wide, the stage, the page keeps the layout it has at 1440 in
+ * the middle of the window rather than spreading its two columns apart, as a
+ * page is held to a width: the words, the form, the lockup and the credit
+ * stand where a 1440 window has them, and the two panels' grounds run on to
+ * the window's edges, the page's own on the left and the form's on the
+ * right, so the window is still two panels. --inset is how far in from the
+ * window's sides the stage stands, nothing under 1440.
  */
 .first-page {
   --across: clamp(24px, 5vw, 60px);
   --room: clamp(32px, 5vw, 56px);
+  --stage: 1440px;
+  --inset: max(0px, (100% - var(--stage)) / 2);
+}
+
+.first-page-grid {
+  width: 100%;
+  max-width: var(--stage);
+  margin-inline: auto;
+}
+
+/* Where the two grounds meet: the stage's left column, as page.tsx sizes it
+   at the stage's width, in from the stage's left edge. */
+@media (width >= 1440px) {
+  .first-page {
+    background: linear-gradient(
+      90deg,
+      var(--color-paper) calc(var(--inset) + (var(--stage) - 860px) * 0.4 + 380px),
+      var(--color-neutral-200) 0
+    );
+  }
 }
 
 @media (width >= 860px) {
@@ -45,7 +73,8 @@
     --room: min(clamp(32px, 5vw, 56px), calc(24px + 32 * var(--tall) / 280));
     /* Between the words, the day and the way with AI. */
     --step: calc(20px + 28 * var(--tall) / 280);
-    --lockup: calc(104px + 36 * var(--tall) / 280);
+    /* 160px wide as on a phone, and up to 192 in a tall window. */
+    --lockup: calc(160px + 32 * var(--tall) / 280);
     --under-headline: calc(12px + 8 * var(--tall) / 280);
 
     /* Round the form, and between its questions: 28 and 20 at most, where v5 has 48 and 32. */

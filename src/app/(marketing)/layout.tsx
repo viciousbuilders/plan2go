@@ -43,8 +43,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           and after everything on a phone, where the panel is in the middle
           of the page. Said as the band at the foot of the page said it
           before, heart and all: the words in the muted ink, the heart and
-          the name a shade darker than the accent. */}
-      <footer className="px-[var(--across)] pb-[var(--room)] text-right text-[12px] leading-none text-ink-muted min-[860px]:absolute min-[860px]:right-[var(--across)] min-[860px]:bottom-[var(--room)] min-[860px]:p-0">
+          the name a shade darker than the accent. Past 1440px wide, in by
+          the stage's inset as well, so it keeps to the stage's corner as the
+          lockup does. */}
+      <footer className="px-[var(--across)] pb-[var(--room)] text-right text-[12px] leading-none text-ink-muted min-[860px]:absolute min-[860px]:right-[calc(var(--inset)_+_var(--across))] min-[860px]:bottom-[var(--room)] min-[860px]:p-0">
         <Credit />
       </footer>
     </div>

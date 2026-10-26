@@ -32,14 +32,19 @@
  *   the right hand corners. The words on the left run out to one edge,
  *   560px at most, the headline filling it on its one line. The form is
  *   500px at most, wide and low, with 28px of room round it and 20 between
- *   its questions at most.
- * - Type: seven steps and nothing between them, 12, 13, 14, 16, 18, 24 and
- *   32, and the headline. The headline is sized to that measure, 36 to 48 on
- *   a desk and 40 on a phone, and the dialog's heading is 32, 24 on a phone,
- *   in the headline face, as are the day and its numbers on the card that
- *   shows a day. 18 for the sentence under the headline, the answer and the
- *   action, the city as it is typed and the button, the day on its card and
- *   the heading over an app's steps. 16 for the dates, which the dates field
+ *   its questions at most. Past 1440px wide all of it holds to a 1440 stage
+ *   in the middle of the window.
+ * - Faces: two, the headline's and the body's, the calendar included, and
+ *   the system's monospace for code in the dialog.
+ * - Type: eight steps and nothing between them, 12, 13, 14, 16, 18, 20, 24
+ *   and 32, and the headline. The headline is sized to that measure, 36 to
+ *   48 on a desk and 40 on a phone, and the dialog's heading is 32, 24 on a
+ *   phone, in the headline face, as are the day and its numbers on the card
+ *   that shows a day. 20 for the action, the button, bold, which is large
+ *   type by WCAG's count, as light words on the accent have to be at its
+ *   contrast. 18 for the sentence under the headline, the answer, the city
+ *   as it is typed, the day on its card and the heading over an app's
+ *   steps. 16 for the dates, which the dates field
  *   sets at 14 in a field under 400px wide, the AI box's heading, the
  *   dialog's steps and the line under its heading; the headings in the body
  *   face, as every heading under the headline is. 14 for a place's name,

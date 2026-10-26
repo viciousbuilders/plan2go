@@ -48,14 +48,16 @@ export default function MarketingPage() {
       >
         {/* In the frame's top right corner, as the credit is in its bottom
             right: over the form's panel on a desk, level with the headline,
-            and over the words on a phone. */}
+            and over the words on a phone. 160px wide, and up to 192 in a
+            tall window (--lockup), which is the size it is asked for at, so
+            the picture served is sharp at the largest. */}
         <Image
           src={lockup}
           alt="plan2go"
-          width={140}
-          height={52}
+          width={192}
+          height={71}
           preload
-          className="h-auto w-[140px] max-w-full self-end min-[860px]:absolute min-[860px]:top-[var(--room)] min-[860px]:right-[var(--across)] min-[860px]:w-[var(--lockup)]"
+          className="h-auto w-[160px] max-w-full self-end min-[860px]:absolute min-[860px]:top-[var(--room)] min-[860px]:right-[var(--across)] min-[860px]:w-[var(--lockup)]"
         />
 
         {/* Sized by the width it is given, so the headline can fill it. */}
