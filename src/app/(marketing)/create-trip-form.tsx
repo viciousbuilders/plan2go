@@ -64,10 +64,14 @@ export function CreateTripForm() {
 
   return (
     // The room round it and between its questions are the page's on a desk,
-    // where they come down in a shorter window, and v5's otherwise.
+    // where they come down in a shorter window, and the same at their most
+    // otherwise. A step under v5's, as the card is: at v5's 540px it was the
+    // largest thing on the page after the headline. 480 is the least that
+    // leaves the dates, inside 40px of room either side, the 400px they need
+    // to keep their 16px and their longest form.
     <form
       action={submit}
-      className="flex w-full max-w-[540px] flex-col gap-[var(--form-step,32px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,48px))] shadow-md"
+      className="flex w-full max-w-[480px] flex-col gap-[var(--form-step,28px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,40px))] shadow-md"
     >
       <div>
         <PlaceField
@@ -136,7 +140,7 @@ export function CreateTripForm() {
           disabled={pending || today === null || city === null}
           data-pending={pending || undefined}
           aria-describedby={helperId}
-          className={`start-go flex h-16 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[19px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+          className={`start-go flex h-14 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[19px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
             pending ? "cursor-progress" : "disabled:opacity-45"
           }`}
         >

@@ -98,10 +98,10 @@ const SIZES = {
     stack: "shrink-0 max-lg:hidden",
   },
   large: {
-    // A control on two lines, 72px, on the starter page's scale. Roomier on a
+    // A control on two lines, 64px, on the starter page's scale. Roomier on a
     // desk, from a width well past the ones the day's formats change at, so
     // those still hold where they were measured.
-    trigger: `${PILL} h-18 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
+    trigger: `${PILL} h-16 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
     change: "sr-only",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.

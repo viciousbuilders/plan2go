@@ -30,10 +30,12 @@
  *   sides by --across and down from the top or up from the foot by --room:
  *   the words on the left, the form's panel, and the lockup and the credit in
  *   the right hand corners. The words on the left run out to one edge,
- *   560px at most, the headline filling it on its one line.
+ *   560px at most, the headline filling it on its one line. The form is
+ *   480px at most, which leaves the dates the 400px they need for their
+ *   16px and their longest form.
  * - Type: the headline sized to that measure, 36 to 54, and the dialog's
  *   heading 32, 26 on a phone, in the headline face, as are the day and its
- *   numbers on the card that shows a day; 22 for the city as it is typed; 19
+ *   numbers on the card that shows a day; 20 for the city as it is typed; 19
  *   for the button, the least at which bold words are large type, as words
  *   on the accent have to be at its contrast; 17 for the sentence under the
  *   headline; 15 for the AI box's heading and the dialog's steps, in the
@@ -42,8 +44,9 @@
  *   the links; 12 for the card's small print and the credit.
  * - Lines: 1.08 for the headline, 1.6 for the sentence under it, 1.5 for any
  *   other text that can run to two lines, and 1 or 1.2 for text on one.
- * - Height: 64 for the button, 68 for the city, 72 for the dates, 24 for a
- *   pill on the card, 36 or 40 for a round button such as a Copy.
+ * - Height: 56 for the button, 60 for the city, 64 for the dates, each a
+ *   step of 8 under v5's, 24 for a pill on the card, 36 or 40 for a round
+ *   button such as a Copy.
  * - Corners: 28 for a card, the form and the day; 20 for a box in the left
  *   hand column, the sentence to paste and what to ask next, which are the
  *   same box in two colours and padded alike; 16 for the dialog's code; a
