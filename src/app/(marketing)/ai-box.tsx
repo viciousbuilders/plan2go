@@ -57,7 +57,9 @@ export function AiBox() {
         onClick={() => {
           setOpen(true);
         }}
-        className="flex items-center gap-1 self-start text-[13px] leading-normal font-bold text-terracotta-800 underline underline-offset-[3px] hover:text-terracotta-900 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        // 28px to tap, where its words alone are 20, the room above and
+        // below given back so nothing round it moves.
+        className="-my-1 flex items-center gap-1 self-start py-1 text-[13px] leading-normal font-bold text-terracotta-800 underline underline-offset-[3px] hover:text-terracotta-900 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
         Set it up manually
         <ArrowRightIcon size={14} strokeWidth={2.75} />

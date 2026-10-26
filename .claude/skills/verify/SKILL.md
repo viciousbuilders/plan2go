@@ -71,7 +71,10 @@ under that cut to the room (`--calendar-room`) with its weeks scrolling inside i
 Chrome with `ignoreDefaultArgs: ["--hide-scrollbars"]` to see the scrollbar a page that
 overflows is given, and what it moves. "Made with ♥ by
 viciousbuilders", the heart and the linked name in `terracotta-700`, sits in the bottom
-right corner, over the form's panel on a desk and last on a phone. The
+right corner, over the form's panel on a desk and last on a phone. The form comes
+straight after the words in the markup, so Tab goes city, dates, Start planning (once it
+can be pressed), the AI box's Copy and Set it up manually, then the credit, on a desk as
+on a phone, every stop ringed 2px in `terracotta`. The
 form's "Start planning" is disabled until a city is chosen, with a line under it saying
 what comes next, and the "Dates" row over the dates field has a `role="status"` pill,
 "5 days" as the form opens. Beside the form on a desk, under it below 860px, is the

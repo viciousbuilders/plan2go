@@ -83,6 +83,18 @@ export default function MarketingPage() {
         </div>
       </div>
 
+      {/* In from the sides as the words are. Its top and foot kept clear on a
+          desk, where the lockup and the credit sit in its corners, so the
+          form never runs up under either. Straight after the words in the
+          markup, wherever the grid puts it, so the keys and a screen reader
+          come to the form before the way with AI, in the order a phone
+          shows them. */}
+      <div
+        className={`flex min-w-0 items-center justify-center bg-neutral-200 ${ACROSS} py-[var(--room)] [grid-area:form] min-[860px]:py-20`}
+      >
+        <CreateTripForm />
+      </div>
+
       <div className={`first-page-day hidden ${ACROSS} [grid-area:day] min-[860px]:block`}>
         <DayPreview />
       </div>
@@ -91,15 +103,6 @@ export default function MarketingPage() {
         <div className={MEASURE}>
           <AiBox />
         </div>
-      </div>
-
-      {/* In from the sides as the words are. Its top and foot kept clear on a
-          desk, where the lockup and the credit sit in its corners, so the
-          form never runs up under either. */}
-      <div
-        className={`flex min-w-0 items-center justify-center bg-neutral-200 ${ACROSS} py-[var(--room)] [grid-area:form] min-[860px]:py-20`}
-      >
-        <CreateTripForm />
       </div>
     </section>
   );

@@ -5,7 +5,9 @@
  * Inline, and sized by whatever it sits in: the heart is as tall as the
  * words beside it and a shade darker than the accent, which is the one
  * step of it that reads as text at these sizes, and the name is a link in
- * the same ink. On paper the link is still the name.
+ * the same ink, ringed in the accent when the keys reach it, as every other
+ * control is, rather than in the browser's own blue. On paper the link is
+ * still the name.
  *
  * Quiet, the heart is the accent itself and the name is a link in whatever
  * ink its line gives it, with no weight or underline of its own: the foot of
@@ -38,9 +40,9 @@ export function Credit({
         href="https://viciousbuilders.com"
         target="_blank"
         rel="noopener noreferrer"
-        className={
+        className={`focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
           quiet ? "text-inherit" : "font-semibold text-terracotta-700 underline underline-offset-2"
-        }
+        }`}
       >
         viciousbuilders
       </a>
