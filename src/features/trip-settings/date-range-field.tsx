@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type { ReactNode, RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import type { IsoDate } from "@/core/model/day";
 import { addDays, isoDateAsUtc, parseIsoDate } from "@/core/time/zoned";
@@ -19,6 +19,7 @@ import {
   shiftMonths,
   weeksIn,
 } from "./month-grid";
+import { EDGE_GAP, WEEK_ROW, weekRowFor } from "./calendar-fit";
 
 /** Two at once, so a trip that crosses the end of a month is one gesture. */
 const MONTHS_SHOWN = 2;
@@ -37,9 +38,6 @@ const WEEKS_MOST = 6;
 
 /** Matches the panel's own width class, for the edge test when it opens. */
 const PANEL_WIDTH = 600;
-
-/** Room to keep between the panel and the edge of the window. Matches the 2rem in its width class. */
-const EDGE_GAP = 16;
 
 const DAY_MONTH = new Intl.DateTimeFormat("en-AU", {
   day: "numeric",
@@ -98,10 +96,10 @@ const SIZES = {
     stack: "shrink-0 max-lg:hidden",
   },
   large: {
-    // A control on two lines, 64px, on the starter page's scale. Roomier on a
+    // A control on two lines, 56px, on the starter page's scale. Roomier on a
     // desk, from a width well past the ones the day's formats change at, so
     // those still hold where they were measured.
-    trigger: `${PILL} h-16 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
+    trigger: `${PILL} h-14 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
     change: "sr-only",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
@@ -115,10 +113,17 @@ const STEP =
 /**
  * How big the steps between months and the days are drawn: for a pointer
  * under the field, and for a finger on a phone's sheet, where a day is as
- * wide as its column allows up to 44px and as tall as it is wide.
+ * wide as its column allows up to 44px and as tall as it is wide. Under the
+ * field a week is 36px, or the --week the calendar is fitted to the window
+ * at, and a day 4px less.
  */
 const TARGETS = {
-  desk: { step: "h-[30px] w-[30px]", glyph: 20, week: "h-[36px]", day: "h-[32px] w-[32px]" },
+  desk: {
+    step: "h-[30px] w-[30px]",
+    glyph: 20,
+    week: "h-[var(--week,36px)]",
+    day: "size-[calc(var(--week,36px)-4px)]",
+  },
   phone: { step: "h-11 w-11", glyph: 22, week: "h-12", day: "aspect-square w-full max-w-11" },
 } as const;
 
@@ -232,30 +237,39 @@ interface CalendarFrameProps {
   readonly label: string;
   /** Where the panel under the field starts, from the field's left edge. */
   readonly shift: number;
+  /** The panel under the field, measured as it opens to fit it to the window. */
+  readonly frame: RefObject<HTMLDivElement | null>;
   readonly onClose: () => void;
   readonly children: ReactNode;
 }
 
 /**
  * Where the calendar is drawn. On a wide window, under the field, centred on
- * it and kept inside the window. On a phone, a sheet fixed to the foot of the
- * window over the page dimmed, put at the root of the document: the field is
- * a size container, and a container is what anything fixed inside it is
- * fixed to, so in the field the sheet would have hung off the field instead.
+ * it and kept inside the window, its foot included: it ends at least 16px
+ * over the window's foot, its weeks drawn shorter to fit, and where even that
+ * is too tall it is cut there and its weeks scroll inside it, under the line
+ * with the steps (see calendar-fit.ts). On a phone, a sheet fixed to the foot
+ * of the window over the page dimmed, put at the root of the document: the
+ * field is a size container, and a container is what anything fixed inside
+ * it is fixed to, so in the field the sheet would have hung off the field
+ * instead.
  *
  * The sheet is the whole width of a phone held upright and no wider than
  * 480px on one held sideways, centred. Too short for its month, as a phone
  * held sideways is, it scrolls inside itself, and the line with the steps
  * stays at its top.
  */
-function CalendarFrame({ wide, label, shift, onClose, children }: CalendarFrameProps) {
+function CalendarFrame({ wide, label, shift, frame, onClose, children }: CalendarFrameProps) {
   if (wide) {
+    // No room over the line with the steps: it carries its own, so whatever
+    // scrolls under it goes out of sight under its ground.
     return (
       <div
+        ref={frame}
         role="dialog"
         aria-label={label}
         style={{ left: shift }}
-        className="absolute top-full z-30 mt-3 w-[min(600px,calc(100vw-2rem))] rounded-card border border-rule bg-paper-raised px-5 pt-4 pb-2 shadow-md"
+        className="scroll-quiet absolute top-full z-30 mt-3 max-h-[var(--calendar-room,none)] w-[min(600px,calc(100vw-2rem))] overflow-y-auto overscroll-contain rounded-card border border-rule bg-paper-raised px-5 pb-2 shadow-md"
       >
         {children}
       </div>
@@ -374,6 +388,7 @@ export function DateRangeField({
   const container = useRef<HTMLDivElement | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
+  const frame = useRef<HTMLDivElement | null>(null);
   /** Read by the dismiss listener, which outlives the render that set it up. */
   const closing = useRef(onClose);
   useEffect(() => {
@@ -410,6 +425,29 @@ export function DateRangeField({
    * one height and its arrows stay where the finger left them.
    */
   const weeksShown = wide ? Math.max(...months.map(weeksIn)) : WEEKS_MOST;
+
+  /**
+   * The calendar under the field fitted to the room between the field and
+   * the window's foot, as it opens and before it is painted: measured at its
+   * own size, then told how tall a week is and how tall it may be, in --week
+   * and --calendar-room. Told to the stylesheet rather than held as state, as
+   * the day tabs' pill is, so it is painted once, at the size it is fitted
+   * to. See calendar-fit.ts.
+   */
+  useLayoutEffect(() => {
+    const panel = frame.current;
+    const firstMonth = panel?.querySelector('[role="grid"]');
+    if (!open || !wide || panel === null || firstMonth === null || firstMonth === undefined) {
+      return;
+    }
+    const box = panel.getBoundingClientRect();
+    const room = Math.floor(window.innerHeight - EDGE_GAP - box.top);
+    // The rows of a month are its weeks and, first, the names of its days.
+    const weeks = firstMonth.querySelectorAll(':scope > [role="row"]').length - 1;
+    const week = weekRowFor(room, box.height - weeks * WEEK_ROW, WEEKS_MOST);
+    panel.style.setProperty("--week", `${String(week)}px`);
+    panel.style.setProperty("--calendar-room", `${String(room)}px`);
+  }, [open, wide]);
 
   /**
    * What the grid paints, and what the field above reads while it is open.
@@ -559,13 +597,18 @@ export function DateRangeField({
           wide={wide}
           label={`Choose the ${label.toLowerCase()}`}
           shift={shift}
+          frame={frame}
           onClose={close}
         >
           {/* The line over the months: which click comes next, and a step of
-              one month at either end of it. Held at the top of a sheet too
-              short for its month, so the steps are there however far down
-              the days have been scrolled. */}
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-paper-raised">
+              one month at either end of it. Held at the top of a calendar too
+              short for its month, a phone's sheet or a desk's cut to the
+              window, so the steps are there however far down the days have
+              been scrolled. On a desk it carries the room over itself, so
+              nothing scrolled under it shows above it. */}
+          <div
+            className={`sticky top-0 z-10 flex items-center justify-between gap-3 bg-paper-raised ${wide ? "pt-4" : ""}`}
+          >
             <button
               type="button"
               aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}

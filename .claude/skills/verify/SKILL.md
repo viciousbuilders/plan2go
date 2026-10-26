@@ -64,7 +64,12 @@ its panel, then the AI box, as the v3 Mobile canvas had it, and no Sydney day. O
 down to 700 the room, lockup and form spacing come down (`first-page.css`), and the Sydney
 card takes the height left and is scaled to fit, gone under 0.6 of its 280px, or at its own
 size stands in the middle of that height, as much room above it as below. Check a size by
-`document.documentElement.scrollHeight` against the window's. "Made with ♥ by
+`document.documentElement.scrollHeight` against the window's, with the calendar open as
+well: it always opens under the dates and ends at least 16px over the window's foot, its
+weeks drawn from 36px down to 28 to fit (`calendar-fit.ts`, the panel's `--week`), and
+under that cut to the room (`--calendar-room`) with its weeks scrolling inside it. Launch
+Chrome with `ignoreDefaultArgs: ["--hide-scrollbars"]` to see the scrollbar a page that
+overflows is given, and what it moves. "Made with ♥ by
 viciousbuilders", the heart and the linked name in `terracotta-700`, sits in the bottom
 right corner, over the form's panel on a desk and last on a phone. The
 form's "Start planning" is disabled until a city is chosen, with a line under it saying

@@ -15,7 +15,7 @@
  * steps between the left-hand column's parts, round the form and between its
  * questions, and with it the lockup. Each runs in a straight line from its
  * least, in a window 700px tall or under, to its most in one 980px tall or
- * over: v5's own, but for the form's, which are a step under v5's as the
+ * over: v5's own, but for the form's, which are well under v5's as the
  * form is. What stays is what is read and pressed, the sentences, the fields and
  * the button, at the sizes they are. The headline is sized by the width it
  * has instead, to keep it on one line, in page.tsx.
@@ -48,9 +48,9 @@
     --lockup: calc(104px + 36 * var(--tall) / 280);
     --under-headline: calc(12px + 8 * var(--tall) / 280);
 
-    /* Round the form, and between its questions: 40 and 28 at most, where v5 has 48 and 32. */
-    --form-room: min(clamp(24px, 4vw, 40px), calc(24px + 16 * var(--tall) / 280));
-    --form-step: calc(20px + 8 * var(--tall) / 280);
+    /* Round the form, and between its questions: 28 and 24 at most, where v5 has 48 and 32. */
+    --form-room: min(clamp(24px, 4vw, 28px), calc(24px + 4 * var(--tall) / 280));
+    --form-step: calc(18px + 6 * var(--tall) / 280);
   }
 
   /* The day's place in its column, as tall as the rest leaves it. */
