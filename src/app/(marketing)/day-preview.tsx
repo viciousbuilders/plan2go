@@ -21,8 +21,10 @@ export function DayPreview() {
           <span className={`${headlineFont.className} text-[17px] leading-none text-ink`}>
             Day 2 · Sydney
           </span>
+          {/* The two numbered stops. The hotel is where the day sets out
+              from, not a place on it, as the planner counts a day. */}
           <span className="flex h-6 items-center rounded-pill bg-sage-100 px-2.5 text-[12px] leading-none font-bold text-sage-800">
-            3 places
+            2 places
           </span>
         </div>
         {/* Out from the hotel to Sydney's two best known sights: in on a

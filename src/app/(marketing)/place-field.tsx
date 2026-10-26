@@ -38,9 +38,12 @@ export interface ChosenPlace {
  * The first question on the page and the largest field on it, 68px, which the
  * input inside fills whatever the text in it, its words set large for the one
  * answer the page needs most. In 22px at its start and 10px at its end, so a
- * long city has nearly the whole width to run in.
+ * long city has nearly the whole width to run in. Ringed in the accent while
+ * it has the cursor, as the dates are when the keys reach them: an edge has
+ * to stand 3:1 from what is round it to be seen, and the accent's palest
+ * ring stood under 1.5:1 from the card.
  */
-const FIELD = `${FIELD_SHELL} flex h-[68px] items-center gap-3 pr-2.5 pl-[22px] focus-within:border-terracotta-300`;
+const FIELD = `${FIELD_SHELL} flex h-[68px] items-center gap-3 pr-2.5 pl-[22px] focus-within:border-terracotta`;
 
 /**
  * What the panel says while it is looking and when it finds nothing. Both name
@@ -331,7 +334,10 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
           }}
           onPointerEnter={lookUpWorld}
           onKeyDown={onKeyDown}
-          className="h-full min-w-0 flex-1 bg-transparent text-[22px] leading-none font-medium text-ink caret-terracotta outline-none placeholder:text-ink-faint"
+          // The placeholder in the muted ink, which stands 5.3:1 from the
+          // well. The faint one stood 3.6:1, under the 4.5:1 words this size
+          // need, on the one question the page cannot do without.
+          className="h-full min-w-0 flex-1 bg-transparent text-[22px] leading-none font-medium text-ink caret-terracotta outline-none placeholder:text-ink-muted"
         />
       </div>
 

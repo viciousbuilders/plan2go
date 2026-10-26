@@ -38,10 +38,10 @@ export default function MarketingPage() {
     // the right, a panel a step darker with the form in its middle. They
     // share the width as v5's do, 380 and 480 to start with and what is over
     // that two parts to three, which is also where they stop fitting side by
-    // side. The day takes the height the others leave it. Under 860px, one
-    // column: the words, the form in its panel, then the way with AI, as the
-    // phone has had them, and not the day, which would push the form down
-    // out of reach of a thumb.
+    // side. The day takes the height the others leave it, in the middle of
+    // it. Under 860px, one column: the words, the form in its panel, then the
+    // way with AI, as the phone has had them, and not the day, which would
+    // push the form down out of reach of a thumb.
     <section className="first-page-grid relative grid grow grid-cols-[minmax(0,1fr)] [grid-template-areas:'hero'_'form'_'ai'] min-[860px]:grid-cols-[minmax(0,calc((100%_-_860px)_*_0.4_+_380px))_minmax(0,1fr)] min-[860px]:grid-rows-[auto_minmax(0,1fr)_auto] min-[860px]:gap-y-[var(--step)] min-[860px]:[grid-template-areas:'hero_form'_'day_form'_'ai_form']">
       <div
         className={`flex flex-col gap-[var(--room)] ${ACROSS} ${TOP} pb-[var(--room)] [grid-area:hero] min-[860px]:pb-0`}

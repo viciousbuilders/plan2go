@@ -62,7 +62,8 @@ that. Under 860px it is one column, the lockup at the right over the words, the 
 its panel, then the AI box, as the v3 Mobile canvas had it, and no Sydney day. On a desk
 600px tall or more the page is the window's height and never scrolls: from 980px tall
 down to 700 the room, lockup and form spacing come down (`first-page.css`), and the Sydney
-card takes the height left and is scaled to fit, gone under 0.6 of its 280px. Check a size by
+card takes the height left and is scaled to fit, gone under 0.6 of its 280px, or at its own
+size stands in the middle of that height, as much room above it as below. Check a size by
 `document.documentElement.scrollHeight` against the window's. "Made with ♥ by
 viciousbuilders", the heart and the linked name in `terracotta-700`, sits in the bottom
 right corner, over the form's panel on a desk and last on a phone. The

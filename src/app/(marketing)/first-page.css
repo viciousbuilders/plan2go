@@ -21,8 +21,11 @@
  *
  * The day takes whatever height its column has left over and is drawn as
  * large as fits it, up to its own size, as a picture is fitted to a frame.
- * Too small to read, under six tenths of its size, it is left out: it is
- * there for the eye, and the words above it say the same.
+ * Given more height than that, it stands in the middle of it, so the room
+ * left over is shared above and below it. Left under it, that room was one
+ * gap between the day and the way with AI, most of the column on a tall
+ * window. Too small to read, under six tenths of its size, it is left out:
+ * it is there for the eye, and the words above it say the same.
  *
  * On a phone the page is one column, read by scrolling, at v5's sizes. So is
  * a desk's window under 600px tall, which even the least of these overflow.
@@ -55,10 +58,12 @@
   }
 
   /* As large as fits that height, up to its own size, which is 280px tall.
-     Two lengths divide into a number only by way of an angle. */
+     Two lengths divide into a number only by way of an angle. At its own
+     size, half of whatever height is over goes above it. */
   .first-page-day > * {
     transform-origin: top left;
     scale: min(1, tan(atan2(100cqh, 280px)));
+    translate: 0 max(0px, (100cqh - 280px) / 2);
   }
 
   @container day (height < 168px) {

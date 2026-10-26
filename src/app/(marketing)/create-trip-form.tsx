@@ -124,16 +124,19 @@ export function CreateTripForm() {
           browser has said what today is would come back saying the first day
           is missing, with nowhere yet to enter one. Making the trip, it is
           shut to a second press without fading as a button that cannot be
-          pressed does: it is busy, not out of reach. How its plane moves,
-          under the pointer and while the trip is being made, is in
-          create-trip-form.css. */}
+          pressed does: it is busy, not out of reach. Its words are 19px, the
+          least at which bold words count as large type. Light words on the
+          accent stand 3.5:1 from it, enough for large type, which DESIGN.md
+          tunes the accent for, and short of the 4.5:1 that words at 17px
+          would need. How its plane moves, under the pointer and while the
+          trip is being made, is in create-trip-form.css. */}
       <div className="flex flex-col gap-3 pt-1">
         <button
           type="submit"
           disabled={pending || today === null || city === null}
           data-pending={pending || undefined}
           aria-describedby={helperId}
-          className={`start-go flex h-16 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[17px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+          className={`start-go flex h-16 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[19px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
             pending ? "cursor-progress" : "disabled:opacity-45"
           }`}
         >
