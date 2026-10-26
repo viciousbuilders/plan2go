@@ -30,9 +30,9 @@
  *   sides by --across and down from the top or up from the foot by --room:
  *   the words on the left, the form's panel, and the lockup and the credit in
  *   the right hand corners. The words on the left run out to one edge,
- *   560px at most, the headline filling it on its one line, and the form is
- *   as wide, wide and low, with 28px of room round it and 20 between its
- *   questions at most.
+ *   560px at most, the headline filling it on its one line. The form is
+ *   500px at most, wide and low, with 28px of room round it and 20 between
+ *   its questions at most.
  * - Type: seven steps and nothing between them, 12, 13, 14, 16, 18, 24 and
  *   32, and the headline. The headline is sized to that measure, 36 to 48 on
  *   a desk and 40 on a phone, and the dialog's heading is 32, 24 on a phone,

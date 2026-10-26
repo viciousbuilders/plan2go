@@ -65,14 +65,14 @@ export function CreateTripForm() {
   return (
     // The room round it and between its questions are the page's on a desk,
     // where they come down in a shorter window, and the same at their most
-    // otherwise. Wide and low: as wide as the words on the left run, 560px,
-    // with every control 48px tall and its words a step under v5's, where at
-    // v5's 540 by 400 it stood tall enough to be the largest thing on the
-    // page after the headline. At 560 its fields keep the 400px the dates
-    // need for 16px.
+    // otherwise. Wide and low: 500px, with every control 48px tall and its
+    // words a step under v5's, where at v5's 540 by 400 it stood tall enough
+    // to be the largest thing on the page after the headline, and at the
+    // left column's 560 it read too wide. At 500 its fields keep the 400px
+    // the dates need for 16px, which a card under 456 would not.
     <form
       action={submit}
-      className="flex w-full max-w-[560px] flex-col gap-[var(--form-step,20px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,28px))] shadow-md"
+      className="flex w-full max-w-[500px] flex-col gap-[var(--form-step,20px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,28px))] shadow-md"
     >
       <div>
         <PlaceField
