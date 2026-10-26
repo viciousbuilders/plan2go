@@ -42,14 +42,16 @@
  *   the heading over an app's steps. 16 for the dates, which the dates field
  *   sets at 14 in a field under 400px wide, the AI box's heading, the
  *   dialog's steps and the line under its heading; the headings in the body
- *   face, as every heading under the headline is. 14 for the line over the
- *   sentence to paste, the dialog's buttons, a city in the list and a place
- *   on the card. 13 for the line under the button, the sentence to paste,
- *   code, the links, the notes under an app's steps and a city's country in
- *   the list. 12 for the
- *   labels, in capitals, the names over the dates, the count of days and
- *   small print: the card's, the list's heading, the credit, and an error
- *   under the form, at the planner's own size for one.
+ *   face, as every heading under the headline is. 14 for a place's name,
+ *   semibold, on the card and in the city list, and the dialog's buttons. 13
+ *   for every line that says what to do or what is happening, medium, in the
+ *   muted ink: under the button, over the sentence to paste, and in the city
+ *   list while it looks; and for the sentence to paste, code, the links and
+ *   the notes under an app's steps. 12 for where a place is, under its name,
+ *   medium, on the card and in the list; the labels, in capitals, the names
+ *   over the dates and the count of days; and small print: the card's, the
+ *   list's heading, the credit, and an error under the form, at the
+ *   planner's own size for one.
  * - Lines: 1.08 for the headline face, 1.6 for the sentence under the
  *   headline, 1.5 for any other text that can run to two lines, and 1 or 1.2
  *   for text on one.

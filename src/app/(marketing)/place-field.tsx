@@ -399,7 +399,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
                         {place.name}
                       </span>
                       {place.address === null ? null : (
-                        <span className="block text-[13px] leading-5 text-ink-muted">
+                        <span className="block text-[12px] leading-5 font-medium text-ink-muted">
                           {place.address}
                         </span>
                       )}
@@ -408,7 +408,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
                 ))}
               </ul>
             ) : (
-              <p className="px-3 py-3 text-[14px] leading-5 text-ink-muted">
+              <p className="px-3 py-3 text-[13px] leading-normal font-medium text-ink-muted">
                 {offering ? LOOKING : (message ?? (searching ? LOOKING : NO_MATCH))}
               </p>
             )}

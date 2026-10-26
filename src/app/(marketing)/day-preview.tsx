@@ -55,7 +55,7 @@ function Place({
     <div className="flex items-center gap-3">
       {mark}
       <span className="flex min-w-0 flex-col gap-0.5">
-        <span className="text-[14px] leading-[1.2] font-bold text-ink">{name}</span>
+        <span className="text-[14px] leading-[1.2] font-semibold text-ink">{name}</span>
         <span className="text-[12px] leading-[1.2] font-medium text-ink-muted">{area}</span>
       </span>
     </div>

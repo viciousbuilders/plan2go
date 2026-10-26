@@ -44,7 +44,7 @@ export function AiBox() {
         <h2 className="font-body text-[16px] leading-[1.2] font-bold text-ink">
           Or build it with AI
         </h2>
-        <p className="text-[14px] leading-normal text-pretty text-ink-muted">
+        <p className="text-[13px] leading-normal font-medium text-pretty text-ink-muted">
           Paste this into your AI agent’s chat.
         </p>
       </div>
