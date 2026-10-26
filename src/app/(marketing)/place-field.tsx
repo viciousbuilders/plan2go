@@ -35,16 +35,16 @@ export interface ChosenPlace {
 }
 
 /**
- * The first question on the page and the largest words on it after the
- * headline, in a field 56px tall as the dates are, which the input inside
- * fills whatever the text in it, its words set large for the one answer the
- * page needs most. In 22px at its start and 10px at its end, so a long city
- * has nearly the whole width to run in. Ringed in the accent while
+ * The first question on the page, in a field 48px tall as the dates and the
+ * button are, which the input inside fills whatever the text in it, its
+ * words 18px, as large as the sentence under the headline, for the one
+ * answer the page needs most. In 18px at its start and 10px at its end, so a
+ * long city has nearly the whole width to run in. Ringed in the accent while
  * it has the cursor, as the dates are when the keys reach them: an edge has
  * to stand 3:1 from what is round it to be seen, and the accent's palest
  * ring stood under 1.5:1 from the card.
  */
-const FIELD = `${FIELD_SHELL} flex h-14 items-center gap-3 pr-2.5 pl-[22px] focus-within:border-terracotta`;
+const FIELD = `${FIELD_SHELL} flex h-12 items-center gap-3 pr-2.5 pl-[18px] focus-within:border-terracotta`;
 
 /**
  * What the panel says while it is looking and when it finds nothing. Both name
@@ -311,7 +311,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
       <input type="hidden" name={name} value={chosen?.providerPlaceId ?? ""} />
 
       <div className={`${FIELD} ${FIELD_GROUND}`}>
-        <SearchIcon size={20} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
+        <SearchIcon size={18} strokeWidth={2.75} className="shrink-0 text-terracotta-700" />
         <input
           id={id}
           type="text"
@@ -338,7 +338,7 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
           // The placeholder in the muted ink, which stands 5.3:1 from the
           // well. The faint one stood 3.6:1, under the 4.5:1 words this size
           // need, on the one question the page cannot do without.
-          className="h-full min-w-0 flex-1 bg-transparent text-[20px] leading-none font-medium text-ink caret-terracotta outline-none placeholder:text-ink-muted"
+          className="h-full min-w-0 flex-1 bg-transparent text-[18px] leading-none font-medium text-ink caret-terracotta outline-none placeholder:text-ink-muted"
         />
       </div>
 
@@ -355,8 +355,9 @@ export function PlaceField({ id, name, label, placeholder, chosen, onChange }: P
 
           {/* Five cities and half of the next at most, the half saying there
               are more, which scroll inside the panel; less on a window with
-              little height to spare. A row is 56px, a control's height, and a
-              search answers with five at most, so its list never scrolls.
+              little height to spare. A row is 56px, a city's name over its
+              country, and a search answers with five at most, so its list
+              never scrolls.
               Scrolled to by the keys with its padding kept, so the first and
               last rows stand where they do at rest. */}
           <div

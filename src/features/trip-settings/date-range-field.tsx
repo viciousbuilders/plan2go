@@ -96,10 +96,10 @@ const SIZES = {
     stack: "shrink-0 max-lg:hidden",
   },
   large: {
-    // A control on two lines, 56px, on the starter page's scale. Roomier on a
+    // A control on two lines, 48px, on the starter page's scale. Roomier on a
     // desk, from a width well past the ones the day's formats change at, so
     // those still hold where they were measured.
-    trigger: `${PILL} h-14 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
+    trigger: `${PILL} h-12 gap-2 border-transparent bg-paper px-5 enabled:hover:bg-terracotta-100 aria-expanded:bg-terracotta-100 @min-[400px]:px-6`,
     change: "sr-only",
     // The container the day's format is measured against. Not the pill itself:
     // a button cannot be a size container, and the wrapper is exactly as wide.
@@ -183,7 +183,7 @@ function End({ name, date }: { readonly name: string; readonly date: IsoDate | n
   const day = date === null ? null : isoDateAsUtc(date);
   return (
     <span className="flex min-w-0 flex-1 flex-col gap-1">
-      <span className="text-[13px] leading-none font-semibold text-ink-muted">{name}</span>
+      <span className="text-[12px] leading-none font-semibold text-ink-muted">{name}</span>
       <span className="truncate text-[14px] leading-5 tabular-nums @min-[400px]:text-[16px]">
         {day === null ? (
           // Written as its escape because it is invisible: a space that does

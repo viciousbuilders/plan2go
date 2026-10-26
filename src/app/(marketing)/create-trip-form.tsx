@@ -65,13 +65,14 @@ export function CreateTripForm() {
   return (
     // The room round it and between its questions are the page's on a desk,
     // where they come down in a shorter window, and the same at their most
-    // otherwise. Well under v5's, as the card is: at v5's 540px it was the
-    // largest thing on the page after the headline, and at 480 still too
-    // large. At 420 its fields are under the 400px the dates need for 16px,
-    // so they are 14, in their longest form still, as on a phone.
+    // otherwise. Wide and low: as wide as the words on the left run, 560px,
+    // with every control 48px tall and its words a step under v5's, where at
+    // v5's 540 by 400 it stood tall enough to be the largest thing on the
+    // page after the headline. At 560 its fields keep the 400px the dates
+    // need for 16px.
     <form
       action={submit}
-      className="flex w-full max-w-[420px] flex-col gap-[var(--form-step,24px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,28px))] shadow-md"
+      className="flex w-full max-w-[560px] flex-col gap-[var(--form-step,20px)] rounded-[28px] bg-paper-raised p-[var(--form-room,clamp(24px,4vw,28px))] shadow-md"
     >
       <div>
         <PlaceField
@@ -84,7 +85,7 @@ export function CreateTripForm() {
         />
       </div>
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
           {/* For the eye: the field names itself to a screen reader. */}
           <span aria-hidden="true" className={FIELD_LABEL}>
@@ -92,7 +93,7 @@ export function CreateTripForm() {
           </span>
           <span
             role="status"
-            className="flex h-6 items-center rounded-pill bg-sage-100 px-2.5 text-[13px] leading-none font-bold text-sage-800"
+            className="flex h-6 items-center rounded-pill bg-sage-100 px-2.5 text-[12px] leading-none font-bold text-sage-800"
           >
             {`${String(days)} ${days === 1 ? "day" : "days"}`}
           </span>
@@ -128,19 +129,21 @@ export function CreateTripForm() {
           browser has said what today is would come back saying the first day
           is missing, with nowhere yet to enter one. Making the trip, it is
           shut to a second press without fading as a button that cannot be
-          pressed does: it is busy, not out of reach. Its words are 20px, as
-          the city's are, which in bold is large type, at 18.67px and over.
-          Light words on the accent stand 3.5:1 from it, enough for large
-          type, which DESIGN.md tunes the accent for, and short of the 4.5:1
-          that smaller words would need. How its plane moves, under the
-          pointer and while the trip is being made, is in create-trip-form.css. */}
+          pressed does: it is busy, not out of reach. Its words are 18px and
+          bold, as large as the city's. Light words on the accent stand 3.5:1
+          from it, which DESIGN.md tunes the accent to and which is enough
+          for large type. Bold words are large type from 18px by the taste
+          skill's count and from 18.67px by WCAG's, so these are a hair
+          under WCAG's line, where the 20px they were before was over it. How
+          its plane moves, under the pointer and while the trip is being
+          made, is in create-trip-form.css. */}
       <div className="flex flex-col gap-3 pt-1">
         <button
           type="submit"
           disabled={pending || today === null || city === null}
           data-pending={pending || undefined}
           aria-describedby={helperId}
-          className={`start-go flex h-14 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[20px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+          className={`start-go flex h-12 w-full items-center justify-center rounded-pill bg-terracotta px-6 font-body text-[18px] leading-none font-bold text-sheet enabled:hover:bg-terracotta-600 enabled:active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
             pending ? "cursor-progress" : "disabled:opacity-45"
           }`}
         >
@@ -162,7 +165,7 @@ export function CreateTripForm() {
         </button>
         <p
           id={helperId}
-          className="text-center text-[14px] leading-normal font-medium text-balance text-ink-muted"
+          className="text-center text-[13px] leading-normal font-medium text-balance text-ink-muted"
         >
           {city === null
             ? "Type your first city to begin. You can add more cities next."
