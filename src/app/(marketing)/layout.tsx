@@ -45,8 +45,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           before, heart and all: the words in the muted ink, the heart and
           the name a shade darker than the accent. Past 1440px wide, in by
           the stage's inset as well, so it keeps to the stage's corner as the
-          lockup does. */}
-      <footer className="px-[var(--across)] pb-[var(--room)] text-right text-[12px] leading-none text-ink-muted min-[860px]:absolute min-[860px]:right-[calc(var(--inset)_+_var(--across))] min-[860px]:bottom-[var(--room)] min-[860px]:p-0">
+          lockup does. Its line as tall as the AI box's last, 19.5px, 13px
+          at 1.5, so with the two lines' feet on one line their words stand
+          on one baseline: on a line of its own size it stood 6.5px lower. */}
+      <footer className="px-[var(--across)] pb-[var(--room)] text-right text-[12px] leading-[19.5px] text-ink-muted min-[860px]:absolute min-[860px]:right-[calc(var(--inset)_+_var(--across))] min-[860px]:bottom-[var(--room)] min-[860px]:p-0">
         <Credit />
       </footer>
     </div>

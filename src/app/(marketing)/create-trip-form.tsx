@@ -118,8 +118,8 @@ export function CreateTripForm() {
       </div>
 
       {error === null ? null : (
-        <Notice role="alert" size="meta">
-            {error}
+        <Notice role="alert" size="small">
+          {error}
         </Notice>
       )}
 

@@ -55,7 +55,8 @@ Every trip opened this way is a row in the shared database. Delete them when don
 
 The page is drawn to `storage/plan2go First Page v5.dc.html`: two panels the height of
 the window, the form in the middle of the right one, in `neutral-200`, the lockup in its
-top right corner level with the headline (160px wide, up to 192 on a tall window), and in
+top right corner, its middle level with the middle of the headline's first line
+(`--lockup-top`; 160px wide, up to 192 on a tall window), and in
 the left the headline, a day in Sydney drawn for the eye (`aria-hidden`) and the AI box at
 its foot. Past 1440px wide all of it holds to a 1440 stage in the middle of the window,
 the two panels' grounds running on to the window's edges (`--stage`, `--inset` in
@@ -74,7 +75,9 @@ under that cut to the room (`--calendar-room`) with its weeks scrolling inside i
 Chrome with `ignoreDefaultArgs: ["--hide-scrollbars"]` to see the scrollbar a page that
 overflows is given, and what it moves. "Made with ♥ by
 viciousbuilders", the heart and the linked name in `terracotta-700`, sits in the bottom
-right corner, over the form's panel on a desk and last on a phone. The form comes
+right corner, over the form's panel on a desk and last on a phone, on one baseline with
+"Set it up manually" (both on a 19.5px line; read a baseline from a probe set inside the
+words, since a probe set in a flex box lands at its middle). The form comes
 straight after the words in the markup, so Tab goes city, dates, Start planning (once it
 can be pressed), the AI box's Copy and Set it up manually, then the credit, on a desk as
 on a phone, every stop ringed 2px in `terracotta`. The

@@ -75,6 +75,25 @@
     --step: calc(20px + 28 * var(--tall) / 280);
     /* 160px wide as on a phone, and up to 192 in a tall window. */
     --lockup: calc(160px + 32 * var(--tall) / 280);
+    /*
+     * The headline's size as page.tsx sets it, 8.6 of every hundred of its
+     * column's measure, worked out here from the window's width, since the
+     * lockup cannot see the column the headline is measured in. A scrollbar
+     * the width leaves out moves it by under half a pixel.
+     */
+    --headline: clamp(
+      36px,
+      0.086 * min(560px, (min(100vw, var(--stage)) - 860px) * 0.4 + 380px - 2 * var(--across)),
+      48px
+    );
+    /*
+     * The lockup's top, so its middle stands level with the middle of the
+     * headline's first line, 1.08 of its size tall, rather than its top
+     * with the headline's top: taller than that line, a lockup hung from the
+     * top stood its words below the headline's. The lockup is 442 parts tall
+     * to 1200 wide, so half its height is 0.184 of its width.
+     */
+    --lockup-top: calc(var(--room) + 0.54 * var(--headline) - 0.184 * var(--lockup));
     --under-headline: calc(12px + 8 * var(--tall) / 280);
 
     /* Round the form, and between its questions: 28 and 20 at most, where v5 has 48 and 32. */

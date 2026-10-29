@@ -15,8 +15,12 @@ interface NoticeProps {
    * does, or above, where below is a button it would cover.
    */
   readonly hangs?: "below" | "above";
-  /** Meta on a form's own line, micro inside a card or a row. */
-  readonly size?: "meta" | "micro";
+  /**
+   * Small on the front page's form, as large as the page's other lines that
+   * say what happened; meta on a form's own line in the planner; micro
+   * inside a card or a row.
+   */
+  readonly size?: "small" | "meta" | "micro";
   /** "alert" for something that just went wrong, which a screen reader should hear at once. */
   readonly role?: "alert";
   /** Room around it, and where a bubble hangs, which is all that varies from place to place. */
@@ -42,7 +46,12 @@ export function Notice({
   className = "",
 }: NoticeProps) {
   // Whole class names, which is how the stylesheet finds them.
-  const ink = size === "meta" ? "text-meta text-terracotta-900" : "text-micro text-terracotta-900";
+  const ink =
+    size === "small"
+      ? "text-small text-terracotta-900"
+      : size === "meta"
+        ? "text-meta text-terracotta-900"
+        : "text-micro text-terracotta-900";
   if (shape === "note") {
     return (
       <div

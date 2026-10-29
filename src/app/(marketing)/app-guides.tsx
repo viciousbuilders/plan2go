@@ -32,9 +32,9 @@ function Ui({ children }: { readonly children: ReactNode }) {
   return <b className="font-bold text-ink">{children}</b>;
 }
 
-/** A file's path, in the face the code is in. */
+/** A file's path, in the face and weight the code boxes are in. */
 function Path({ children }: { readonly children: ReactNode }) {
-  return <code className="font-mono text-[13px]">{children}</code>;
+  return <code className="font-mono text-[13px] font-medium">{children}</code>;
 }
 
 function StepList({ children }: { readonly children: ReactNode }) {

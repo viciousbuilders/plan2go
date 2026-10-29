@@ -49,17 +49,16 @@
  *   dialog's steps and the line under its heading; the headings in the body
  *   face, as every heading under the headline is. 14 for a name in the ink:
  *   a place's, semibold, on the card and in the city list, and an app's,
- *   medium, in the dialog's list, under its group's name. 13
- *   for every line that says what to do or what is happening, medium, in the
- *   muted ink: under the button, over the sentence to paste, and in the city
- *   list while it looks; and for the sentence to paste, code, the links and
- *   the notes under an app's steps. 12 for where a place is, under its name,
- *   medium, on the card and in the list; the labels, in capitals, a field's
- *   in the muted ink and a group's in the dialog in the accent's text
- *   shade; the names over the dates and the count of days; and small print:
- *   the card's, the
- *   list's heading, the credit, and an error under the form, at the
- *   planner's own size for one.
+ *   medium, in the dialog's list, under its group's name. 13 for every line
+ *   that says what to do or what is happening: medium in the muted ink under
+ *   the button, over the sentence to paste and in the city list while it
+ *   looks, and an error under the form in the notice's own inks; and for the
+ *   sentence to paste, code, medium, the links and the notes under an app's
+ *   steps. 12 for where a place is, under its name, medium, on the card and
+ *   in the list; the labels, in capitals, a field's in the muted ink and a
+ *   group's in the dialog in the accent's text shade; the names over the
+ *   dates and the count of days; and small print: the card's, the list's
+ *   heading and the credit.
  * - Lines: 1.08 for the headline face, 1.6 for the sentence under the
  *   headline, 1.5 for any other text that can run to two lines, and 1 or 1.2
  *   for text on one.
