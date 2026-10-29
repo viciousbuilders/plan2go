@@ -347,22 +347,29 @@ export function DayTimeline({
         onOpen={onOpenEndpoint}
       />
 
-      {/* Nothing planned: said straight on the ground between the two ends,
-          with no box round it, with the way to the first place for someone
-          who may edit, in the accent's solid pill since it is the one thing
-          to do. */}
+      {/* Nothing planned: on the rail, as everything else on the day is, the
+          way a desk says it. The line the stops will hang on runs down the
+          marks' column, dashed in the accent because nothing hangs on it
+          yet, and stops short of the ends' markers; the words are set left
+          in the words' column, with the way to the first place under them
+          for someone who may edit, in the accent's solid pill since it is
+          the one thing to do. */}
       {day.stops.length === 0 ? (
-        <div className="flex flex-col items-center gap-[14px] px-5 py-10 text-center">
-          <p className="font-display text-lead text-balance text-ink">Nothing planned yet</p>
-          {onFindPlace === null ? null : (
-            <button
-              type="button"
-              onClick={onFindPlace}
-              className="flex h-12 items-center rounded-pill bg-terracotta px-[22px] font-display text-place/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-            >
-              Add a place
-            </button>
-          )}
+        <div className={`${RAIL_ROW} py-1.5`}>
+          <span aria-hidden="true" />
+          <span aria-hidden="true" className="thread-waiting justify-self-center" />
+          <div className="flex min-w-0 flex-col items-start py-3">
+            <p className="font-display text-lead text-balance text-ink">Nothing planned yet</p>
+            {onFindPlace === null ? null : (
+              <button
+                type="button"
+                onClick={onFindPlace}
+                className="mt-[14px] flex h-12 items-center rounded-pill bg-terracotta px-[22px] font-display text-place/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+              >
+                Add a place
+              </button>
+            )}
+          </div>
         </div>
       ) : null}
 
