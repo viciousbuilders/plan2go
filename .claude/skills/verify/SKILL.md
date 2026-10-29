@@ -62,7 +62,7 @@ its foot. Past 1440px wide all of it holds to a 1440 stage in the middle of the 
 the two panels' grounds running on to the window's edges (`--stage`, `--inset` in
 `first-page.css`), the lockup and the credit in the stage's corners. The headline is one
 line on a desk from about 1260px wide, sized to its column (36 to 48px), and two lines
-under that. Under 860px it is one column, the lockup at the right over the words, the form in
+under that. Under 860px it is one column, the lockup at the left over the words, the form in
 its panel, then the AI box, as the v3 Mobile canvas had it, and no Sydney day. On a desk
 600px tall or more the page is the window's height and never scrolls: from 980px tall
 down to 700 the room, lockup and form spacing come down (`first-page.css`), and the Sydney

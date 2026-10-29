@@ -46,19 +46,19 @@ export default function MarketingPage() {
       <div
         className={`flex flex-col gap-[var(--room)] ${ACROSS} ${TOP} pb-[var(--room)] [grid-area:hero] min-[860px]:pb-0`}
       >
-        {/* In the frame's top right corner, as the credit is in its bottom
-            right: over the form's panel on a desk, its middle level with the
-            middle of the headline's first line (--lockup-top), and over the
-            words on a phone. 160px wide, and up to 192 in a
-            tall window (--lockup), which is the size it is asked for at, so
-            the picture served is sharp at the largest. */}
+        {/* On a desk in the frame's top right corner, as the credit is in its
+            bottom right: over the form's panel, its middle level with the
+            middle of the headline's first line (--lockup-top). On a phone at
+            the top left, over the words and on their left edge. 160px wide,
+            and up to 192 in a tall window (--lockup), which is the size it is
+            asked for at, so the picture served is sharp at the largest. */}
         <Image
           src={lockup}
           alt="plan2go"
           width={192}
           height={71}
           preload
-          className="h-auto w-[160px] max-w-full self-end min-[860px]:absolute min-[860px]:top-[var(--lockup-top)] min-[860px]:right-[var(--across)] min-[860px]:w-[var(--lockup)]"
+          className="h-auto w-[160px] max-w-full self-start min-[860px]:absolute min-[860px]:top-[var(--lockup-top)] min-[860px]:right-[var(--across)] min-[860px]:w-[var(--lockup)]"
         />
 
         {/* Sized by the width it is given, so the headline can fill it. */}
