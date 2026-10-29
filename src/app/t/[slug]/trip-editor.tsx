@@ -459,9 +459,10 @@ export function TripEditor({
 
   /**
    * What the sheets kept for the browser's own print command are asked to
-   * show: the open day, as the export prints it, without its map, and on its
-   * own, without the cover or the ruled sheet the export opens with. Held still
-   * between renders like the paths above. The sheets measure the day again
+   * show: the open day, as the export prints it but with the notes on its
+   * stops, since there is no window here to add them, without its map, and on
+   * its own, without a cover or a ruled sheet. Held still between renders like
+   * the paths above. The sheets measure the day again
    * whenever they are handed a new request, which is a layout of the whole
    * day read back by the browser, and this page renders again every time the
    * pointer crosses a card, a leg or a marker.
@@ -471,6 +472,7 @@ export function TripEditor({
       ...DEFAULT_EXPORT,
       dayIds: selected === undefined ? [] : [selected.plan.id],
       map: false,
+      notes: true,
       cover: false,
       ruled: false,
     }),

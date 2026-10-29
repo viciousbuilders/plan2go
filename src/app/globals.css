@@ -314,6 +314,22 @@
   );
 }
 
+/*
+ * The thread of a day with nothing on it yet. The same width, in the accent at
+ * 55 percent as the next stop's dashed ring is, and in dashes closer together
+ * than the thread's dots: the line is waiting for its first stop, not joining
+ * two.
+ */
+@utility thread-waiting {
+  width: 2px;
+  border-radius: var(--radius-pill);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-terracotta) 55%, transparent) 0 4px,
+    transparent 4px 6px
+  );
+}
+
 @layer base {
   html {
     color-scheme: light;

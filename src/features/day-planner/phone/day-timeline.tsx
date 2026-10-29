@@ -348,9 +348,9 @@ export function DayTimeline({
       />
 
       {/* Nothing planned: said straight on the ground between the two ends,
-          with no box round it, as a desk says it, with the way to the first
-          place for someone who may edit, in the accent's solid pill since it
-          is the one thing to do. */}
+          with no box round it, with the way to the first place for someone
+          who may edit, in the accent's solid pill since it is the one thing
+          to do. */}
       {day.stops.length === 0 ? (
         <div className="flex flex-col items-center gap-[14px] px-5 py-10 text-center">
           <p className="font-display text-lead text-balance text-ink">Nothing planned yet</p>

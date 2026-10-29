@@ -67,7 +67,7 @@ export function registerTripTools(server: McpServer): void {
     {
       title: "Get the trip as a PDF",
       description:
-        "A link to the trip as a PDF, as the planner's export makes it. Unless told otherwise it has everything the export window starts with: a cover, then each day with something planned on it, with its map, travel between stops, addresses, opening hours, notes, a summary under its name and a ruled page after it, on A4 the right way up. Each of those can be left out, and the paper, layout, text and ink chosen, as in the export window. The file is drawn when the link is opened, which can take up to a minute, and shows nothing the read only link does not.",
+        "A link to the trip as a PDF, as the planner's export makes it. Unless told otherwise it has what the export window starts with: each day with something planned on it, with its map, travel between stops, addresses, opening hours and a summary under its name, on A4 the right way up. A cover, the notes on stops and a ruled page after each day are left out unless asked for. Each of those can be added or left out, and the paper, layout, text and ink chosen, as in the export window. The file is drawn when the link is opened, which can take up to a minute, and shows nothing the read only link does not.",
       inputSchema: z.object({
         link: readLinkInput,
         days: z
@@ -75,7 +75,7 @@ export function registerTripTools(server: McpServer): void {
           .max(MAX_TRIP_DAYS)
           .optional()
           .describe(
-            "Which days to put on paper, by number. Leave out for every day with something planned, or give none for the cover alone. A day with nothing planned has no sheet and is left out.",
+            "Which days to put on paper, by number. Leave out for every day with something planned, or give none, with cover on, for the cover alone. A day with nothing planned has no sheet and is left out.",
           ),
         cover: z
           .boolean()

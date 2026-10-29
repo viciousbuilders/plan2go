@@ -342,9 +342,12 @@ stop leaves it at once, and the day fades under "Working out the new times." unt
 days have their new times, as after a reorder. When the day leaves
 is set on the day itself. Then the day itself: stops on raised cards, legs between them on pills of paper, and the ends of the
 day on shorter rows of paper inside a hairline, dashed where an end is not there yet.
-A day with no stops says so straight on the ground, with no card under it, since a card
-on the day is a stop: between the two ends, on the same edges as every card and row, and
-twelve under the start of the day when there is one. The next place is offered as the next number on the rail, drawn dashed at the foot of
+A day with no stops says so beside the line its stops will hang on, with no card under
+it, since a card on the day is a stop. The line is 2px of `terracotta` at 55 percent in
+4px dashes 2px apart, down the middle of the ends' marks, and stops 18px short of the
+rows above and below; the words are set left on the stops' left edge, the heading at the
+title step, with **Find a place** under them. Twelve under the start of the day when
+there is one, and twelve over the end when no leg comes between. The next place is offered as the next number on the rail, drawn dashed at the foot of
 the last stop card, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
 nothing drawn edge to edge.
 
@@ -461,8 +464,8 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   `terracotta-800`, one button.
 
 A day with nothing planned says "Nothing planned yet" at the lead step, straight on the
-ground between the two ends with no box round it, as a desk says it, with **Add a
-place** on the accent's solid pill under it for someone who may edit.
+ground between the two ends with no box round it, with **Add a place** on the accent's
+solid pill under it for someone who may edit.
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a
@@ -1046,7 +1049,9 @@ a day with nothing on it dashed and out of reach; beside the heading, a word tha
 all of them, Select all, or none, Clear. Then what the file includes, as eight toggles
 two across, each a glyph and its words on one line: the cover page, the route map, the
 notes on stops, the travel between them, addresses, opening hours, a ruled page for
-notes after each day, and the day summary, the strip of what each day comes to. Every one is on to begin with, so a choice only ever takes away;
+notes after each day, and the day summary, the strip of what each day comes to. The route
+map, the travel, addresses, opening hours and the day summary are on to begin with, and
+the cover page, the notes on stops and the ruled pages off;
 one that is on is `terracotta-100` inside `terracotta-300` with its words in
 `terracotta-900`, and one that is off is a `neutral-200` outline with its words in
 `neutral-500`. For the cover alone, neither the days nor what is included is shown.

@@ -41,18 +41,19 @@ export interface ExportRequest {
 }
 
 /**
- * What the export is until anything is chosen: everything there is to put on
- * the page, the cover and a ruled sheet after each day among it, so what the
- * window opens on is the whole trip and a choice only ever takes away.
+ * What the export is until anything is chosen: each day with its map, the
+ * travel between its stops, addresses, opening hours and the strip of what it
+ * comes to. The cover, the notes on stops and a ruled sheet after each day are
+ * there to add.
  */
 export const DEFAULT_EXPORT: Omit<ExportRequest, "dayIds"> = {
-  cover: true,
+  cover: false,
   map: true,
   mapSize: "large",
-  notes: true,
+  notes: false,
   legs: true,
   addresses: true,
-  ruled: true,
+  ruled: false,
   hours: true,
   stats: true,
   paper: "a4",

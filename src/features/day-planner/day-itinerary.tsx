@@ -514,9 +514,16 @@ export function DayItinerary({
 
       {/* Twelve under the start of the day when there is one, the room every
           block on the panel keeps from the next. The row offering a start
-          keeps its own twelve, and with neither the empty day is the top. */}
+          keeps its own twelve, and with neither the empty day is the top.
+          Twelve over the end as well when nothing comes between: with no
+          start there is no leg to the end, and the end's row keeps no room
+          of its own. The row offering an end keeps its own twelve. */}
       {day.stops.length === 0 ? (
-        <div className={day.start === null ? "" : "mt-3"}>
+        <div
+          className={`${day.start === null ? "" : "mt-3"} ${
+            day.end !== null && (legToEnd === undefined || plannedToEnd === undefined) ? "mb-3" : ""
+          }`}
+        >
           <EmptyDay dayName={formatDayDate(day.date)} onFindPlace={onFindPlace} />
         </div>
       ) : null}

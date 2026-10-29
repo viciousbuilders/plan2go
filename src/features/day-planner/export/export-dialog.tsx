@@ -676,8 +676,9 @@ export function ExportDialog({
   /** "3 pages", once the sheets have been dealt; nothing to say before. */
   const pageCount = sheets === null ? null : `${String(sheets)} ${pageWord}`;
   /**
-   * What the file can carry or leave off, every one on to begin with, so a
-   * choice only ever takes away. Each is a desk's pill, its word and glyph,
+   * What the file can carry or leave off, each as the export starts it: the
+   * cover, the notes on stops and the notes pages to add, the rest on. Each
+   * is a desk's pill, its word and glyph,
    * and a phone's switch, in design 1b's words at its place in the design's
    * order: its five first, then the three it has no row for. One list, so no
    * choice is ever offered on one and missing from the other.
