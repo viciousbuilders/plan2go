@@ -4,7 +4,7 @@ import { useEffect, useId, useRef } from "react";
 import { CloseIcon } from "@/ui/icons";
 import type { AppId } from "./app-guides";
 import { APP_GROUPS, APP_GUIDES, AppSteps } from "./app-guides";
-import { FIELD_LABEL } from "./field-styles";
+import { GROUP_LABEL } from "./field-styles";
 import { headlineFont } from "./headline-font";
 
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
@@ -99,26 +99,40 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
         <div className="grid min-h-0 flex-1 grid-cols-[200px_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] overflow-hidden rounded-[28px] bg-sheet shadow-[0_0_0_2px_var(--color-neutral-200)] max-sm:flex max-sm:flex-col">
           <nav
             aria-label="Your AI app"
-            className="scroll-quiet flex min-w-[190px] flex-col gap-[18px] overflow-auto bg-neutral-200 px-3.5 py-6 max-sm:min-w-0 max-sm:flex-none max-sm:flex-row max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:p-2.5 max-sm:[scrollbar-width:none]"
+            className="scroll-quiet flex min-w-[190px] flex-col gap-4 overflow-auto bg-neutral-200 px-3.5 py-6 max-sm:min-w-0 max-sm:flex-none max-sm:flex-row max-sm:gap-1.5 max-sm:overflow-x-auto max-sm:p-2.5 max-sm:[scrollbar-width:none]"
           >
             {APP_GROUPS.map((group, index) => {
               const groupId = `${titleId}-group-${String(index)}`;
+              // On a desk a hairline over every group but the first, with
+              // the room above it matched below, so the list stands as two
+              // groups rather than one run of names. Not in a phone's one
+              // row, where the groups' names are not shown either.
               return (
                 <div
                   key={group.name}
                   role="group"
                   aria-labelledby={groupId}
-                  className="flex flex-col gap-1 max-sm:flex-none max-sm:flex-row max-sm:gap-1.5"
+                  className={`flex flex-col gap-1 max-sm:flex-none max-sm:flex-row max-sm:gap-1.5 ${
+                    index > 0 ? "border-t border-rule pt-4 max-sm:border-0 max-sm:pt-0" : ""
+                  }`}
                 >
                   {/* Named on a desk, where the list stands in its two
                       groups; on a phone's one row the names would only be
-                      in the way, so only a screen reader hears them. Drawn
-                      as the form's labels are, in small capitals. */}
-                  <span id={groupId} className={`${FIELD_LABEL} px-3.5 pb-1.5 max-sm:sr-only`}>
+                      in the way, so only a screen reader hears them. In
+                      small capitals as the form's labels are, and in the
+                      accent's text shade, as the heading of a group. */}
+                  <span id={groupId} className={`${GROUP_LABEL} px-3.5 pb-1.5 max-sm:sr-only`}>
                     {group.name}
                   </span>
                   {group.apps.map((one) => {
                     const chosen = one.id === app;
+                    // The apps in the ink at medium weight, under their
+                    // group's name in bold capitals in the accent, so a
+                    // name reads as a choice and a heading as a heading:
+                    // muted and bold like the headings, the apps read as
+                    // more of them. Which one is chosen is the pill it
+                    // stands on, at the same weight, so choosing one does
+                    // not widen its name and nudge the phone's row along.
                     return (
                       <button
                         key={one.id}
@@ -127,8 +141,8 @@ export function SetUpDialog({ open, app, address, onPick, onClose }: SetUpDialog
                         onClick={() => {
                           onPick(one.id);
                         }}
-                        className={`flex h-10 items-center rounded-pill px-3.5 text-left text-[14px] leading-none font-bold ${FOCUS} max-sm:h-11 max-sm:flex-none max-sm:px-4 max-sm:whitespace-nowrap ${
-                          chosen ? "bg-sheet text-ink shadow-sm" : "text-ink-muted hover:bg-terracotta-100"
+                        className={`flex h-10 items-center rounded-pill px-3.5 text-left text-[14px] leading-none font-medium text-ink ${FOCUS} max-sm:h-11 max-sm:flex-none max-sm:px-4 max-sm:whitespace-nowrap ${
+                          chosen ? "bg-sheet shadow-sm" : "hover:bg-terracotta-100"
                         }`}
                       >
                         {one.label}

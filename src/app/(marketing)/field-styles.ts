@@ -47,14 +47,17 @@
  *   steps. 16 for the dates, which the dates field
  *   sets at 14 in a field under 400px wide, the AI box's heading, the
  *   dialog's steps and the line under its heading; the headings in the body
- *   face, as every heading under the headline is. 14 for a place's name,
- *   semibold, on the card and in the city list, and the dialog's buttons. 13
+ *   face, as every heading under the headline is. 14 for a name in the ink:
+ *   a place's, semibold, on the card and in the city list, and an app's,
+ *   medium, in the dialog's list, under its group's name. 13
  *   for every line that says what to do or what is happening, medium, in the
  *   muted ink: under the button, over the sentence to paste, and in the city
  *   list while it looks; and for the sentence to paste, code, the links and
  *   the notes under an app's steps. 12 for where a place is, under its name,
- *   medium, on the card and in the list; the labels, in capitals, the names
- *   over the dates and the count of days; and small print: the card's, the
+ *   medium, on the card and in the list; the labels, in capitals, a field's
+ *   in the muted ink and a group's in the dialog in the accent's text
+ *   shade; the names over the dates and the count of days; and small print:
+ *   the card's, the
  *   list's heading, the credit, and an error under the form, at the
  *   planner's own size for one.
  * - Lines: 1.08 for the headline face, 1.6 for the sentence under the
@@ -77,8 +80,17 @@ export const FIELD_SHELL =
 
 export const FIELD_GROUND = "bg-paper";
 
-export const FIELD_LABEL =
-  "text-[12px] leading-none font-bold tracking-[0.05em] text-ink-muted uppercase";
+/** A label's type, in small capitals, before the ink that says what it labels. */
+const LABEL = "text-[12px] leading-none font-bold tracking-[0.05em] uppercase";
+
+export const FIELD_LABEL = `${LABEL} text-ink-muted`;
+
+/**
+ * A group's name over a list of choices, in the accent's text shade rather
+ * than the muted ink a field's label is in, so it reads as a heading over the
+ * list rather than as one more name in it.
+ */
+export const GROUP_LABEL = `${LABEL} text-terracotta-700`;
 
 /** The label and its field, which are one thing and are spaced as one. */
 export const FIELD_STACK = "flex flex-col gap-2";
