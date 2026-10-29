@@ -26,12 +26,15 @@ function biasKeyFor(request: PlaceSearchRequest): string {
  * wider question could be handed back for. Cities are filed as "town" and
  * not the "city" they were filed as when a city was only what Google files
  * as one, so an answer kept from then, which could not find Hội An, is never
- * handed back as this one.
+ * handed back as this one. Places are filed as "spot" and not the "place"
+ * they were filed as when a search near a point only leaned towards it, so an
+ * answer kept from then, which could put the same name in another country
+ * first, is never handed back as one that looked within reach of the point.
  */
 const KIND_KEYS = { cities: "town", areas: "area" } as const;
 
 function queryKeyFor(request: PlaceSearchRequest): string {
-  const kind = request.only === null ? "place" : KIND_KEYS[request.only];
+  const kind = request.only === null ? "spot" : KIND_KEYS[request.only];
   return `${kind}:${request.query.trim().toLowerCase()}`;
 }
 

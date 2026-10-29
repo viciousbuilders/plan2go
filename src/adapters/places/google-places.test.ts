@@ -213,6 +213,89 @@ describe("search", () => {
     expect(types).not.toContain("(cities)");
   });
 
+  describe("a place near a point", () => {
+    const opera = { lat: 48.8719, lng: 2.3316 };
+    const center = { latitude: 48.8719, longitude: 2.3316 };
+    const prediction = (placeId: string, main: string) => ({
+      placePrediction: { placeId, structuredFormat: { mainText: { text: main } } },
+    });
+    const asked = (fetched: { mock: { calls: unknown[][] } }, call: number): unknown => {
+      const [, init] = fetched.mock.calls[call] as unknown as [string, RequestInit];
+      return JSON.parse(String(init.body));
+    };
+
+    it("is looked for within reach of the point, and no further when that fills the list", async () => {
+      const close = {
+        suggestions: ["a", "b", "c", "d", "e"].map((id) => prediction(`p-${id}`, `Hôtel ${id}`)),
+      };
+      const fetched = vi.fn(async () => Response.json(close));
+      vi.stubGlobal("fetch", fetched);
+
+      const found = await createGooglePlacesProvider({ apiKey: "k" }).search({
+        query: "Hôtel",
+        near: opera,
+        limit: 5,
+        only: null,
+        session: null,
+      });
+
+      expect(fetched).toHaveBeenCalledTimes(1);
+      expect(asked(fetched, 0)).toMatchObject({
+        origin: center,
+        locationRestriction: { circle: { center, radius: 50_000 } },
+      });
+      expect(asked(fetched, 0)).not.toHaveProperty("locationBias");
+      expect(found.map((one) => one.providerPlaceId)).toEqual(["p-a", "p-b", "p-c", "p-d", "p-e"]);
+    });
+
+    it("asks further afield, leaning, only when too few are within reach, and lists those after", async () => {
+      const replies = [
+        { suggestions: [prediction("p-paris", "InterContinental Paris - Le Grand")] },
+        {
+          suggestions: [
+            prediction("p-paris", "InterContinental Paris - Le Grand"),
+            prediction("p-london", "InterContinental London Park Lane"),
+          ],
+        },
+      ];
+      const fetched = vi.fn(async () => Response.json(replies.shift() ?? {}));
+      vi.stubGlobal("fetch", fetched);
+
+      const found = await createGooglePlacesProvider({ apiKey: "k" }).search({
+        query: "InterContinental",
+        near: opera,
+        limit: 5,
+        only: null,
+        session: null,
+      });
+
+      expect(fetched).toHaveBeenCalledTimes(2);
+      expect(asked(fetched, 1)).toMatchObject({
+        origin: center,
+        locationBias: { circle: { center, radius: 20_000 } },
+      });
+      expect(asked(fetched, 1)).not.toHaveProperty("locationRestriction");
+      expect(found.map((one) => one.providerPlaceId)).toEqual(["p-paris", "p-london"]);
+    });
+
+    it("only leans towards the point when towns are asked for", async () => {
+      const fetched = vi.fn(async () => Response.json({}));
+      vi.stubGlobal("fetch", fetched);
+
+      await createGooglePlacesProvider({ apiKey: "k" }).search({
+        query: "Lyon",
+        near: opera,
+        limit: 5,
+        only: "cities",
+        session: null,
+      });
+
+      expect(fetched).toHaveBeenCalledTimes(1);
+      expect(asked(fetched, 0)).toMatchObject({ locationBias: { circle: { center } } });
+      expect(asked(fetched, 0)).not.toHaveProperty("locationRestriction");
+    });
+  });
+
   describe("a town filed twice", () => {
     const prediction = (
       placeId: string,

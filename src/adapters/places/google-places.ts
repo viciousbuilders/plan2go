@@ -153,6 +153,16 @@ function eachPlaceOnce(found: readonly Found[]): readonly PlaceSuggestion[] {
 const BIAS_RADIUS_METERS = 20_000;
 
 /**
+ * How far round the point a search for a place looks before it looks anywhere
+ * else: the city and the country round it, out as far as its airports and the
+ * places a day trip goes to. As wide as Google lets a circle be.
+ */
+const WITHIN_REACH_METERS = 50_000;
+
+/** The most places one autocomplete request answers with, however many are asked for. */
+const MOST_PREDICTIONS = 5;
+
+/**
  * The three fields a suggestion carries and nothing dearer. A nearby search is
  * billed by the fields asked for, and asking for coordinates or opening hours
  * here would pay for them on every place in the list when the reader is going
@@ -479,6 +489,39 @@ export function createGooglePlacesProvider(options: GooglePlacesOptions): Places
     return suggestionsOf(parsed, request.limit);
   };
 
+  /** One autocomplete request, read into the places it names, in Google's order. */
+  const predict = async (body: Record<string, unknown>): Promise<readonly Found[]> => {
+    const response = await fetch(AUTOCOMPLETE_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    const parsed = autocompleteSchema.parse(await readJson(response, "a search"));
+
+    const found: Found[] = [];
+    for (const entry of parsed.suggestions ?? []) {
+      const prediction = entry.placePrediction;
+      if (prediction === undefined) {
+        continue;
+      }
+      const name =
+        prediction.structuredFormat?.mainText?.text ?? prediction.text?.text ?? null;
+      if (name === null) {
+        continue;
+      }
+      found.push({
+        suggestion: {
+          providerPlaceId: prediction.placeId,
+          name,
+          address: prediction.structuredFormat?.secondaryText?.text ?? null,
+          distanceMeters: prediction.distanceMeters ?? null,
+        },
+        province: prediction.types?.includes(PROVINCE) ?? false,
+      });
+    }
+    return found;
+  };
+
   return {
     name: "google-places",
 
@@ -493,46 +536,47 @@ export function createGooglePlacesProvider(options: GooglePlacesOptions): Places
       if (request.session !== null) {
         body.sessionToken = request.session;
       }
-      if (request.near !== null) {
-        const center = { latitude: request.near.lat, longitude: request.near.lng };
-        body.locationBias = { circle: { center, radius: BIAS_RADIUS_METERS } };
-        // The same point as where each answer is measured from, which the
-        // provider does at no charge, so a city in the list says how far it is.
-        body.origin = center;
+      // Each town once, but every place: two cafés of one chain a street
+      // apart are two places.
+      const answers = (found: readonly Found[]): readonly PlaceSuggestion[] =>
+        (request.only === null
+          ? found.map(({ suggestion }) => suggestion)
+          : eachPlaceOnce(found)
+        ).slice(0, request.limit);
+
+      if (request.near === null) {
+        return answers(await predict(body));
+      }
+      const center = { latitude: request.near.lat, longitude: request.near.lng };
+      // The same point as where each answer is measured from, which the
+      // provider does at no charge, so a city in the list says how far it is.
+      body.origin = center;
+      const leaning = { ...body, locationBias: { circle: { center, radius: BIAS_RADIUS_METERS } } };
+
+      // A town only leans towards the point: the next city of a trip is
+      // seldom within reach of the last.
+      if (request.only !== null) {
+        return answers(await predict(leaning));
       }
 
-      const response = await fetch(AUTOCOMPLETE_URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body),
+      // A place is looked for within reach of the point first, and held there,
+      // so a hotel or a museum in the city and round it comes before one of
+      // the same name anywhere else. A lean alone does not promise that, since
+      // Google may still put a better known place of the name elsewhere above
+      // it. Only when what is within reach comes short is the rest of the
+      // world asked, leaning as before, and what that adds goes after.
+      const close = await predict({
+        ...body,
+        locationRestriction: { circle: { center, radius: WITHIN_REACH_METERS } },
       });
-      const parsed = autocompleteSchema.parse(await readJson(response, "a search"));
-
-      const found: Found[] = [];
-      for (const entry of parsed.suggestions ?? []) {
-        const prediction = entry.placePrediction;
-        if (prediction === undefined) {
-          continue;
-        }
-        const name =
-          prediction.structuredFormat?.mainText?.text ?? prediction.text?.text ?? null;
-        if (name === null) {
-          continue;
-        }
-        found.push({
-          suggestion: {
-            providerPlaceId: prediction.placeId,
-            name,
-            address: prediction.structuredFormat?.secondaryText?.text ?? null,
-            distanceMeters: prediction.distanceMeters ?? null,
-          },
-          province: prediction.types?.includes(PROVINCE) ?? false,
-        });
+      if (close.length >= Math.min(request.limit, MOST_PREDICTIONS)) {
+        return answers(close);
       }
-      // Only for towns: two cafés of one chain a street apart are two places.
-      const answers =
-        request.only === null ? found.map(({ suggestion }) => suggestion) : eachPlaceOnce(found);
-      return answers.slice(0, request.limit);
+      const listed = new Set(close.map(({ suggestion }) => suggestion.providerPlaceId));
+      const further = (await predict(leaning)).filter(
+        ({ suggestion }) => !listed.has(suggestion.providerPlaceId),
+      );
+      return answers([...close, ...further]);
     },
 
     async nearby(request: NearbyPlacesRequest): Promise<readonly PlaceSuggestion[]> {

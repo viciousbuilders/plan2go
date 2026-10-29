@@ -35,14 +35,17 @@ export const ENDS = {
 
 /**
  * Where to look first when choosing an end of this day: somewhere the day
- * already goes, so a search for "the station" answers with the one nearby.
+ * already goes, so a search for "the station" answers with the one nearby,
+ * and on a day with nothing on it yet the city the day is in, so a search for
+ * a hotel answers with the ones there and not with a chain's best known
+ * anywhere in the world. Null only on a trip with no city at all.
  */
 export function nearestPoint(day: DayPlan): LatLng | null {
   const first = day.stops[0];
   if (first !== undefined) {
     return first.place.position;
   }
-  return day.start?.place.position ?? day.end?.place.position ?? null;
+  return day.start?.place.position ?? day.end?.place.position ?? day.city?.position ?? null;
 }
 
 /** One end of a day being changed: its search open or not, and the write that settles it. */

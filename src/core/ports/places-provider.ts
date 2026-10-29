@@ -4,7 +4,11 @@ import type { PlaceKind } from "../model/place-kind";
 
 export interface PlaceSearchRequest {
   readonly query: string;
-  /** Bias results towards this point, usually a place already in the trip. */
+  /**
+   * Where to look first, usually a place already on the day or the city the
+   * day is in. A place is looked for within reach of it before anywhere else;
+   * a town only leans towards it.
+   */
   readonly near: LatLng | null;
   readonly limit: number;
   /**
