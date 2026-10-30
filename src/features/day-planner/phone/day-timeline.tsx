@@ -202,14 +202,15 @@ function EndLine({
  * the rail, its number on a terracotta disc with the dotted thread running on
  * down from it, as a desk draws it, so the day hangs on one line from the
  * first stop to the last rather than a line of the accent broken by a dotted
- * one at every leg; and beside them its name in the display face, its
- * address, and how long is spent there, in the accent's brown.
+ * one at every leg; and beside them, on a card as a desk's stop is, its name
+ * in the display face, its address, and how long is spent there, in the
+ * accent's brown.
  *
- * The whole of the words is one button that opens the place, where the stay,
- * the note and the stop's place in the day are changed and the stop is taken
- * off: on a phone the day is read here and changed there. What the day has to
- * say about the stop stays under it, a conflict with its numbers in it, and
- * the note for whoever is travelling.
+ * The whole card is one button that opens the place, where the stay, the
+ * note and the stop's place in the day are changed and the stop is taken off:
+ * on a phone the day is read here and changed there. What the day has to say
+ * about the stop stays on the card under the words, a conflict with its
+ * numbers in it, and the note for whoever is travelling.
  */
 function TimelineStop({
   position,
@@ -218,6 +219,7 @@ function TimelineStop({
   note,
   conflicts,
   leaveAt,
+  reached,
   onOpen,
 }: {
   /** Its number in the day, counted from one. */
@@ -232,11 +234,20 @@ function TimelineStop({
    * leaves, for someone who may edit. Null on every other stop.
    */
   readonly leaveAt: ReactNode;
+  /**
+   * Whether a leg comes down the rail to it, which every stop has but the
+   * first of a day with no start point.
+   */
+  readonly reached: boolean;
   readonly onOpen: () => void;
 }) {
   return (
     <div className={RAIL_ROW}>
-      <div className="flex flex-col items-end pt-[3px] text-right">
+      {/* The time and the disc stand as far down as the card's edge and
+          padding put the name, so the three read as one line, as they did
+          before the card; the thread runs on to the disc from the leg above,
+          one dot as clear of it as the thread under it is. */}
+      <div className="flex flex-col items-end pt-[15px] text-right">
         {leaveAt ??
           (stop.arrival === null ? null : (
             <p className="font-display text-place/[1.1] font-semibold text-ink tabular-nums">
@@ -251,9 +262,10 @@ function TimelineStop({
         )}
       </div>
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center pt-1">
+        <span aria-hidden="true" className={`h-1 ${reached ? "thread" : ""}`} />
         <span
-          className={`${RAIL_MARK} bg-terracotta font-display text-meta/none font-semibold text-paper tabular-nums`}
+          className={`${RAIL_MARK} mt-1 bg-terracotta font-display text-meta/none font-semibold text-paper tabular-nums`}
         >
           <span aria-hidden="true">{position}</span>
           <span className="sr-only">Stop {position}</span>
@@ -261,11 +273,15 @@ function TimelineStop({
         <span aria-hidden="true" className="thread mt-1 flex-1" />
       </div>
 
-      <div className="flex min-w-0 flex-col gap-2 pb-4">
+      {/* The card is a desk's stop card's surface, edge, corners and padding,
+          and sinks under a pointer as that card does. The button is the words,
+          and its press, and the ring that shows it has the keyboard, reach to
+          the card's edge, so a finger anywhere on the card opens the place. */}
+      <div className="relative flex min-w-0 flex-col gap-2 rounded-row border border-rule bg-paper-raised px-4 py-[13px] hover:border-terracotta/55 hover:bg-paper-sunken">
         <button
           type="button"
           onClick={onOpen}
-          className="flex flex-col gap-1 rounded-chip pt-[2px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="flex flex-col gap-1 text-left after:absolute after:-inset-px after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
         >
           <span className="font-display text-lead break-words text-ink">{stop.placeName}</span>
           {address === null ? null : (
@@ -298,8 +314,9 @@ function TimelineStop({
  * circle with its number in it and "Add a place", which is where a place found
  * in the search goes.
  *
- * A desk draws the same day as cards, in day-itinerary; the two are the same
- * day and the same actions, laid out for the room each has.
+ * A desk draws the same day in day-itinerary, with every control on its
+ * cards; the two are the same day and the same actions, laid out for the room
+ * each has.
  */
 export function DayTimeline({
   day,
@@ -378,11 +395,10 @@ export function DayTimeline({
         const leg = computed.legs[index + legOffset];
         const planned = leg === undefined ? undefined : legs[leg.index];
         const plan = stops.get(stop.stopId);
+        const reached = leg !== undefined && planned !== undefined;
         return (
           <Fragment key={stop.stopId}>
-            {leg === undefined || planned === undefined ? null : (
-              <TimelineLeg leg={leg} planned={planned} onChange={changeLeg} />
-            )}
+            {reached ? <TimelineLeg leg={leg} planned={planned} onChange={changeLeg} /> : null}
             <TimelineStop
               position={index + 1}
               stop={stop}
@@ -390,6 +406,7 @@ export function DayTimeline({
               note={plan?.note ?? null}
               conflicts={conflictsAtStop(computed.conflicts, stop.stopId)}
               leaveAt={index === 0 && day.start === null ? leaveAt : null}
+              reached={reached}
               onOpen={() => {
                 onOpenStop(stop.stopId);
               }}

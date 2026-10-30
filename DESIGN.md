@@ -266,8 +266,8 @@ utility fighting the first. There is one exception, and it is only ever a field'
 1024px every field, and what stands in a field such as the search's empty words and the
 .pdf after a file's name, is 16px, because iOS zooms the whole page into any field set
 smaller as it takes the cursor and leaves it zoomed. Lead is the heading of what opens over the page: the place
-open in the sheet, and the question asked before a trip is deleted; and on a phone, which
-gives a stop a line of the window rather than a card, a stop's name on the rail.
+open in the sheet, and the question asked before a trip is deleted; and on a phone, a
+stop's name on its card beside the rail.
 Small is the tier the interface is mostly made of,
 tab labels, menu rows, the words on a leg, which used to be a scatter of 13px and 13.5px
 chosen one component at a time. A number that is not on the scale is a number that has
@@ -441,12 +441,18 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
 - A stop: when it is reached in the display face at the place step, over when it is
   left at the micro step in `ink-faint`; its number on a 26px terracotta disc with the
   dotted thread running on down from it, the one a desk draws over the page, so the day
-  hangs on one line from the first stop to the last; and beside them its name in
-  the display face at the lead step, its address at the meta step in `ink-muted`, and
-  how long is spent there, "1 hr 15 min here", at the meta step in 600
-  `terracotta-800`. The name, the address and the stay are one button, which opens the
-  place. A conflict is said under them in its block, and the traveller's note under
-  that, behind its glyph.
+  hangs on one line from the first stop to the last; and beside them a card, a desk's
+  stop card's surface, edge, corners and padding: `paper-raised` inside a `rule`
+  hairline at the `row` radius, 16px in at either side and 13px at the top and foot. On
+  it its name in the display face at the lead step, its address at the meta step in
+  `ink-muted`, and how long is spent there, "1 hr 15 min here", at the meta step in 600
+  `terracotta-800`; a conflict under them in its block, and the traveller's note under
+  that, behind its glyph. The time and the disc stand level with the name, as far down
+  as the card's edge and padding put it, and the thread runs on to the disc from the
+  leg above it, one dot 4px clear of it, as the thread under it is. The whole card is
+  one button, which opens the place. Under a pointer it sinks as a desk's does, to
+  `paper-sunken` inside an edge of `terracotta` at 55 percent, and with the keyboard on
+  it the focus ring is drawn round the card.
 - A leg: the dotted thread down the rail, and beside it a pill of sage 100 inside an
   edge of sage at 40 percent, the way's glyph, its name and how long it takes, "Drive 22
   min", in bold at the small step in sage 800, with a chevron, 40px tall. A leg that
@@ -570,8 +576,8 @@ The day runs down a dotted thread on the left, drawn as a repeating gradient rat
 than a dotted border, which rounds its dots off at this width. On a desk it runs down
 the legs between the cards, and on from the last card to the next place under it, and
 stops at their edges: a stop card's numbered terracotta disc stands on its own, with
-nothing drawn under it. On a phone it runs on down from each stop's disc, as Layout
-says. A leg hangs on the thread with no card of its own, because it is what happens
+nothing drawn under it. On a phone it runs the length of the rail, through each stop's
+disc and on down beside its card, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
 between two stops rather than a thing in itself.
 
 The start and end of a day are a different shape from a stop, not merely a different
@@ -623,7 +629,7 @@ puts it there, brought into sight if it landed past the edge of the list. Carrie
 over the strip, it goes under it, and the day the finger is over is outlined as under
 a pointer, and letting go takes the stop to that day. Held near the
 top or the foot of what can be seen of the day, the day scrolls on under it. A press on
-the grip that goes nowhere is only a press. A phone has no cards and no grip: a stop is
+the grip that goes nowhere is only a press. A phone's cards have no grip: a stop is
 moved from its place's sheet (see Layout).
 
 When the day leaves is set where that time shows, on the day rather than above it: on
