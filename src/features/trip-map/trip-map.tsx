@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { DayEndpoint } from "@/core/model/day";
+import { halfwayAlong } from "@/core/model/distance";
 import type { TravelMode } from "@/core/model/leg";
 import type { LatLng, Place } from "@/core/model/place";
 import type { Stop } from "@/core/model/stop";
@@ -10,7 +11,9 @@ import {
   candidateMarkerElement,
   endpointMarkerElement,
   endpointMarks,
+  legMarkElement,
   placeDomMarker,
+  placeLegMark,
   stopMarkerElement,
 } from "./dom-marker";
 import { ExpandIcon, ShrinkIcon } from "@/ui/icons";
@@ -626,6 +629,22 @@ export function TripMap({
         maps.event.trigger(map, "dblclick", event);
       });
       lines.current.push(target);
+
+      // On a phone, which has no room under the map for the key a desk keeps
+      // there, the way a leg is travelled is drawn on the leg itself, halfway
+      // along it and in its own ink. A desk never shows it (trip-map.css).
+      // Laid before the markers, so every place is drawn over it.
+      const halfway = halfwayAlong(path);
+      if (halfway !== null) {
+        overlays.current.push(
+          placeLegMark(
+            maps,
+            map,
+            { at: halfway, from: leg.from, to: leg.to },
+            legMarkElement(leg.mode, color),
+          ),
+        );
+      }
 
       emphasis.current.set(index, (on) => {
         const extra = on ? stroke.weight * (HOVER_SCALE - 1) : 0;

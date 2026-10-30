@@ -476,7 +476,10 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   side. The marker and the card are one button, which goes to the search on the map,
   as **Add a place** does; under a pointer the dash takes the accent and the paper lifts
   to `paper-raised`. The start's time is the pill that sets when the day leaves, its
-  chevron left off to fit the column.
+  chevron left off to fit the column, and without the chevron it is a solid button
+  rather than a desk's dashed pill, so it still says it can be pressed: `terracotta-700`
+  with the time in `paper`, darkening to `terracotta-800` while it is pressed or its
+  picker is open. With no start it is the first stop's arrival, drawn the same way.
 - After the last stop, for someone who may edit, the next place, laid out as a stop is:
   on the rail a dashed circle of the accent with the number that stop would get in it,
   in the discs' face and step, and beside it, on a card of the stops' surface and edge,
@@ -546,7 +549,8 @@ search goes back to finding the next stop. Setting an end is said to a screen re
 
 Map is the map over the whole window, with nothing of Google's drawn on it and none of
 ours but its rows. At the top, for someone who may edit, the search bar, the desk's own:
-the city pill with its dot, the field and its turning words, 12px down and 14px in at
+the city pill, without the dot that on a desk is the key to the days' dots, since a
+phone's days carry none, the field and its turning words, 12px down and 14px in at
 either side, keeping the lift it has over a desk's map since here too it floats over
 one. Under it, 8px clear, the quick searches stand on the map whether or not the search
 is in use. A press on the field, or on a quick search, opens the search, and it opens as
@@ -557,9 +561,10 @@ stay where they are under it and still scroll sideways under a finger while it i
 which leaves it open. Nothing is dimmed. A press anywhere outside the search, the map
 or the rows at its foot, closes the search and does nothing else, and the cross
 at the bar's end, there for as long as the search is open or anything is typed, closes
-it and empties the field. A row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
-body step over the address at the meta step, the plus on a disc the same size, sage 600
-with a tick in `sheet` once the place is on the day. Choosing a row opens the place, as
+it and empties the field. A row is a finger's, with a desk's own marks: the bare pin in
+the accent at its front, the name at the body step over the address at the meta step,
+and the bare plus at its end, sage's tick once the place is on the day, answering a
+finger over 36px though drawn no larger than a desk's. Choosing a row opens the place, as
 anywhere, and adding it leaves the list open for the next. The keyboard's own key says
 "search" and opens the row picked out, as Enter does.
 
@@ -573,7 +578,12 @@ A card pressed picks its stop out, its edge taking the accent and its marker dra
 large; pressed again it opens the place. A marker pressed picks its card out the same
 way, rather than opening the place as it does on a desk. The day is framed in what the
 rows leave of the window. One finger moves the map and two zoom it, and there is no
-zoom pair and no route key: every leg says its way in words on Plan.
+zoom pair and no route key. Each leg says its way on itself instead, halfway along it:
+the glyph its row on Plan carries, 13px in the leg's own ink, on a 24px bead of
+`paper-raised` ringed 2px in the same ink under `shadow-sm`, so the bead is matched to
+its line by eye and the line's pattern explains itself. Smaller and paler than a stop's
+disc, and drawn under every marker, it is left off a leg whose ends are less than 72px
+apart on screen and comes back as the map zooms in. A press on it is a press on the map.
 
 Everything on a phone is pressed with a finger: what is drawn smaller than 40px answers a
 finger over the room around it and is drawn no larger, and nothing that answers a finger
@@ -917,7 +927,9 @@ not the only source of the fact.
 The route key sits in the bottom left and lists all three modes, in the order Google
 lists them, whenever the day has a line on it. It is the notation, so it does not
 change with the modes this particular day happens to use, and its samples are drawn in
-the same muted ink as its words: a coloured sample would say the colour meant something. The markers have no key of
+the same muted ink as its words: a coloured sample would say the colour meant something.
+That is on a desk: a phone has no room for a key under its map, and each leg there says
+its mode on itself instead (see Layout). The markers have no key of
 their own, because a numbered disc in the order you visit them and a named marker for
 the ends of the day explain themselves.
 

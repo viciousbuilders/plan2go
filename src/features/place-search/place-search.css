@@ -701,6 +701,13 @@
     inset: -7px -3px;
   }
 
+  /* No dot before the city: on a desk it is the key to the dots the days
+     carry in their strip, and a phone's days carry none, so here it was a
+     colour that stood for nothing. */
+  .search-pill > .search-dot {
+    display: none;
+  }
+
   .search-clear {
     position: relative;
   }
@@ -741,10 +748,11 @@
   }
 
   /*
-   * The rows are a finger's: the pin on a disc of the accent's lightest tint
-   * at the front, the name at the body step over the address, and at the end
-   * the plus on a disc the same size, which becomes sage's tick once the
-   * place is on the day. Pressed with a finger, the row the arrow keys are on
+   * The rows are a finger's, with a desk's own marks: the bare pin at the
+   * front, the name at the body step over the address, and at the end the
+   * bare plus, which becomes sage's tick once the place is on the day. The
+   * plus answers a finger over 36px, though it is drawn no larger than a
+   * desk's. Pressed with a finger, the row the arrow keys are on
    * is not drawn as picked out, which left the first row tinted as though
    * chosen; the tint follows the pointer, or the keyboard's focus, instead.
    */
@@ -774,13 +782,6 @@
     border-radius: var(--radius-row);
   }
 
-  .search-row-button > .search-mark {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-pill);
-    background: var(--color-terracotta-100);
-  }
-
   .search-row-name {
     font-size: var(--text-body);
     line-height: 1.3;
@@ -789,16 +790,6 @@
   .search-row-line {
     font-size: var(--text-meta);
     line-height: var(--text-meta--line-height);
-  }
-
-  .search-add {
-    background: var(--color-terracotta-100);
-    color: var(--color-terracotta-800);
-  }
-
-  .search-add[data-on-day] {
-    background: var(--color-sage-600);
-    color: var(--color-sheet);
   }
 }
 

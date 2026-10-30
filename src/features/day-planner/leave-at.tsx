@@ -58,7 +58,27 @@ function twoDigits(value: number): string {
  * nothing else is pressed.
  */
 const TRIGGER =
-  "flex items-center gap-[5px] rounded-pill border border-dashed py-px pr-[4px] pl-[6px] font-display text-time text-terracotta-700 tabular-nums enabled:hover:border-terracotta enabled:hover:bg-paper-raised disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
+  "flex items-center gap-[5px] rounded-pill border py-px font-display text-time tabular-nums disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
+
+/**
+ * The pill's own look. A desk's is the dashed pill described above. A phone's
+ * has no room for the chevron that says a desk's opens, and without it a
+ * dashed edge did not say it could be pressed, so it is a solid button there
+ * instead: `terracotta-700` with the time in `paper`, darkening to
+ * `terracotta-800` while it is pressed or its picker is open. The time keeps
+ * its face and step, and the pill its size, so the column of times does not
+ * move.
+ */
+function triggerLook(compact: boolean, open: boolean): string {
+  if (compact) {
+    return open
+      ? "border-terracotta-800 bg-terracotta-800 px-[5px] text-paper"
+      : "border-terracotta-700 bg-terracotta-700 px-[5px] text-paper enabled:active:border-terracotta-800 enabled:active:bg-terracotta-800";
+  }
+  return open
+    ? "border-dashed border-terracotta bg-paper-raised pr-[4px] pl-[6px] text-terracotta-700"
+    : "border-dashed border-terracotta/55 bg-terracotta/10 pr-[4px] pl-[6px] text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised";
+}
 
 /** Minutes from midnight on the clock: "09:05". */
 function toClock(minutes: number): string {
@@ -90,7 +110,8 @@ interface LeaveAtProps {
   /**
    * Drawn without its chevron and with the edge as close round the time as
    * the time's own room, for the phone's column of times, which is fifty wide
-   * and holds the time and nothing else. The dashed edge alone says it opens.
+   * and holds the time and nothing else; and solid rather than dashed, so it
+   * still says it can be pressed without the chevron.
    */
   readonly compact?: boolean;
 }
@@ -200,7 +221,7 @@ export function LeaveAt({
           }
           setOpen(true);
         }}
-        className={`${TRIGGER} ${compact ? "pr-[5px] pl-[5px]" : ""} ${open ? "border-terracotta bg-paper-raised" : "border-terracotta/55 bg-terracotta/10"}`}
+        className={`${TRIGGER} ${triggerLook(compact, open)}`}
       >
         {shown}
         {compact ? null : (

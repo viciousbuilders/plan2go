@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { boxAround, formatDistance, metersBetween } from "./distance";
+import { boxAround, formatDistance, halfwayAlong, metersBetween } from "./distance";
 
 const ADELAIDE = { lat: -34.9285, lng: 138.6007 };
 const MELBOURNE = { lat: -37.8136, lng: 144.9631 };
@@ -27,6 +27,48 @@ describe("metersBetween", () => {
     const meters = metersBetween(ADELAIDE, MELBOURNE);
     expect(meters).toBeGreaterThan(650_000);
     expect(meters).toBeLessThan(660_000);
+  });
+});
+
+describe("halfwayAlong", () => {
+  it("is the middle of a straight line between two points", () => {
+    expect(halfwayAlong([{ lat: 0, lng: 0 }, { lat: 0, lng: 2 }])).toEqual({ lat: 0, lng: 1 });
+  });
+
+  it("measures along the path rather than counting its points", () => {
+    // Four points bunched in the first tenth of a degree, then one long run:
+    // the middle point of the list is near the start, the middle of the path
+    // is out along the run.
+    const path = [
+      { lat: 0, lng: 0 },
+      { lat: 0, lng: 0.02 },
+      { lat: 0, lng: 0.04 },
+      { lat: 0, lng: 0.06 },
+      { lat: 0, lng: 1 },
+    ];
+    const halfway = halfwayAlong(path);
+    expect(halfway?.lat).toBe(0);
+    expect(halfway?.lng).toBeCloseTo(0.5, 3);
+  });
+
+  it("turns a corner where the path does", () => {
+    // Half a degree east, then half a degree north: halfway is the corner.
+    const halfway = halfwayAlong([
+      { lat: 0, lng: 0 },
+      { lat: 0, lng: 0.5 },
+      { lat: 0.5, lng: 0.5 },
+    ]);
+    expect(halfway?.lat).toBeCloseTo(0, 2);
+    expect(halfway?.lng).toBeCloseTo(0.5, 2);
+  });
+
+  it("is the one point of a path that never moves", () => {
+    expect(halfwayAlong([ADELAIDE])).toEqual(ADELAIDE);
+    expect(halfwayAlong([ADELAIDE, ADELAIDE])).toEqual(ADELAIDE);
+  });
+
+  it("is nothing for a path with no points", () => {
+    expect(halfwayAlong([])).toBeNull();
   });
 });
 

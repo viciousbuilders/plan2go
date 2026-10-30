@@ -19,6 +19,36 @@ export function metersBetween(from: LatLng, to: LatLng): number {
   return Math.round(2 * EARTH_RADIUS_METERS * Math.asin(Math.min(1, Math.sqrt(a))));
 }
 
+/**
+ * The point half the way along a path, measured along it rather than counted
+ * in its points: a road's shape has many points where it bends and few where
+ * it runs straight, so the middle one of the list can be nowhere near the
+ * middle of the road. The first point of a path that never moves, and null
+ * for one with no points at all.
+ */
+export function halfwayAlong(path: readonly LatLng[]): LatLng | null {
+  const steps: { readonly from: LatLng; readonly to: LatLng; readonly meters: number }[] = [];
+  for (let index = 1; index < path.length; index += 1) {
+    const from = path[index - 1];
+    const to = path[index];
+    if (from !== undefined && to !== undefined) {
+      steps.push({ from, to, meters: metersBetween(from, to) });
+    }
+  }
+  let left = steps.reduce((sum, step) => sum + step.meters, 0) / 2;
+  for (const step of steps) {
+    if (step.meters > 0 && left <= step.meters) {
+      const share = left / step.meters;
+      return {
+        lat: step.from.lat + (step.to.lat - step.from.lat) * share,
+        lng: step.from.lng + (step.to.lng - step.from.lng) * share,
+      };
+    }
+    left -= step.meters;
+  }
+  return path[0] ?? null;
+}
+
 /** The corners of a box on the map, south west and north east. */
 export interface Box {
   readonly low: LatLng;

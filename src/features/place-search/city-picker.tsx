@@ -420,7 +420,8 @@ export function CityPicker({
       >
         {/* Its own dot, the one its days carry in the strip, which makes the
             pill the key to them; lightened while the pill is dark. Keyed by
-            the moves made here, so each one pops it afresh. */}
+            the moves made here, so each one pops it afresh. Not drawn on a
+            phone, whose days carry no dot (place-search.css). */}
         {shown === null ? (
           <PinIcon size={13} strokeWidth={2.75} className="shrink-0" />
         ) : (
