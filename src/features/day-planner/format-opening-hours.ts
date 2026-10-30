@@ -1,6 +1,6 @@
 import type { DayPlan } from "@/core/model/day";
 import type { OpeningWindow, Place } from "@/core/model/place";
-import { formatClock } from "@/core/time/minutes";
+import { formatClock, MINUTES_PER_DAY } from "@/core/time/minutes";
 import { weekdayOf } from "@/core/time/zoned";
 
 /**
@@ -9,6 +9,8 @@ import { weekdayOf } from "@/core/time/zoned";
  * Null when we do not know the hours, which is different from being closed and
  * so says nothing at all rather than guessing. A place with two windows says
  * both, because the gap between them is the thing that would ruin an afternoon.
+ * A place open around the clock says so in words: its window runs from one
+ * midnight to the next, which written out is 00:00-00:00 and reads as shut.
  *
  * A hyphen between the two rather than the word "to", which is how a sign on
  * a door writes it and three characters shorter on a line that already
@@ -24,10 +26,18 @@ export function formatOpeningHours(
   if (windows.length === 0) {
     return "Closed today";
   }
+  if (windows.some(isAllDay)) {
+    return "Open all day";
+  }
   const spans = windows.map(
     (window) => `${formatClock(window.opensAt)}-${formatClock(window.closesAt)}`,
   );
   return `Open ${spans.join(", ")}`;
+}
+
+/** Open at midnight and still open at the next one. */
+function isAllDay(window: OpeningWindow): boolean {
+  return window.opensAt === 0 && window.closesAt >= MINUTES_PER_DAY;
 }
 
 /** What the place says about itself on the day being read. */

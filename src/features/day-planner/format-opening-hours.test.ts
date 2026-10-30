@@ -23,6 +23,10 @@ describe("formatOpeningHours", () => {
     );
   });
 
+  it("says in words that a place open around the clock is open all day", () => {
+    expect(formatOpeningHours([{ opensAt: 0, closesAt: 1440 }])).toBe("Open all day");
+  });
+
   it("says so when the place is shut all day", () => {
     expect(formatOpeningHours([])).toBe("Closed today");
   });

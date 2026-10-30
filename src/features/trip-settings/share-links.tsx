@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LinkIcon, ShareIcon } from "@/ui/icons";
+import { LinkIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
 import { SheetRow } from "./sheet-row";
 import { MenuPageRow } from "./trip-menu";
@@ -144,6 +144,10 @@ function SharePage({ slug, editKey }: ShareLinksProps) {
  * The row in the trip's menu that turns the menu into the page of links,
  * rather than opening a second panel over it. When the page is left, the
  * focus comes back here, where it went from.
+ *
+ * The chain on a desk as on a phone, since what the page hands over is two
+ * links. An arrow up out of a tray read as Upload beside Export's arrow down
+ * into one, and nothing here is uploaded.
  */
 export function ShareLinks({ slug, editKey }: ShareLinksProps) {
   return (
@@ -152,7 +156,7 @@ export function ShareLinks({ slug, editKey }: ShareLinksProps) {
       content={<SharePage slug={slug} editKey={editKey} />}
       className={MENU_ITEM}
     >
-      <ShareIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
+      <LinkIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
       <span className="max-lg:hidden">Share</span>
       <SheetRow icon={LinkIcon} title="Share trip" detail="View-only and edit links" />
     </MenuPageRow>

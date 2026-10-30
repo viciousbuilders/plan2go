@@ -68,7 +68,9 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
  * Without an end, someone who may edit is offered one as a desk offers it, on
  * the same card drawn dashed, beside the marker it will get: the name of the
  * end and what kind of place goes there. It takes them to the search on the
- * map, as "Add a place" does, which finds the end as it finds a place.
+ * map, as "Add a place" does, which finds the end as it finds a place. Under
+ * the next place, the thread runs on down the rail to the marker it offers,
+ * as it runs down a leg to an end that is there.
  *
  * The start's time is when the day leaves, which for someone who may edit is
  * the pill that sets it.
@@ -81,6 +83,7 @@ function EndLine({
   setTime,
   reached,
   goesOn,
+  joined,
   onFind,
   onOpen,
 }: {
@@ -95,6 +98,12 @@ function EndLine({
   readonly reached: boolean;
   /** Whether a leg goes on down the rail from it, which the start of a day has before its stops. */
   readonly goesOn: boolean;
+  /**
+   * Whether the next place stands over the offer of this end on the rail, so
+   * the thread runs on from its circle to the offer's marker: the end of a day
+   * with stops, for someone who may edit.
+   */
+  readonly joined: boolean;
   /** Takes the reader to the search for this end. Null for a reader who cannot edit. */
   readonly onFind: (() => void) | null;
   readonly onOpen: (endpoint: EndpointRef) => void;
@@ -115,10 +124,24 @@ function EndLine({
     /* Twelve from what is next to it on the day's side, as a desk's offer
        keeps, since a card stands there. The marker and the card are one
        button, as the next place's circle and card are, and the ring that
-       shows the keyboard is on it is drawn round the card. */
+       shows the keyboard is on it is drawn round the card.
+
+       Under the next place the thread runs from the top of the row, across
+       those twelve, to 4px short of the marker, wherever the marker stands
+       on a card as deep as its words make it: placed in the rail's column of
+       the row, both its edges named since an edge left to itself is the
+       row's, and measured from the row's middle, which is the card's middle
+       less half the twelve. It starts as far under the next place's circle as a
+       leg's thread does when there is an end. */
     return onFind === null ? null : (
-      <div className={`${RAIL_ROW} ${which === "start" ? "pb-3" : "pt-3"}`}>
+      <div className={`${RAIL_ROW} relative ${which === "start" ? "pb-3" : "pt-3"}`}>
         <span aria-hidden="true" />
+        {joined ? (
+          <span
+            aria-hidden="true"
+            className="thread absolute top-0 bottom-[calc(50%+11px)] left-1/2 col-start-2 col-end-3 -translate-x-1/2"
+          />
+        ) : null}
         <button
           type="button"
           onClick={onFind}
@@ -345,6 +368,7 @@ export function DayTimeline({
         setTime={leaveAt}
         reached={false}
         goesOn={day.stops.length > 0}
+        joined={false}
         onFind={
           onFindEnd === null
             ? null
@@ -472,6 +496,7 @@ export function DayTimeline({
         setTime={null}
         reached={legToEnd !== undefined && plannedToEnd !== undefined}
         goesOn={false}
+        joined={onFindPlace !== null && day.stops.length > 0}
         onFind={
           onFindEnd === null
             ? null

@@ -477,7 +477,9 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   800 over what kind of place goes there, 12px from what is next to it on the day's
   side. The marker and the card are one button, which goes to the search on the map,
   as **Add a place** does; under a pointer the dash takes the accent and the paper lifts
-  to `paper-raised`. The start's time is the pill that sets when the day leaves, its
+  to `paper-raised`. Under the next place, the thread runs on down the rail from its
+  circle to the end's marker, from 9px under the circle, as a leg's does to an end that
+  is there, to 4px short of the marker. The start's time is the pill that sets when the day leaves, its
   chevron left off to fit the column, and without the chevron it is a solid button
   rather than a desk's dashed pill, so it still says it can be pressed: `terracotta-700`
   with the time in `paper`, darkening to `terracotta-800` while it is pressed or its
@@ -964,9 +966,10 @@ underneath, and a product whose whole surface is one warm ramp cannot have its l
 element opt out of it. Every one of Google's controls is off and ours are drawn over the
 map instead: the search in the top left, the route key in the bottom left, and in the
 bottom right the button that fills the screen with the zoom pair under it, where a thumb
-reaches first. Each of those three is a glyph alone, so each is titled with the name it
-is read out by: "Open the map over the planner", or "Close the map" once it has, "Zoom
-in" and "Zoom out". On a phone the map is a view of its own carrying none of them, only the
+reaches first. That button is two arrows out to opposite corners, turned back in once
+the map fills the screen. Each of those three is a glyph alone, so each is titled with
+the name it is read out by: "Full screen", or "Exit full screen" once it is, "Zoom in"
+and "Zoom out". On a phone the map is a view of its own carrying none of them, only the
 days across its top and the day's stops along its foot (see Layout). What the map is drawn on is not offered as a choice. There is one ground,
 and it is the product's own.
 

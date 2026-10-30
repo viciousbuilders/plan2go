@@ -809,9 +809,10 @@ export function TripMap({
    * The name of the button that opens the map over the planner, read out and
    * shown as its tooltip in the same words. The tooltip is the one place a
    * sighted reader is told it: pressed, the button takes the whole planner
-   * away, and the way back is the same glyph turned inward.
+   * away, and the way back is the same arrows turned inward. Put the way a
+   * video player puts it, since filling the window is what it looks like.
    */
-  const expandName = expanded ? "Close the map" : "Open the map over the planner";
+  const expandName = expanded ? "Exit full screen" : "Full screen";
 
   return (
     <div className="trip-map relative h-full w-full overflow-hidden">
