@@ -11,6 +11,7 @@ import { DayPlanner } from "@/features/day-planner/day-planner";
 import { PlaceSearch } from "@/features/place-search/place-search";
 import { DayTabs } from "@/features/day-planner/day-tabs";
 import { MapDay } from "@/features/day-planner/phone/map-day";
+import { EndDetails } from "@/features/day-planner/phone/end-details";
 import { StopDetails } from "@/features/day-planner/phone/stop-details";
 import type { DayMapSources } from "@/features/day-planner/export/day-map-source";
 import type { ExportRequest } from "@/features/day-planner/export/export-request";
@@ -382,6 +383,20 @@ export function TripEditor({
   };
   const findPlace = (): void => {
     find("stop");
+  };
+  /**
+   * Another place for an end of a day, from its sheet on a phone, without
+   * taking this one off first: the sheet goes, the day the end is on is
+   * opened if it is not already, and the search finds that end, as the card
+   * offering one sends it to. The place chosen there takes the old one's.
+   */
+  const changeEnd = (end: EndpointRef): void => {
+    const at = days.findIndex((day) => day.plan.id === end.dayId);
+    if (at !== -1) {
+      chooseDay(at);
+    }
+    dismiss();
+    find(end.which);
   };
   /**
    * A window widened past a phone's puts away what only a phone has: a view
@@ -1028,9 +1043,17 @@ export function TripEditor({
           }
           /* On a phone a stop is changed here rather than on the day: its
              times, its stay, its note and its place in the day, under its
-             name. Drawn on a phone only. */
+             name; and an end of a day is changed for another here too. Drawn
+             on a phone only. */
           details={
-            opened.kind === "stop" && openedStopPlanned !== undefined ? (
+            opened.kind === "endpoint" && editKey !== null ? (
+              <EndDetails
+                which={opened.which}
+                onChange={() => {
+                  changeEnd(opened);
+                }}
+              />
+            ) : opened.kind === "stop" && openedStopPlanned !== undefined ? (
               <StopDetails
                 day={openedStopPlanned}
                 dayIndex={openedStopDay}

@@ -60,10 +60,10 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
  * marker stand level with its middle, as they stood with the words before
  * there was a card, and the thread runs on to the marker from the leg above
  * it and away from it down the leg below. The whole card is one button that
- * opens the place, where the end is taken off the day, as a stop is from its
- * own: on a phone the day is read here and changed there, and an end is
- * changed as a stop is, taken off and another found. Under a pointer it
- * sinks as a desk's row does, inside an edge of sage.
+ * opens the place, where the end is changed for another or taken off the
+ * day, as a stop is changed from its own: on a phone the day is read here and
+ * changed there. Under a pointer it sinks as a desk's row does, inside an
+ * edge of sage.
  *
  * Without an end, someone who may edit is offered one as a desk offers it, on
  * the same card drawn dashed, beside the marker it will get: the name of the

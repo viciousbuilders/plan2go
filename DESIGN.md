@@ -466,8 +466,9 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   at", "Back at", at the body step in 600, and the place's hours under that when it
   keeps any. The time and the marker stand level with the card's middle, and the thread
   runs on to the marker from the leg above it and away from it down the leg below. The
-  whole card is one button that opens the place, where the end is taken off the day, as
-  a stop is from its own; nothing on the card changes it. Under a pointer it sinks to
+  whole card is one button that opens the place, where the end is changed for another
+  or taken off the day, as a stop is changed from its own; nothing on the card changes
+  it. Under a pointer it sinks to
   `paper-sunken` inside an edge of sage 600 at 55 percent, as a desk's row does. Without
   an end, someone who may edit is offered one as a desk offers it, on the same card
   drawn dashed in 1.5px of `rule-strong`, beside the same marker: the end's name in sage
@@ -520,11 +521,13 @@ running to the sheet's edges and scrolling sideways on a long trip, any of which
 the stop to the end of that day. On a desk both are done by dragging its card, along
 the day or onto a day in the strip. The sheet stays on the stop, which then says the day
 it is on. The stepper writes once its presses stop, so an hour more is one write rather
-than four. An end of the day pressed opens its place too, and is taken off the day
-there, by **Remove start point** or **Remove end point** where a stop's sheet has
-**Remove from Day 1**, with nothing of the day's under its name: an end is changed as a
-stop is, taken off and another found. A desk's sheet has no such button for an end,
-whose row takes it off.
+than four. An end of the day pressed opens its place too, and is changed there. Under
+its name, **Change start point** or **Change end point**, a pencil and the words on one
+of the stop's outlined pills, as wide as the sheet and 40px tall, goes to the search on
+the map to find that end, and the place chosen there takes this one's place without it
+being taken off first. Under that, **Remove start point** or **Remove end point** takes
+it off, where a stop's sheet has **Remove from Day 1**. A desk's sheet has neither for
+an end, whose row changes it and takes it off.
 
 The search is on the map, as design 1b of "PlanToGo iPhone app" draws it, and **Add a
 place** goes there with the cursor in the field and the keyboard up, as **Add start
