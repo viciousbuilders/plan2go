@@ -686,10 +686,12 @@ the right with the times, the column the ends of a day keep too; the name and th
 address stand in their own column beside it, so a long name no longer pushes the tools
 down away from the times. The tools are drawn at 55 percent
 until the pointer is over the card and never hidden, since half the people using this
-have no pointer to hover with. How long the stop lasts is a pill with a clock on it
+have no pointer to hover with. How long the stop lasts is a pill with an hourglass on it
 that opens two columns, hours and minutes, the same columns the day's leaving time
-opens, and writes when it closes; the opening hours sit beside it in words, and the
-note is either a field or the one line offering to start one. Removing is immediate: a stop is a search away from
+opens, and writes when it closes; the opening hours sit beside it in words after a
+clock, and the note is either a field or the one line offering to start one. An
+hourglass and not a second clock, because one glyph for both a length and a time of day
+left "1 hr" to be read as either. Removing is immediate: a stop is a search away from
 coming back, and a dialog asking twice would be a modal over something editable in
 place.
 
@@ -962,7 +964,9 @@ underneath, and a product whose whole surface is one warm ramp cannot have its l
 element opt out of it. Every one of Google's controls is off and ours are drawn over the
 map instead: the search in the top left, the route key in the bottom left, and in the
 bottom right the button that fills the screen with the zoom pair under it, where a thumb
-reaches first. On a phone the map is a view of its own carrying none of them, only the
+reaches first. Each of those three is a glyph alone, so each is titled with the name it
+is read out by: "Open the map over the planner", or "Close the map" once it has, "Zoom
+in" and "Zoom out". On a phone the map is a view of its own carrying none of them, only the
 days across its top and the day's stops along its foot (see Layout). What the map is drawn on is not offered as a choice. There is one ground,
 and it is the product's own.
 

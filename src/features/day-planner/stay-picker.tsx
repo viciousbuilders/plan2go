@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { formatDuration, MINUTES_PER_HOUR } from "@/core/time/minutes";
-import { ChevronDownIcon, ChevronUpIcon, ClockIcon } from "@/ui/icons";
+import { ChevronDownIcon, ChevronUpIcon, HourglassIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
 import { ColumnPicker } from "./column-picker";
 import { formatStay } from "./format-stay";
@@ -17,12 +17,15 @@ const HOURS = Array.from({ length: 25 }, (_unused, hour) => hour);
 const MINUTES = Array.from({ length: 12 }, (_unused, step) => step * 5);
 
 /**
- * How long the stop lasts, on a small pill of raised paper: the clock in the
- * accent in front of the number, the chevron after it saying it opens. The
- * card's own number to set; the day's leaving time, on the first card or the
- * start point, is the other pill on the day that opens these columns, and
- * carries the same chevron so the two are found the same way. The edge takes
- * the accent under the pointer and keeps it while the picker is open.
+ * How long the stop lasts, on a small pill of raised paper: the hourglass in
+ * the accent in front of the number, the chevron after it saying it opens. An
+ * hourglass and not a clock, because the clock on the same line is when the
+ * place is open, and one glyph for both a length and a time of day left "1 hr"
+ * to be read as either. The card's own number to set; the day's leaving time,
+ * on the first card or the start point, is the other pill on the day that
+ * opens these columns, and carries the same chevron so the two are found the
+ * same way. The edge takes the accent under the pointer and keeps it while
+ * the picker is open.
  */
 const TRIGGER =
   "flex h-8 items-center gap-2 rounded-pill border bg-paper-raised pr-[10px] pl-3 text-small/none font-semibold text-ink tabular-nums hover:border-terracotta disabled:opacity-45 disabled:hover:border-rule focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
@@ -96,7 +99,7 @@ export function StayPicker({ placeName, value, disabled, onChoose }: StayPickerP
         }}
         className={`${TRIGGER} ${open ? "border-terracotta" : "border-rule"}`}
       >
-        <ClockIcon size={15} strokeWidth={2.5} className="shrink-0 text-terracotta" />
+        <HourglassIcon size={15} strokeWidth={2.5} className="shrink-0 text-terracotta" />
         {/* The unit dropped once there is an hour in front of it, as the pill
             has room for; read out in full, with what the time is at. */}
         <span aria-hidden="true">{formatStay(draft)}</span>

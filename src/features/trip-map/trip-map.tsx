@@ -805,6 +805,14 @@ export function TripMap({
     }
   };
 
+  /**
+   * The name of the button that opens the map over the planner, read out and
+   * shown as its tooltip in the same words. The tooltip is the one place a
+   * sighted reader is told it: pressed, the button takes the whole planner
+   * away, and the way back is the same glyph turned inward.
+   */
+  const expandName = expanded ? "Close the map" : "Open the map over the planner";
+
   return (
     <div className="trip-map relative h-full w-full overflow-hidden">
       <div
@@ -846,13 +854,20 @@ export function TripMap({
            already the whole window, and two fingers zoom it. */
         <div className="absolute right-[22px] bottom-[22px] z-[2] flex flex-col items-end gap-2 max-lg:hidden">
           {/* Wrapped the way the zoom pair is, so the rule sits outside the
-              button rather than inside its width and the two line up. */}
+              button rather than inside its width and the two line up. Each of
+              the three is a glyph alone, so each is named by its title, which
+              is what is read out and what shows under the pointer. A hidden
+              name beside the title, as a marker carries, had Chrome read the
+              zoom pair's names twice, once as the name and again as the
+              description. */}
           <div className={PILL}>
-            <button type="button" onClick={onToggleExpanded} className={ICON_CONTROL}>
+            <button
+              type="button"
+              onClick={onToggleExpanded}
+              title={expandName}
+              className={ICON_CONTROL}
+            >
               {expanded ? <ShrinkIcon size={15} /> : <ExpandIcon size={15} />}
-              <span className="trip-map-name">
-                {expanded ? "Close the map" : "Open the map over the planner"}
-              </span>
             </button>
           </div>
 
@@ -862,20 +877,20 @@ export function TripMap({
               onClick={() => {
                 zoomBy(1);
               }}
+              title="Zoom in"
               className={`${ICON_CONTROL} border-b border-rule`}
             >
               <span aria-hidden="true">+</span>
-              <span className="trip-map-name">Zoom in</span>
             </button>
             <button
               type="button"
               onClick={() => {
                 zoomBy(-1);
               }}
+              title="Zoom out"
               className={ICON_CONTROL}
             >
               <span aria-hidden="true">&minus;</span>
-              <span className="trip-map-name">Zoom out</span>
             </button>
           </div>
         </div>
