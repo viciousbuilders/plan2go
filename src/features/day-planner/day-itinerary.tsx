@@ -401,8 +401,8 @@ function EndpointSlot({
  * its words at the step theirs are in. The time is when the last stop is
  * left, which is when the way to the next place would begin, not when that
  * place would start: the leg between them comes first. It is at the step the
- * opening hours are in, on the right edge the times keep. No thread runs to
- * it, since it is not on the day yet. Under the pointer it sinks as a stop
+ * opening hours are in, on the right edge the times keep. The day's thread
+ * runs on to it from the last card. Under the pointer it sinks as a stop
  * card does, and the ring's dash takes the whole accent, as every dashed
  * control's does.
  *
@@ -425,9 +425,14 @@ function NextPlace({
   readonly onFindPlace: () => void;
 }) {
   return (
-    /* Twelve under the last card, the room every block on the panel keeps
-       from the next. */
-    <div className="pt-3">
+    <div>
+      {/* The thread from the last card down to this one, in the column a leg
+          keeps it in, so the day's line runs on to the stop that would come
+          next. As long as three of its dots whole, and two clear of either
+          card, as a leg's is. */}
+      <div aria-hidden="true" className="ml-1 flex h-[26px] w-[30px] justify-center py-[2px]">
+        <span className="thread" />
+      </div>
       <button
         type="button"
         onMouseDown={(event) => {

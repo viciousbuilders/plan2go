@@ -567,10 +567,11 @@ cannot express are here.
 
 The day runs down a dotted thread on the left, drawn as a repeating gradient rather
 than a dotted border, which rounds its dots off at this width. On a desk it runs down
-the legs, between the cards, and stops at their edges: a stop card's numbered
-terracotta disc stands on its own, with nothing drawn under it. On a phone it runs on
-down from each stop's disc, as Layout says. A leg hangs on the thread with no card of
-its own, because it is what happens between two stops rather than a thing in itself.
+the legs between the cards, and on from the last card to the next place under it, and
+stops at their edges: a stop card's numbered terracotta disc stands on its own, with
+nothing drawn under it. On a phone it runs on down from each stop's disc, as Layout
+says. A leg hangs on the thread with no card of its own, because it is what happens
+between two stops rather than a thing in itself.
 
 The start and end of a day are a different shape from a stop, not merely a different
 colour: a sage square with one corner cut, against the terracotta discs. A day may
@@ -647,7 +648,7 @@ is 6px of padding on the left, 5px before the chevron as before the arrow, and 4
 after it. A reader
 without the edit link gets the plain time in both places.
 
-Under the last card on the day, twelve below it, is the stop that would come next, on a
+Under the last card on the day, 26px below it, is the stop that would come next, on a
 card of its own: the stop card's surface, `paper-raised` inside a `rule` hairline at the
 `row` radius, on the card's grid and gutters, and one line deep, 10px over and under
 what is in it, within a pixel of the rows offering an end of the day. In the discs'
@@ -663,9 +664,10 @@ button that takes the traveller to the search field. Under the pointer it sinks 
 stop card does, to `paper-sunken` inside an edge of `terracotta` at 55 percent, and the
 ring's dash takes the whole accent, as every dashed control's does; the words stay as
 they are. With the keyboard on it the focus ring is drawn round the card, as on every
-other control. No thread runs to it, since it is not on the day yet. On a day with an
-end, it comes before the leg out to the end, since a place added now would come before
-the end too. It is under the last card because that is where a place found in the
+other control. The day's thread runs down the gap to it, in the column the legs keep
+it in, three of its dots whole and 2px clear of either card, as a leg's is. On a day
+with an end, it comes before the leg out to the end, since a place added now would come
+before the end too. It is under the last card because that is where a place found in the
 search goes. A reader without the edit link does not get it.
 
 A leg opens. Closed it is one line, the mode and how long it takes, with **Change** at
