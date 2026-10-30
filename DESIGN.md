@@ -469,7 +469,11 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   on the rail a dashed circle of the accent with the number that stop would get in it,
   in the discs' face and step, and beside it, on a card of the stops' surface and edge,
   one line deep and 44px tall, 12px under the last stop's card, **Add a place** in bold
-  at the body step, the number and the words in `terracotta-800`. The circle stands
+  at the body step, the number and the words in `terracotta-800`. In the column of
+  times, level with the card, "from 11:27", as a desk's card says it: when the last
+  stop is left, which is when the way to the next place would begin, at the step,
+  weight and ink of the stops' leaving times, a word to a line where the column is too
+  narrow for both. The circle stands
   level with the card, and the thread runs on to it from the last disc, its last dot
   4px clear of it, as of a disc. The circle and the card are one button. Under a
   pointer the card sinks as a stop's does and the circle's dash takes the whole accent,

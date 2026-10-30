@@ -352,6 +352,10 @@ export function DayTimeline({
   const legToEnd = day.end === null ? undefined : computed.legs[computed.legs.length - 1];
   const plannedToEnd = legToEnd === undefined ? undefined : legs[legToEnd.index];
   const changeLeg = actions === null ? null : actions.changeLegMode;
+  /** The last stop on the day, which the next one would come after. */
+  const last = computed.stops[computed.stops.length - 1];
+  /** When the way on to the next place would begin: when the last stop is left. */
+  const onFrom = last === undefined || last.departure === null ? null : formatDayTime(last.departure);
 
   return (
     <div>
@@ -427,14 +431,31 @@ export function DayTimeline({
           one button, so the whole of the line can be pressed. Under a pointer
           the card sinks as a stop's does and the circle's dash takes the
           whole accent, and the ring that shows the keyboard is on it is drawn
-          round the card, as a stop's is. */}
+          round the card, as a stop's is.
+
+          In the column of times, level with the card, "from" and when the
+          last stop is left, as a desk's card says it: when the way to the
+          next place would begin, not when that place would start, since the
+          leg between them comes first. At the step, the weight and the ink of
+          the stops' leaving times above it, and set to the column's right
+          edge as they are, a word to a line where the column is too narrow
+          for the two. It is in the button's name, so it is read once. */}
       {onFindPlace === null || day.stops.length === 0 ? null : (
         <div className={RAIL_ROW}>
-          <span aria-hidden="true" />
+          <p
+            aria-hidden="true"
+            className="flex flex-col justify-center pt-3 text-right text-micro/[1.2] font-medium text-ink-faint tabular-nums"
+          >
+            {onFrom === null ? null : `from ${onFrom}`}
+          </p>
           <button
             type="button"
             onClick={onFindPlace}
-            aria-label={`Add a place as stop ${String(day.stops.length + 1)}`}
+            aria-label={
+              onFrom === null || last === undefined
+                ? `Add a place as stop ${String(day.stops.length + 1)}`
+                : `Add a place as stop ${String(day.stops.length + 1)}, after leaving ${last.placeName} at ${onFrom}`
+            }
             className="group/next col-span-2 grid grid-cols-[26px_minmax(0,1fr)] gap-x-[10px] text-left focus-visible:outline-none"
           >
             <span aria-hidden="true" className="flex flex-col items-center pt-1">
