@@ -402,9 +402,9 @@ function EndpointSlot({
  * left, which is when the way to the next place would begin, not when that
  * place would start: the leg between them comes first. It is at the step the
  * opening hours are in, on the right edge the times keep. No thread runs to
- * it, since it is not on the day yet, so the last card's thread ends at its
- * foot as every card's does. Under the pointer it sinks as a stop card does,
- * and the ring's dash takes the whole accent, as every dashed control's does.
+ * it, since it is not on the day yet. Under the pointer it sinks as a stop
+ * card does, and the ring's dash takes the whole accent, as every dashed
+ * control's does.
  *
  * The press does not take focus. A note field left open and empty on the
  * card above closes when it loses focus, and the card it leaves is shorter,

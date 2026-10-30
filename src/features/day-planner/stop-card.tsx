@@ -408,17 +408,13 @@ export function StopCard({
             : "border-rule"
       }`}
     >
-      {/* The disc, and the thread running on down behind it to the foot of
-          the card, so the line the day hangs on is seen to pass through the
-          stop rather than stopping at it. Quieter here than on the page,
-          because it is over a raised card and should not compete with it. */}
-      <div className="flex flex-col items-center gap-[7px] [--thread-ink:16%]">
-        <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-pill bg-terracotta font-display text-body/none font-semibold text-paper tabular-nums">
-          <span aria-hidden="true">{position}</span>
-          <span className="sr-only">Stop {position}</span>
-        </span>
-        <span className="thread flex-1" aria-hidden="true" />
-      </div>
+      {/* The disc on its own, with nothing drawn under it: the thread the day
+          hangs on runs down the legs between the cards and stops at their
+          edges, as the design file draws it. */}
+      <span className="grid h-[30px] w-[30px] place-items-center rounded-pill bg-terracotta font-display text-body/none font-semibold text-paper tabular-nums">
+        <span aria-hidden="true">{position}</span>
+        <span className="sr-only">Stop {position}</span>
+      </span>
 
       {/* The blocks of the card, spaced once. Each of them carries the
           leading its own type step brought with it, so a gap wide enough to

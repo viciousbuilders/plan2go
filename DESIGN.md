@@ -566,9 +566,11 @@ Token values for each component are in the front matter. The rules the token sch
 cannot express are here.
 
 The day runs down a dotted thread on the left, drawn as a repeating gradient rather
-than a dotted border, which rounds its dots off at this width. A stop hangs on the
-thread behind a numbered terracotta disc. A leg hangs on the same thread with no card
-of its own, because it is what happens between two stops rather than a thing in itself.
+than a dotted border, which rounds its dots off at this width. On a desk it runs down
+the legs, between the cards, and stops at their edges: a stop card's numbered
+terracotta disc stands on its own, with nothing drawn under it. On a phone it runs on
+down from each stop's disc, as Layout says. A leg hangs on the thread with no card of
+its own, because it is what happens between two stops rather than a thing in itself.
 
 The start and end of a day are a different shape from a stop, not merely a different
 colour: a sage square with one corner cut, against the terracotta discs. A day may
@@ -661,11 +663,10 @@ button that takes the traveller to the search field. Under the pointer it sinks 
 stop card does, to `paper-sunken` inside an edge of `terracotta` at 55 percent, and the
 ring's dash takes the whole accent, as every dashed control's does; the words stay as
 they are. With the keyboard on it the focus ring is drawn round the card, as on every
-other control. No thread runs to it, since it is not on the day yet, and the last
-card's thread ends at its foot as every card's does. On a day with an end, it comes
-before the leg out to the end, since a place added now would come before the end too.
-It is under the last card because that is where a place found in the search goes. A
-reader without the edit link does not get it.
+other control. No thread runs to it, since it is not on the day yet. On a day with an
+end, it comes before the leg out to the end, since a place added now would come before
+the end too. It is under the last card because that is where a place found in the
+search goes. A reader without the edit link does not get it.
 
 A leg opens. Closed it is one line, the mode and how long it takes, with **Change** at
 the end of it. Open it is a sunken panel of every way of covering the same ground, one
