@@ -574,16 +574,19 @@ the open day filled in `terracotta-800`, so the map goes from day to day without
 list. Under the days, 8px clear, a card 250px wide for every stop on the day, on
 `paper-raised` rounded at the `card` radius under `shadow-md`: its number on the disc
 the map marks it with, its name in the display face, and when it is reached and left.
+Two stops' cards stand 60px apart, and the leg that joins them is drawn between them,
+card edge to card edge, as the map draws it: its pattern in its own ink over a casing
+of `paper`, as thin as a desk's key draws its samples, and at its middle the glyph its
+row on Plan carries, 13px in the same ink, on a 24px bead of `paper-raised` ringed 2px
+in it under `shadow-sm`. So the row is the key to the lines over it, a dotted line on
+the map being the walk drawn with the same dots in the same colour down here, and the
+lines themselves carry nothing. A leg from the start or out to the end has a card on
+one side only and is not drawn in the row; it reads by the same patterns.
 A card pressed picks its stop out, its edge taking the accent and its marker drawn
 large; pressed again it opens the place. A marker pressed picks its card out the same
 way, rather than opening the place as it does on a desk. The day is framed in what the
 rows leave of the window. One finger moves the map and two zoom it, and there is no
-zoom pair and no route key. Each leg says its way on itself instead, halfway along it:
-the glyph its row on Plan carries, 13px in the leg's own ink, on a 24px bead of
-`paper-raised` ringed 2px in the same ink under `shadow-sm`, so the bead is matched to
-its line by eye and the line's pattern explains itself. Smaller and paler than a stop's
-disc, and drawn under every marker, it is left off a leg whose ends are less than 72px
-apart on screen and comes back as the map zooms in. A press on it is a press on the map.
+zoom pair and no route key under the map: the row of stops is its key.
 
 Everything on a phone is pressed with a finger: what is drawn smaller than 40px answers a
 finger over the room around it and is drawn no larger, and nothing that answers a finger
@@ -928,8 +931,9 @@ The route key sits in the bottom left and lists all three modes, in the order Go
 lists them, whenever the day has a line on it. It is the notation, so it does not
 change with the modes this particular day happens to use, and its samples are drawn in
 the same muted ink as its words: a coloured sample would say the colour meant something.
-That is on a desk: a phone has no room for a key under its map, and each leg there says
-its mode on itself instead (see Layout). The markers have no key of
+That is on a desk: a phone has no room for a key under its map, and draws each leg
+between the cards of the two stops it joins instead, in the row of stops along the
+map's foot (see Layout). The markers have no key of
 their own, because a numbered disc in the order you visit them and a named marker for
 the ends of the day explain themselves.
 

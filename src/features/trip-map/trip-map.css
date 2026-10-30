@@ -90,33 +90,6 @@
   color: var(--color-paper);
 }
 
-/*
- * A leg's way, halfway along it, on a phone's map, where there is no room for
- * the key a desk keeps under the map: the glyph the leg's row on Plan is drawn
- * with, on a bead of raised paper ringed in the leg's own ink, so the bead is
- * matched to its line by eye and the line's pattern explains itself. Smaller
- * and paler than a stop's disc, which it is never to be taken for, and under
- * every marker, which are drawn after it. A press on it is a press on the map.
- */
-.trip-map-leg {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--leg-ink);
-  border-radius: var(--radius-pill);
-  background-color: var(--color-paper-raised);
-  color: var(--leg-ink);
-  box-shadow: var(--shadow-sm);
-  pointer-events: none;
-}
-
-@media (width >= 1024px) {
-  .trip-map-leg {
-    display: none;
-  }
-}
-
 /* The ring is the colour of whatever it is, and an end of the day is sage. */
 .trip-map-endpoint.is-hovered,
 .trip-map-endpoint.is-opened {
