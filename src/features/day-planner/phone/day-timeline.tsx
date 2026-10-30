@@ -295,7 +295,8 @@ function TimelineStop({
  * "PlanToGo iPhone" draws: where it starts if it starts anywhere, every leg
  * and every stop in order, and where it ends if it ends anywhere. After the
  * last stop, for someone who may edit, the next place on the rail as a dashed
- * circle and "Add a place", which is where a place found in the search goes.
+ * circle with its number in it and "Add a place", which is where a place found
+ * in the search goes.
  *
  * A desk draws the same day as cards, in day-itinerary; the two are the same
  * day and the same actions, laid out for the room each has.
@@ -398,9 +399,11 @@ export function DayTimeline({
       })}
 
       {/* The next stop, where it would go: a dashed circle of the accent on
-          the rail under the last disc, and the words beside it, in the
-          accent's brown at the weight design 1b gives them. The circle and
-          the words are one button, so the whole of the line can be pressed. */}
+          the rail under the last disc, with the number that stop would get in
+          it, as a desk's has, in the discs' face and step; and the words
+          beside it, in the accent's brown at the weight design 1b gives them,
+          the brown the number takes too. The circle and the words are one
+          button, so the whole of the line can be pressed. */}
       {onFindPlace === null || day.stops.length === 0 ? null : (
         <div className={`${RAIL_ROW} mt-1 items-center`}>
           <span aria-hidden="true" />
@@ -412,8 +415,10 @@ export function DayTimeline({
           >
             <span
               aria-hidden="true"
-              className={`${RAIL_MARK} border-2 border-dashed border-terracotta/60 group-hover/next:border-terracotta`}
-            />
+              className={`${RAIL_MARK} border-2 border-dashed border-terracotta/60 font-display text-meta/none font-semibold text-terracotta-800 tabular-nums group-hover/next:border-terracotta`}
+            >
+              {day.stops.length + 1}
+            </span>
             <span className="text-body/none font-bold text-terracotta-800">Add a place</span>
           </button>
         </div>

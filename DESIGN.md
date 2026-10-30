@@ -460,7 +460,8 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   kind of place goes there. The start's time is the pill that sets when the day leaves,
   its chevron left off to fit the column.
 - After the last stop, for someone who may edit, the next place on the rail: a dashed
-  circle of the accent and **Add a place** in bold at the body step in
+  circle of the accent with the number that stop would get in it, in the discs' face
+  and step, and **Add a place** in bold at the body step, the number and the words in
   `terracotta-800`, one button.
 
 A day with nothing planned says so on the rail, as a desk does: the line its stops will
