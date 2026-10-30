@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import { HomeIcon, TrainIcon, WalkIcon } from "@/ui/icons";
+import type { TravelMode } from "@/core/model/leg";
+import { MODE_ICON, MODE_WORDS } from "@/features/day-planner/leg-marks";
+import { HomeIcon } from "@/ui/icons";
 import { headlineFont } from "./headline-font";
 
 /**
@@ -32,9 +34,9 @@ export function DayPreview() {
             Bridge. The hotel is the reader's own rather than one named, so
             the page sends nobody to any one hotel. */}
         <Place mark={<StartMark />} name="Your hotel" area="Darling Harbour" />
-        <Leg icon={<TrainIcon size={14} strokeWidth={2.75} className="flex-none" />} time="21 min" />
+        <Leg mode="transit" time="21 min" />
         <Place mark={<StopNumber at="1" />} name="Sydney Opera House" area="Bennelong Point" />
-        <Leg icon={<WalkIcon size={14} strokeWidth={2.75} className="flex-none" />} time="17 min" />
+        <Leg mode="walk" time="17 min" />
         <Place mark={<StopNumber at="2" />} name="Sydney Harbour Bridge" area="The Rocks" />
       </div>
     </div>
@@ -86,14 +88,22 @@ function StartMark() {
   );
 }
 
-/** The way from one place to the next: a rule down from the mark, and how long it takes. */
-function Leg({ icon, time }: { readonly icon: ReactNode; readonly time: string }) {
+/**
+ * The way from one place to the next: a rule down from the mark, then the
+ * way's glyph, its name and how long it takes, taken from the planner so the
+ * card says it the way a planned day does, "Walk 17 min". The name and not
+ * the glyph alone, as the planner never gives a way of travelling by its
+ * glyph, and at this size a walk's footprints read as a smudge.
+ */
+function Leg({ mode, time }: { readonly mode: TravelMode; readonly time: string }) {
+  const Icon = MODE_ICON[mode];
   return (
     <div className="flex items-center gap-2 pl-[13px]">
       <span className="h-5 w-0.5 rounded-[2px] bg-neutral-300" />
-      <span className="flex h-6 items-center gap-1.5 rounded-pill bg-paper px-2.5 text-[12px] leading-none font-semibold text-ink-muted">
-        {icon}
-        {time}
+      <span className="flex h-6 items-center gap-1.5 rounded-pill bg-paper px-2.5 text-[12px] leading-none font-semibold whitespace-nowrap text-ink-muted">
+        <Icon size={14} strokeWidth={2.75} className="flex-none" />
+        <span className="text-ink">{MODE_WORDS[mode]}</span>
+        <span className="font-bold text-ink">{time}</span>
       </span>
     </div>
   );

@@ -341,7 +341,7 @@ export function AppSteps({ guide, address }: { readonly guide: AppGuide; readonl
             <p className={ASIDE}>
               <BookIcon size={15} strokeWidth={2.75} className="mt-0.5 flex-none" />
               <span>
-                Screen looks different?{" "}
+                Read more in{" "}
                 <a
                   href={help.href}
                   target="_blank"
@@ -349,8 +349,8 @@ export function AppSteps({ guide, address }: { readonly guide: AppGuide; readonl
                   className="font-bold text-terracotta-800 underline hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
                 >
                   {help.name}
-                </a>{" "}
-                has the latest steps.
+                </a>
+                .
               </span>
             </p>
           )}
