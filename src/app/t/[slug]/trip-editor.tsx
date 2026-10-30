@@ -637,7 +637,14 @@ export function TripEditor({
                   ? opened.placeId
                   : null
               }
-              onPressMap={dismissFromMap}
+              // A press on the map, anywhere but a marker, also lets go of
+              // whatever a phone's rows have picked out, as a press beside
+              // anything picked does. Moving nothing, it is not said to have
+              // closed anything, so the next framing of the day goes ahead.
+              onPressMap={() => {
+                setPicked(null);
+                return dismissFromMap();
+              }}
               candidate={candidate}
               covered={covered}
               expanded={expanded}

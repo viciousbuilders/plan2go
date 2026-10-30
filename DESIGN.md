@@ -342,6 +342,8 @@ stop leaves it at once, and the day fades under "Working out the new times." unt
 days have their new times, as after a reorder. When the day leaves
 is set on the day itself. Then the day itself: stops on raised cards, legs between them on pills of paper, and the ends of the
 day on shorter rows of paper inside a hairline, dashed where an end is not there yet.
+The day's thread runs on to a dashed row from the stop card next to it, across 26px
+rather than twelve, as it runs down a leg to an end that is there.
 A day with no stops says so beside the line its stops will hang on, with no card under
 it, since a card on the day is a stop. The line is 2px of `terracotta` at 55 percent in
 4px dashes 2px apart, down the middle of the ends' marks, and stops 18px short of the
@@ -595,7 +597,11 @@ the leg out the same way: the bead fills with its ink, with the glyph in `paper`
 5px ring of the ink at 22 percent, as a picked marker takes a ring, and the leg's line on
 the map is drawn heavier inside its halo, as a leg under the pointer is on a desk. There
 is nothing to open from it, so pressed again it lets the leg go. All the room between
-the two cards, 60px by 44px, answers a finger. The day is framed in what
+the two cards, 60px by 44px, answers a finger. A press on the map, anywhere but a
+marker, lets go of whatever is picked out, the card's edge and the marker or the line
+going back to how they stand; held for the moment a second press could follow it, so
+a double press zooms and lets nothing go, and a drag moves the map and lets nothing
+go either. The day is framed in what
 the rows leave of the window. One finger moves the map and two zoom it, and there is no
 zoom pair and no route key under the map: the row of places is its key.
 
@@ -638,8 +644,10 @@ cannot express are here.
 
 The day runs down a dotted thread on the left, drawn as a repeating gradient rather
 than a dotted border, which rounds its dots off at this width. On a desk it runs down
-the legs between the cards and stops at their edges: a stop card's numbered terracotta
-disc stands on its own, with nothing drawn under it. On a phone it runs the length of the rail, through each stop's
+the legs between the cards, and from a card to the dashed row offering an end of the
+day that is not there yet, in the column the legs keep it in, three of its dots whole
+and 2px clear of either, as a leg's are; and it stops at their edges: a stop card's
+numbered terracotta disc stands on its own, with nothing drawn under it. On a phone it runs the length of the rail, through each stop's
 disc and on down beside its card, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
 between two stops rather than a thing in itself.
 

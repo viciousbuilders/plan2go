@@ -206,7 +206,9 @@ const CHIP =
  * marker under the pointer is on a desk. Pressed again, it opens the place. A
  * marker pressed picks its card out the same way, and the row brings that card
  * into sight. A leg's bead pressed picks the leg out the same way, its line on
- * the map drawn heavier, and pressed again lets it go.
+ * the map drawn heavier, and pressed again lets it go. A press on the map,
+ * anywhere but a marker, lets go of whatever is picked out, which whoever
+ * holds the map is told of.
  *
  * Over the map, under the bar of views at the foot of the window: the cards
  * stand twelve clear of the bar. Fixed to the window rather than to the map,

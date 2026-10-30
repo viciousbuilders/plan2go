@@ -276,6 +276,22 @@ function Anchor({
 const ADD_ENDPOINT = `${ENDPOINT_ROW} group border-[1.5px] border-dashed border-rule-strong bg-paper px-[15.5px] py-[8.5px] hover:border-terracotta hover:bg-paper-raised disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`;
 
 /**
+ * The day's thread across the room between a row offering an end of the day
+ * and the stop card next to it, in the column a leg keeps it in, so the line
+ * the day hangs on runs on to where an end would stand, as it runs down a leg
+ * to an end that is there. Three of its dots whole and two clear of either
+ * edge, as a leg's are, which takes 26px rather than the 12 every other block
+ * on the panel keeps from the next.
+ */
+function ThreadToEnd() {
+  return (
+    <div aria-hidden="true" className="ml-1 flex h-[26px] w-[30px] justify-center py-[2px]">
+      <span className="thread" />
+    </div>
+  );
+}
+
+/**
  * One end of a day: the point itself once there is one, the search while it is
  * being chosen, and otherwise the button that starts that off.
  *
@@ -289,6 +305,7 @@ function EndpointSlot({
   time,
   setTime,
   actions,
+  joined,
   hoveredEndpointId,
   onHoverEndpoint,
   onOpen,
@@ -300,6 +317,12 @@ function EndpointSlot({
   /** Sets the time rather than reading it; null wherever it is only read. */
   readonly setTime: React.ReactNode;
   readonly actions: DayActions | null;
+  /**
+   * Whether a stop card stands next to it on the day's side, so the day's
+   * thread runs on to the row offering this end. With none the day is empty,
+   * and the empty day draws the line its stops will hang on itself.
+   */
+  readonly joined: boolean;
   readonly hoveredEndpointId: string | null;
   readonly onHoverEndpoint: (placeId: string | null) => void;
   readonly onOpen: (endpoint: EndpointRef) => void;
@@ -352,8 +375,11 @@ function EndpointSlot({
       {endpoint === null && !picking && actions !== null ? (
         /* Twelve from what is next to it on the day's side, the room every
            block on the panel keeps from the next; the panel's own padding
-           is on the other side. */
-        <div className={which === "start" ? "pb-3" : "pt-3"}>
+           is on the other side. With a stop card there, the day's thread
+           runs across that room instead, as it would down a leg to an end
+           that was there. */
+        <div className={joined ? "" : which === "start" ? "pb-3" : "pt-3"}>
+          {joined && which === "end" ? <ThreadToEnd /> : null}
           <button
             type="button"
             disabled={saving}
@@ -375,6 +401,7 @@ function EndpointSlot({
               <PlusIcon size={15} strokeWidth={TOOL_GLYPH.stroke} />
             </span>
           </button>
+          {joined && which === "start" ? <ThreadToEnd /> : null}
         </div>
       ) : null}
 
@@ -507,6 +534,7 @@ export function DayItinerary({
         time={formatClock(computed.begins.minutesFromMidnight)}
         setTime={leaveAt}
         actions={actions}
+        joined={day.stops.length > 0}
         hoveredEndpointId={hoveredEndpointId}
         onHoverEndpoint={onHoverEndpoint}
         onOpen={onOpenEndpoint}
@@ -599,6 +627,7 @@ export function DayItinerary({
         }
         setTime={null}
         actions={actions}
+        joined={day.stops.length > 0}
         hoveredEndpointId={hoveredEndpointId}
         onHoverEndpoint={onHoverEndpoint}
         onOpen={onOpenEndpoint}
