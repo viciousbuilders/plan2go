@@ -347,8 +347,8 @@ it, since a card on the day is a stop. The line is 2px of `terracotta` at 55 per
 4px dashes 2px apart, down the middle of the ends' marks, and stops 18px short of the
 rows above and below; the words are set left on the stops' left edge, the heading at the
 title step, with **Find a place** under them. Twelve under the start of the day when
-there is one, and twelve over the end when no leg comes between. The next place is offered on a card of its own under the last stop card, its number
-drawn dashed, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
+there is one, and twelve over the end when no leg comes between. The next place is offered as the next number, drawn dashed under the disc at the foot of
+the last stop card, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
 nothing drawn edge to edge.
 
 **Mobile, below 1024px.** Design 1b of "PlanToGo iPhone", the timeline: one view at a
@@ -485,10 +485,10 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   in the discs' face and step, and beside it, on a card of the stops' surface and edge,
   one line deep and 44px tall, 12px under the last stop's card, **Add a place** in bold
   at the body step, the number and the words in `terracotta-800`. In the column of
-  times, level with the card, "from 11:27", as a desk's card says it: when the last
-  stop is left, which is when the way to the next place would begin, at the step,
-  weight and ink of the stops' leaving times, a word to a line where the column is too
-  narrow for both. The circle stands
+  times, level with the card, "from 11:27", as the foot of a desk's last card says it:
+  when the last stop is left, which is when the way to the next place would begin, at
+  the step, weight and ink of the stops' leaving times, a word to a line where the
+  column is too narrow for both. The circle stands
   level with the card, and the thread runs on to it from the last disc, its last dot
   4px clear of it, as of a disc. The circle and the card are one button. Under a
   pointer the card sinks as a stop's does and the circle's dash takes the whole accent,
@@ -582,7 +582,7 @@ at 17:40", or "Back at 17:40" where it ends where it started.
 Two cards stand 60px apart, and the leg that joins them is drawn between them, card
 edge to card edge, as the map draws it: its pattern in its own ink over a casing of
 `paper`, as thin as a desk's key draws its samples, and at its middle the glyph its row
-on Plan carries, 13px in the same ink, on a 24px bead of `paper-raised` ringed 2px in it
+on Plan carries, 15px in the same ink, on a 28px bead of `paper-raised` ringed 2px in it
 under `shadow-sm`. So the row is the key to the lines over it, a dotted line on the map
 being the walk drawn with the same dots in the same colour down here, and the lines
 themselves carry nothing. A day with no stop says "No stops on this day yet" between
@@ -590,7 +590,12 @@ its ends, never narrower than its words on one line, and draws no leg across the
 A card pressed picks its place out, its edge taking the accent for a stop and sage for
 an end, the colour of the ring its marker takes, and its marker drawn large; pressed
 again it opens the place. A marker pressed picks its card out the same way, an end's as
-a stop's, rather than opening the place as it does on a desk. The day is framed in what
+a stop's, rather than opening the place as it does on a desk. A leg's bead pressed picks
+the leg out the same way: the bead fills with its ink, with the glyph in `paper`, inside a
+5px ring of the ink at 22 percent, as a picked marker takes a ring, and the leg's line on
+the map is drawn heavier inside its halo, as a leg under the pointer is on a desk. There
+is nothing to open from it, so pressed again it lets the leg go. All the room between
+the two cards, 60px by 44px, answers a finger. The day is framed in what
 the rows leave of the window. One finger moves the map and two zoom it, and there is no
 zoom pair and no route key under the map: the row of places is its key.
 
@@ -633,9 +638,8 @@ cannot express are here.
 
 The day runs down a dotted thread on the left, drawn as a repeating gradient rather
 than a dotted border, which rounds its dots off at this width. On a desk it runs down
-the legs between the cards, and on from the last card to the next place under it, and
-stops at their edges: a stop card's numbered terracotta disc stands on its own, with
-nothing drawn under it. On a phone it runs the length of the rail, through each stop's
+the legs between the cards and stops at their edges: a stop card's numbered terracotta
+disc stands on its own, with nothing drawn under it. On a phone it runs the length of the rail, through each stop's
 disc and on down beside its card, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
 between two stops rather than a thing in itself.
 
@@ -714,27 +718,27 @@ is 6px of padding on the left, 5px before the chevron as before the arrow, and 4
 after it. A reader
 without the edit link gets the plain time in both places.
 
-Under the last card on the day, 26px below it, is the stop that would come next, on a
-card of its own: the stop card's surface, `paper-raised` inside a `rule` hairline at the
-`row` radius, on the card's grid and gutters, and one line deep, 10px over and under
-what is in it, within a pixel of the rows offering an end of the day. In the discs'
-column is the number that stop would get, in a 30px circle drawn with the leaving
-time's edge, the other dashed outline in the accent: 1px, dashed, in `terracotta` at 55
-percent. The digit is the disc's face and step, in `terracotta-700`. Beside it, on the
-left edge of the names above, **Add a place** at the small step in `terracotta-700`,
-the step the rows offering an end of the day are in, and on the times' right edge,
-"from" and the time the last stop is left, at the micro step in `ink-muted`, the step
-the opening hours are in. That is when the way to the next place would begin, not when
-the next place would start: the leg between them comes first. The whole card is one
-button that takes the traveller to the search field. Under the pointer it sinks as a
-stop card does, to `paper-sunken` inside an edge of `terracotta` at 55 percent, and the
-ring's dash takes the whole accent, as every dashed control's does; the words stay as
-they are. With the keyboard on it the focus ring is drawn round the card, as on every
-other control. The day's thread runs down the gap to it, in the column the legs keep
-it in, three of its dots whole and 2px clear of either card, as a leg's is. On a day
-with an end, it comes before the leg out to the end, since a place added now would come
-before the end too. It is under the last card because that is where a place found in the
-search goes. A reader without the edit link does not get it.
+The last card on the day ends with the stop that would come next, as a slot in the
+discs' column. Under the disc, with nothing drawn between them, is the number that stop
+would get, in a 30px circle drawn with the leaving time's edge, the other dashed outline
+in the accent a card carries: 1px, dashed, in `terracotta` at 55 percent. The digit is
+the disc's face and step, in `terracotta-700`. Beside it, on the left edge of the name
+above, **Add a place** at the small step in `terracotta-700`, the stay's step, and at
+the right, "from" and the time this stop is left, at the micro step in `ink-muted`, the
+step the opening hours are in. That is when the way to the next place would begin, not
+when the next place would start: the leg between them comes first. The slot is the
+card's second row, 13px under its body, as far as the body is from the card's edge. The
+whole row is one button that takes the traveller to the search field. It runs from the
+ring's left edge to where the times end, and the time sits 10px in from that end, as
+the stay's words do from its edge. Under the pointer the row is a pill as tall as the
+ring in `neutral-200`, the fill the card's tools take under the pointer, and the ring's
+dash takes the whole accent, as every dashed control's does; the words stay as they
+are. With the keyboard on it the focus ring draws the same pill, with no fill, as on
+every other control. The card behind it does not sink the way it does under the
+pointer, and this stop's marker on the map is let go: the slot is about the stop after
+this one. It is on the last card because that is where a place found in the search
+goes, and it is the one control on a card about the day rather than the stop. A reader
+without the edit link does not get it.
 
 A leg opens. Closed it is one line, the mode and how long it takes, with **Change** at
 the end of it. Open it is a sunken panel of every way of covering the same ground, one

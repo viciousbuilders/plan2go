@@ -208,10 +208,11 @@ export function TripEditor({
   /** Which view a phone is showing. A desk shows both, and never reads this. */
   const [view, setView] = useState<View>("plan");
   /**
-   * The stop, or the end of the open day, picked out on a phone's map, by its
-   * card along the map's foot or by its marker: its card takes an edge and its
-   * marker is drawn large, and pressing the card again opens the place. A
-   * desk has the pointer for this, and never sets it.
+   * The stop, the end of the open day or the leg picked out on a phone's map,
+   * by its card or its bead along the map's foot or by its marker: its card
+   * takes an edge and its marker is drawn large, or the leg's line is drawn
+   * heavier, and pressing the card again opens the place. A desk has the
+   * pointer for this, and never sets it.
    */
   const [picked, setPicked] = useState<Picked | null>(null);
   /**
@@ -341,18 +342,18 @@ export function TripEditor({
    */
   const [exportOpen, setExportOpen] = useState(false);
   /**
-   * The search field over the map, for the empty day, the card under the
-   * last stop and a phone's cards offering an end of the day to send the
-   * reader to. Focusing it is what opens its panel, so the reader
-   * lands on the city's best known places with the cursor already in the
-   * field.
+   * The search field over the map, for the empty day, the foot of a desk's
+   * last card, the card under a phone's last stop and a phone's cards
+   * offering an end of the day to send the reader to. Focusing it is what
+   * opens its panel, so the reader lands on the city's best known places with
+   * the cursor already in the field.
    *
    * A field that already has focus is let go of first. Focusing it again
    * would otherwise be nothing at all: no focus event, so no panel, and the
    * press that came here has already closed the panel by landing outside it.
-   * The next place under the last card keeps focus where it is when pressed, so
-   * this is the common case there, not a corner: a second press, a press
-   * after typing, a press after Escape.
+   * The next place on a desk's last card keeps focus where it is when
+   * pressed, so this is the common case there, not a corner: a second press,
+   * a press after typing, a press after Escape.
    */
   const searchField = useRef<HTMLInputElement | null>(null);
   /**
@@ -625,7 +626,7 @@ export function TripEditor({
               // The map says which end was pressed; which day, and what stands
               // there, is known here.
               onOpenEndpoint={pressEnd}
-              hoveredLegIndex={hoveredLegIndex}
+              hoveredLegIndex={hoveredLegIndex ?? (picked?.kind === "leg" ? picked.index : null)}
               onHoverLeg={setHoveredLegIndex}
               hoveredEndpointId={hoveredEndpointId ?? pickedEndPlaceId}
               onHoverEndpoint={setHoveredEndpointId}

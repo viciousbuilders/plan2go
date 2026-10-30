@@ -11,23 +11,36 @@ import { formatDayDate, formatDayTab } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
 import { legColor, MODE_ICON, MODE_WORDS } from "../leg-marks";
 
-/** What is picked out on a phone's map: a stop, by its id, or one end of the open day. */
+/**
+ * What is picked out on a phone's map: a stop, by its id; one end of the open
+ * day; or a leg, by its place in the day's travel order, which is how the map
+ * counts and colours its lines.
+ */
 export type Picked =
   | { readonly kind: "stop"; readonly stopId: string }
-  | { readonly kind: "end"; readonly which: "start" | "end" };
+  | { readonly kind: "end"; readonly which: "start" | "end" }
+  | { readonly kind: "leg"; readonly index: number };
 
-/** How a card is found in the row by what it stands for. */
+/** How a card or a leg is found in the row by what it stands for. */
 function pickKey(pick: Picked): string {
-  return pick.kind === "stop" ? pick.stopId : pick.which;
+  switch (pick.kind) {
+    case "stop":
+      return pick.stopId;
+    case "end":
+      return pick.which;
+    case "leg":
+      return `leg-${String(pick.index)}`;
+  }
 }
 
 interface MapDayProps {
   readonly days: readonly PlannedDay[];
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
-  /** The stop or end of the day picked out on the map, by its card or its marker, or null. */
+  /** The place or leg picked out on the map, by its card, its bead or its marker, or null. */
   readonly picked: Picked | null;
-  readonly onPick: (picked: Picked) => void;
+  /** Picks a place or a leg out, or with null lets go of whatever is picked. */
+  readonly onPick: (picked: Picked | null) => void;
   /** Opens the stop that is already picked out, to see what the place is like. */
   readonly onOpen: (stopId: string) => void;
   /** Opens the end of the day that is already picked out, the same way. */
@@ -41,14 +54,29 @@ const LEG_LENGTH = 60;
  * How the day gets from one place to the next, between their cards: the leg as
  * the map draws it, its pattern in its own ink over a casing of paper, from
  * one card's edge to the other's, and at its middle the glyph its row on Plan
- * carries, on a bead of raised paper ringed in the same ink. So the row is the
- * key to the lines over it: a dotted line on the map is the walk drawn with
- * the same dots in the same colour down here. The line is as thin as a desk's
- * key draws its samples, since this is a sample and not a route. Read out as
- * the way, between the two places it joins.
+ * carries, on a 28px bead of raised paper ringed in the same ink. So the row
+ * is the key to the lines over it: a dotted line on the map is the walk drawn
+ * with the same dots in the same colour down here. The line is as thin as a
+ * desk's key draws its samples, since this is a sample and not a route.
+ *
+ * Pressed, it picks its leg out as a card picks its place out: the bead fills
+ * with its ink inside a soft ring of it, the way a picked marker takes a ring,
+ * and the leg's line on the map is drawn heavier inside its halo, as a leg
+ * under the pointer is on a desk. Pressed again, it lets the leg go. The whole
+ * of the room between the cards answers a finger, since the bead is smaller
+ * than one. Read out as the way and the two places it joins.
  */
-function StripLeg({ leg }: { readonly leg: ComputedLeg }) {
+function StripLeg({
+  leg,
+  on,
+  onPress,
+}: {
+  readonly leg: ComputedLeg;
+  readonly on: boolean;
+  readonly onPress: () => void;
+}) {
   const Icon = MODE_ICON[leg.mode];
+  const ink = legColor(leg.index);
   const stroke = routeStroke(leg.mode);
   const weight = stroke.roundCaps ? 3.6 : 3.2;
   const line = {
@@ -58,9 +86,14 @@ function StripLeg({ leg }: { readonly leg: ComputedLeg }) {
   };
   return (
     // Over the row's gap on either side, so the line runs card to card.
-    <span
-      className="relative -mx-[10px] grid shrink-0 place-items-center self-center"
-      style={{ width: LEG_LENGTH, color: legColor(leg.index) }}
+    <button
+      type="button"
+      data-pick={`leg-${String(leg.index)}`}
+      aria-pressed={on}
+      aria-label={`${MODE_WORDS[leg.mode]} from ${leg.fromName} to ${leg.toName}`}
+      onClick={onPress}
+      className="relative -mx-[10px] grid min-h-11 shrink-0 place-items-center self-center rounded-pill focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      style={{ width: LEG_LENGTH, color: ink }}
     >
       <svg
         aria-hidden="true"
@@ -72,11 +105,19 @@ function StripLeg({ leg }: { readonly leg: ComputedLeg }) {
         <path {...line} stroke="var(--color-paper)" strokeWidth={weight + 2.2} />
         <path {...line} stroke="currentColor" strokeWidth={weight} />
       </svg>
-      <span className="relative grid h-6 w-6 place-items-center rounded-pill border-2 border-current bg-paper-raised shadow-sm">
-        <Icon size={13} strokeWidth={2.75} />
+      <span
+        className={`relative grid h-7 w-7 place-items-center rounded-pill border-2 border-current shadow-sm transition-[background-color,box-shadow] duration-150 motion-reduce:transition-none ${
+          on ? "bg-current" : "bg-paper-raised"
+        }`}
+        style={
+          on
+            ? { boxShadow: `0 0 0 5px color-mix(in srgb, ${ink} 22%, transparent), var(--shadow-sm)` }
+            : undefined
+        }
+      >
+        <Icon size={15} strokeWidth={2.75} className={on ? "text-paper" : undefined} />
       </span>
-      <span className="sr-only">{MODE_WORDS[leg.mode]}</span>
-    </span>
+    </button>
   );
 }
 
@@ -164,7 +205,8 @@ const CHIP =
  * stop and sage for an end, and its marker on the map is drawn large, as a
  * marker under the pointer is on a desk. Pressed again, it opens the place. A
  * marker pressed picks its card out the same way, and the row brings that card
- * into sight.
+ * into sight. A leg's bead pressed picks the leg out the same way, its line on
+ * the map drawn heavier, and pressed again lets it go.
  *
  * Over the map, under the bar of views at the foot of the window: the cards
  * stand twelve clear of the bar. Fixed to the window rather than to the map,
@@ -214,6 +256,12 @@ export function MapDay({
     } else {
       onPick({ kind: "end", which });
     }
+  };
+  const legPicked = (leg: ComputedLeg): boolean =>
+    picked?.kind === "leg" && picked.index === leg.index;
+  /** A leg has nothing to open from here, so pressed again it is let go. */
+  const pressLeg = (leg: ComputedLeg): void => {
+    onPick(legPicked(leg) ? null : { kind: "leg", index: leg.index });
   };
   return (
     /* One column twelve clear of the bar of views: the days, and under them
@@ -287,7 +335,15 @@ export function MapDay({
           const leg = selected.computed.legs[index + legOffset];
           return (
             <Fragment key={stop.stopId}>
-              {leg === undefined ? null : <StripLeg leg={leg} />}
+              {leg === undefined ? null : (
+                <StripLeg
+                  leg={leg}
+                  on={legPicked(leg)}
+                  onPress={() => {
+                    pressLeg(leg);
+                  }}
+                />
+              )}
               <button
                 type="button"
                 data-pick={stop.stopId}
@@ -333,7 +389,15 @@ export function MapDay({
           </p>
         ) : null}
 
-        {legToEnd === undefined ? null : <StripLeg leg={legToEnd} />}
+        {legToEnd === undefined ? null : (
+          <StripLeg
+            leg={legToEnd}
+            on={legPicked(legToEnd)}
+            onPress={() => {
+              pressLeg(legToEnd);
+            }}
+          />
+        )}
         <EndCard
           which="end"
           day={selected}

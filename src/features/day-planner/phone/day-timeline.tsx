@@ -420,12 +420,13 @@ export function DayTimeline({
           round the card, as a stop's is.
 
           In the column of times, level with the card, "from" and when the
-          last stop is left, as a desk's card says it: when the way to the
-          next place would begin, not when that place would start, since the
-          leg between them comes first. At the step, the weight and the ink of
-          the stops' leaving times above it, and set to the column's right
-          edge as they are, a word to a line where the column is too narrow
-          for the two. It is in the button's name, so it is read once. */}
+          last stop is left, as the foot of a desk's last card says it: when
+          the way to the next place would begin, not when that place would
+          start, since the leg between them comes first. At the step, the
+          weight and the ink of the stops' leaving times above it, and set to
+          the column's right edge as they are, a word to a line where the
+          column is too narrow for the two. It is in the button's name, so it
+          is read once. */}
       {onFindPlace === null || day.stops.length === 0 ? null : (
         <div className={RAIL_ROW}>
           <p
