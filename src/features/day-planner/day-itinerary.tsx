@@ -14,6 +14,7 @@ import { ENDS, MARKS, nearestPoint, useEndEdit } from "./day-ends";
 import { EmptyDay } from "./empty-day";
 import { EndpointPicker } from "./endpoint-picker";
 import { formatDayDate } from "./format-day-date";
+import { formatDayTime } from "./format-day-time";
 import { hoursOn } from "./format-opening-hours";
 import { LeaveAt } from "./leave-at";
 import { LegRow } from "./leg-row";
@@ -56,7 +57,7 @@ interface DayItineraryProps {
   readonly onHoverEndpoint: (placeId: string | null) => void;
   /** Null for a reader who holds no edit token. */
   readonly actions: DayActions | null;
-  /** Takes the reader to the search field, from a day with nothing on it or from the foot of its last stop. Null for a reader who cannot edit. */
+  /** Takes the reader to the search field, from a day with nothing on it or from the card under its last stop. Null for a reader who cannot edit. */
   readonly onFindPlace: (() => void) | null;
   /** Tells the planner which stop is being carried, or that none is, for the strip of days. */
   readonly onCarry: (stopId: string | null) => void;
@@ -388,6 +389,76 @@ function EndpointSlot({
 }
 
 /**
+ * The stop that would come next, on a card of its own under the last one,
+ * since that is where a place found in the search is added. The whole card is
+ * one button that takes the traveller to the search field.
+ *
+ * The stop card's surface, edge and corners, on its grid to the pixel: the
+ * number the next stop would get stands under the discs, in a ring drawn with
+ * the leaving time's edge, the other dashed outline in the accent, and the
+ * words start on the names' left edge. One line deep, within a pixel of the
+ * height of the rows offering an end of the day, the other offers on it, and
+ * its words at the step theirs are in. The time is when the last stop is
+ * left, which is when the way to the next place would begin, not when that
+ * place would start: the leg between them comes first. It is at the step the
+ * opening hours are in, on the right edge the times keep. No thread runs to
+ * it, since it is not on the day yet, so the last card's thread ends at its
+ * foot as every card's does. Under the pointer it sinks as a stop card does,
+ * and the ring's dash takes the whole accent, as every dashed control's does.
+ *
+ * The press does not take focus. A note field left open and empty on the
+ * card above closes when it loses focus, and the card it leaves is shorter,
+ * so if the press moved focus this card would jump up under the pointer
+ * before the release and the click would land on nothing. Keeping focus where
+ * it is lets the click arrive, and moving to the search field then closes the
+ * note as before.
+ */
+function NextPlace({
+  position,
+  after,
+  onFindPlace,
+}: {
+  /** The number the next stop would get, counted from one. */
+  readonly position: number;
+  /** The last stop on the day, which the next one would come after. */
+  readonly after: ComputedStop;
+  readonly onFindPlace: () => void;
+}) {
+  return (
+    /* Twelve under the last card, the room every block on the panel keeps
+       from the next. */
+    <div className="pt-3">
+      <button
+        type="button"
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={onFindPlace}
+        aria-label={
+          after.departure === null
+            ? `Add a place as stop ${String(position)}`
+            : `Add a place as stop ${String(position)}, after leaving ${after.placeName} at ${formatDayTime(after.departure)}`
+        }
+        className="group grid w-full grid-cols-[30px_minmax(0,1fr)_auto] items-center gap-x-[13px] rounded-row border border-rule bg-paper-raised px-4 py-[10px] text-left hover:border-terracotta/55 hover:bg-paper-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      >
+        <span
+          aria-hidden="true"
+          className="grid h-[30px] w-[30px] place-items-center rounded-pill border border-dashed border-terracotta/55 font-display text-body/none font-semibold text-terracotta-700 tabular-nums group-hover:border-terracotta"
+        >
+          {position}
+        </span>
+        <span className="text-small/none font-semibold text-terracotta-700">Add a place</span>
+        {after.departure === null ? null : (
+          <span className="text-micro/none whitespace-nowrap text-ink-muted tabular-nums">
+            from {formatDayTime(after.departure)}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+}
+
+/**
  * The day as a person reads it, top to bottom: where it starts if it starts
  * anywhere, every leg and every stop in order, and where it ends if it ends
  * anywhere. Every conflict sits against the stop or the leg it belongs to.
@@ -465,6 +536,11 @@ export function DayItinerary({
   const listed =
     leaving === null ? shownStops : shownStops.filter((stop) => stop.stopId !== leaving);
   const busy = moving || leaving !== null;
+  /**
+   * The last stop as shown, which the next place is offered under, so while
+   * a move is being saved it follows whichever card was dropped last.
+   */
+  const last = listed[listed.length - 1];
 
   const clearDrag = (): void => {
     setDragIndex(null);
@@ -559,11 +635,6 @@ export function DayItinerary({
                 conflicts={conflictsAtStop(computed.conflicts, stop.stopId)}
                 actions={actions}
                 leaveAt={index === 0 && day.start === null ? leaveAt : null}
-                /* The next place is offered on the last card, as the next
-                   number on the rail, since that is where a place found in
-                   the search is added. The last as shown, so while a move is
-                   being saved it is on whichever card has been dropped last. */
-                onAddNext={index === listed.length - 1 ? onFindPlace : null}
                 dragging={dragIndex === index}
                 dragOver={overIndex === index && overDay === null}
                 onDragStart={pickUp}
@@ -574,6 +645,12 @@ export function DayItinerary({
             </Fragment>
           );
         })}
+
+        {/* Before the leg out to the end of the day, since a place added
+            now would come before the end too. */}
+        {onFindPlace === null || last === undefined ? null : (
+          <NextPlace position={listed.length + 1} after={last} onFindPlace={onFindPlace} />
+        )}
 
         {legToEnd === undefined || plannedToEnd === undefined ? null : (
           <LegRow
