@@ -10,6 +10,7 @@ import { ENDS, endSearchWords } from "@/features/day-planner/day-ends";
 import { DayPlanner } from "@/features/day-planner/day-planner";
 import { PlaceSearch } from "@/features/place-search/place-search";
 import { DayTabs } from "@/features/day-planner/day-tabs";
+import type { Picked } from "@/features/day-planner/phone/map-day";
 import { MapDay } from "@/features/day-planner/phone/map-day";
 import { EndDetails } from "@/features/day-planner/phone/end-details";
 import { StopDetails } from "@/features/day-planner/phone/stop-details";
@@ -207,12 +208,12 @@ export function TripEditor({
   /** Which view a phone is showing. A desk shows both, and never reads this. */
   const [view, setView] = useState<View>("plan");
   /**
-   * The stop picked out on a phone's map, by its card along the map's foot or
-   * by its marker: its card takes the accent's edge and its marker is drawn
-   * large, and pressing the card again opens the place. A desk has the
-   * pointer for this, and never sets it.
+   * The stop, or the end of the open day, picked out on a phone's map, by its
+   * card along the map's foot or by its marker: its card takes an edge and its
+   * marker is drawn large, and pressing the card again opens the place. A
+   * desk has the pointer for this, and never sets it.
    */
-  const [picked, setPicked] = useState<string | null>(null);
+  const [picked, setPicked] = useState<Picked | null>(null);
   /**
    * What the search is finding a place for. One end of the open day from a
    * phone's card offering it, until that end is set or the search is put
@@ -478,11 +479,34 @@ export function TripEditor({
    */
   const pressStop = (stopId: string): void => {
     if (narrowWindow()) {
-      setPicked(stopId);
+      setPicked({ kind: "stop", stopId });
       return;
     }
     openStop(stopId);
   };
+  /** One end of the open day opened, when the day has that end. */
+  const openEnd = (which: "start" | "end"): void => {
+    const at = selected?.plan[which] ?? null;
+    if (selected !== undefined && at !== null) {
+      open({ kind: "endpoint", dayId: selected.plan.id, which, placeId: at.place.id });
+    }
+  };
+  /**
+   * An end's marker pressed, the same way as a stop's: on a desk it opens the
+   * place beside the map; on a phone it picks the end out, as its card along
+   * the map's foot does, and the card opens it. A day that starts and ends in
+   * one place has one marker, which answers as the start.
+   */
+  const pressEnd = (which: "start" | "end"): void => {
+    if (narrowWindow()) {
+      setPicked({ kind: "end", which });
+      return;
+    }
+    openEnd(which);
+  };
+  /** The place of the end picked out on a phone, which is how the map knows an end. */
+  const pickedEndPlaceId =
+    picked?.kind === "end" ? (selected?.plan[picked.which]?.place.id ?? null) : null;
   /** The place being looked at from a search, for the map to pin, or null. */
   const candidate = opened?.kind === "candidate" ? opened.place : null;
   /**
@@ -549,6 +573,7 @@ export function TripEditor({
       picked={picked}
       onPick={setPicked}
       onOpen={openStop}
+      onOpenEnd={openEnd}
     />
   );
 
@@ -593,26 +618,16 @@ export function TripEditor({
         <div className="relative h-full w-full">
           {selected === undefined ? null : (
             <TripMap
-              hoveredStopId={hoveredStopId ?? picked}
+              hoveredStopId={hoveredStopId ?? (picked?.kind === "stop" ? picked.stopId : null)}
               onHoverStop={setHoveredStopId}
               openedStopId={opened?.kind === "stop" ? opened.stopId : null}
               onOpenStop={pressStop}
-              onOpenEndpoint={(which) => {
-                // The map says which end was pressed; which day, and what stands
-                // there, is known here.
-                const at = selected.plan[which];
-                if (at !== null) {
-                  open({
-                    kind: "endpoint",
-                    dayId: selected.plan.id,
-                    which,
-                    placeId: at.place.id,
-                  });
-                }
-              }}
+              // The map says which end was pressed; which day, and what stands
+              // there, is known here.
+              onOpenEndpoint={pressEnd}
               hoveredLegIndex={hoveredLegIndex}
               onHoverLeg={setHoveredLegIndex}
-              hoveredEndpointId={hoveredEndpointId}
+              hoveredEndpointId={hoveredEndpointId ?? pickedEndPlaceId}
               onHoverEndpoint={setHoveredEndpointId}
               // By its place, which is how the map knows an end; and only on
               // the day being shown, since the same place can end another.

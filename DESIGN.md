@@ -571,22 +571,28 @@ anywhere, and adding it leaves the list open for the next. The keyboard's own ke
 Along the foot, 12px over the bar of views, the day's rows. First a chip for every day,
 "Day 1 · Sat 10", a pill at the small step in bold on `paper-raised` under `shadow-sm`,
 the open day filled in `terracotta-800`, so the map goes from day to day without the
-list. Under the days, 8px clear, a card 250px wide for every stop on the day, on
-`paper-raised` rounded at the `card` radius under `shadow-md`: its number on the disc
-the map marks it with, its name in the display face, and when it is reached and left.
-Two stops' cards stand 60px apart, and the leg that joins them is drawn between them,
-card edge to card edge, as the map draws it: its pattern in its own ink over a casing
-of `paper`, as thin as a desk's key draws its samples, and at its middle the glyph its
-row on Plan carries, 13px in the same ink, on a 24px bead of `paper-raised` ringed 2px
-in it under `shadow-sm`. So the row is the key to the lines over it, a dotted line on
-the map being the walk drawn with the same dots in the same colour down here, and the
-lines themselves carry nothing. A leg from the start or out to the end has a card on
-one side only and is not drawn in the row; it reads by the same patterns.
-A card pressed picks its stop out, its edge taking the accent and its marker drawn
-large; pressed again it opens the place. A marker pressed picks its card out the same
-way, rather than opening the place as it does on a desk. The day is framed in what the
-rows leave of the window. One finger moves the map and two zoom it, and there is no
-zoom pair and no route key under the map: the row of stops is its key.
+list. Under the days, 8px clear, the day in order: a card for where it starts, one for
+every stop and one for where it ends, the ends when the day has them, each 250px wide
+on `paper-raised` rounded at the `card` radius under `shadow-md`. A stop's card has its
+number on the disc the map marks it with, its name in the display face, and when it is
+reached and left. An end's has the end's mark where the number is, the sage square with
+one corner cut and its glyph, as large as the disc; the place's name; and what the day
+does there with the time, the words the day's own view says, "Leave at 09:00", "Finish
+at 17:40", or "Back at 17:40" where it ends where it started.
+Two cards stand 60px apart, and the leg that joins them is drawn between them, card
+edge to card edge, as the map draws it: its pattern in its own ink over a casing of
+`paper`, as thin as a desk's key draws its samples, and at its middle the glyph its row
+on Plan carries, 13px in the same ink, on a 24px bead of `paper-raised` ringed 2px in it
+under `shadow-sm`. So the row is the key to the lines over it, a dotted line on the map
+being the walk drawn with the same dots in the same colour down here, and the lines
+themselves carry nothing. A day with no stop says "No stops on this day yet" between
+its ends, never narrower than its words on one line, and draws no leg across them.
+A card pressed picks its place out, its edge taking the accent for a stop and sage for
+an end, the colour of the ring its marker takes, and its marker drawn large; pressed
+again it opens the place. A marker pressed picks its card out the same way, an end's as
+a stop's, rather than opening the place as it does on a desk. The day is framed in what
+the rows leave of the window. One finger moves the map and two zoom it, and there is no
+zoom pair and no route key under the map: the row of places is its key.
 
 Everything on a phone is pressed with a finger: what is drawn smaller than 40px answers a
 finger over the room around it and is drawn no larger, and nothing that answers a finger
@@ -932,8 +938,8 @@ lists them, whenever the day has a line on it. It is the notation, so it does no
 change with the modes this particular day happens to use, and its samples are drawn in
 the same muted ink as its words: a coloured sample would say the colour meant something.
 That is on a desk: a phone has no room for a key under its map, and draws each leg
-between the cards of the two stops it joins instead, in the row of stops along the
-map's foot (see Layout). The markers have no key of
+between the cards of the two places it joins instead, in the row of the day's places
+along the map's foot (see Layout). The markers have no key of
 their own, because a numbered disc in the order you visit them and a named marker for
 the ends of the day explain themselves.
 
