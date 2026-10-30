@@ -17,11 +17,15 @@ interface PlaceRowsProps {
   readonly onChoose: (place: Suggestion) => void;
   /** A plus pressed: the place goes straight on the day. */
   readonly onAdd: (place: Suggestion) => void;
+  /** The plus read out for one place: "Add Bun Cha 34 to Day 1", or "Start Day 1 at" one. */
+  readonly addLabel: (name: string) => string;
+  /** The plus's tooltip: "Add to Day 1". */
+  readonly addTitle: string;
   /** Places on their way to the day from their rows, by provider identifier. */
   readonly adding: ReadonlySet<string>;
   /** Whether a place is on the day already, so its row has a tick rather than a plus. */
   readonly onTheDay: (place: Suggestion) => boolean;
-  /** What the day is called in the tabs, so a row's plus says where a place would go. */
+  /** What the day is called in the tabs, so a row's tick says where a place is. */
   readonly dayName: string;
 }
 
@@ -41,6 +45,8 @@ export function PlaceRows({
   onActive,
   onChoose,
   onAdd,
+  addLabel,
+  addTitle,
   adding,
   onTheDay,
   dayName,
@@ -95,8 +101,8 @@ export function PlaceRows({
                 type="button"
                 disabled={onItsWay || onDay}
                 aria-busy={onItsWay}
-                aria-label={onDay ? `${place.name} is on ${dayName}` : `Add ${place.name} to ${dayName}`}
-                title={onDay ? `On ${dayName}` : `Add to ${dayName}`}
+                aria-label={onDay ? `${place.name} is on ${dayName}` : addLabel(place.name)}
+                title={onDay ? `On ${dayName}` : addTitle}
                 onClick={() => {
                   onAdd(place);
                 }}

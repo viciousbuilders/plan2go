@@ -55,6 +55,30 @@ interface AddPlaceOutcome {
   readonly error: string | null;
 }
 
+/**
+ * The search finding one end of the open day rather than its next stop: what
+ * it says while it does, and how the end is set. Words rather than the end
+ * itself, from whoever knows the trip.
+ */
+export interface EndSearch {
+  /** After the list's heading: "where Day 1 starts". */
+  readonly heading: string;
+  /** The plus on a row, read out: "Start Day 1 at The Old Clare Hotel". */
+  readonly add: (name: string) => string;
+  /** The plus's tooltip: "Start Day 1 here". */
+  readonly title: string;
+  /** Said to a screen reader once it is done: "Day 1 now starts at The Old Clare Hotel". */
+  readonly done: (name: string) => string;
+  /**
+   * The place made that end of the day. Passed in rather than imported,
+   * because a feature may not reach into the route that owns the mutation.
+   */
+  readonly onSet: (input: {
+    providerPlaceId: string;
+    session: string | null;
+  }) => Promise<{ readonly error: string | null }>;
+}
+
 /** Which panel hangs from the bar: its places, the city pill's cities, or neither. Never both. */
 type Panel = "places" | "cities" | null;
 
@@ -134,6 +158,22 @@ interface PlaceSearchProps {
    */
   readonly onAnnounce: (message: string) => void;
   /**
+   * One end of the open day being found rather than its next stop, from a
+   * phone's "Add start point" or "Add end point", or null while the search
+   * adds stops. It says so after the list's heading and on each row's plus,
+   * which makes the place that end. A place already on
+   * the trip is offered all the same, since the hotel one day ends at is the
+   * one the next starts from, and the search is put away once the end is
+   * set: a day has one of each.
+   */
+  readonly end: EndSearch | null;
+  /**
+   * The search put away by the reader with nothing chosen from it: Escape, a
+   * press outside it, or its cross over a phone's map. Not a row chosen,
+   * which opens the place instead.
+   */
+  readonly onPutAway: () => void;
+  /**
    * Laid over a phone's map, as design 1b of "PlanToGo iPhone app" draws its
    * search, rather than in a desk's map corner. The quick searches stand on
    * the map under the bar whether or not it is in use, and a press on one
@@ -203,6 +243,8 @@ export function PlaceSearch({
   onClear,
   onAdd,
   onAnnounce,
+  end,
+  onPutAway,
   phone,
 }: PlaceSearchProps) {
   const [query, setQuery] = useState(showing ?? "");
@@ -368,22 +410,30 @@ export function PlaceSearch({
       if (event.key === "Escape" && panel !== null) {
         setPanel(null);
         field.current?.blur();
+        onPutAway();
       }
     };
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
     };
-  }, [panel, field]);
+  }, [panel, field, onPutAway]);
 
   useOutsidePress(container, placesOpen, () => {
     setPanel(null);
+    onPutAway();
   });
 
   /** Everything the bar has open, closed, and the cursor let go of. */
   const closeAll = (): void => {
     setPanel(null);
     field.current?.blur();
+  };
+
+  /** The same, by the reader's own hand, with nothing chosen. */
+  const putAway = (): void => {
+    closeAll();
+    onPutAway();
   };
 
   /** Let go of a look still on its way, so it neither lands nor goes on saying it is looking. */
@@ -403,7 +453,7 @@ export function PlaceSearch({
     setQuery("");
     onClear();
     if (phone) {
-      closeAll();
+      putAway();
     } else {
       field.current?.focus();
     }
@@ -488,6 +538,33 @@ export function PlaceSearch({
     setAddError(null);
     setAdding((now) => new Set(now).add(providerPlaceId));
 
+    /**
+     * One end of the day, which there is one of: once it is set the field is
+     * emptied and the search put away, and the day says where it now starts
+     * or ends.
+     */
+    const setEnd = async (finding: EndSearch): Promise<void> => {
+      const outcome = await finding.onSet({ providerPlaceId, session: chosenIn });
+      setAdding((now) => {
+        const left = new Set(now);
+        left.delete(providerPlaceId);
+        return left;
+      });
+      if (outcome.error !== null) {
+        setAddError(outcome.error);
+        return;
+      }
+      onAnnounce(finding.done(name));
+      typed.reset();
+      setQuery("");
+      closeAll();
+    };
+    if (end !== null) {
+      const set = (): Promise<void> => setEnd(end);
+      queue.current = queue.current.then(set, set);
+      return;
+    }
+
     const add = async (): Promise<void> => {
       const outcome = await onAdd({ slug, dayId, providerPlaceId, session: chosenIn });
       setAdding((now) => {
@@ -522,7 +599,10 @@ export function PlaceSearch({
    */
   const inCity = cityList !== undefined && "found" in cityList ? cityList.found : [];
   const offered = inCity
-    .filter(({ providerPlaceId: id }) => !onTheTrip.has(id) || adding.has(id) || added.has(id))
+    .filter(
+      ({ providerPlaceId: id }) =>
+        end !== null || !onTheTrip.has(id) || adding.has(id) || added.has(id),
+    )
     .slice(0, picked === null ? RECOMMENDED_SHOWN : KIND_SHOWN);
   /** Below two letters the panel falls back to the city, which is what a field nobody has typed in has to offer. */
   const visible = typed.searched ? typed.found : offered;
@@ -537,9 +617,16 @@ export function PlaceSearch({
   const listWords = typed.searched ? "Matching places" : cityWords.heading;
   /**
    * Over a phone's map the heading also says which day the plus adds to,
-   * since the list opens over the days at the map's foot.
+   * since the list opens over the days at the map's foot, or which end of
+   * the day it is finding, since the search is the stops' own and would
+   * otherwise say nothing of it.
    */
-  const heading = phone ? `${listWords} · adding to ${dayName}` : listWords;
+  const heading =
+    end !== null
+      ? `${listWords} · ${end.heading}`
+      : phone
+        ? `${listWords} · adding to ${dayName}`
+        : listWords;
 
   /**
    * Clamped, because the list under the field is swapped for a shorter one the
@@ -625,7 +712,7 @@ export function PlaceSearch({
       {/* The page under the bar, dimmed while it is in use, and over a
           phone's map left clear; a press on it closes the bar rather than
           landing on the map. */}
-      {open ? <div aria-hidden="true" className="search-scrim" onClick={closeAll} /> : null}
+      {open ? <div aria-hidden="true" className="search-scrim" onClick={putAway} /> : null}
 
       <div className="search-bar" data-active={focused || open ? "" : undefined}>
         {/* Which city the search is in comes first, since a place is looked
@@ -767,9 +854,12 @@ export function PlaceSearch({
                       onActive={setActive}
                       onChoose={choose}
                       onAdd={addNow}
+                      addLabel={end === null ? (name) => `Add ${name} to ${dayName}` : end.add}
+                      addTitle={end === null ? `Add to ${dayName}` : end.title}
                       adding={adding}
                       onTheDay={(place) =>
-                        added.has(place.providerPlaceId) || onTheTrip.has(place.providerPlaceId)
+                        end === null &&
+                        (added.has(place.providerPlaceId) || onTheTrip.has(place.providerPlaceId))
                       }
                       dayName={dayName}
                     />

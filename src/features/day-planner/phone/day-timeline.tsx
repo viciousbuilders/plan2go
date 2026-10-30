@@ -7,18 +7,15 @@ import { conflictsAtStop } from "@/core/model/conflict";
 import type { DayEndpoint, DayPlan } from "@/core/model/day";
 import type { ComputedDay, ComputedStop } from "@/core/time/compute-day";
 import { formatClock, formatDuration } from "@/core/time/minutes";
-import { ClockIcon, CloseIcon, NoteIcon, PencilIcon } from "@/ui/icons";
-import { Notice } from "@/ui/notice";
+import { ClockIcon, NoteIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
 import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
-import { ENDS, MARKS, nearestPoint, useEndEdit } from "../day-ends";
+import { ENDS, MARKS } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
-import { EndpointPicker } from "../endpoint-picker";
 import { formatDayTime } from "../format-day-time";
 import { hoursOn } from "../format-opening-hours";
 import { LeaveAt } from "../leave-at";
-import { TOOL, TOOL_GLYPH } from "../stop-card";
 import { RAIL_END_MARK, RAIL_MARK, RAIL_ROW } from "./rail";
 import { TimelineLeg } from "./timeline-leg";
 
@@ -35,6 +32,8 @@ interface DayTimelineProps {
   readonly actions: DayActions | null;
   /** Takes the traveller to the search for the next place. Null for a reader who cannot edit. */
   readonly onFindPlace: (() => void) | null;
+  /** Takes the traveller to the same search for one end of the day. Null for a reader who cannot edit. */
+  readonly onFindEnd: ((which: "start" | "end") => void) | null;
 }
 
 /** What the line for each end of the day says it does there. */
@@ -47,18 +46,32 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
 }
 
 /**
- * One end of the day on the rail: the time the day passes it in the column of
- * times, the end's marker with its glyph on the rail, and what the day does
- * there, "Leave The Old Clare Hotel", as design 1b writes the start. The
- * words open the place, as a stop's do; for someone who may edit, the pencil
- * that changes the end and the cross that takes it off follow them, each
- * named for what it does. Without an end, someone who may edit is offered
- * one beside the marker it will get, as a desk offers it.
+ * One end of the day on the rail, laid out as a stop is: the time the day
+ * passes it in the column of times, the end's marker with its glyph on the
+ * rail, and beside them a card with what the day does there, "Leave The Old
+ * Clare Hotel", as design 1b writes the start. When the place keeps hours
+ * they are under the words, since a hotel that locks its doors at eleven is
+ * as much use to know about as a museum that shuts at five.
+ *
+ * The card is a desk's row for an end: paper inside a hairline at the row
+ * radius, a step under the raised cards the stops are on, since the day
+ * passes through an end rather than spending time there, and as deep as what
+ * is in it and 9px more over and under, as a desk's is. The time and the
+ * marker stand level with its middle, as they stood with the words before
+ * there was a card, and the thread runs on to the marker from the leg above
+ * it and away from it down the leg below. The whole card is one button that
+ * opens the place, where the end is taken off the day, as a stop is from its
+ * own: on a phone the day is read here and changed there, and an end is
+ * changed as a stop is, taken off and another found. Under a pointer it
+ * sinks as a desk's row does, inside an edge of sage.
+ *
+ * Without an end, someone who may edit is offered one as a desk offers it, on
+ * the same card drawn dashed, beside the marker it will get: the name of the
+ * end and what kind of place goes there. It takes them to the search on the
+ * map, as "Add a place" does, which finds the end as it finds a place.
  *
  * The start's time is when the day leaves, which for someone who may edit is
- * the pill that sets it. When the place keeps hours they are under its name,
- * since a hotel that locks its doors at eleven is as much use to know about
- * as a museum that shuts at five.
+ * the pill that sets it.
  */
 function EndLine({
   which,
@@ -66,7 +79,9 @@ function EndLine({
   endpoint,
   time,
   setTime,
-  actions,
+  reached,
+  goesOn,
+  onFind,
   onOpen,
 }: {
   readonly which: "start" | "end";
@@ -76,13 +91,16 @@ function EndLine({
   readonly time: string | null;
   /** Sets the time rather than reading it; null wherever it is only read. */
   readonly setTime: ReactNode;
-  readonly actions: DayActions | null;
+  /** Whether a leg comes down the rail to it, which the end of a day has after its stops. */
+  readonly reached: boolean;
+  /** Whether a leg goes on down the rail from it, which the start of a day has before its stops. */
+  readonly goesOn: boolean;
+  /** Takes the reader to the search for this end. Null for a reader who cannot edit. */
+  readonly onFind: (() => void) | null;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
-  const { picking, setPicking, saving, error, write } = useEndEdit(which, actions);
   const words = ENDS[which];
   const Mark = MARKS[which];
-  const hours = endpoint === null ? null : hoursOn(endpoint.place, day);
   /**
    * One marker for the line with the place and the line offering one, so the
    * offer shows the shape the end will get.
@@ -93,105 +111,64 @@ function EndLine({
     </span>
   );
 
-  return (
-    <div>
-      {endpoint === null ? null : (
-        <div className={`${RAIL_ROW} min-h-11 items-center`}>
-          <div className="flex justify-end">
-            {setTime ?? (
-              <p className="font-display text-time whitespace-nowrap text-ink tabular-nums">{time}</p>
-            )}
-          </div>
+  if (endpoint === null) {
+    /* Twelve from what is next to it on the day's side, as a desk's offer
+       keeps, since a card stands there. The marker and the card are one
+       button, as the next place's circle and card are, and the ring that
+       shows the keyboard is on it is drawn round the card. */
+    return onFind === null ? null : (
+      <div className={`${RAIL_ROW} ${which === "start" ? "pb-3" : "pt-3"}`}>
+        <span aria-hidden="true" />
+        <button
+          type="button"
+          onClick={onFind}
+          className="group/end col-span-2 grid grid-cols-[26px_minmax(0,1fr)] items-center gap-x-[10px] text-left focus-visible:outline-none"
+        >
           {mark}
-          <div className="flex min-w-0 items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
-              }}
-              className="min-w-0 flex-1 rounded-chip py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-            >
-              <span className="block text-body/[1.3] font-semibold break-words text-ink">
-                {`${endVerb(which, day)} ${endpoint.place.name}`}
-              </span>
-              {hours === null ? null : (
-                <span className="mt-[3px] flex items-center gap-[5px] text-micro text-ink-muted tabular-nums">
-                  <ClockIcon size={12} className="shrink-0" />
-                  {hours}
-                </span>
-              )}
-            </button>
-            {actions === null || picking ? null : (
-              <span className="-mr-[9px] flex shrink-0 items-center">
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => {
-                    setPicking(true);
-                  }}
-                  title="Change"
-                  aria-label={words.change}
-                  className={TOOL}
-                >
-                  <PencilIcon size={TOOL_GLYPH.pencil} strokeWidth={TOOL_GLYPH.stroke} />
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => {
-                    write(null);
-                  }}
-                  title="Remove"
-                  aria-label={words.remove}
-                  className={TOOL}
-                >
-                  <CloseIcon size={TOOL_GLYPH.close} strokeWidth={TOOL_GLYPH.stroke} />
-                </button>
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+          <span className="flex min-h-11 flex-col justify-center rounded-row border-[1.5px] border-dashed border-rule-strong bg-paper px-[15.5px] py-[8.5px] group-hover/end:border-terracotta group-hover/end:bg-paper-raised group-focus-visible/end:outline-2 group-focus-visible/end:outline-offset-2 group-focus-visible/end:outline-terracotta">
+            <span className="block text-small/[1.15] font-semibold text-sage-800">{words.add}</span>
+            <span className="mt-[3px] block text-micro/[1.25] text-ink-muted">{words.hint}</span>
+          </span>
+        </button>
+      </div>
+    );
+  }
 
-      {picking ? (
-        <div className="py-2">
-          <EndpointPicker
-            label={words.label}
-            placeholder={words.hint}
-            near={nearestPoint(day)}
-            onChoose={write}
-            onCancel={() => {
-              setPicking(false);
-            }}
-          />
-        </div>
-      ) : null}
-
-      {endpoint === null && !picking && actions !== null ? (
-        <div className={`${RAIL_ROW} min-h-11 items-center`}>
-          <span aria-hidden="true" />
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => {
-              setPicking(true);
-            }}
-            className="col-span-2 grid grid-cols-[26px_minmax(0,1fr)] items-center gap-x-[10px] rounded-pill py-[6px] text-left disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-          >
-            {mark}
-            <span className="min-w-0">
-              <span className="block text-small/[1.15] font-semibold text-sage-800">{words.add}</span>
-              <span className="mt-[3px] block text-micro/[1.25] text-ink-muted">{words.hint}</span>
+  const hours = hoursOn(endpoint.place, day);
+  return (
+    /* Twelve over an end no leg comes down to, from what stands above it. */
+    <div className={`${RAIL_ROW} ${which === "end" && !reached ? "pt-3" : ""}`}>
+      <div className="flex items-center justify-end">
+        {setTime ?? (
+          <p className="font-display text-time whitespace-nowrap text-ink tabular-nums">{time}</p>
+        )}
+      </div>
+      <div aria-hidden="true" className="flex flex-col items-center">
+        <span className={`mb-1 flex-1 ${reached ? "thread" : ""}`} />
+        {mark}
+        <span className={`mt-1 flex-1 ${goesOn ? "thread" : ""}`} />
+      </div>
+      <div
+        className={`relative min-w-0 rounded-row border border-rule bg-paper px-4 py-[9px] hover:border-sage-600/55 hover:bg-paper-sunken`}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
+          }}
+          className="flex w-full flex-col text-left after:absolute after:-inset-px after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+        >
+          <span className="block text-body/[1.3] font-semibold break-words text-ink">
+            {`${endVerb(which, day)} ${endpoint.place.name}`}
+          </span>
+          {hours === null ? null : (
+            <span className="mt-[3px] flex items-center gap-[5px] text-micro text-ink-muted tabular-nums">
+              <ClockIcon size={12} className="shrink-0" />
+              {hours}
             </span>
-          </button>
-        </div>
-      ) : null}
-
-      {error === null ? null : (
-        <Notice role="alert" className="mt-1 mb-2">
-          {error}
-        </Notice>
-      )}
+          )}
+        </button>
+      </div>
     </div>
   );
 }
@@ -326,6 +303,7 @@ export function DayTimeline({
   onOpenEndpoint,
   actions,
   onFindPlace,
+  onFindEnd,
 }: DayTimelineProps) {
   /**
    * When the day leaves, set where that time shows: on the start point's
@@ -365,7 +343,15 @@ export function DayTimeline({
         endpoint={day.start}
         time={formatClock(computed.begins.minutesFromMidnight)}
         setTime={leaveAt}
-        actions={actions}
+        reached={false}
+        goesOn={day.stops.length > 0}
+        onFind={
+          onFindEnd === null
+            ? null
+            : () => {
+                onFindEnd("start");
+              }
+        }
         onOpen={onOpenEndpoint}
       />
 
@@ -483,7 +469,15 @@ export function DayTimeline({
         endpoint={day.end}
         time={computed.ends === null ? null : formatDayTime(computed.ends)}
         setTime={null}
-        actions={actions}
+        reached={legToEnd !== undefined && plannedToEnd !== undefined}
+        goesOn={false}
+        onFind={
+          onFindEnd === null
+            ? null
+            : () => {
+                onFindEnd("end");
+              }
+        }
         onOpen={onOpenEndpoint}
       />
     </div>

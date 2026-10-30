@@ -457,14 +457,25 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   edge of sage at 40 percent, the way's glyph, its name and how long it takes, "Drive 22
   min", in bold at the small step in sage 800, with a chevron, 40px tall. A leg that
   cannot be made the way the day has it says so on a pill of `paper` in `ink-muted`.
-- An end of the day: when the day passes it, the map's marker for an end, a 26px sage
-  600 square with one corner cut, with the end's glyph, and what the day does there,
-  "Leave Central Station", "Finish at", "Back at", at the body step in 600. The words
-  open the place, its hours are under them when it keeps any, and for someone who may
-  edit the pencil and the cross follow them, 40px each. Without an end, someone who may
-  edit is offered one beside the same marker, as a desk offers it, in sage 800 over what
-  kind of place goes there. The start's time is the pill that sets when the day leaves,
-  its chevron left off to fit the column.
+- An end of the day, laid out as a stop is: when the day passes it, the map's marker
+  for an end, a 26px sage 600 square with one corner cut, with the end's glyph, and
+  beside them a card, a desk's row for an end: `paper` inside a `rule` hairline at the
+  `row` radius, 16px in at either side and 9px over and under what is in it, a step
+  under the stops' raised cards, since the day passes through an end rather than
+  spending time there. On it what the day does there, "Leave Central Station", "Finish
+  at", "Back at", at the body step in 600, and the place's hours under that when it
+  keeps any. The time and the marker stand level with the card's middle, and the thread
+  runs on to the marker from the leg above it and away from it down the leg below. The
+  whole card is one button that opens the place, where the end is taken off the day, as
+  a stop is from its own; nothing on the card changes it. Under a pointer it sinks to
+  `paper-sunken` inside an edge of sage 600 at 55 percent, as a desk's row does. Without
+  an end, someone who may edit is offered one as a desk offers it, on the same card
+  drawn dashed in 1.5px of `rule-strong`, beside the same marker: the end's name in sage
+  800 over what kind of place goes there, 12px from what is next to it on the day's
+  side. The marker and the card are one button, which goes to the search on the map,
+  as **Add a place** does; under a pointer the dash takes the accent and the paper lifts
+  to `paper-raised`. The start's time is the pill that sets when the day leaves, its
+  chevron left off to fit the column.
 - After the last stop, for someone who may edit, the next place, laid out as a stop is:
   on the rail a dashed circle of the accent with the number that stop would get in it,
   in the discs' face and step, and beside it, on a card of the stops' surface and edge,
@@ -509,10 +520,26 @@ running to the sheet's edges and scrolling sideways on a long trip, any of which
 the stop to the end of that day. On a desk both are done by dragging its card, along
 the day or onto a day in the strip. The sheet stays on the stop, which then says the day
 it is on. The stepper writes once its presses stop, so an hour more is one write rather
-than four.
+than four. An end of the day pressed opens its place too, and is taken off the day
+there, by **Remove start point** or **Remove end point** where a stop's sheet has
+**Remove from Day 1**, with nothing of the day's under its name: an end is changed as a
+stop is, taken off and another found. A desk's sheet has no such button for an end,
+whose row takes it off.
 
 The search is on the map, as design 1b of "PlanToGo iPhone app" draws it, and **Add a
-place** goes there with the cursor in the field and the keyboard up.
+place** goes there with the cursor in the field and the keyboard up, as **Add start
+point** and **Add end point** do to find an end. A phone has no search of an end's own:
+sent from a card offering one, the search finds that end rather than the next stop. It
+says so after the heading, in place of the day it adds to, "Popular in Sydney · where
+Day 1 starts"; a row's plus is titled "Start Day 1 here" and read out "Start Day 1 at
+The Old Clare Hotel", and makes the place that end, after which the field empties and
+the search is put away, since a day has one of each; and the sheet of a place chosen
+from it offers **Start Day 1 here** rather than **Add to Day 1**. A place already on
+the trip is offered all the same, with a plus rather than a tick, since the hotel one
+day ends at is the one the next starts from. Put away with nothing chosen, by its cross
+or a press outside it, or left for **Add a place**, another day or another view, the
+search goes back to finding the next stop. Setting an end is said to a screen reader,
+"Day 1 now starts at The Old Clare Hotel".
 
 Map is the map over the whole window, with nothing of Google's drawn on it and none of
 ours but its rows. At the top, for someone who may edit, the search bar, the desk's own:

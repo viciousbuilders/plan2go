@@ -51,6 +51,12 @@ interface DayPlannerProps {
   /** Takes the reader to the search field, from a day with nothing on it. Null for a reader who cannot edit. */
   readonly onFindPlace: (() => void) | null;
   /**
+   * Takes the reader to the same field to find one end of the open day, from
+   * the card offering it on a phone. A desk finds an end in a search of its
+   * own, under the row offering it. Null for a reader who cannot edit.
+   */
+  readonly onFindEnd: ((which: "start" | "end") => void) | null;
+  /**
    * Everything the day can be changed by. Null for a reader who holds no edit
    * token, whose day is read rather than edited.
    */
@@ -108,6 +114,7 @@ export function DayPlanner({
   exporting,
   onAddDay,
   onFindPlace,
+  onFindEnd,
   actions,
 }: DayPlannerProps) {
   const selected = days[selectedIndex] ?? days[0];
@@ -259,6 +266,7 @@ export function DayPlanner({
               onOpenEndpoint={onOpenEndpoint}
               actions={actions}
               onFindPlace={onFindPlace}
+              onFindEnd={onFindEnd}
             />
           </div>
         </section>

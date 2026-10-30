@@ -151,16 +151,23 @@ type Asked =
 
 /**
  * The one thing the sheet can do to the trip, for an editor: put a place
- * found in a search on the day, or take a stop off it. Either is decided
- * here, with the place in front of you, and either way the sheet goes once
- * it is done: the day beside the map, with the stop on it or without, is
- * the confirmation.
+ * found in a search on the day, as a stop or as one of its ends, or take a
+ * stop or an end off it. Either is decided here, with the place in front of
+ * you, and either way the sheet goes once it is done: the day beside the
+ * map, with the place on it or without, is the confirmation.
  */
 interface TripAction {
-  /** Whether the place is to go on the day or come off it. */
+  /** Whether the place is to go on the day or come off it, which its glyph says. */
   readonly kind: "add" | "remove";
-  /** What the day is called in the tabs, so the button says which day. */
-  readonly dayName: string;
+  /** What the button says, naming the day or the end: "Add to Day 1", "Remove start point". */
+  readonly words: string;
+  /** What it says while it is being done: "Adding to Day 1". */
+  readonly busy: string;
+  /**
+   * Drawn on a phone only, for what a desk does from the planner beside the
+   * map instead: an end of a day, which a desk's row takes off.
+   */
+  readonly phoneOnly?: boolean;
   /**
    * Passed in rather than imported, because a feature may not reach into the
    * route that owns the mutation. Answers with what went wrong, or nothing.
@@ -178,8 +185,8 @@ interface PlaceSheetProps {
   readonly editKey: string | null;
   /**
    * What the button under the name does, or null when there is none: for a
-   * reader, who cannot change the trip, and for an end of a day, which the
-   * planner's own row takes off.
+   * reader, who cannot change the trip, and on a desk for an end of a day,
+   * which the planner's own row takes off.
    */
   readonly action: TripAction | null;
   /**
@@ -690,7 +697,7 @@ export function PlaceSheet({
                  kind of thing and the one that leads here. One pill in the
                  accent whichever way it goes: the glyph and the words say
                  which, and a place is as easily put back as taken off. */
-              <div className="flex flex-col gap-2">
+              <div className={`flex flex-col gap-2 ${action.phoneOnly === true ? "lg:hidden" : ""}`}>
                 <button
                   type="button"
                   onClick={act}
@@ -707,13 +714,7 @@ export function PlaceSheet({
                   ) : (
                     <CloseIcon size={16} strokeWidth={2.75} />
                   )}
-                  {action.kind === "add"
-                    ? acting
-                      ? `Adding to ${action.dayName}`
-                      : `Add to ${action.dayName}`
-                    : acting
-                      ? `Removing from ${action.dayName}`
-                      : `Remove from ${action.dayName}`}
+                  {acting ? action.busy : action.words}
                 </button>
                 {actionError === null ? null : (
                   <Notice role="alert" size="meta">

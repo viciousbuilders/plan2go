@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { DayCity, DayPlan } from "@/core/model/day";
 import type { LatLng, Place } from "@/core/model/place";
 import type { Stop } from "@/core/model/stop";
-import { nearestPoint } from "./day-ends";
+import { endSearchWords, nearestPoint } from "./day-ends";
 
 const PARIS: DayCity = {
   providerPlaceId: "g-paris",
@@ -66,5 +66,25 @@ describe("nearestPoint", () => {
 
   it("has nothing to go on with nothing on the day and no city", () => {
     expect(nearestPoint(day({ city: null }))).toBeNull();
+  });
+});
+
+describe("endSearchWords", () => {
+  it("says the search is finding where the day starts", () => {
+    const words = endSearchWords("start", "Day 2");
+    expect(words.heading).toBe("where Day 2 starts");
+    expect(words.add("The Old Clare Hotel")).toBe("Start Day 2 at The Old Clare Hotel");
+    expect(words.title).toBe("Start Day 2 here");
+    expect(words.busy).toBe("Starting Day 2 here");
+    expect(words.done("The Old Clare Hotel")).toBe("Day 2 now starts at The Old Clare Hotel");
+  });
+
+  it("says the search is finding where the day ends", () => {
+    const words = endSearchWords("end", "Day 1");
+    expect(words.heading).toBe("where Day 1 ends");
+    expect(words.add("Central Station")).toBe("End Day 1 at Central Station");
+    expect(words.title).toBe("End Day 1 here");
+    expect(words.busy).toBe("Ending Day 1 here");
+    expect(words.done("Central Station")).toBe("Day 1 now ends at Central Station");
   });
 });

@@ -6,6 +6,7 @@ import { flushSync } from "react-dom";
 import type { LatLng, Place } from "@/core/model/place";
 import type { PlannedDay } from "@/features/day-planner/compute-trip";
 import type { EndpointRef } from "@/features/day-planner/day-itinerary";
+import { ENDS, endSearchWords } from "@/features/day-planner/day-ends";
 import { DayPlanner } from "@/features/day-planner/day-planner";
 import { PlaceSearch } from "@/features/place-search/place-search";
 import { DayTabs } from "@/features/day-planner/day-tabs";
@@ -115,17 +116,25 @@ const TripMap = dynamic(
 );
 
 /**
+ * What the search on the map is finding a place for: the open day's next
+ * stop, or one end of it, which a phone's cards offering an end send it to
+ * find.
+ */
+type Seeking = "stop" | "start" | "end";
+
+/**
  * What the place sheet can be opened on. A stop is named by its id and an end
  * of a day by the day, the end and the place standing there, each of which is
  * enough to find the place again after the trip has been re-read, and to find
  * nothing once it has gone. A candidate is a place chosen from a search and
  * not on the trip yet, so it is carried whole: nothing in the trip could
- * find it again.
+ * find it again. It carries what the search was finding it for too, so its
+ * sheet offers that, whatever the search goes on to find.
  */
 type Opened =
   | { readonly kind: "stop"; readonly stopId: string }
   | ({ readonly kind: "endpoint" } & EndpointRef)
-  | { readonly kind: "candidate"; readonly place: Place };
+  | { readonly kind: "candidate"; readonly place: Place; readonly for: Seeking };
 
 /** The place the sheet is open on, or null once what it was opened from has left. */
 function placeOpened(days: readonly PlannedDay[], opened: Opened): Place | null {
@@ -148,7 +157,7 @@ function keyOf(opened: Opened): string {
     case "stop":
       return `stop:${opened.stopId}`;
     case "candidate":
-      return `candidate:${opened.place.id}`;
+      return `candidate:${opened.for}:${opened.place.id}`;
     case "endpoint":
       return `${opened.which}:${opened.dayId}:${opened.placeId}`;
   }
@@ -176,7 +185,8 @@ interface TripEditorProps {
  * of "PlanToGo iPhone": the list is the page, the map is a view of its own over
  * the whole window, and a bar of views floating at the foot of the window goes
  * between them and opens the export. The search is on the map, as the design
- * has it, and "Add a place" goes there with the cursor in the field.
+ * has it, and "Add a place" goes there with the cursor in the field, as "Add
+ * start point" and "Add end point" do to find an end.
  *
  * The selected day is held here because both panes show it and neither feature
  * may reach into the other. It is also the day the search on the map adds to,
@@ -202,9 +212,18 @@ export function TripEditor({
    * pointer for this, and never sets it.
    */
   const [picked, setPicked] = useState<string | null>(null);
+  /**
+   * What the search is finding a place for. One end of the open day from a
+   * phone's card offering it, until that end is set or the search is put
+   * away with nothing chosen; the next stop on the day otherwise, and again
+   * whenever "Add a place", another day or another view is chosen, or the
+   * window is widened to a desk's.
+   */
+  const [seeking, setSeeking] = useState<Seeking>("stop");
   const chooseDay = (index: number): void => {
     setChosenIndex(index);
     setPicked(null);
+    setSeeking("stop");
   };
   const shell = useRef<HTMLElement | null>(null);
   /**
@@ -320,8 +339,9 @@ export function TripEditor({
    */
   const [exportOpen, setExportOpen] = useState(false);
   /**
-   * The search field over the map, for the empty day and the card under the
-   * last stop to send the reader to. Focusing it is what opens its panel, so the reader
+   * The search field over the map, for the empty day, the card under the
+   * last stop and a phone's cards offering an end of the day to send the
+   * reader to. Focusing it is what opens its panel, so the reader
    * lands on the city's best known places with the cursor already in the
    * field.
    *
@@ -333,7 +353,14 @@ export function TripEditor({
    * after typing, a press after Escape.
    */
   const searchField = useRef<HTMLInputElement | null>(null);
-  const findPlace = (): void => {
+  /**
+   * The same field for one end of the open day, from a phone's card offering
+   * it, as "Add a place" goes there for the next stop: the search then says
+   * which end it is finding, and its plus sets it. A desk finds an end in a
+   * search of its own, under the row offering it.
+   */
+  const find = (what: Seeking): void => {
+    setSeeking(what);
     // On a phone the field is over the map, which is not the view showing
     // yet. The map is put up before the field is focused, and at once rather
     // than on the next render, because a phone only brings its keyboard up
@@ -353,6 +380,9 @@ export function TripEditor({
     }
     field.focus();
   };
+  const findPlace = (): void => {
+    find("stop");
+  };
   /**
    * A window widened past a phone's puts away what only a phone has: a view
    * other than the day's, since a desk shows the map and the day side by side
@@ -363,6 +393,7 @@ export function TripEditor({
     const widened = (): void => {
       if (wide.matches) {
         setView("plan");
+        setSeeking("stop");
       }
     };
     wide.addEventListener("change", widened);
@@ -439,6 +470,17 @@ export function TripEditor({
   };
   /** The place being looked at from a search, for the map to pin, or null. */
   const candidate = opened?.kind === "candidate" ? opened.place : null;
+  /**
+   * The end of the open day that place was found for, with the words its
+   * sheet's button says, or null for one found as the next stop.
+   */
+  const candidateEnd =
+    opened?.kind === "candidate" && opened.for !== "stop"
+      ? {
+          which: opened.for,
+          words: endSearchWords(opened.for, `Day ${String(selectedIndex + 1)}`),
+        }
+      : null;
   /**
    * How much of the map's edge the sheet is over, for the map to frame the
    * day beside it. Counted while the sheet is put aside as well: the map is
@@ -635,11 +677,37 @@ export function TripEditor({
             onTheTrip={placesOnTheTrip(days.map((day) => day.plan))}
             showing={openedPlace?.name ?? null}
             onChoose={(place) => {
-              open({ kind: "candidate", place });
+              open({ kind: "candidate", place, for: seeking });
             }}
             onClear={dismiss}
             onAdd={(input) => recording(addStopAction({ ...input, editKey }))}
             onAnnounce={setAnnounced}
+            end={
+              seeking === "stop"
+                ? null
+                : {
+                    ...endSearchWords(seeking, `Day ${String(selectedIndex + 1)}`),
+                    onSet: ({ providerPlaceId, session }) =>
+                      recording(
+                        setDayEndpointAction({
+                          slug,
+                          editKey,
+                          dayId: selected.plan.id,
+                          which: seeking,
+                          providerPlaceId,
+                          session,
+                        }),
+                      ).then((outcome) => {
+                        if (outcome.error === null) {
+                          setSeeking("stop");
+                        }
+                        return outcome;
+                      }),
+                  }
+            }
+            onPutAway={() => {
+              setSeeking("stop");
+            }}
             phone={view === "map"}
           />
         </div>
@@ -685,6 +753,7 @@ export function TripEditor({
           onSelect={chooseDay}
           exporting={exportControl("heading")}
           onFindPlace={editKey === null ? null : findPlace}
+          onFindEnd={editKey === null ? null : find}
           onAddDay={
             editKey === null
               ? null
@@ -804,6 +873,7 @@ export function TripEditor({
         onView={(next) => {
           setView(next);
           setPicked(null);
+          setSeeking("stop");
         }}
         exportDisabled={nothingToExport}
       />
@@ -856,51 +926,105 @@ export function TripEditor({
           place={openedPlace}
           editKey={editKey}
           /* What the sheet can do to the trip: put a place found in a search
-             on the open day, or take a stop off the day it is on. An editor
-             only; a reader looks and nothing more. An end of a day gets
-             nothing, since its own row in the planner is where it is taken
-             off. One expression rather than a function worked out here,
-             because a function called while rendering that builds these
-             closures over `recording` is one the compiler cannot see is not
-             reading a ref as it renders. */
+             on the open day, as its next stop or as the end a phone's search
+             was finding, or take a stop off the day it is on, and on a phone
+             an end, which a desk takes off from its row. An editor only; a
+             reader looks and nothing more. One expression rather than a function worked
+             out here, because a function called while rendering that builds
+             these closures over `recording` is one the compiler cannot see is
+             not reading a ref as it renders. */
           action={
             editKey === null
               ? null
               : opened.kind === "candidate" && selected !== undefined
-                ? {
-                    kind: "add",
-                    dayName: `Day ${String(selectedIndex + 1)}`,
-                    run: () =>
-                      recording(
-                        addStopAction({
-                          slug,
-                          editKey,
-                          dayId: selected.plan.id,
-                          providerPlaceId: opened.place.providerPlaceId,
-                          // The look that opened this sheet ended the search
-                          // session and left the place in our own table,
-                          // which is where the add reads it from.
-                          session: null,
+                ? candidateEnd === null
+                  ? {
+                      kind: "add",
+                      words: `Add to Day ${String(selectedIndex + 1)}`,
+                      busy: `Adding to Day ${String(selectedIndex + 1)}`,
+                      run: () =>
+                        recording(
+                          addStopAction({
+                            slug,
+                            editKey,
+                            dayId: selected.plan.id,
+                            providerPlaceId: opened.place.providerPlaceId,
+                            // The look that opened this sheet ended the search
+                            // session and left the place in our own table,
+                            // which is where the add reads it from.
+                            session: null,
+                          }),
+                        ).then((outcome) => {
+                          // Said as the plus on a search row says it, since
+                          // the sheet goes once it is done and says nothing.
+                          if (outcome.error === null) {
+                            setAnnounced(
+                              `Added ${outcome.added ?? opened.place.name} to Day ${String(selectedIndex + 1)}`,
+                            );
+                          }
+                          return outcome;
                         }),
-                      ).then((outcome) => {
-                        // Said as the plus on a search row says it, since
-                        // the sheet goes once it is done and says nothing.
-                        if (outcome.error === null) {
-                          setAnnounced(
-                            `Added ${outcome.added ?? opened.place.name} to Day ${String(selectedIndex + 1)}`,
-                          );
+                    }
+                  : {
+                      kind: "add",
+                      words: candidateEnd.words.title,
+                      busy: candidateEnd.words.busy,
+                      run: () => {
+                        // Null would take the end off rather than set it. A
+                        // place found in a search always has its provider's
+                        // id; only a pin dropped by hand has none.
+                        const providerPlaceId = opened.place.providerPlaceId;
+                        if (providerPlaceId === null) {
+                          return Promise.resolve({
+                            error: "That place could not be read. Search again.",
+                          });
                         }
-                        return outcome;
-                      }),
-                  }
+                        return recording(
+                          setDayEndpointAction({
+                            slug,
+                            editKey,
+                            dayId: selected.plan.id,
+                            which: candidateEnd.which,
+                            providerPlaceId,
+                            session: null,
+                          }),
+                        ).then((outcome) => {
+                          if (outcome.error === null) {
+                            setSeeking("stop");
+                            setAnnounced(candidateEnd.words.done(opened.place.name));
+                          }
+                          return outcome;
+                        });
+                      },
+                    }
                 : opened.kind === "stop" && openedStopDay !== -1
                   ? {
                       kind: "remove",
-                      dayName: `Day ${String(openedStopDay + 1)}`,
+                      words: `Remove from Day ${String(openedStopDay + 1)}`,
+                      busy: `Removing from Day ${String(openedStopDay + 1)}`,
                       run: () =>
                         recording(removeStopAction({ slug, editKey, stopId: opened.stopId })),
                     }
-                  : null
+                  : opened.kind === "endpoint"
+                    ? {
+                        kind: "remove",
+                        words: ENDS[opened.which].removePoint,
+                        busy: ENDS[opened.which].removingPoint,
+                        // A desk takes an end off from its own row.
+                        phoneOnly: true,
+                        run: () =>
+                          recording(
+                            setDayEndpointAction({
+                              slug,
+                              editKey,
+                              dayId: opened.dayId,
+                              which: opened.which,
+                              providerPlaceId: null,
+                              session: null,
+                            }),
+                          ),
+                      }
+                    : null
           }
           /* On a phone a stop is changed here rather than on the day: its
              times, its stay, its note and its place in the day, under its

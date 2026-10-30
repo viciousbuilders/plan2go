@@ -23,6 +23,8 @@ export const ENDS = {
     label: "Where the day starts",
     change: "Change where the day starts",
     remove: "Remove where the day starts",
+    removePoint: "Remove start point",
+    removingPoint: "Removing start point",
   },
   end: {
     add: "Add end point",
@@ -30,6 +32,8 @@ export const ENDS = {
     label: "Where the day ends",
     change: "Change where the day ends",
     remove: "Remove where the day ends",
+    removePoint: "Remove end point",
+    removingPoint: "Removing end point",
   },
 } as const;
 
@@ -60,10 +64,10 @@ export interface EndEdit {
 }
 
 /**
- * Changing one end of a day, the same wherever the end is drawn: the row on a
- * desk's card and the line on a phone's timeline open the same search and
- * write the same way. A reader who cannot edit has no actions, and nothing is
- * written for them.
+ * Changing one end of a day from a desk's row: the search that opens under
+ * it, and the write that settles it. A phone's day finds an end in the search
+ * on the map instead, and takes it off from the place's sheet. A reader who
+ * cannot edit has no actions, and nothing is written for them.
  */
 export function useEndEdit(which: "start" | "end", actions: DayActions | null): EndEdit {
   const [picking, setPicking] = useState(false);
@@ -82,4 +86,36 @@ export function useEndEdit(which: "start" | "end", actions: DayActions | null): 
   };
 
   return { picking, setPicking, saving, error, write };
+}
+
+/** What the search on the map says while it is finding one end of a day. */
+export interface EndSearchWords {
+  /** After the list's heading: "where Day 1 starts". */
+  readonly heading: string;
+  /** The plus on a row, read out: "Start Day 1 at The Old Clare Hotel". */
+  readonly add: (name: string) => string;
+  /** The plus's tooltip, and the button in a place's sheet: "Start Day 1 here". */
+  readonly title: string;
+  /** That button while it is being done: "Starting Day 1 here". */
+  readonly busy: string;
+  /** Said to a screen reader once it is done: "Day 1 now starts at The Old Clare Hotel". */
+  readonly done: (name: string) => string;
+}
+
+/**
+ * The words for finding one end of a day in the search on a phone's map,
+ * which "Add start point" and "Add end point" go to there, as "Add a place"
+ * does. The search is the stops' own, so it says which end it is finding and
+ * for which day wherever it would otherwise say it adds to the day: in its
+ * list's heading, on each row's plus and on the button in a place's sheet.
+ */
+export function endSearchWords(which: keyof typeof ENDS, dayName: string): EndSearchWords {
+  const start = which === "start";
+  return {
+    heading: `where ${dayName} ${start ? "starts" : "ends"}`,
+    add: (name) => `${start ? "Start" : "End"} ${dayName} at ${name}`,
+    title: `${start ? "Start" : "End"} ${dayName} here`,
+    busy: `${start ? "Starting" : "Ending"} ${dayName} here`,
+    done: (name) => `${dayName} now ${start ? "starts" : "ends"} at ${name}`,
+  };
 }
