@@ -310,9 +310,9 @@ function TimelineStop({
  * The day as a phone reads it, top to bottom, down the rail design 1b of
  * "PlanToGo iPhone" draws: where it starts if it starts anywhere, every leg
  * and every stop in order, and where it ends if it ends anywhere. After the
- * last stop, for someone who may edit, the next place on the rail as a dashed
- * circle with its number in it and "Add a place", which is where a place found
- * in the search goes.
+ * last stop, for someone who may edit, the next place, as a dashed circle on
+ * the rail with its number in it and "Add a place" on a card beside it, which
+ * is where a place found in the search goes.
  *
  * A desk draws the same day in day-itinerary, with every control on its
  * cards; the two are the same day and the same actions, laid out for the room
@@ -415,28 +415,39 @@ export function DayTimeline({
         );
       })}
 
-      {/* The next stop, where it would go: a dashed circle of the accent on
-          the rail under the last disc, with the number that stop would get in
-          it, as a desk's has, in the discs' face and step; and the words
-          beside it, in the accent's brown at the weight design 1b gives them,
-          the brown the number takes too. The circle and the words are one
-          button, so the whole of the line can be pressed. */}
+      {/* The next stop, where it would go, laid out as a stop is: a dashed
+          circle of the accent on the rail under the last disc, with the
+          number that stop would get in it, as a desk's has, in the discs' face
+          and step; and beside it, on a card of the stops' surface and edge,
+          the words, in the accent's brown at the weight design 1b gives them,
+          the brown the number takes too. The card is one line deep and a
+          finger's height, 12px under the last stop's card, and the circle is
+          level with it; the thread runs on to the circle from the last disc,
+          its last dot as clear of it as of a disc. The circle and the card are
+          one button, so the whole of the line can be pressed. Under a pointer
+          the card sinks as a stop's does and the circle's dash takes the
+          whole accent, and the ring that shows the keyboard is on it is drawn
+          round the card, as a stop's is. */}
       {onFindPlace === null || day.stops.length === 0 ? null : (
-        <div className={`${RAIL_ROW} mt-1 items-center`}>
+        <div className={RAIL_ROW}>
           <span aria-hidden="true" />
           <button
             type="button"
             onClick={onFindPlace}
             aria-label={`Add a place as stop ${String(day.stops.length + 1)}`}
-            className="group/next col-span-2 grid grid-cols-[26px_minmax(0,1fr)] items-center gap-x-[10px] rounded-pill py-[9px] text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+            className="group/next col-span-2 grid grid-cols-[26px_minmax(0,1fr)] gap-x-[10px] text-left focus-visible:outline-none"
           >
-            <span
-              aria-hidden="true"
-              className={`${RAIL_MARK} border-2 border-dashed border-terracotta/60 font-display text-meta/none font-semibold text-terracotta-800 tabular-nums group-hover/next:border-terracotta`}
-            >
-              {day.stops.length + 1}
+            <span aria-hidden="true" className="flex flex-col items-center pt-1">
+              <span className="thread h-[13px]" />
+              <span
+                className={`${RAIL_MARK} mt-1 border-2 border-dashed border-terracotta/60 font-display text-meta/none font-semibold text-terracotta-800 tabular-nums group-hover/next:border-terracotta`}
+              >
+                {day.stops.length + 1}
+              </span>
             </span>
-            <span className="text-body/none font-bold text-terracotta-800">Add a place</span>
+            <span className="mt-3 flex min-h-11 items-center rounded-row border border-rule bg-paper-raised px-4 group-hover/next:border-terracotta/55 group-hover/next:bg-paper-sunken group-focus-visible/next:outline-2 group-focus-visible/next:outline-offset-2 group-focus-visible/next:outline-terracotta">
+              <span className="text-body/none font-bold text-terracotta-800">Add a place</span>
+            </span>
           </button>
         </div>
       )}

@@ -465,10 +465,15 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   edit is offered one beside the same marker, as a desk offers it, in sage 800 over what
   kind of place goes there. The start's time is the pill that sets when the day leaves,
   its chevron left off to fit the column.
-- After the last stop, for someone who may edit, the next place on the rail: a dashed
-  circle of the accent with the number that stop would get in it, in the discs' face
-  and step, and **Add a place** in bold at the body step, the number and the words in
-  `terracotta-800`, one button.
+- After the last stop, for someone who may edit, the next place, laid out as a stop is:
+  on the rail a dashed circle of the accent with the number that stop would get in it,
+  in the discs' face and step, and beside it, on a card of the stops' surface and edge,
+  one line deep and 44px tall, 12px under the last stop's card, **Add a place** in bold
+  at the body step, the number and the words in `terracotta-800`. The circle stands
+  level with the card, and the thread runs on to it from the last disc, its last dot
+  4px clear of it, as of a disc. The circle and the card are one button. Under a
+  pointer the card sinks as a stop's does and the circle's dash takes the whole accent,
+  and with the keyboard on it the focus ring is drawn round the card.
 
 A day with nothing planned says so on the rail, as a desk does: the line its stops will
 hang on runs down the marks' column on its own, dashed in the accent as a desk draws it,
