@@ -500,9 +500,9 @@ away.
 
 A stop pressed opens its place, the whole window (see A place, opened), and on a phone a
 stop is changed there rather than on the day: under the place's name, its hours, "Day 1
-· arrive 09:13, leave 10:28", "Stay for" with a minus and a plus a quarter of an hour
-at a time on a 44px disc of `neutral-200` either side of the stay, on a card of `sheet`;
-the note; two pills that move the stop one place earlier or later in the day; and
+· arrive 09:13, leave 10:28"; the note; "Stay for" with a minus and a plus a quarter of
+an hour at a time on a 44px disc of `neutral-200` either side of the stay, on a card of
+`sheet`; two pills that move the stop one place earlier or later in the day; and
 "Move to another day" in bold at the body step over the other days as pills of the
 same kind, as wide as their words and in the words the map's chips use, "Day 2 · Sun 8",
 running to the sheet's edges and scrolling sideways on a long trip, any of which takes

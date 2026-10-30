@@ -156,10 +156,10 @@ interface StopDetailsProps {
  * design 1b's page for a stop has it: when the place is open, when the day
  * reaches it and leaves it, and how long is spent there. On a phone the day
  * is read on its rail and a stop is changed here, so for someone who may edit
- * the stay is a stepper, the note is a field, and the stop can be moved one
- * place earlier or later in the day, or to the end of another day, which on a
- * desk is done by dragging its card, along the day or onto a day in the
- * strip. It is taken off the day by the sheet's own button.
+ * the note is a field, the stay under it is a stepper, and the stop can be
+ * moved one place earlier or later in the day, or to the end of another day,
+ * which on a desk is done by dragging its card, along the day or onto a day
+ * in the strip. It is taken off the day by the sheet's own button.
  *
  * On a desk the card beside the map carries all of it, and this is not drawn.
  */
@@ -239,16 +239,6 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
         ) : null}
       </ul>
 
-      {actions === null ? null : (
-        <StayStepper
-          placeName={stop.placeName}
-          value={stop.stayMinutes}
-          onChoose={(stayMinutes) => {
-            write(() => actions.setStay({ stopId, stayMinutes }));
-          }}
-        />
-      )}
-
       <StopNote
         placeName={stop.placeName}
         note={planned.note}
@@ -261,6 +251,16 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
         }
         offerClassName="min-h-10"
       />
+
+      {actions === null ? null : (
+        <StayStepper
+          placeName={stop.placeName}
+          value={stop.stayMinutes}
+          onChoose={(stayMinutes) => {
+            write(() => actions.setStay({ stopId, stayMinutes }));
+          }}
+        />
+      )}
 
       {actions === null || day.plan.stops.length < 2 ? null : (
         <div className="flex gap-2" aria-busy={moving}>
