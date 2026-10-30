@@ -553,8 +553,9 @@ is in use. A press on the field, or on a quick search, opens the search, and it 
 on a desk: the list hangs under the quick searches over the map, the bar's width, headed
 "Popular in Sydney · adding to Day 1", since it opens over the days rather than beside
 them. It stands over everything on the map, the day's rows at the foot included, which
-stay where they are under it. Nothing is dimmed. A press anywhere outside the search,
-the map or the rows at its foot, closes the search and does nothing else, and the cross
+stay where they are under it and still scroll sideways under a finger while it is open,
+which leaves it open. Nothing is dimmed. A press anywhere outside the search, the map
+or the rows at its foot, closes the search and does nothing else, and the cross
 at the bar's end, there for as long as the search is open or anything is typed, closes
 it and empties the field. A row is a finger's: the pin on a 36px disc of `terracotta-100`, the name at the
 body step over the address at the meta step, the plus on a disc the same size, sage 600

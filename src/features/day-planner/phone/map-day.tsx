@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ArrowRightIcon } from "@/ui/icons";
+import { outsidePressIsTaken } from "@/ui/use-outside-press";
 import type { PlannedDay } from "../compute-trip";
 import { formatDayDate, formatDayTab } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
@@ -30,6 +31,10 @@ const CHIP =
  * name, and when it is reached and left. Each row scrolls sideways over the
  * map. The search stands over the map's top, laid there by whoever holds it,
  * and its list opens over these rows, which stay where they are under it.
+ * While it is open they still scroll under a finger, and a press on them
+ * closes the search and does nothing else, as a press on the map does: it is
+ * the search's, which has heard it and gone by the time the press lands, so
+ * whether one was open is asked as the press begins.
  *
  * A card pressed picks its stop out: the card takes the accent's edge and its
  * marker on the map is drawn large, as a marker under the pointer is on a
@@ -37,11 +42,15 @@ const CHIP =
  * the same way, and the row brings that card into sight.
  *
  * Over the map, under the bar of views at the foot of the window: the cards
- * stand twelve clear of the bar. On a phone only.
+ * stand twelve clear of the bar. Fixed to the window rather than to the map,
+ * so whoever lays them out can lay them with the search, over the clear page
+ * it lays over the map. On a phone only.
  */
 export function MapDay({ days, selectedIndex, onSelect, picked, onPick, onOpen }: MapDayProps) {
   const selected = days[selectedIndex] ?? days[0];
   const cards = useRef<HTMLDivElement | null>(null);
+  /** Whether the press under way began with the search open, and so is the search's. */
+  const spent = useRef(false);
 
   /** A stop picked on the map has its card brought into sight, by the least the row can move. */
   useEffect(() => {
@@ -60,7 +69,24 @@ export function MapDay({ days, selectedIndex, onSelect, picked, onPick, onOpen }
     /* One column twelve clear of the bar of views: the days, and under them
        the day's stops, 8px apart. Each row keeps room inside it for its
        shadows, which a row that scrolls would otherwise cut off. */
-    <div className="absolute inset-x-0 bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] z-[2] flex flex-col lg:hidden">
+    <div
+      onPointerDownCapture={() => {
+        spent.current = outsidePressIsTaken();
+      }}
+      // A finger that went on to scroll a row ends no press, and leaves none
+      // to be spent on whatever is pressed next.
+      onPointerCancelCapture={() => {
+        spent.current = false;
+      }}
+      onClickCapture={(event) => {
+        if (spent.current) {
+          spent.current = false;
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }}
+      className="fixed inset-x-0 bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] z-[2] flex flex-col lg:hidden"
+    >
       <div
         role="group"
         aria-label="Days of this trip"

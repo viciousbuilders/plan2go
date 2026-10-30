@@ -419,11 +419,6 @@ export function PlaceSearch({
     };
   }, [panel, field, onPutAway]);
 
-  useOutsidePress(container, placesOpen, () => {
-    setPanel(null);
-    onPutAway();
-  });
-
   /** Everything the bar has open, closed, and the cursor let go of. */
   const closeAll = (): void => {
     setPanel(null);
@@ -435,6 +430,21 @@ export function PlaceSearch({
     closeAll();
     onPutAway();
   };
+
+  /**
+   * A press outside it closes the list. Over a phone's map that press can be
+   * on the day's rows at the map's foot, which stand over the clear page, so
+   * it puts the search away as a press on the clear page does, the keyboard
+   * with it, rather than leaving the cursor in a field with nothing under it.
+   */
+  useOutsidePress(container, placesOpen, () => {
+    if (phone) {
+      putAway();
+      return;
+    }
+    setPanel(null);
+    onPutAway();
+  });
 
   /** Let go of a look still on its way, so it neither lands nor goes on saying it is looking. */
   const leaveLook = (): void => {

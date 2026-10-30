@@ -536,6 +536,22 @@ export function TripEditor({
     [selected],
   );
 
+  /**
+   * A phone's map view carries the days and the day's stops along its foot,
+   * under the search at its top. Never on a desk, where both are in the
+   * planner beside the map.
+   */
+  const mapDay = (
+    <MapDay
+      days={days}
+      selectedIndex={selectedIndex}
+      onSelect={chooseDay}
+      picked={picked}
+      onPick={setPicked}
+      onOpen={openStop}
+    />
+  );
+
   return (
     /*
      * One row, stated. A grid's implicit row is auto sized, so it grows to fit
@@ -621,17 +637,9 @@ export function TripEditor({
               searchOnTop={editKey !== null}
             />
           )}
-          {/* A phone's map view carries the days and the day's stops along
-              its foot, under the search at its top. Never on a desk, where
-              both are in the planner beside the map. */}
-          <MapDay
-            days={days}
-            selectedIndex={selectedIndex}
-            onSelect={chooseDay}
-            picked={picked}
-            onPick={setPicked}
-            onOpen={openStop}
-          />
+          {/* For a reader, who has no search over the map; for someone who may
+              edit they are laid with the search, below. */}
+          {editKey === null ? mapDay : null}
         </div>
       </section>
 
@@ -651,7 +659,14 @@ export function TripEditor({
           desk, and its quick searches standing on the map under it. Its list
           opens over everything on the map, the day's rows at its foot
           included, which stay where they are under it. Under every sheet,
-          above the map, and out of the page on any other view. */}
+          above the map, and out of the page on any other view.
+
+          The day's rows are laid here with it, after it, so they stand over
+          the clear page it lays over the map while it is open and under its
+          list: a finger still scrolls them sideways with the search open, and
+          a press on them closes it as a press on the map does. Laid in the
+          map, the clear page was over them, and they could not be moved
+          until the search was put away. */}
       {editKey !== null && selected !== undefined ? (
         <div
           className={`print:hidden lg:absolute lg:top-[28px] lg:left-[24px] lg:z-40 lg:w-[376px] ${
@@ -725,6 +740,7 @@ export function TripEditor({
             }}
             phone={view === "map"}
           />
+          <div className="relative z-0 lg:hidden">{mapDay}</div>
         </div>
       ) : null}
 
