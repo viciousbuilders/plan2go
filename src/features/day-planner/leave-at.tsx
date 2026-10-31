@@ -61,14 +61,32 @@ const TRIGGER =
   "flex items-center gap-[5px] rounded-pill border py-px font-display text-time tabular-nums disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
 
 /**
- * The pill's own look, the dashed pill described above, on a phone as on a
- * desk: the one time on the day a person sets looks the same wherever it is
- * set. A phone's column of times is widened to hold it, chevron and all.
+ * The colours the dashed pill is drawn in, its shape the same in both. The
+ * accent's, described above, wherever it stands on paper or on a stop's
+ * terracotta block, a desk's and a phone's alike. Sage's on the pill a phone
+ * draws the start of the day as, which is sage 200: the time in the sage 800
+ * the end of the day's own time is in, the dash in sage 400, the dashed edge
+ * an end not there yet is drawn in, no tint over the sage under it, and sage
+ * 100 rather than raised paper under the pointer and while its picker is open.
  */
-function triggerLook(open: boolean): string {
-  return open
-    ? "border-dashed border-terracotta bg-paper-raised pr-[4px] pl-[6px] text-terracotta-700"
-    : "border-dashed border-terracotta/55 bg-terracotta/10 pr-[4px] pl-[6px] text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised";
+const LOOKS = {
+  accent: {
+    closed:
+      "border-terracotta/55 bg-terracotta/10 text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised",
+    open: "border-terracotta bg-paper-raised text-terracotta-700",
+    chevron: "text-terracotta-700/65",
+  },
+  sage: {
+    closed:
+      "border-sage-400 bg-transparent text-sage-800 enabled:hover:border-sage-600 enabled:hover:bg-sage-100",
+    open: "border-sage-600 bg-sage-100 text-sage-800",
+    chevron: "text-sage-800/65",
+  },
+} as const;
+
+/** The pill's own look, in the colours of what it stands on. */
+function triggerLook(open: boolean, tone: keyof typeof LOOKS): string {
+  return `border-dashed pr-[4px] pl-[6px] ${open ? LOOKS[tone].open : LOOKS[tone].closed}`;
 }
 
 /** Minutes from midnight on the clock: "09:05". */
@@ -98,6 +116,8 @@ interface LeaveAtProps {
    * hung from the right ran off it.
    */
   readonly align?: "left" | "right";
+  /** Sage on a phone's start of the day, which is sage; the accent everywhere else. */
+  readonly tone?: keyof typeof LOOKS;
 }
 
 /**
@@ -123,6 +143,7 @@ export function LeaveAt({
   clock,
   onChoose,
   align = "right",
+  tone = "accent",
 }: LeaveAtProps) {
   const [draft, setDraft] = useState(value);
   const [seen, setSeen] = useState(value);
@@ -204,10 +225,10 @@ export function LeaveAt({
           }
           setOpen(true);
         }}
-        className={`${TRIGGER} ${triggerLook(open)}`}
+        className={`${TRIGGER} ${triggerLook(open, tone)}`}
       >
         {shown}
-        <ChevronDownIcon size={12} strokeWidth={2.75} className="shrink-0 text-terracotta-700/65" />
+        <ChevronDownIcon size={12} strokeWidth={2.75} className={`shrink-0 ${LOOKS[tone].chevron}`} />
       </button>
 
       {open ? (

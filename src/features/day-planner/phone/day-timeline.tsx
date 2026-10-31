@@ -366,7 +366,9 @@ export function DayTimeline({
    * When the day leaves, set where that time shows: on the start point's
    * time when the day has one, and otherwise on the first stop's arrival.
    * Keyed by the day, so a time half chosen on one day is not carried to the
-   * next. Its picker hangs from its left, into the window.
+   * next. Its picker hangs from its left, into the window. In sage on the
+   * start's sage pill, where its time is the colour the end's time is, and in
+   * the accent on a stop's terracotta block.
    */
   const leaveAt =
     actions === null ? null : (
@@ -376,6 +378,7 @@ export function DayTimeline({
         clock={formatClock(computed.begins.minutesFromMidnight)}
         onChoose={(startAtMinutes) => actions.setDayStart({ startAtMinutes })}
         align="left"
+        tone={day.start === null ? "accent" : "sage"}
       />
     );
 

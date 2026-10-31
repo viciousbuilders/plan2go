@@ -468,8 +468,11 @@ stand 12px apart; a leg brings its own room above and below.
   whole pill is one button that opens the place, where the end is changed for another
   or taken off the day; under a pointer an edge of sage 600 at 55 percent comes round
   it. The start's time is when the day leaves, which for someone who may edit is the
-  pill that sets it, in the same column, drawn as a desk draws it, dashed and tinted
-  with its chevron, so the one time a person sets looks the same on either.
+  pill that sets it, in the same column: a desk's dashed pill with its chevron, its
+  shape the same so it is found the same way, in the start's own sage. The time is in
+  sage 800 as the end's time is, the dash in sage 400, with no tint over the sage under
+  it, and it lifts to sage 100 under a pointer and while its picker is open. On a stop's
+  terracotta block, with no start, it keeps the accent's colours.
 - Without an end, someone who may edit is offered one on the same pill drawn dashed in
   1.5px of sage 400 on `paper`: the end's disc in sage 200 with its glyph in
   sage 700, **Add start point** or **Add end point** in bold at the place step in sage
