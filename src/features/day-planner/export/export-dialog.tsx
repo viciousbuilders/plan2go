@@ -21,6 +21,7 @@ import {
 } from "@/ui/icons";
 import { FINGER_ROOM } from "@/ui/finger-room";
 import { Notice } from "@/ui/notice";
+import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { PlannedDay } from "../compute-trip";
 import { dayMapSources } from "./day-map-source";
 import { exportRequestQuery, MOST_DAYS } from "./export-query";
@@ -298,6 +299,15 @@ export function ExportDialog({
   const doneButton = useRef<HTMLButtonElement | null>(null);
   const preview = useRef<HTMLDivElement | null>(null);
   const scroller = useRef<HTMLDivElement | null>(null);
+  /**
+   * The choices beside the preview draw their own scrollbar, a line along
+   * their edge over the padding there, as the day's list does, rather than
+   * the browser's. The browser's takes its width out of the panel when the
+   * choices run longer than it, which pushed everything in it left of centre
+   * and narrowed the two columns of what to include, and gave it back when
+   * they did not.
+   */
+  const watchChoices = useScrollBar("y");
   const printable = days.filter((day) => day.plan.stops.length > 0);
   const [chosen, setChosen] = useState<ReadonlySet<string>>(
     () => new Set(printable.slice(0, MOST_DAYS).map((day) => day.plan.id)),
@@ -1260,8 +1270,9 @@ export function ExportDialog({
             {/* Faded and out of reach while the file is drawn, so nothing is
                 changed under an export already asked for. */}
             <div
+              ref={watchChoices}
               inert={busy}
-              className={`scroll-quiet min-h-0 flex-1 overflow-y-auto px-5 pt-[22px] pb-[18px] ${busy ? "opacity-45" : ""}`}
+              className={`scroll-line min-h-0 flex-1 overflow-y-auto px-5 pt-[22px] pb-[18px] ${busy ? "opacity-45" : ""}`}
             >
               <div
                 role="radiogroup"

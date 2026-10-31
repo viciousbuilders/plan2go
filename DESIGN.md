@@ -1231,7 +1231,10 @@ one that is on is `terracotta-100` inside `terracotta-300` with its words in
 Last in the column is the page setup, folded to a line saying the paper, which way up
 and the ink, A4 · Portrait · Colour, and opening to a track of pills for each of those
 and for the size of the map and of the words, the one in force raised on `sheet`; the
-map's size is offered only for the full trip. Under the column, over a hairline, the
+map's size is offered only for the full trip. A column longer than the window scrolls
+inside itself under a 2px line drawn along its edge, as the day's list does, rather than
+the browser's own bar, which took its width out of the column and pushed the choices
+left of centre whenever they ran long. Under the column, over a hairline, the
 file's name in a field shaped as a pill with .pdf after it, and the button, which names
 the one format and what the export comes to: Export PDF · 21 pages. The sheets are drawn
 at the paper's own size and the page rule is told the same size and way up, so what is
