@@ -63,12 +63,12 @@ const END_PILL = "relative flex min-h-12 w-full items-center rounded-[24px] text
  * An end of the day that is there, as the phone's day design draws it: a pill
  * of sage 200 with no glyph on it, when the day passes the end at its left in
  * sage 800, bold at the place step as every time on the day is, and the
- * place's name after it in sage 900, in the display face at the place step as
- * a desk sets an end's name. The time stands in the day's column of times and
- * the name where a stop's name starts, so the day's times stand in one column
- * and its names in another, ends and stops alike. At the start the time is
- * when the day leaves, which for someone who may edit is the pill that sets
- * it, a desk's dashed pill, in the same column.
+ * place's name after it in sage 900, in the display face at the lead step as
+ * a stop's name is. The time stands in the day's column of times and the name
+ * where a stop's name starts, so the day's times stand in one column and its
+ * names in another, set alike, ends and stops. At the start the time is when
+ * the day leaves, which for someone who may edit is the pill that sets it, a
+ * desk's dashed pill, in the same column.
  *
  * What the day does there, "Leave", "Finish at", "Back at", is read out before
  * the name rather than drawn. The whole pill opens the place, where the end is
@@ -116,7 +116,7 @@ function EndPill({
         onClick={() => {
           onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
         }}
-        className="min-w-0 flex-1 text-left font-display text-place break-words text-sage-900 after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+        className="min-w-0 flex-1 text-left font-display text-lead break-words text-sage-900 after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
       >
         <span className="sr-only">{`${endVerb(which, day)} `}</span>
         {endpoint.place.name}

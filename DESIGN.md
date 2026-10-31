@@ -280,7 +280,7 @@ utility fighting the first. There is one exception, and it is only ever a field'
 .pdf after a file's name, is 16px, because iOS zooms the whole page into any field set
 smaller as it takes the cursor and leaves it zoomed. Lead is the heading of what opens over the page: the place
 open in the sheet, and the question asked before a trip is deleted; and on a phone, a
-stop's name on its card in the day.
+stop's name on its card in the day and an end's on its pill.
 Small is the tier the interface is mostly made of,
 tab labels, menu rows, the words on a leg, which used to be a scatter of 13px and 13.5px
 chosen one component at a time. A number that is not on the scale is a number that has
@@ -293,7 +293,7 @@ one place such a number may appear. Every element that renders a time or a durat
 - **title:** the heading of an empty day, the printed day, and a page that has nothing
   to show.
 - **place:** a place name, and the time against an anchor row; on a phone, when a stop is
-  reached, on its card's block of times, and an end's name and the offers on its pills.
+  reached, on its card's block of times, and the offers on its pills.
 - **time:** when a stop is arrived at and left, on its card.
 - **body:** running text.
 - **meta:** secondary text, addresses, the words in a leg row.
@@ -459,8 +459,8 @@ the legs, whose discs stand on it as an offered end's disc does. Two things that
 stand 12px apart; a leg brings its own room above and below.
 
 Its type is one system, each role set one way wherever it stands. The display face, in
-600, is for places' names only, a stop's at the lead step and an end's at the place step,
-as a desk sets an end's; everything else is in the body face. Every time a place is
+600, is for places' names only, a stop's and an end's alike at the lead step, since they
+stand in one column; everything else is in the body face. Every time a place is
 reached, left from or passed is bold at the place step, in the 800 of what it stands on,
 with "to" and "from" before a second time in 600 at the meta step in that colour's 700.
 An address and a note are at the small step in neutral 700; a leg's words are 600 at
