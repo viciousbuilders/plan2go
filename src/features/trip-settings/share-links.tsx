@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LinkIcon } from "@/ui/icons";
+import { CheckIcon, CopyIcon, LinkIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
 import { SheetRow } from "./sheet-row";
 import { MenuPageRow } from "./trip-menu";
 
-/** The word at the end of the pill, in the accent, with the pill's own ground under the pointer. */
+/**
+ * The round button at the end of the pill that copies its link, drawn as the
+ * starter page's copy boxes draw theirs: a pair of sheets in the accent, on
+ * the accent's lightest tint under the pointer, and a tick in sage for a
+ * moment once it has copied. On a phone it answers a finger over the room
+ * round it, out to forty, and is drawn no larger.
+ */
 const COPY =
-  "shrink-0 rounded-pill px-3 py-[6px] text-small/none font-semibold text-terracotta-700 hover:bg-terracotta-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+  "relative grid size-8 shrink-0 place-items-center rounded-pill hover:bg-terracotta-100 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:before:absolute max-lg:before:-inset-1";
 
 /**
- * The link and the word that copies it share one sunken pill, so the two read
- * as one thing: this link, and the way to take it. The link is readable and
+ * The link and the button that copies it share one sunken pill, so the two
+ * read as one thing: this link, and the way to take it. The link is readable and
  * selectable rather than hidden behind the button, so a browser with no
  * clipboard to write to still hands it over.
  */
@@ -21,8 +27,8 @@ const LINK_PILL = "mt-[5px] flex items-center gap-1 rounded-pill bg-paper-sunken
 /**
  * The field fills the height of the pill rather than the height of its own
  * text. Padded to its words it came to twenty-two pixels, and a pointer
- * target may not be under twenty-four; stretched, it is the twenty-five the
- * Copy beside it already makes the pill, so the whole pill is the target and
+ * target may not be under twenty-four; stretched, it is the thirty-two the
+ * copy button beside it makes the pill, so the whole pill is the target and
  * nothing grew to make it one.
  */
 const LINK_FIELD =
@@ -112,9 +118,15 @@ function SharePage({ slug, editKey }: ShareLinksProps) {
         onClick={() => {
           copy(which, url);
         }}
-        className={COPY}
+        aria-label={`Copy the ${label.toLowerCase()}`}
+        title={copied === which ? "Copied" : "Copy"}
+        className={`${COPY} ${copied === which ? "text-sage-800" : "text-terracotta-700"}`}
       >
-        {copied === which ? "Copied" : "Copy"}
+        {copied === which ? (
+          <CheckIcon size={18} strokeWidth={2.75} />
+        ) : (
+          <CopyIcon size={18} strokeWidth={2.75} />
+        )}
       </button>
     </div>
   );

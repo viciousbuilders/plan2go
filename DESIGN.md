@@ -417,7 +417,12 @@ does at the meta step in `ink-muted`. **Edit trip**, "Name, start date and durat
 trip"; and **Delete trip**, "Remove this trip and all its days", its disc in terracotta
 200 and its name in `terracotta-800`. Export is not one of them, since it is a view in
 the bar. Edit trip and Share trip turn the sheet into their page, under the page's name
-and an arrow back to the cards: "Plan your trip" and "Share this trip". Delete trip
+and an arrow back to the cards: "Plan your trip" and "Share this trip". Share this trip,
+on a phone's sheet as in a desk's menu, gives each link a sunken pill, the read only
+one first, the link in `ink-muted` and at the pill's end a 32px round button that
+copies it, drawn as the starter page's copy boxes draw theirs: a pair of sheets in
+`terracotta-700` on `terracotta-100` under the pointer, and a tick in sage 800 for two
+seconds once it has copied, titled "Copy" and "Copied". Delete trip
 asks its question over the sheet, as it does on a desk. Escape or a press on the dimmed
 page puts the sheet away, and Escape on a page goes back to the cards.
 
