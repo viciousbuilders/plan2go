@@ -205,7 +205,9 @@ paper and ink.
   text, 800 is a chosen chip or menu row and the words on the city pill in the search.
   In a phone's day 100 is the block a stop's times stand on, the bold time in 800 and
   the words beside it in 700, and the card offering the next place, inside a dashed
-  edge of 400, its block of times in 200 so it shows on the 100 around it.
+  edge of 400, its block of times in 200 so it shows on the 100 around it. 200 is also
+  the card a day with nothing planned says so on, its heading in 900, its sentence in
+  800 and its way to the first place on 700.
 - **sage:** the second accent. 100 and 200 mark today in the day strip, 600 is the marker
   for the ends of a day, 700 draws the public transport route line. 100 is also what an
   end of the day stands on: its row in a desk's day, inside an edge of 200 and going to
@@ -481,21 +483,21 @@ under times and names under names, ends and stops alike.
 - An end of the day: a pill of sage 200 with no glyph on it, 48px tall and rounded to
   half that, so a name long enough for two lines makes a card with the same round ends.
   At its left when the day passes it, in sage 800, centred in the column of times; then,
-  where a stop's name starts, the place's name in sage 900. What the day does there,
-  "Leave", "Finish at", "Back at", is read out before the name rather than drawn. The
-  whole pill is one button that opens the place, where the end is changed for another
-  or taken off the day; under a pointer an edge of sage 600 at 55 percent comes round
-  it. The start's time is when the day leaves, which for someone who may edit is the
-  pill that sets it, in the same column: a desk's dashed pill with its chevron, its
-  shape the same so it is found the same way, in the start's own sage, its time in the
-  body face as every time on the day is, and drawn tighter than a desk's, 4px in from
-  its edge and 3px to the chevron, so it stands in the column. The time is in sage 800
-  as the end's time is, the dash in sage 400, with no tint over the sage under it, and
-  it lifts to sage 100 under a pointer and while its picker is open. The picker is in
-  sage too, so it reads as the start's own: the chosen hour and minute in sage 800 with
-  their digits in `paper`, as a chosen chip is in the accent's 800, and a row under the
-  pointer in sage 100. On a stop's terracotta block, with no start, the pill and its
-  picker keep the accent's colours.
+  where a stop's name starts, the place's name in sage 900, and under it its address
+  at the small step in sage 800, 4px down, as a stop's address is under its name. What
+  the day does there, "Leave", "Finish at", "Back at", is read out before the name
+  rather than drawn. The whole pill is one button that opens the place, where the end
+  is changed for another or taken off the day; under a pointer an edge of sage 600 at
+  55 percent comes round it. The start's time is when the day leaves, which for someone
+  who may edit is the control that sets it, in the same column: the time and a chevron
+  after it with no edge round them, both in sage 800 as the end's time is, 4px in and
+  3px apart in a transparent edge so the time stands where a read time does, lifting to
+  sage 100 under a pointer and while its picker is open. The picker is in sage too, so
+  it reads as the start's own: the chosen hour and minute in sage 800 with their digits
+  in `paper`, as a chosen chip is in the accent's 800, and a row under the pointer in
+  sage 100. On a stop's terracotta block, with no start, the same control is in
+  terracotta 800 as the stops' times are, lifting to terracotta 200, and its picker
+  keeps the accent's colours.
 - Without an end, someone who may edit is offered one on the same pill drawn dashed in
   1.5px of sage 400 on `paper`: the end's disc in sage 200 with its glyph in
   sage 700, **Add start point** or **Add end point** in sage 800, and a 16px plus in sage
@@ -527,11 +529,16 @@ under times and names under names, ends and stops alike.
   **Add a place** in terracotta 700, and a 16px plus in the same at the card's right end. Under a
   pointer the dash takes the whole accent. An end not there yet stands 10px under it.
 
-A day with nothing planned says so between its ends, as a desk does: the line its stops
-will hang on runs down the thread's place on its own, dashed in the accent as a desk
-draws it; beside it, on the ends' names' edge, "Nothing planned yet" in the display face
-at the lead step, with **Add a place** on the accent's solid pill under it for someone who
-may edit, its words set as every offer's are.
+A day with nothing planned says so between its ends, on a card of terracotta 200 at the
+`card` radius, 24px in on every side, standing 52px in, on the edge an end's offer starts
+its words on, and running to the column's right edge: "Nothing planned yet" in the
+display face at the title step in terracotta 900. For someone who may edit, under it,
+"Add your first place. Travel times fill in as you go." at the body step in terracotta
+800, and 16px under that the way to the first place, a 48px pill of terracotta 700 with
+a 16px plus and **Add a place** in `sheet`, set as every offer's words are, deepening to
+800 under a pointer. The day's thread is the same dotted line as between stops, not a
+dashed line of its own, and runs down beside the card from one end of the day to the
+other.
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a

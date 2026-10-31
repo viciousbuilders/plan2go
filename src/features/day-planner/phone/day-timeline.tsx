@@ -64,11 +64,12 @@ const END_PILL = "relative flex min-h-12 w-full items-center rounded-[24px] text
  * of sage 200 with no glyph on it, when the day passes the end at its left in
  * sage 800, bold at the place step as every time on the day is, and the
  * place's name after it in sage 900, in the display face at the anchor step,
- * a step under a stop's name. The time stands in the day's column of times
- * and the name where a stop's name starts, so the day's times stand in one
- * column and its names in another, ends and stops alike. At the start the time is when
- * the day leaves, which for someone who may edit is the pill that sets it, a
- * desk's dashed pill, in the same column.
+ * a step under a stop's name, with its address under it at the small step in
+ * sage 800, as a stop's address is under its name. The time stands in the
+ * day's column of times and the name where a stop's name starts, so the day's
+ * times stand in one column and its names in another, ends and stops alike. At
+ * the start the time is when the day leaves, which for someone who may edit is
+ * the time and chevron that set it, with no edge, in the same column.
  *
  * What the day does there, "Leave", "Finish at", "Back at", is read out before
  * the name rather than drawn. The whole pill opens the place, where the end is
@@ -116,10 +117,15 @@ function EndPill({
         onClick={() => {
           onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
         }}
-        className="min-w-0 flex-1 text-left font-display text-anchor break-words text-sage-900 after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+        className="flex min-w-0 flex-1 flex-col gap-1 text-left after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
       >
-        <span className="sr-only">{`${endVerb(which, day)} `}</span>
-        {endpoint.place.name}
+        <span className="font-display text-anchor break-words text-sage-900">
+          <span className="sr-only">{`${endVerb(which, day)} `}</span>
+          {endpoint.place.name}
+        </span>
+        {endpoint.place.address === null ? null : (
+          <span className="text-small break-words text-sage-800">{endpoint.place.address}</span>
+        )}
       </button>
     </div>
   );
@@ -169,8 +175,8 @@ function EndOffer({
  * when the stop is reached in bold terracotta 800 over when it is left, "to
  * 10:14", smaller in terracotta 700; then the place's name in the display face
  * over its address in neutral 700. With no start point, for someone who may
- * edit, the first stop's arrival is when the day leaves, and the pill that
- * sets it stands in the block in place of the time.
+ * edit, the first stop's arrival is when the day leaves, and the time and
+ * chevron that set it stand in the block in place of the time.
  *
  * The whole card is one button that opens the place, where the stay, the note
  * and the stop's place in the day are changed and the stop is taken off: on a
@@ -206,10 +212,10 @@ function TimelineStop({
     <div className="relative flex gap-3.5 rounded-row bg-paper-raised py-2 pr-4 pl-2.5 shadow-sm hover:bg-paper-sunken">
       {times ? (
         /* Over the button's reach only when it holds the pill that sets the
-           time; otherwise a press on the times opens the place too. The pill
-           is a desk's, as wide as the block, so the block keeps 2px either
-           side of it rather than 8, and stands within 3px of the others'
-           width, the names beside them on one edge. */
+           time; otherwise a press on the times opens the place too. That
+           control, the time and its chevron, is as wide as the block, so the
+           block keeps 2px either side of it rather than 8, and stands within
+           3px of the others' width, the names beside them on one edge. */
         <div
           className={`flex ${TIME_COLUMN} shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-100 py-2.5 text-center tabular-nums ${
             leaveAt === null ? "px-2" : "relative z-[1] px-0.5"
@@ -314,34 +320,44 @@ function NextPlace({
 }
 
 /**
- * A day with no stops, between its ends: the line the stops will hang on,
- * dashed in the accent because nothing hangs on it yet, and beside it, on the
- * ends' names' edge, the words a desk says, with the way to the first place
- * under them for someone who may edit, in the accent's solid pill since it is
- * the one thing to do.
+ * A day with no stops, between its ends, as the phone's day design draws it:
+ * a card of terracotta 200 from the ends' offers' words to the column's right
+ * edge, with "Nothing planned yet" in the display face at the title step in
+ * terracotta 900. For someone who may edit, a sentence under it saying what
+ * fills the day, at the body step in terracotta 800, and the way to the first
+ * place, the one thing to do: a pill of terracotta 700 with a plus and "Add a
+ * place" set as every offer's words are, in sheet. The day's thread is the
+ * dotted line it will be once there are stops, and runs down beside the card
+ * from one end to the other.
  */
 function NothingPlanned({ onFindPlace }: { readonly onFindPlace: (() => void) | null }) {
   return (
-    <div className="relative py-3 pl-[52px]">
-      <span aria-hidden="true" className="thread-waiting absolute inset-y-0 left-[23px]" />
-      <p className="font-display text-lead text-balance text-ink">Nothing planned yet</p>
+    /* 52px in, on the edge an end's offer starts its words on, so the day's
+       thread runs down beside the card rather than behind it. */
+    <div className="relative ml-[52px] rounded-card bg-terracotta-200 p-6">
+      <p className="font-display text-title text-balance text-terracotta-900">Nothing planned yet</p>
       {onFindPlace === null ? null : (
-        <button
-          type="button"
-          onClick={onFindPlace}
-          className="mt-[14px] flex h-12 items-center rounded-pill bg-terracotta px-[22px] text-place/none font-bold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-        >
-          Add a place
-        </button>
+        <>
+          <p className="mt-1.5 text-body text-terracotta-800">
+            Add your first place. Travel times fill in as you go.
+          </p>
+          <button
+            type="button"
+            onClick={onFindPlace}
+            className="mt-4 flex h-12 items-center gap-3 rounded-pill bg-terracotta-700 px-[22px] text-place/none font-bold text-sheet hover:bg-terracotta-800 active:bg-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          >
+            <PlusIcon size={16} strokeWidth={2.75} className="shrink-0" />
+            Add a place
+          </button>
+        </>
       )}
     </div>
   );
 }
 
 /**
- * One thing down the day. A leg, and a day with nothing on it, carry their
- * own room above and below; two things that do not are set apart by `gap`,
- * twelve unless said otherwise.
+ * One thing down the day. A leg carries its own room above and below; two
+ * things that do not are set apart by `gap`, twelve unless said otherwise.
  */
 interface Line {
   readonly key: string;
@@ -377,9 +393,10 @@ export function DayTimeline({
    * When the day leaves, set where that time shows: on the start point's
    * time when the day has one, and otherwise on the first stop's arrival.
    * Keyed by the day, so a time half chosen on one day is not carried to the
-   * next. Its picker hangs from its left, into the window. In sage on the
-   * start's sage pill, where its time is the colour the end's time is, and in
-   * the accent on a stop's terracotta block.
+   * next. Its picker hangs from its left, into the window. The time and its
+   * chevron with no edge, in sage on the start's sage pill, where its time is
+   * the colour the end's time is, and in the accent on a stop's terracotta
+   * block.
    */
   const leaveAt =
     actions === null ? null : (
@@ -389,8 +406,7 @@ export function DayTimeline({
         clock={formatClock(computed.begins.minutesFromMidnight)}
         onChoose={(startAtMinutes) => actions.setDayStart({ startAtMinutes })}
         align="left"
-        face="body"
-        tone={day.start === null ? "accent" : "sage"}
+        look={day.start === null ? "stop" : "start"}
       />
     );
 
@@ -438,7 +454,7 @@ export function DayTimeline({
   }
 
   if (day.stops.length === 0) {
-    lines.push({ key: "nothing", roomy: true, node: <NothingPlanned onFindPlace={onFindPlace} /> });
+    lines.push({ key: "nothing", roomy: false, node: <NothingPlanned onFindPlace={onFindPlace} /> });
   }
 
   computed.stops.forEach((stop, index) => {
@@ -530,11 +546,10 @@ export function DayTimeline({
     <div className="relative">
       {/* From the first thing's middle to the last's, behind them all: every
           card and pill is opaque, so the thread shows only in the room
-          between them and through the legs, whose discs stand on it. A day
-          with no stops draws its own waiting line instead. */}
-      {day.stops.length === 0 ? null : (
-        <span aria-hidden="true" className="thread absolute top-6 bottom-6 left-[23px]" />
-      )}
+          between them and through the legs, whose discs stand on it. The
+          same dotted line on a day with nothing planned yet, running behind
+          the card that says so between its ends. */}
+      <span aria-hidden="true" className="thread absolute top-6 bottom-6 left-[23px]" />
       {lines.map((line, at) => {
         const before = lines[at - 1];
         const apart = before !== undefined && !before.roomy && !line.roomy;

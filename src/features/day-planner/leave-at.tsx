@@ -61,47 +61,43 @@ const TRIGGER =
   "flex items-center rounded-pill border py-px tabular-nums disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
 
 /**
- * The face and step the time is set in, the times' own wherever it stands,
- * and the room round it. A desk's times are in the display face at the time
- * step, spaced as described above. A phone's day sets every time in the body
- * face, bold at the place step, which is wider, so the pill is drawn tighter
- * there, 4px in from its edge and 3px to the chevron, to stand in the 74px
- * column a phone's day keeps its times in.
- */
-const FACES = {
-  display: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
-  body: "gap-[3px] pr-0.5 pl-1 text-place/none font-bold",
-} as const;
-
-/**
- * The colours the dashed pill is drawn in, its shape the same in both. The
- * accent's, described above, wherever it stands on paper or on a stop's
- * terracotta block, a desk's and a phone's alike. Sage's on the pill a phone
- * draws the start of the day as, which is sage 200: the time in the sage 800
- * the end of the day's own time is in, the dash in sage 400, the dashed edge
- * an end not there yet is drawn in, no tint over the sage under it, and sage
- * 100 rather than raised paper under the pointer and while its picker is open.
- * The picker it opens takes the same colours, its chosen rows in sage 800.
+ * How the time is drawn, for each place it stands, and the colours of the
+ * picker it opens.
+ *
+ * A desk's is the dashed pill described above, in the display face at the
+ * time step, in the accent. A phone's has no edge at all: the time and its
+ * chevron alone, in the body face bold at the place step as every time in a
+ * phone's day is, in the 800 of what they stand on, the chevron in the same,
+ * and that ramp's lighter fill under a pointer and while the picker is open.
+ * The edge stays, transparent, so the time stands where it did in the 74px
+ * column a phone's day keeps its times in, 4px in and 3px to the chevron. On
+ * the start's sage pill that is sage, picker and all; on a first stop's
+ * terracotta block, with no start, it is the accent.
  */
 const LOOKS = {
-  accent: {
+  desk: {
+    type: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
     closed:
-      "border-terracotta/55 bg-terracotta/10 text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised",
-    open: "border-terracotta bg-paper-raised text-terracotta-700",
+      "border-dashed border-terracotta/55 bg-terracotta/10 text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised",
+    open: "border-dashed border-terracotta bg-paper-raised text-terracotta-700",
     chevron: "text-terracotta-700/65",
+    picker: "accent",
   },
-  sage: {
-    closed:
-      "border-sage-400 bg-transparent text-sage-800 enabled:hover:border-sage-600 enabled:hover:bg-sage-100",
-    open: "border-sage-600 bg-sage-100 text-sage-800",
-    chevron: "text-sage-800/65",
+  start: {
+    type: "gap-[3px] pr-0.5 pl-1 text-place/none font-bold",
+    closed: "border-transparent text-sage-800 enabled:hover:bg-sage-100",
+    open: "border-transparent bg-sage-100 text-sage-800",
+    chevron: "text-sage-800",
+    picker: "sage",
+  },
+  stop: {
+    type: "gap-[3px] pr-0.5 pl-1 text-place/none font-bold",
+    closed: "border-transparent text-terracotta-800 enabled:hover:bg-terracotta-200",
+    open: "border-transparent bg-terracotta-200 text-terracotta-800",
+    chevron: "text-terracotta-800",
+    picker: "accent",
   },
 } as const;
-
-/** The pill's own look, in the colours of what it stands on. */
-function triggerLook(open: boolean, tone: keyof typeof LOOKS): string {
-  return `border-dashed ${open ? LOOKS[tone].open : LOOKS[tone].closed}`;
-}
 
 /** Minutes from midnight on the clock: "09:05". */
 function toClock(minutes: number): string {
@@ -130,10 +126,8 @@ interface LeaveAtProps {
    * hung from the right ran off it.
    */
   readonly align?: "left" | "right";
-  /** Sage on a phone's start of the day, which is sage; the accent everywhere else. */
-  readonly tone?: keyof typeof LOOKS;
-  /** The body face in a phone's day, where every time is set in it; the display face on a desk. */
-  readonly face?: keyof typeof FACES;
+  /** Where it stands: a desk's card, or a phone's start of the day or its first stop. */
+  readonly look?: keyof typeof LOOKS;
 }
 
 /**
@@ -159,8 +153,7 @@ export function LeaveAt({
   clock,
   onChoose,
   align = "right",
-  tone = "accent",
-  face = "display",
+  look = "desk",
 }: LeaveAtProps) {
   const [draft, setDraft] = useState(value);
   const [seen, setSeen] = useState(value);
@@ -242,17 +235,17 @@ export function LeaveAt({
           }
           setOpen(true);
         }}
-        className={`${TRIGGER} ${FACES[face]} ${triggerLook(open, tone)}`}
+        className={`${TRIGGER} ${LOOKS[look].type} ${open ? LOOKS[look].open : LOOKS[look].closed}`}
       >
         {shown}
-        <ChevronDownIcon size={12} strokeWidth={2.75} className={`shrink-0 ${LOOKS[tone].chevron}`} />
+        <ChevronDownIcon size={12} strokeWidth={2.75} className={`shrink-0 ${LOOKS[look].chevron}`} />
       </button>
 
       {open ? (
         <ColumnPicker
           label="When the day leaves"
           align={align}
-          tone={tone}
+          tone={LOOKS[look].picker}
           onEscape={() => {
             close();
             trigger.current?.focus();
