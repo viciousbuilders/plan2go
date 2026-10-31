@@ -483,7 +483,8 @@ for the pill that sets when the day leaves.
   an end, someone who may edit is offered one as a desk offers it, on the same card
   drawn dashed in 1.5px of `rule-strong`, beside the same marker: the end's name in sage
   800 over what kind of place goes there, 12px from what is next to it on the day's
-  side. The marker and the card are one button, which goes to the search on the map,
+  side, and at the card's right end a desk's offer's plus, 15px in `ink-faint`, taking
+  the accent under a pointer. The marker and the card are one button, which goes to the search on the map,
   as **Add a place** does; under a pointer the dash takes the accent and the paper lifts
   to `paper-raised`. Under the next place, the thread runs on down the rail from its
   circle to the end's marker, from 9px under the circle, as a leg's does to an end that
@@ -495,7 +496,8 @@ for the pill that sets when the day leaves.
   on the rail a dashed circle of the accent with the number that stop would get in it,
   in the discs' face and step, and beside it, on a card of the stops' surface and edge,
   one line deep and 44px tall, 12px under the last stop's card, **Add a place** in bold
-  at the body step, the number and the words in `terracotta-800`. In the column of
+  at the body step, the number and the words in `terracotta-800`, and the same plus as
+  an end's offer at the card's right end. In the column of
   times, level with the card, "from 11:27", as the foot of a desk's last card says it:
   when the last stop is left, which is when the way to the next place would begin, at
   the step, weight and ink of the stops' leaving times, a word to a line where the

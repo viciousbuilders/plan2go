@@ -7,7 +7,7 @@ import { conflictsAtStop } from "@/core/model/conflict";
 import type { DayEndpoint, DayPlan } from "@/core/model/day";
 import type { ComputedDay, ComputedStop } from "@/core/time/compute-day";
 import { formatClock, formatDuration } from "@/core/time/minutes";
-import { ClockIcon, NoteIcon } from "@/ui/icons";
+import { ClockIcon, NoteIcon, PlusIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
 import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
@@ -45,6 +45,27 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
   return back ? "Back at" : "Finish at";
 }
 
+/** Each card's own pointer group, named in full so the stylesheet is built with it. */
+const OFFER_PLUS_HOVER = {
+  next: "group-hover/next:text-terracotta-700",
+  end: "group-hover/end:text-terracotta-700",
+} as const;
+
+/**
+ * The plus at the right end of a card that offers something to the day, the
+ * next place or an end not there yet: the one a desk's offer of an end ends
+ * in, at its size and in its quiet ink, taking the accent under a pointer.
+ */
+function OfferPlus({ group }: { readonly group: keyof typeof OFFER_PLUS_HOVER }) {
+  return (
+    <PlusIcon
+      size={15}
+      strokeWidth={2.75}
+      className={`ml-auto shrink-0 text-ink-faint ${OFFER_PLUS_HOVER[group]}`}
+    />
+  );
+}
+
 /**
  * One end of the day on the rail, laid out as a stop is: the time the day
  * passes it in the column of times, the end's marker with its glyph on the
@@ -68,7 +89,8 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
  *
  * Without an end, someone who may edit is offered one as a desk offers it, on
  * the same card drawn dashed, beside the marker it will get: the name of the
- * end and what kind of place goes there. It takes them to the search on the
+ * end and what kind of place goes there, and the plus a desk's offer ends in
+ * at the card's right end. It takes them to the search on the
  * map, as "Add a place" does, which finds the end as it finds a place. Under
  * the next place, the thread runs on down the rail to the marker it offers,
  * as it runs down a leg to an end that is there.
@@ -149,9 +171,12 @@ function EndLine({
           className="group/end col-span-2 grid grid-cols-[26px_minmax(0,1fr)] items-center gap-x-[10px] text-left focus-visible:outline-none"
         >
           {mark}
-          <span className="flex min-h-11 flex-col justify-center rounded-row border-[1.5px] border-dashed border-rule-strong bg-paper px-[15.5px] py-[8.5px] group-hover/end:border-terracotta group-hover/end:bg-paper-raised group-focus-visible/end:outline-2 group-focus-visible/end:outline-offset-2 group-focus-visible/end:outline-terracotta">
-            <span className="block text-small/[1.15] font-semibold text-sage-800">{words.add}</span>
-            <span className="mt-[3px] block text-micro/[1.25] text-ink-muted">{words.hint}</span>
+          <span className="flex min-h-11 items-center gap-3 rounded-row border-[1.5px] border-dashed border-rule-strong bg-paper px-[15.5px] py-[8.5px] group-hover/end:border-terracotta group-hover/end:bg-paper-raised group-focus-visible/end:outline-2 group-focus-visible/end:outline-offset-2 group-focus-visible/end:outline-terracotta">
+            <span className="min-w-0">
+              <span className="block text-small/[1.15] font-semibold text-sage-800">{words.add}</span>
+              <span className="mt-[3px] block text-micro/[1.25] text-ink-muted">{words.hint}</span>
+            </span>
+            <OfferPlus group="end" />
           </span>
         </button>
       </div>
@@ -435,7 +460,8 @@ export function DayTimeline({
           number that stop would get in it, as a desk's has, in the discs' face
           and step; and beside it, on a card of the stops' surface and edge,
           the words, in the accent's brown at the weight design 1b gives them,
-          the brown the number takes too. The card is one line deep and a
+          the brown the number takes too, and a plus at the card's right end,
+          the one an offer of an end carries. The card is one line deep and a
           finger's height, 12px under the last stop's card, and the circle is
           level with it; the thread runs on to the circle from the last disc,
           its last dot as clear of it as of a disc. The circle and the card are
@@ -478,8 +504,9 @@ export function DayTimeline({
                 {day.stops.length + 1}
               </span>
             </span>
-            <span className="mt-3 flex min-h-11 items-center rounded-row border border-rule bg-paper-raised px-4 group-hover/next:border-terracotta/55 group-hover/next:bg-paper-sunken group-focus-visible/next:outline-2 group-focus-visible/next:outline-offset-2 group-focus-visible/next:outline-terracotta">
+            <span className="mt-3 flex min-h-11 items-center gap-3 rounded-row border border-rule bg-paper-raised px-4 group-hover/next:border-terracotta/55 group-hover/next:bg-paper-sunken group-focus-visible/next:outline-2 group-focus-visible/next:outline-offset-2 group-focus-visible/next:outline-terracotta">
               <span className="text-body/none font-bold text-terracotta-800">Add a place</span>
+              <OfferPlus group="next" />
             </span>
           </button>
         </div>
