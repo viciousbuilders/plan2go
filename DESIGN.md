@@ -334,7 +334,9 @@ and only the day itself scrolls, so what is being read is always named above it.
 The list pane stands on sunken paper, and everything on it is laid on that ground 14px
 in from the edge, 12px apart. The trip comes first, on a pill of raised paper under a
 floating control's shadow: its name at the title step, its dates, and its menu, one row
-about the whole trip. Under it the days, on one pill of paper 60px tall with 30px ends,
+about the whole trip. For someone who may edit, the dates are titled "Change the trip's
+dates" under the pointer and the menu "Trip actions", neither while what it opens is
+open. Under it the days, on one pill of paper 60px tall with 30px ends,
 the way a phone app's tab bar is drawn: the strip of tabs and nothing else, held close:
 seven in from every edge, so the pill reads as one control made of days. Each tab is a
 pill 44px tall, the height a finger needs, eight in from the strip's edge so the two

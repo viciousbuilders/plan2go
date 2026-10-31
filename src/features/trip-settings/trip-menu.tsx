@@ -191,6 +191,9 @@ export function TripMenu({ label, children }: TripMenuProps) {
         type="button"
         ref={button}
         aria-label={label}
+        // Its name under the pointer as well, since three dots say there is
+        // more and not what.
+        title={open ? undefined : label}
         aria-expanded={open}
         onClick={() => {
           if (open) {

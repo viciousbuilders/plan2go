@@ -171,6 +171,13 @@ interface DateRangeFieldProps {
   readonly onClose?: () => void;
   /** Which of its two homes this one is in. See SIZES above. */
   readonly size?: keyof typeof SIZES;
+  /**
+   * Said under the pointer while the panel is shut, for a field whose dates
+   * do not say on their own that pressing them changes them: the trip's row,
+   * where the dates sit beside its name as plain words. None while it is
+   * open, over the calendar it opened.
+   */
+  readonly hint?: string;
 }
 
 /**
@@ -355,6 +362,7 @@ export function DateRangeField({
   footer,
   onClose,
   size = "inline",
+  hint,
 }: DateRangeFieldProps) {
   const dressed = SIZES[size];
   /**
@@ -567,6 +575,7 @@ export function DateRangeField({
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
+        title={open ? undefined : hint}
         onClick={() => {
           if (open) {
             close();

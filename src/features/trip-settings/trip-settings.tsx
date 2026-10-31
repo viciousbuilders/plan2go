@@ -249,6 +249,7 @@ export function TripSettings({
           startName="startDate"
           endName="endDate"
           label="Dates"
+          hint="Change the trip's dates"
           start={first}
           end={last}
           today={today}
