@@ -6,7 +6,16 @@
  * twenty six wide, the stops' discs and the ends' markers; and the words take
  * the rest. Ten between each.
  */
-export const RAIL_ROW = "grid grid-cols-[50px_26px_minmax(0,1fr)] gap-x-[10px]";
+export const RAIL_ROW =
+  "grid grid-cols-[var(--rail-times,50px)_26px_minmax(0,1fr)] gap-x-[10px]";
+
+/**
+ * The column of times sixty eight wide, set on the whole day for someone who
+ * may edit, so every line keeps one rail. The time the day leaves is a desk's
+ * dashed pill for them, its chevron and all, which is that wide; a reader's
+ * times are plain and keep the fifty.
+ */
+export const RAIL_TIMES_FOR_PILL = "[--rail-times:68px]";
 
 /** A mark on the rail, the column's own width, so the line through it runs down its middle. */
 export const RAIL_MARK = "grid h-[26px] w-[26px] shrink-0 place-items-center rounded-pill";

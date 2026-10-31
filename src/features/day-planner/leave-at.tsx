@@ -61,20 +61,11 @@ const TRIGGER =
   "flex items-center gap-[5px] rounded-pill border py-px font-display text-time tabular-nums disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
 
 /**
- * The pill's own look. A desk's is the dashed pill described above. A phone's
- * has no room for the chevron that says a desk's opens, and without it a
- * dashed edge did not say it could be pressed, so it is a solid button there
- * instead: `terracotta-700` with the time in `paper`, darkening to
- * `terracotta-800` while it is pressed or its picker is open. The time keeps
- * its face and step, and the pill its size, so the column of times does not
- * move.
+ * The pill's own look, the dashed pill described above, on a phone as on a
+ * desk: the one time on the day a person sets looks the same wherever it is
+ * set. A phone's column of times is widened to hold it, chevron and all.
  */
-function triggerLook(compact: boolean, open: boolean): string {
-  if (compact) {
-    return open
-      ? "border-terracotta-800 bg-terracotta-800 px-[5px] text-paper"
-      : "border-terracotta-700 bg-terracotta-700 px-[5px] text-paper enabled:active:border-terracotta-800 enabled:active:bg-terracotta-800";
-  }
+function triggerLook(open: boolean): string {
   return open
     ? "border-dashed border-terracotta bg-paper-raised pr-[4px] pl-[6px] text-terracotta-700"
     : "border-dashed border-terracotta/55 bg-terracotta/10 pr-[4px] pl-[6px] text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised";
@@ -107,13 +98,6 @@ interface LeaveAtProps {
    * hung from the right ran off it.
    */
   readonly align?: "left" | "right";
-  /**
-   * Drawn without its chevron and with the edge as close round the time as
-   * the time's own room, for the phone's column of times, which is fifty wide
-   * and holds the time and nothing else; and solid rather than dashed, so it
-   * still says it can be pressed without the chevron.
-   */
-  readonly compact?: boolean;
 }
 
 /**
@@ -139,7 +123,6 @@ export function LeaveAt({
   clock,
   onChoose,
   align = "right",
-  compact = false,
 }: LeaveAtProps) {
   const [draft, setDraft] = useState(value);
   const [seen, setSeen] = useState(value);
@@ -221,12 +204,10 @@ export function LeaveAt({
           }
           setOpen(true);
         }}
-        className={`${TRIGGER} ${triggerLook(compact, open)}`}
+        className={`${TRIGGER} ${triggerLook(open)}`}
       >
         {shown}
-        {compact ? null : (
-          <ChevronDownIcon size={12} strokeWidth={2.75} className="shrink-0 text-terracotta-700/65" />
-        )}
+        <ChevronDownIcon size={12} strokeWidth={2.75} className="shrink-0 text-terracotta-700/65" />
       </button>
 
       {open ? (

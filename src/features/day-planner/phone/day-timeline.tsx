@@ -16,7 +16,7 @@ import type { EndpointRef } from "../day-itinerary";
 import { formatDayTime } from "../format-day-time";
 import { hoursOn } from "../format-opening-hours";
 import { LeaveAt } from "../leave-at";
-import { RAIL_END_MARK, RAIL_MARK, RAIL_ROW } from "./rail";
+import { RAIL_END_MARK, RAIL_MARK, RAIL_ROW, RAIL_TIMES_FOR_PILL } from "./rail";
 import { TimelineLeg } from "./timeline-leg";
 
 interface DayTimelineProps {
@@ -333,7 +333,8 @@ export function DayTimeline({
    * time when the day has one, and otherwise on the first stop's arrival.
    * Keyed by the day, so a time half chosen on one day is not carried to the
    * next. Its picker hangs from its left, into the window, from the column
-   * of times at the window's left edge.
+   * of times at the window's left edge. The pill is a desk's, chevron and
+   * all, so the column of times is widened to hold it wherever it is shown.
    */
   const leaveAt =
     actions === null ? null : (
@@ -343,7 +344,6 @@ export function DayTimeline({
         clock={formatClock(computed.begins.minutesFromMidnight)}
         onChoose={(startAtMinutes) => actions.setDayStart({ startAtMinutes })}
         align="left"
-        compact
       />
     );
 
@@ -359,7 +359,7 @@ export function DayTimeline({
   const onFrom = last === undefined || last.departure === null ? null : formatDayTime(last.departure);
 
   return (
-    <div>
+    <div className={leaveAt === null ? undefined : RAIL_TIMES_FOR_PILL}>
       <EndLine
         which="start"
         day={day}

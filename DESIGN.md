@@ -438,7 +438,9 @@ cards and as far from them as they are from each other, the button that adds a d
 Then the day, down a rail, 16px under the cards, with nothing between them to say what
 the day comes to. Every line of it is laid on the same three columns: the times
 in the first, 50px wide and set to its right edge so they read as one column; the marks
-on the rail in the second, 26px; and the words in the rest, 10px between each.
+on the rail in the second, 26px; and the words in the rest, 10px between each. For
+someone who may edit the times' column is 68px on every line of the day, wide enough
+for the pill that sets when the day leaves.
 
 - A stop: when it is reached in the display face at the place step, over when it is
   left at the micro step in `ink-faint`; its number on a 26px terracotta disc with the
@@ -479,11 +481,10 @@ on the rail in the second, 26px; and the words in the rest, 10px between each.
   as **Add a place** does; under a pointer the dash takes the accent and the paper lifts
   to `paper-raised`. Under the next place, the thread runs on down the rail from its
   circle to the end's marker, from 9px under the circle, as a leg's does to an end that
-  is there, to 4px short of the marker. The start's time is the pill that sets when the day leaves, its
-  chevron left off to fit the column, and without the chevron it is a solid button
-  rather than a desk's dashed pill, so it still says it can be pressed: `terracotta-700`
-  with the time in `paper`, darkening to `terracotta-800` while it is pressed or its
-  picker is open. With no start it is the first stop's arrival, drawn the same way.
+  is there, to 4px short of the marker. The start's time is the pill that sets when the day leaves,
+  drawn as a desk draws it, dashed and tinted with its chevron, so the one time a
+  person sets looks the same on either. With no start it is the first stop's arrival,
+  drawn the same way.
 - After the last stop, for someone who may edit, the next place, laid out as a stop is:
   on the rail a dashed circle of the accent with the number that stop would get in it,
   in the discs' face and step, and beside it, on a card of the stops' surface and edge,
