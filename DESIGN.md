@@ -725,8 +725,8 @@ the right with the times, the column the ends of a day keep too; the name and th
 address stand in their own column beside it, so a long name no longer pushes the tools
 down away from the times. The tools are drawn at 55 percent
 until the pointer is over the card and never hidden, since half the people using this
-have no pointer to hover with. How long the stop lasts is a pill with an hourglass on it
-that opens two columns, hours and minutes, the same columns the day's leaving time
+have no pointer to hover with. How long the stop lasts is a pill with an hourglass on it,
+titled "Time at this place" under the pointer, that opens two columns, hours and minutes, the same columns the day's leaving time
 opens, and writes when it closes; the opening hours sit beside it in words after a
 clock, and the note is either a field or the one line offering to start one. An
 hourglass and not a second clock, because one glyph for both a length and a time of day

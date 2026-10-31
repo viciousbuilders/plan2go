@@ -90,6 +90,10 @@ export function StayPicker({ placeName, value, disabled, onChoose }: StayPickerP
         aria-haspopup="dialog"
         aria-expanded={open}
         disabled={disabled}
+        // Said under the pointer in the words it is read out with, since "1
+        // hr" on a card of times does not say whose hour it is. On the button
+        // alone, so the columns it opens do not say it over every choice.
+        title="Time at this place"
         onClick={() => {
           if (open) {
             close();
