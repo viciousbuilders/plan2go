@@ -81,6 +81,7 @@ const FACES = {
  * the end of the day's own time is in, the dash in sage 400, the dashed edge
  * an end not there yet is drawn in, no tint over the sage under it, and sage
  * 100 rather than raised paper under the pointer and while its picker is open.
+ * The picker it opens takes the same colours, its chosen rows in sage 800.
  */
 const LOOKS = {
   accent: {
@@ -251,6 +252,7 @@ export function LeaveAt({
         <ColumnPicker
           label="When the day leaves"
           align={align}
+          tone={tone}
           onEscape={() => {
             close();
             trigger.current?.focus();

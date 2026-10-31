@@ -482,8 +482,11 @@ under times and names under names, ends and stops alike.
   body face as every time on the day is, and drawn tighter than a desk's, 4px in from
   its edge and 3px to the chevron, so it stands in the column. The time is in sage 800
   as the end's time is, the dash in sage 400, with no tint over the sage under it, and
-  it lifts to sage 100 under a pointer and while its picker is open. On a stop's
-  terracotta block, with no start, it keeps the accent's colours.
+  it lifts to sage 100 under a pointer and while its picker is open. The picker is in
+  sage too, so it reads as the start's own: the chosen hour and minute in sage 800 with
+  their digits in `paper`, as a chosen chip is in the accent's 800, and a row under the
+  pointer in sage 100. On a stop's terracotta block, with no start, the pill and its
+  picker keep the accent's colours.
 - Without an end, someone who may edit is offered one on the same pill drawn dashed in
   1.5px of sage 400 on `paper`: the end's disc in sage 200 with its glyph in
   sage 700, **Add start point** or **Add end point** in sage 800, and a 16px plus in sage

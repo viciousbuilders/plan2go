@@ -18,9 +18,20 @@ const LIST =
 // Two digits every time, so they are centred rather than ranged left against
 // a column no wider than they are.
 const ROW =
-  "block w-full rounded-chip py-[6px] text-center font-display text-time text-ink tabular-nums hover:bg-terracotta-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta max-lg:py-[10px]";
+  "block w-full rounded-chip py-[6px] text-center font-display text-time text-ink tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta max-lg:py-[10px]";
 
-const ROW_CHOSEN = "bg-terracotta-800 text-paper hover:bg-terracotta-800";
+/**
+ * The colours a row is picked out in, from the ramp of the control the picker
+ * hangs from: the accent's under every control but one, and sage's under the
+ * start of a phone's day, whose pill is sage, so the picker reads as that
+ * pill's own. The chosen row in the ramp's 800 with its digits in paper, as a
+ * chosen chip is; any other row in its 100 under the pointer. The ring that
+ * shows the keyboard stays the accent's, as it is on every control.
+ */
+const TONES = {
+  accent: { row: "hover:bg-terracotta-100", chosen: "bg-terracotta-800 text-paper" },
+  sage: { row: "hover:bg-sage-100", chosen: "bg-sage-800 text-paper" },
+} as const;
 
 interface PickerColumn {
   /**
@@ -42,6 +53,8 @@ interface ColumnPickerProps {
   /** Which end of the control it hangs from, so it opens over the page and not off it. */
   readonly align: "left" | "right";
   readonly onEscape: () => void;
+  /** Sage under the start of a phone's day; the accent everywhere else. */
+  readonly tone?: keyof typeof TONES;
 }
 
 /**
@@ -56,7 +69,13 @@ interface ColumnPickerProps {
  * Rendered only while open, so opening is mounting, and mounting is when
  * each column scrolls to the row it is set to.
  */
-export function ColumnPicker({ label, columns, align, onEscape }: ColumnPickerProps) {
+export function ColumnPicker({
+  label,
+  columns,
+  align,
+  onEscape,
+  tone = "accent",
+}: ColumnPickerProps) {
   const panel = useRef<HTMLDivElement | null>(null);
 
   /** Every column opens on what is chosen, rather than at the top. */
@@ -102,7 +121,7 @@ export function ColumnPicker({ label, columns, align, onEscape }: ColumnPickerPr
                   onClick={() => {
                     column.onPick(value);
                   }}
-                  className={`${ROW} ${chosen ? ROW_CHOSEN : ""}`}
+                  className={`${ROW} ${chosen ? TONES[tone].chosen : TONES[tone].row}`}
                 >
                   {column.format(value)}
                 </button>
