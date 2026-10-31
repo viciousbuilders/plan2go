@@ -1,22 +1,19 @@
 "use client";
 
-import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { Conflict } from "@/core/model/conflict";
 import { conflictsAtStop } from "@/core/model/conflict";
 import type { DayEndpoint, DayPlan } from "@/core/model/day";
 import type { ComputedDay, ComputedStop } from "@/core/time/compute-day";
-import { formatClock, formatDuration } from "@/core/time/minutes";
-import { ClockIcon, NoteIcon, PlusIcon } from "@/ui/icons";
+import { formatClock } from "@/core/time/minutes";
+import { NoteIcon, PlusIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
 import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
 import { ENDS, MARKS } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
 import { formatDayTime } from "../format-day-time";
-import { hoursOn } from "../format-opening-hours";
 import { LeaveAt } from "../leave-at";
-import { RAIL_END_MARK, RAIL_MARK, RAIL_ROW, RAIL_TIMES_FOR_PILL } from "./rail";
 import { TimelineLeg } from "./timeline-leg";
 
 interface DayTimelineProps {
@@ -36,7 +33,7 @@ interface DayTimelineProps {
   readonly onFindEnd: ((which: "start" | "end") => void) | null;
 }
 
-/** What the line for each end of the day says it does there. */
+/** What the day does at each end, read out before the place's name. */
 function endVerb(which: "start" | "end", day: DayPlan): string {
   if (which === "start") {
     return "Leave";
@@ -45,198 +42,132 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
   return back ? "Back at" : "Finish at";
 }
 
-/** Each card's own pointer group, named in full so the stylesheet is built with it. */
-const OFFER_PLUS_HOVER = {
-  next: "group-hover/next:text-terracotta-700",
-  end: "group-hover/end:text-terracotta-700",
-} as const;
+/**
+ * The shape both of an end's pills share: 48px tall and rounded to half that,
+ * so one line is a pill and a name long enough for two makes a card with the
+ * same round ends. The disc at its left has its middle 24px in from the day's
+ * edge, on the thread, as a leg's disc does, so the ends and the legs stand
+ * on one line.
+ */
+const END_PILL = "relative flex min-h-12 w-full items-center gap-3 rounded-[24px] text-left";
 
 /**
- * The plus at the right end of a card that offers something to the day, the
- * next place or an end not there yet: the one a desk's offer of an end ends
- * in, at its size and in its quiet ink, taking the accent under a pointer.
+ * An end of the day that is there, as the phone's day design draws it: a pill
+ * of sage 200, the end's disc in sage 600 with its glyph in paper, the house
+ * where the day sets out and the flag where it finishes, then the place's
+ * name in bold sage 900, and at the right when the day passes it, in bold sage
+ * 800. At the start that is when the day leaves, which for someone who may
+ * edit is the pill that sets it, a desk's dashed pill.
+ *
+ * What the day does there, "Leave", "Finish at", "Back at", is read out before
+ * the name rather than drawn, since the disc says which end it is. The whole
+ * pill opens the place, where the end is changed for another or taken off the
+ * day: on a phone the day is read here and changed there. Under a pointer an
+ * edge of sage 600 at 55 percent comes round it, as round a desk's row.
  */
-function OfferPlus({ group }: { readonly group: keyof typeof OFFER_PLUS_HOVER }) {
-  return (
-    <PlusIcon
-      size={15}
-      strokeWidth={2.75}
-      className={`ml-auto shrink-0 text-ink-faint ${OFFER_PLUS_HOVER[group]}`}
-    />
-  );
-}
-
-/**
- * One end of the day on the rail, laid out as a stop is: the time the day
- * passes it in the column of times, the end's marker with its glyph on the
- * rail, and beside them a card with what the day does there, "Leave The Old
- * Clare Hotel", as design 1b writes the start. When the place keeps hours
- * they are under the words, since a hotel that locks its doors at eleven is
- * as much use to know about as a museum that shuts at five.
- *
- * The card is a desk's row for an end: sage 100 inside an edge of sage 200 at
- * the row radius, the colour an end stands on wherever it is drawn, flat
- * rather than raised as the stops' cards are, since the day passes through an
- * end rather than spending time there, and as deep as what is in it and 9px
- * more over and under, as a desk's is. The time and the
- * marker stand level with its middle, as they stood with the words before
- * there was a card, and the thread runs on to the marker from the leg above
- * it and away from it down the leg below. The whole card is one button that
- * opens the place, where the end is changed for another or taken off the
- * day, as a stop is changed from its own: on a phone the day is read here and
- * changed there. Under a pointer it sinks as a desk's row does, inside an
- * edge of sage.
- *
- * Without an end, someone who may edit is offered one as a desk offers it, on
- * the same card drawn dashed, beside the marker it will get: the name of the
- * end and what kind of place goes there, and the plus a desk's offer ends in
- * at the card's right end. It takes them to the search on the
- * map, as "Add a place" does, which finds the end as it finds a place. Under
- * the next place, the thread runs on down the rail to the marker it offers,
- * as it runs down a leg to an end that is there.
- *
- * The start's time is when the day leaves, which for someone who may edit is
- * the pill that sets it.
- */
-function EndLine({
+function EndPill({
   which,
   day,
   endpoint,
   time,
   setTime,
-  reached,
-  goesOn,
-  joined,
-  onFind,
   onOpen,
 }: {
   readonly which: "start" | "end";
   readonly day: DayPlan;
-  readonly endpoint: DayEndpoint | null;
+  readonly endpoint: DayEndpoint;
   /** When the day passes this end, or null when that could not be worked out. */
   readonly time: string | null;
   /** Sets the time rather than reading it; null wherever it is only read. */
   readonly setTime: ReactNode;
-  /** Whether a leg comes down the rail to it, which the end of a day has after its stops. */
-  readonly reached: boolean;
-  /** Whether a leg goes on down the rail from it, which the start of a day has before its stops. */
-  readonly goesOn: boolean;
-  /**
-   * Whether the next place stands over the offer of this end on the rail, so
-   * the thread runs on from its circle to the offer's marker: the end of a day
-   * with stops, for someone who may edit.
-   */
-  readonly joined: boolean;
-  /** Takes the reader to the search for this end. Null for a reader who cannot edit. */
-  readonly onFind: (() => void) | null;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
-  const words = ENDS[which];
   const Mark = MARKS[which];
-  /**
-   * One marker for the line with the place and the line offering one, so the
-   * offer shows the shape the end will get.
-   */
-  const mark = (
-    <span className={RAIL_END_MARK}>
-      <Mark size={13} strokeWidth={2.75} />
-    </span>
-  );
-
-  if (endpoint === null) {
-    /* Twelve from what is next to it on the day's side, as a desk's offer
-       keeps, since a card stands there. The marker and the card are one
-       button, as the next place's circle and card are, and the ring that
-       shows the keyboard is on it is drawn round the card.
-
-       Under the next place the thread runs from the top of the row, across
-       those twelve, to 4px short of the marker, wherever the marker stands
-       on a card as deep as its words make it: placed in the rail's column of
-       the row, both its edges named since an edge left to itself is the
-       row's, and measured from the row's middle, which is the card's middle
-       less half the twelve. It starts as far under the next place's circle as a
-       leg's thread does when there is an end. */
-    return onFind === null ? null : (
-      <div className={`${RAIL_ROW} relative ${which === "start" ? "pb-3" : "pt-3"}`}>
-        <span aria-hidden="true" />
-        {joined ? (
-          <span
-            aria-hidden="true"
-            className="thread absolute top-0 bottom-[calc(50%+11px)] left-1/2 col-start-2 col-end-3 -translate-x-1/2"
-          />
-        ) : null}
-        <button
-          type="button"
-          onClick={onFind}
-          className="group/end col-span-2 grid grid-cols-[26px_minmax(0,1fr)] items-center gap-x-[10px] text-left focus-visible:outline-none"
-        >
-          {mark}
-          <span className="flex min-h-11 items-center gap-3 rounded-row border-[1.5px] border-dashed border-rule-strong bg-paper px-[15.5px] py-[8.5px] group-hover/end:border-terracotta group-hover/end:bg-paper-raised group-focus-visible/end:outline-2 group-focus-visible/end:outline-offset-2 group-focus-visible/end:outline-terracotta">
-            <span className="min-w-0">
-              <span className="block text-small/[1.15] font-semibold text-sage-800">{words.add}</span>
-              <span className="mt-[3px] block text-micro/[1.25] text-ink-muted">{words.hint}</span>
-            </span>
-            <OfferPlus group="end" />
-          </span>
-        </button>
-      </div>
-    );
-  }
-
-  const hours = hoursOn(endpoint.place, day);
   return (
-    /* Twelve over an end no leg comes down to, from what stands above it. */
-    <div className={`${RAIL_ROW} ${which === "end" && !reached ? "pt-3" : ""}`}>
-      <div className="flex items-center justify-end">
-        {setTime ?? (
-          <p className="font-display text-time whitespace-nowrap text-ink tabular-nums">{time}</p>
-        )}
-      </div>
-      <div aria-hidden="true" className="flex flex-col items-center">
-        <span className={`mb-1 flex-1 ${reached ? "thread" : ""}`} />
-        {mark}
-        <span className={`mt-1 flex-1 ${goesOn ? "thread" : ""}`} />
-      </div>
-      <div
-        className={`relative min-w-0 rounded-row border border-sage-200 bg-sage-100 px-4 py-[9px] hover:border-sage-600/55 hover:bg-sage-200`}
+    <div
+      className={`${END_PILL} border border-transparent bg-sage-200 py-[7px] pr-4 pl-[7px] hover:border-sage-600/55`}
+    >
+      <span
+        aria-hidden="true"
+        className="grid size-8 shrink-0 place-items-center rounded-pill bg-sage-600 text-paper"
       >
-        <button
-          type="button"
-          onClick={() => {
-            onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
-          }}
-          className="flex w-full flex-col text-left after:absolute after:-inset-px after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
-        >
-          <span className="block text-body/[1.3] font-semibold break-words text-ink">
-            {`${endVerb(which, day)} ${endpoint.place.name}`}
-          </span>
-          {hours === null ? null : (
-            <span className="mt-[3px] flex items-center gap-[5px] text-micro text-ink-muted tabular-nums">
-              <ClockIcon size={12} className="shrink-0" />
-              {hours}
-            </span>
-          )}
-        </button>
-      </div>
+        <Mark size={14} strokeWidth={2.75} />
+      </span>
+      <button
+        type="button"
+        onClick={() => {
+          onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
+        }}
+        className="min-w-0 flex-1 text-left text-place/[1.25] font-bold break-words text-sage-900 after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+      >
+        <span className="sr-only">{`${endVerb(which, day)} `}</span>
+        {endpoint.place.name}
+      </button>
+      {/* Over the button's reach, so the pill that sets the time is pressed
+          and not the place behind it. */}
+      {setTime === null ? (
+        time === null ? null : (
+          <p className="shrink-0 text-body/none font-bold whitespace-nowrap text-sage-800 tabular-nums">
+            {time}
+          </p>
+        )
+      ) : (
+        <div className="relative z-[1] shrink-0">{setTime}</div>
+      )}
     </div>
   );
 }
 
 /**
- * A stop on the rail, as design 1b draws it. In the column of times, when it
- * is reached, in the display face, over when it is left, small and quiet; on
- * the rail, its number on a terracotta disc with the dotted thread running on
- * down from it, as a desk draws it, so the day hangs on one line from the
- * first stop to the last rather than a line of the accent broken by a dotted
- * one at every leg; and beside them, on a card as a desk's stop is, its name
- * in the display face, its address, and how long is spent there, in the
- * accent's brown.
+ * An end of the day not there yet, offered to someone who may edit: the same
+ * pill drawn dashed, 1.5px of sage at 60 percent on paper, the end's disc in
+ * sage 200 with its glyph in sage 700, the end it offers in bold sage 800, and
+ * a plus in sage 600 at the right end. It takes them to the search on the
+ * map, as "Add a place" does, which finds the end as it finds a place.
+ */
+function EndOffer({
+  which,
+  onFind,
+}: {
+  readonly which: "start" | "end";
+  readonly onFind: () => void;
+}) {
+  const Mark = MARKS[which];
+  return (
+    <button
+      type="button"
+      onClick={onFind}
+      className={`${END_PILL} border-[1.5px] border-dashed border-sage/60 bg-paper py-[6.5px] pr-5 pl-[6.5px] hover:border-sage-600 hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
+    >
+      <span
+        aria-hidden="true"
+        className="grid size-8 shrink-0 place-items-center rounded-pill bg-sage-200 text-sage-700"
+      >
+        <Mark size={14} strokeWidth={2.75} />
+      </span>
+      <span className="min-w-0 flex-1 text-place/[1.25] font-bold text-sage-800">
+        {ENDS[which].add}
+      </span>
+      <PlusIcon size={16} strokeWidth={2.75} className="shrink-0 text-sage-600" />
+    </button>
+  );
+}
+
+/**
+ * A stop, as the phone's day design draws it: a card of raised paper at the
+ * row radius under the small shadow, full width, with no number on it. At its
+ * left, on a block of terracotta 100 as tall as the card less its padding,
+ * when the stop is reached in bold terracotta 800 over when it is left, "to
+ * 10:14", smaller in terracotta 700; then the place's name in the display face
+ * over its address in neutral 700. With no start point, for someone who may
+ * edit, the first stop's arrival is when the day leaves, and the pill that
+ * sets it stands in the block in place of the time.
  *
- * The whole card is one button that opens the place, where the stay, the
- * note and the stop's place in the day are changed and the stop is taken off:
- * on a phone the day is read here and changed there. What the day has to say
- * about the stop stays on the card under the words, a conflict with its
- * numbers in it, and the note for whoever is travelling.
+ * The whole card is one button that opens the place, where the stay, the note
+ * and the stop's place in the day are changed and the stop is taken off: on a
+ * phone the day is read here and changed there. What the day has to say about
+ * the stop stays on the card under the words, a conflict with its numbers in
+ * it, and the note for whoever is travelling.
  */
 function TimelineStop({
   position,
@@ -245,10 +176,9 @@ function TimelineStop({
   note,
   conflicts,
   leaveAt,
-  reached,
   onOpen,
 }: {
-  /** Its number in the day, counted from one. */
+  /** Its number in the day, counted from one, read out before its name. */
   readonly position: number;
   readonly stop: ComputedStop;
   readonly address: string | null;
@@ -260,62 +190,47 @@ function TimelineStop({
    * leaves, for someone who may edit. Null on every other stop.
    */
   readonly leaveAt: ReactNode;
-  /**
-   * Whether a leg comes down the rail to it, which every stop has but the
-   * first of a day with no start point.
-   */
-  readonly reached: boolean;
   readonly onOpen: () => void;
 }) {
+  const times = leaveAt !== null || stop.arrival !== null;
   return (
-    <div className={RAIL_ROW}>
-      {/* The time and the disc stand as far down as the card's edge and
-          padding put the name, so the three read as one line, as they did
-          before the card; the thread runs on to the disc from the leg above,
-          one dot as clear of it as the thread under it is. */}
-      <div className="flex flex-col items-end pt-[15px] text-right">
-        {leaveAt ??
-          (stop.arrival === null ? null : (
-            <p className="font-display text-place/[1.1] font-semibold text-ink tabular-nums">
-              {formatDayTime(stop.arrival)}
-            </p>
-          ))}
-        {stop.departure === null ? null : (
-          <p className="mt-[6px] text-micro/[1.2] font-medium text-ink-faint tabular-nums">
-            <span className="sr-only">to </span>
-            {formatDayTime(stop.departure)}
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-col items-center pt-1">
-        <span aria-hidden="true" className={`h-1 ${reached ? "thread" : ""}`} />
-        <span
-          className={`${RAIL_MARK} mt-1 bg-terracotta font-display text-meta/none font-semibold text-paper tabular-nums`}
+    <div className="relative flex gap-3.5 rounded-row bg-paper-raised py-2 pr-4 pl-2.5 shadow-sm hover:bg-paper-sunken">
+      {times ? (
+        /* Over the button's reach only when it holds the pill that sets the
+           time; otherwise a press on the times opens the place too. The pill
+           is a desk's, as wide as the block, so the block keeps 2px either
+           side of it rather than 8, and stands within 3px of the others'
+           width, the names beside them on one edge. */
+        <div
+          className={`flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-100 py-2.5 text-center tabular-nums ${
+            leaveAt === null ? "px-2" : "relative z-[1] px-0.5"
+          }`}
         >
-          <span aria-hidden="true">{position}</span>
-          <span className="sr-only">Stop {position}</span>
-        </span>
-        <span aria-hidden="true" className="thread mt-1 flex-1" />
-      </div>
+          {leaveAt ??
+            (stop.arrival === null ? null : (
+              <p className="text-place/none font-bold text-terracotta-800">
+                {formatDayTime(stop.arrival)}
+              </p>
+            ))}
+          {stop.departure === null ? null : (
+            <p className="text-meta/none font-semibold whitespace-nowrap text-terracotta-700">
+              {`to ${formatDayTime(stop.departure)}`}
+            </p>
+          )}
+        </div>
+      ) : null}
 
-      {/* The card is a desk's stop card's surface, edge, corners and padding,
-          and sinks under a pointer as that card does. The button is the words,
-          and its press, and the ring that shows it has the keyboard, reach to
-          the card's edge, so a finger anywhere on the card opens the place. */}
-      <div className="relative flex min-w-0 flex-col gap-2 rounded-row border border-rule bg-paper-raised px-4 py-[13px] hover:border-terracotta/55 hover:bg-paper-sunken">
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-1.5">
         <button
           type="button"
           onClick={onOpen}
-          className="flex flex-col gap-1 text-left after:absolute after:-inset-px after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+          className="flex flex-col gap-1 text-left after:absolute after:inset-0 after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
         >
-          <span className="font-display text-lead break-words text-ink">{stop.placeName}</span>
+          <span className="sr-only">{`Stop ${String(position)}, `}</span>
+          <span className="font-display text-lead/[1.15] break-words text-ink">{stop.placeName}</span>
           {address === null ? null : (
-            <span className="text-meta break-words text-ink-muted">{address}</span>
+            <span className="text-small break-words text-neutral-700">{address}</span>
           )}
-          <span className="mt-1 text-meta/none font-semibold text-terracotta-800 tabular-nums">
-            {`${formatDuration(stop.stayMinutes)} here`}
-          </span>
         </button>
         {conflicts.map((conflict, at) => (
           <ConflictNotice key={`${conflict.kind}-${String(at)}`} conflict={conflict} />
@@ -333,12 +248,87 @@ function TimelineStop({
 }
 
 /**
- * The day as a phone reads it, top to bottom, down the rail design 1b of
- * "PlanToGo iPhone" draws: where it starts if it starts anywhere, every leg
- * and every stop in order, and where it ends if it ends anywhere. After the
- * last stop, for someone who may edit, the next place, as a dashed circle on
- * the rail with its number in it and "Add a place" on a card beside it, which
- * is where a place found in the search goes.
+ * The next place, after the last stop, for someone who may edit: one pill the
+ * day's width, dashed in 1.5px of the accent at 60 percent on terracotta 100,
+ * with a plus and "Add a place · from 14:34" in bold terracotta 700 in its
+ * middle. The time is when the last stop is left, which is when the way to
+ * the next place would begin, as the foot of a desk's last card says it.
+ */
+function NextPlace({
+  number,
+  after,
+  from,
+  onFind,
+}: {
+  /** The number the next stop would get. */
+  readonly number: number;
+  /** The stop it would come after, and when that stop is left, when both are known. */
+  readonly after: string | null;
+  readonly from: string | null;
+  readonly onFind: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onFind}
+      aria-label={
+        from === null || after === null
+          ? `Add a place as stop ${String(number)}`
+          : `Add a place as stop ${String(number)}, after leaving ${after} at ${from}`
+      }
+      className="relative flex min-h-12 w-full items-center justify-center gap-2.5 rounded-pill border-[1.5px] border-dashed border-terracotta/60 bg-terracotta-100 px-5 text-place/none font-bold text-terracotta-700 hover:border-terracotta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+    >
+      <PlusIcon size={16} strokeWidth={2.75} className="shrink-0" />
+      <span aria-hidden="true">{from === null ? "Add a place" : `Add a place · from ${from}`}</span>
+    </button>
+  );
+}
+
+/**
+ * A day with no stops, between its ends: the line the stops will hang on,
+ * dashed in the accent because nothing hangs on it yet, and beside it, on the
+ * ends' names' edge, the words a desk says, with the way to the first place
+ * under them for someone who may edit, in the accent's solid pill since it is
+ * the one thing to do.
+ */
+function NothingPlanned({ onFindPlace }: { readonly onFindPlace: (() => void) | null }) {
+  return (
+    <div className="relative py-3 pl-[52px]">
+      <span aria-hidden="true" className="thread-waiting absolute inset-y-0 left-[23px]" />
+      <p className="font-display text-lead text-balance text-ink">Nothing planned yet</p>
+      {onFindPlace === null ? null : (
+        <button
+          type="button"
+          onClick={onFindPlace}
+          className="mt-[14px] flex h-12 items-center rounded-pill bg-terracotta px-[22px] font-display text-place/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          Add a place
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * One thing down the day. A leg, and a day with nothing on it, carry their
+ * own room above and below; two things that do not are set apart by `gap`,
+ * twelve unless said otherwise.
+ */
+interface Line {
+  readonly key: string;
+  readonly node: ReactNode;
+  readonly roomy: boolean;
+  readonly gap?: string;
+}
+
+/**
+ * The day as a phone reads it, top to bottom, as the phone's day design draws
+ * it: where it starts if it starts anywhere, every leg and every stop in
+ * order, and where it ends if it ends anywhere, one column the window's
+ * width. A dotted thread runs down the left of it behind everything, its
+ * middle 24px in, through the ends' discs and the legs' discs, and shows in
+ * the room between the cards. After the last stop, for someone who may edit,
+ * the next place, which is where a place found in the search goes.
  *
  * A desk draws the same day in day-itinerary, with every control on its
  * cards; the two are the same day and the same actions, laid out for the room
@@ -358,9 +348,7 @@ export function DayTimeline({
    * When the day leaves, set where that time shows: on the start point's
    * time when the day has one, and otherwise on the first stop's arrival.
    * Keyed by the day, so a time half chosen on one day is not carried to the
-   * next. Its picker hangs from its left, into the window, from the column
-   * of times at the window's left edge. The pill is a desk's, chevron and
-   * all, so the column of times is widened to hold it wherever it is shown.
+   * next. Its picker hangs from its left, into the window.
    */
   const leaveAt =
     actions === null ? null : (
@@ -384,156 +372,145 @@ export function DayTimeline({
   /** When the way on to the next place would begin: when the last stop is left. */
   const onFrom = last === undefined || last.departure === null ? null : formatDayTime(last.departure);
 
+  const lines: Line[] = [];
+
+  if (day.start !== null) {
+    lines.push({
+      key: "start",
+      roomy: false,
+      node: (
+        <EndPill
+          which="start"
+          day={day}
+          endpoint={day.start}
+          time={formatClock(computed.begins.minutesFromMidnight)}
+          setTime={leaveAt}
+          onOpen={onOpenEndpoint}
+        />
+      ),
+    });
+  } else if (onFindEnd !== null) {
+    lines.push({
+      key: "start",
+      roomy: false,
+      node: (
+        <EndOffer
+          which="start"
+          onFind={() => {
+            onFindEnd("start");
+          }}
+        />
+      ),
+    });
+  }
+
+  if (day.stops.length === 0) {
+    lines.push({ key: "nothing", roomy: true, node: <NothingPlanned onFindPlace={onFindPlace} /> });
+  }
+
+  computed.stops.forEach((stop, index) => {
+    const leg = computed.legs[index + legOffset];
+    const planned = leg === undefined ? undefined : legs[leg.index];
+    if (leg !== undefined && planned !== undefined) {
+      lines.push({
+        key: `leg-${String(leg.index)}`,
+        roomy: true,
+        node: <TimelineLeg leg={leg} planned={planned} onChange={changeLeg} />,
+      });
+    }
+    const plan = stops.get(stop.stopId);
+    lines.push({
+      key: stop.stopId,
+      roomy: false,
+      node: (
+        <TimelineStop
+          position={index + 1}
+          stop={stop}
+          address={plan?.place.address ?? null}
+          note={plan?.note ?? null}
+          conflicts={conflictsAtStop(computed.conflicts, stop.stopId)}
+          leaveAt={index === 0 && day.start === null ? leaveAt : null}
+          onOpen={() => {
+            onOpenStop(stop.stopId);
+          }}
+        />
+      ),
+    });
+  });
+
+  if (onFindPlace !== null && day.stops.length > 0) {
+    lines.push({
+      key: "next",
+      roomy: false,
+      gap: "mt-4",
+      node: (
+        <NextPlace
+          number={day.stops.length + 1}
+          after={last?.placeName ?? null}
+          from={onFrom}
+          onFind={onFindPlace}
+        />
+      ),
+    });
+  }
+
+  if (legToEnd !== undefined && plannedToEnd !== undefined) {
+    lines.push({
+      key: `leg-${String(legToEnd.index)}`,
+      roomy: true,
+      node: <TimelineLeg leg={legToEnd} planned={plannedToEnd} onChange={changeLeg} />,
+    });
+  }
+
+  if (day.end !== null) {
+    lines.push({
+      key: "end",
+      roomy: false,
+      node: (
+        <EndPill
+          which="end"
+          day={day}
+          endpoint={day.end}
+          time={computed.ends === null ? null : formatDayTime(computed.ends)}
+          setTime={null}
+          onOpen={onOpenEndpoint}
+        />
+      ),
+    });
+  } else if (onFindEnd !== null) {
+    lines.push({
+      key: "end",
+      roomy: false,
+      gap: "mt-2.5",
+      node: (
+        <EndOffer
+          which="end"
+          onFind={() => {
+            onFindEnd("end");
+          }}
+        />
+      ),
+    });
+  }
+
   return (
-    <div className={leaveAt === null ? undefined : RAIL_TIMES_FOR_PILL}>
-      <EndLine
-        which="start"
-        day={day}
-        endpoint={day.start}
-        time={formatClock(computed.begins.minutesFromMidnight)}
-        setTime={leaveAt}
-        reached={false}
-        goesOn={day.stops.length > 0}
-        joined={false}
-        onFind={
-          onFindEnd === null
-            ? null
-            : () => {
-                onFindEnd("start");
-              }
-        }
-        onOpen={onOpenEndpoint}
-      />
-
-      {/* Nothing planned: on the rail, as everything else on the day is, the
-          way a desk says it. The line the stops will hang on runs down the
-          marks' column, dashed in the accent because nothing hangs on it
-          yet, and stops short of the ends' markers; the words are set left
-          in the words' column, with the way to the first place under them
-          for someone who may edit, in the accent's solid pill since it is
-          the one thing to do. */}
-      {day.stops.length === 0 ? (
-        <div className={`${RAIL_ROW} py-1.5`}>
-          <span aria-hidden="true" />
-          <span aria-hidden="true" className="thread-waiting justify-self-center" />
-          <div className="flex min-w-0 flex-col items-start py-3">
-            <p className="font-display text-lead text-balance text-ink">Nothing planned yet</p>
-            {onFindPlace === null ? null : (
-              <button
-                type="button"
-                onClick={onFindPlace}
-                className="mt-[14px] flex h-12 items-center rounded-pill bg-terracotta px-[22px] font-display text-place/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-              >
-                Add a place
-              </button>
-            )}
-          </div>
-        </div>
-      ) : null}
-
-      {computed.stops.map((stop, index) => {
-        const leg = computed.legs[index + legOffset];
-        const planned = leg === undefined ? undefined : legs[leg.index];
-        const plan = stops.get(stop.stopId);
-        const reached = leg !== undefined && planned !== undefined;
+    <div className="relative">
+      {/* From the first thing's middle to the last's, behind them all: every
+          card and pill is opaque, so the thread shows only in the room
+          between them and through the legs, whose discs stand on it. A day
+          with no stops draws its own waiting line instead. */}
+      {day.stops.length === 0 ? null : (
+        <span aria-hidden="true" className="thread absolute top-6 bottom-6 left-[23px]" />
+      )}
+      {lines.map((line, at) => {
+        const before = lines[at - 1];
+        const apart = before !== undefined && !before.roomy && !line.roomy;
         return (
-          <Fragment key={stop.stopId}>
-            {reached ? <TimelineLeg leg={leg} planned={planned} onChange={changeLeg} /> : null}
-            <TimelineStop
-              position={index + 1}
-              stop={stop}
-              address={plan?.place.address ?? null}
-              note={plan?.note ?? null}
-              conflicts={conflictsAtStop(computed.conflicts, stop.stopId)}
-              leaveAt={index === 0 && day.start === null ? leaveAt : null}
-              reached={reached}
-              onOpen={() => {
-                onOpenStop(stop.stopId);
-              }}
-            />
-          </Fragment>
+          <div key={line.key} className={apart ? (line.gap ?? "mt-3") : undefined}>
+            {line.node}
+          </div>
         );
       })}
-
-      {/* The next stop, where it would go, laid out as a stop is: a dashed
-          circle of the accent on the rail under the last disc, with the
-          number that stop would get in it, as a desk's has, in the discs' face
-          and step; and beside it, on a card of the stops' surface and edge,
-          the words, in the accent's brown at the weight design 1b gives them,
-          the brown the number takes too, and a plus at the card's right end,
-          the one an offer of an end carries. The card is one line deep and a
-          finger's height, 12px under the last stop's card, and the circle is
-          level with it; the thread runs on to the circle from the last disc,
-          its last dot as clear of it as of a disc. The circle and the card are
-          one button, so the whole of the line can be pressed. Under a pointer
-          the card sinks as a stop's does and the circle's dash takes the
-          whole accent, and the ring that shows the keyboard is on it is drawn
-          round the card, as a stop's is.
-
-          In the column of times, level with the card, "from" and when the
-          last stop is left, as the foot of a desk's last card says it: when
-          the way to the next place would begin, not when that place would
-          start, since the leg between them comes first. At the step, the
-          weight and the ink of the stops' leaving times above it, and set to
-          the column's right edge as they are, a word to a line where the
-          column is too narrow for the two. It is in the button's name, so it
-          is read once. */}
-      {onFindPlace === null || day.stops.length === 0 ? null : (
-        <div className={RAIL_ROW}>
-          <p
-            aria-hidden="true"
-            className="flex flex-col justify-center pt-3 text-right text-micro/[1.2] font-medium text-ink-faint tabular-nums"
-          >
-            {onFrom === null ? null : `from ${onFrom}`}
-          </p>
-          <button
-            type="button"
-            onClick={onFindPlace}
-            aria-label={
-              onFrom === null || last === undefined
-                ? `Add a place as stop ${String(day.stops.length + 1)}`
-                : `Add a place as stop ${String(day.stops.length + 1)}, after leaving ${last.placeName} at ${onFrom}`
-            }
-            className="group/next col-span-2 grid grid-cols-[26px_minmax(0,1fr)] gap-x-[10px] text-left focus-visible:outline-none"
-          >
-            <span aria-hidden="true" className="flex flex-col items-center pt-1">
-              <span className="thread h-[13px]" />
-              <span
-                className={`${RAIL_MARK} mt-1 border-2 border-dashed border-terracotta/60 font-display text-meta/none font-semibold text-terracotta-800 tabular-nums group-hover/next:border-terracotta`}
-              >
-                {day.stops.length + 1}
-              </span>
-            </span>
-            <span className="mt-3 flex min-h-11 items-center gap-3 rounded-row border border-rule bg-paper-raised px-4 group-hover/next:border-terracotta/55 group-hover/next:bg-paper-sunken group-focus-visible/next:outline-2 group-focus-visible/next:outline-offset-2 group-focus-visible/next:outline-terracotta">
-              <span className="text-body/none font-bold text-terracotta-800">Add a place</span>
-              <OfferPlus group="next" />
-            </span>
-          </button>
-        </div>
-      )}
-
-      {legToEnd === undefined || plannedToEnd === undefined ? null : (
-        <TimelineLeg leg={legToEnd} planned={plannedToEnd} onChange={changeLeg} />
-      )}
-
-      <EndLine
-        which="end"
-        day={day}
-        endpoint={day.end}
-        time={computed.ends === null ? null : formatDayTime(computed.ends)}
-        setTime={null}
-        reached={legToEnd !== undefined && plannedToEnd !== undefined}
-        goesOn={false}
-        joined={onFindPlace !== null && day.stops.length > 0}
-        onFind={
-          onFindEnd === null
-            ? null
-            : () => {
-                onFindEnd("end");
-              }
-        }
-        onOpen={onOpenEndpoint}
-      />
     </div>
   );
 }

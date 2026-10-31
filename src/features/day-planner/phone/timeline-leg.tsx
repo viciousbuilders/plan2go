@@ -10,7 +10,6 @@ import { Notice } from "@/ui/notice";
 import type { LegOption, PlannedLeg } from "../compute-trip";
 import type { DayActions } from "../day-actions";
 import { MODE_ICON, MODE_WORDS } from "../leg-marks";
-import { RAIL_ROW } from "./rail";
 
 interface TimelineLegProps {
   readonly leg: ComputedLeg;
@@ -100,9 +99,12 @@ function Way({
 }
 
 /**
- * How the day gets from one place to the next on a phone, as design 1b draws
- * it: a pill of sage on the dotted thread between two stops, the way's glyph,
- * its name and how long it takes, with a chevron after it. Pressed, the ways
+ * How the day gets from one place to the next on a phone, as the phone's day
+ * design draws it: a line rather than a box between two cards, the way's
+ * glyph on a 26px disc of neutral 200 standing on the day's thread, its
+ * middle on the ends' discs' middle, then the way and how long it takes in
+ * neutral 700, "Drive 14 min", with a chevron after it. A leg that cannot be
+ * made says so in the same ink, with no glyph on its disc. Pressed, the ways
  * of covering the same ground come up from the foot of the window in a sheet,
  * one row each. For someone who may edit, choosing one puts it on the day and
  * lets the sheet go once the new times are worked out, since the day under
@@ -110,7 +112,7 @@ function Way({
  *
  * The leg's link to its live times in Google Maps, and the sentence saying a
  * time is a guess, are in the sheet with the ways, where there is room for
- * them; the pill is one line on the rail.
+ * them; the leg is one line on the thread.
  */
 export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
   const [open, setOpen] = useState(false);
@@ -165,22 +167,13 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
       ? `No ${MODE_WORDS[leg.mode].toLowerCase()} at this time`
       : "No way to get there";
 
-  /**
-   * A pill of paper inside a hairline, as a desk's leg is, with the way in
-   * ink, forty tall, a finger's height; the ink muted when there is no way the
-   * day can use, since there is no way to name. Not sage, which is what an end
-   * of the day stands on, on a phone as on a desk.
-   */
-  const pillShape = `flex min-h-10 items-center gap-2 justify-self-start rounded-pill border-[1.5px] border-rule bg-paper px-[13px] py-[9px] text-small/none font-bold whitespace-nowrap ${
-    covered ? "text-ink" : "text-ink-muted"
-  }`;
-
   return (
-    <div className={`${RAIL_ROW} min-h-14 items-center`}>
-      <span aria-hidden="true" />
-      <span aria-hidden="true" className="thread justify-self-center self-stretch" />
+    <div>
       {/* A button for a reader too: the sheet is where the ways compare,
-          and where the leg's live times are linked from. */}
+          and where the leg's live times are linked from. The whole line is
+          the button, fifty tall, so a finger finds it anywhere along it. It
+          is positioned so the disc paints over the day's thread, which shows
+          above and below it. */}
       <button
         type="button"
         ref={pill}
@@ -190,11 +183,16 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
           setError(null);
           setOpen(true);
         }}
-        className={`${pillShape} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
+        className="relative flex w-full items-center gap-3 py-3 pl-[11px] text-left text-body/none font-semibold whitespace-nowrap text-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
       >
-        {covered ? <Icon size={14} strokeWidth={2.4} /> : null}
-        {words}
-        <ChevronDownIcon size={12} strokeWidth={3} className="shrink-0" />
+        <span
+          aria-hidden="true"
+          className="grid size-[26px] shrink-0 place-items-center rounded-pill bg-neutral-200 text-neutral-800"
+        >
+          {covered ? <Icon size={15} strokeWidth={2.4} /> : null}
+        </span>
+        <span className="min-w-0 truncate">{words}</span>
+        <ChevronDownIcon size={13} strokeWidth={3} className="-ml-[5px] shrink-0" />
       </button>
 
       {open ? (

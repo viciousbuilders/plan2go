@@ -196,17 +196,22 @@ paper and ink.
   and the error block, the base is the accent itself, 300 is the edge of an export choice
   that is on, 600 is hover, 700 is pressed and is the step to use for accent coloured
   text, 800 is a chosen chip or menu row and the words on the city pill in the search.
+  In a phone's day 100 is the block a stop's times stand on and the pill offering the
+  next place, with 800 the time a stop is reached and 700 when it is left.
 - **sage:** the second accent. 100 and 200 mark today in the day strip, 600 is the marker
   for the ends of a day, 700 draws the public transport route line. 100 is also what an
-  end of the day stands on wherever the day is drawn, the same on a desk and a phone:
-  its row in the day, inside an edge of 200 and going to 200 under the pointer, its card
-  in the map's row of places, and its card on the sheets. A leg is never on sage, so an
-  end never reads as one more leg. On a phone 200 is the disc behind a way's glyph in the
-  sheet that changes a leg.
+  end of the day stands on: its row in a desk's day, inside an edge of 200 and going to
+  200 under the pointer, its card in a phone's row of places on the map, and its card on
+  the sheets. In a phone's day an end is a pill of 200 with its disc in 600, its name in
+  900 and its time in 800, and an end not there yet a dashed pill with its disc in 200.
+  A leg is never on sage, so an end never reads as one more leg. On a phone 200 is also
+  the disc behind a way's glyph in the sheet that changes a leg.
 - **neutral:** the warm greys behind everything, used for the drive tint and the map's
   own geometry. On paper, 100 is the ground of the map and of an end of the trip not yet
   set, and 800 the words on the pill that counts the stops. In the export's column, 500
-  is the words of a choice that is off and the .pdf after the file's name.
+  is the words of a choice that is off and the .pdf after the file's name. In a phone's
+  day 200 is the disc a leg's glyph stands on, the glyph in 800, and 700 is the words of
+  a leg and a stop's address.
 - **city:** six colours, one for each city a trip goes to, handed out in the order the
   trip reaches them and round again for a seventh: terracotta, sage, ochre, deep clay,
   deep sage and rose clay. They mark which days share a city and nothing else. A city
@@ -270,7 +275,7 @@ utility fighting the first. There is one exception, and it is only ever a field'
 .pdf after a file's name, is 16px, because iOS zooms the whole page into any field set
 smaller as it takes the cursor and leaves it zoomed. Lead is the heading of what opens over the page: the place
 open in the sheet, and the question asked before a trip is deleted; and on a phone, a
-stop's name on its card beside the rail.
+stop's name on its card in the day.
 Small is the tier the interface is mostly made of,
 tab labels, menu rows, the words on a leg, which used to be a scatter of 13px and 13.5px
 chosen one component at a time. A number that is not on the scale is a number that has
@@ -283,7 +288,7 @@ one place such a number may appear. Every element that renders a time or a durat
 - **title:** the heading of an empty day, the printed day, and a page that has nothing
   to show.
 - **place:** a place name, and the time against an anchor row; on a phone, when a stop is
-  reached, in the column of times down the rail.
+  reached, on its card's block of times, and an end's name and the offers on its pills.
 - **time:** when a stop is arrived at and left, on its card.
 - **body:** running text.
 - **meta:** secondary text, addresses, the words in a leg row.
@@ -440,78 +445,59 @@ edge with its words in sage 800. After the last day, centred on the
 cards and as far from them as they are from each other, the button that adds a day, a
 44px dashed ring.
 
-Then the day, down a rail, 16px under the cards, with nothing between them to say what
-the day comes to. Every line of it is laid on the same three columns: the times
-in the first, 50px wide and set to its right edge so they read as one column; the marks
-on the rail in the second, 26px; and the words in the rest, 10px between each. For
-someone who may edit the times' column is 68px on every line of the day, wide enough
-for the pill that sets when the day leaves.
+Then the day, 16px under the cards, with nothing between them to say what the day comes
+to, as the phone's day design draws it: one column the window's width, with no column
+of times and no numbers on the stops. A dotted thread runs down its left behind
+everything, its middle 24px in, from the first thing's middle to the last's. Every card
+and pill on it is opaque, so the thread shows only in the room between them and through
+the legs, whose discs stand on it as the ends' discs do. Two things that are not legs
+stand 12px apart; a leg brings its own room above and below.
 
-- A stop: when it is reached in the display face at the place step, over when it is
-  left at the micro step in `ink-faint`; its number on a 26px terracotta disc with the
-  dotted thread running on down from it, the one a desk draws over the page, so the day
-  hangs on one line from the first stop to the last; and beside them a card, a desk's
-  stop card's surface, edge, corners and padding: `paper-raised` inside a `rule`
-  hairline at the `row` radius, 16px in at either side and 13px at the top and foot. On
-  it its name in the display face at the lead step, its address at the meta step in
-  `ink-muted`, and how long is spent there, "1 hr 15 min here", at the meta step in 600
-  `terracotta-800`; a conflict under them in its block, and the traveller's note under
-  that, behind its glyph. The time and the disc stand level with the name, as far down
-  as the card's edge and padding put it, and the thread runs on to the disc from the
-  leg above it, one dot 4px clear of it, as the thread under it is. The whole card is
-  one button, which opens the place. Under a pointer it sinks as a desk's does, to
-  `paper-sunken` inside an edge of `terracotta` at 55 percent, and with the keyboard on
-  it the focus ring is drawn round the card.
-- A leg: the dotted thread down the rail, and beside it a pill of `paper` inside a 1.5px
-  `rule` edge, the colours a desk's leg is drawn in, the way's glyph, its name and how
-  long it takes, "Drive 22 min", in bold at the small step in `ink`, with a chevron, 40px
-  tall. A leg that cannot be made the way the day has it says so on the same pill in
-  `ink-muted`.
-- An end of the day, laid out as a stop is: when the day passes it, the map's marker
-  for an end, a 26px sage 600 square with one corner cut, with the end's glyph, and
-  beside them a card, a desk's row for an end: sage 100 inside an edge of sage 200 at
-  the `row` radius, 16px in at either side and 9px over and under what is in it, flat
-  where the stops' cards are raised, since the day passes through an end rather than
-  spending time there. On it what the day does there, "Leave Central Station", "Finish
-  at", "Back at", at the body step in 600, and the place's hours under that when it
-  keeps any. The time and the marker stand level with the card's middle, and the thread
-  runs on to the marker from the leg above it and away from it down the leg below. The
-  whole card is one button that opens the place, where the end is changed for another
-  or taken off the day, as a stop is changed from its own; nothing on the card changes
-  it. Under a pointer it goes to
-  sage 200 inside an edge of sage 600 at 55 percent, as a desk's row does. Without
-  an end, someone who may edit is offered one as a desk offers it, on the same card
-  drawn dashed in 1.5px of `rule-strong`, beside the same marker: the end's name in sage
-  800 over what kind of place goes there, 12px from what is next to it on the day's
-  side, and at the card's right end a desk's offer's plus, 15px in `ink-faint`, taking
-  the accent under a pointer. The marker and the card are one button, which goes to the search on the map,
-  as **Add a place** does; under a pointer the dash takes the accent and the paper lifts
-  to `paper-raised`. Under the next place, the thread runs on down the rail from its
-  circle to the end's marker, from 9px under the circle, as a leg's does to an end that
-  is there, to 4px short of the marker. The start's time is the pill that sets when the day leaves,
-  drawn as a desk draws it, dashed and tinted with its chevron, so the one time a
-  person sets looks the same on either. With no start it is the first stop's arrival,
-  drawn the same way.
-- After the last stop, for someone who may edit, the next place, laid out as a stop is:
-  on the rail a dashed circle of the accent with the number that stop would get in it,
-  in the discs' face and step, and beside it, on a card of the stops' surface and edge,
-  one line deep and 44px tall, 12px under the last stop's card, **Add a place** in bold
-  at the body step, the number and the words in `terracotta-800`, and the same plus as
-  an end's offer at the card's right end. In the column of
-  times, level with the card, "from 11:27", as the foot of a desk's last card says it:
-  when the last stop is left, which is when the way to the next place would begin, at
-  the step, weight and ink of the stops' leaving times, a word to a line where the
-  column is too narrow for both. The circle stands
-  level with the card, and the thread runs on to it from the last disc, its last dot
-  4px clear of it, as of a disc. The circle and the card are one button. Under a
-  pointer the card sinks as a stop's does and the circle's dash takes the whole accent,
-  and with the keyboard on it the focus ring is drawn round the card.
+- An end of the day: a pill of sage 200, 48px tall and rounded to half that, so a name
+  long enough for two lines makes a card with the same round ends. At its left the end's
+  disc, 32px of sage 600 with the end's glyph in `paper`, the house where the day sets
+  out and the flag where it finishes; then the place's name in bold at the place step in
+  sage 900; and at its right when the day passes it, in bold at the body step in sage
+  800. What the day does there, "Leave", "Finish at", "Back at", is read out before the
+  name rather than drawn. The whole pill is one button that opens the place, where the
+  end is changed for another or taken off the day; under a pointer an edge of sage 600
+  at 55 percent comes round it. The start's time is when the day leaves, which for
+  someone who may edit is the pill that sets it, drawn as a desk draws it, dashed and
+  tinted with its chevron, so the one time a person sets looks the same on either.
+- Without an end, someone who may edit is offered one on the same pill drawn dashed in
+  1.5px of sage at 60 percent on `paper`: the end's disc in sage 200 with its glyph in
+  sage 700, **Add start point** or **Add end point** in bold at the place step in sage
+  800, and a 16px plus in sage 600 at its right end. It goes to the search on the map,
+  as **Add a place** does. Under a pointer the dash takes sage 600 and the paper lifts to
+  `paper-raised`.
+- A leg: a line rather than a box, 50px tall and one button, which brings up its sheet:
+  the way's glyph in neutral 800 on a 26px disc of neutral 200 standing on the thread,
+  then the way and how long it takes, "Drive 14 min", in 600 at the body step in neutral
+  700, with a chevron. A leg that cannot be made says so in the same ink, with no glyph
+  on its disc.
+- A stop: a card of `paper-raised` at the `row` radius under `shadow-sm`, the column's
+  width. At its left, on a block of terracotta 100 at the `chip` radius, at least 68px
+  wide and as tall as the card less its padding, when it is reached in bold at the place
+  step in terracotta 800 over when it is left, "to 10:14", in 600 at the meta step in
+  terracotta 700; then its name in the display face at the lead step over its address at
+  the small step in neutral 700; a conflict under them in its block, and the traveller's
+  note under that, behind its glyph. The whole card is one button, which opens the
+  place, where how long is spent there is set and the stop is moved or taken off; under a
+  pointer it sinks to `paper-sunken`. With no start, for someone who may edit, the first
+  stop's arrival is the pill that sets when the day leaves, in the block in place of the
+  time, the block keeping 2px either side of it.
+- After the last stop, 16px under it, for someone who may edit, the next place: one pill
+  the column's width and 48px tall, dashed in 1.5px of the accent at 60 percent on
+  terracotta 100, with a 16px plus and "Add a place · from 14:34" in bold at the place
+  step in terracotta 700 in its middle. The time is when the last stop is left, which is
+  when the way to the next place would begin, as the foot of a desk's last card says it.
+  Under a pointer the dash takes the whole accent. An end not there yet stands 10px under
+  it.
 
-A day with nothing planned says so on the rail, as a desk does: the line its stops will
-hang on runs down the marks' column on its own, dashed in the accent as a desk draws it,
-and stops short of the ends' markers above and below; beside it, set left in the words'
-column, "Nothing planned yet" at the lead step, with **Add a place** on the accent's
-solid pill under it for someone who may edit.
+A day with nothing planned says so between its ends, as a desk does: the line its stops
+will hang on runs down the thread's place on its own, dashed in the accent as a desk
+draws it; beside it, on the ends' names' edge, "Nothing planned yet" at the lead step,
+with **Add a place** on the accent's solid pill under it for someone who may edit.
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a
@@ -659,8 +645,8 @@ than a dotted border, which rounds its dots off at this width. On a desk it runs
 the legs between the cards, and from a card to the dashed row offering an end of the
 day that is not there yet, in the column the legs keep it in, three of its dots whole
 and 2px clear of either, as a leg's are; and it stops at their edges: a stop card's
-numbered terracotta disc stands on its own, with nothing drawn under it. On a phone it runs the length of the rail, through each stop's
-disc and on down beside its card, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
+numbered terracotta disc stands on its own, with nothing drawn under it. On a phone it runs the length of the day behind
+its cards and pills, 24px in, through the ends' and the legs' discs, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
 between two stops rather than a thing in itself.
 
 The start and end of a day are a different shape from a stop, not merely a different
@@ -1263,7 +1249,8 @@ behind the question that deletes a trip is dimmed and blurred, which is the only
 it is the one question that cannot be left half answered, and the ground going quiet
 is what says so.
 
-Shadows on anything that is not floating over something else.
+Shadows on anything that is not floating over something else, but for a stop's card in
+a phone's day, which the phone's day design raises on `shadow-sm`.
 
 Numbers that count up or animate into place. Times appear at their value.
 

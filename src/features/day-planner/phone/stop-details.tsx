@@ -155,7 +155,7 @@ interface StopDetailsProps {
  * The stop's own part of its sheet on a phone, under the place's name, as
  * design 1b's page for a stop has it: when the place is open, when the day
  * reaches it and leaves it, and how long is spent there. On a phone the day
- * is read on its rail and a stop is changed here, so for someone who may edit
+ * is read on its cards and a stop is changed here, so for someone who may edit
  * the note is a field, the stay under it is a stepper, and the stop can be
  * moved one place earlier or later in the day, or to the end of another day,
  * which on a desk is done by dragging its card, along the day or onto a day

@@ -95,7 +95,7 @@ function tripDates(days: readonly PlannedDay[]): string | null {
  * scrolls, so what you are reading is always named above it. On a phone the
  * page is the scrolling surface and all of it goes up with the page, as
  * design 1b of "PlanToGo iPhone" has it: the trip's name, the strip of days,
- * and the day down a rail.
+ * and the day down one column of cards.
  */
 export function DayPlanner({
   title,
@@ -232,8 +232,8 @@ export function DayPlanner({
           className={`scroll-line [--bar-width:6px] min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pb-5 [overflow-anchor:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${GUTTER} max-lg:overflow-visible max-lg:pb-[calc(120px+env(safe-area-inset-bottom))]`}
         >
           {/* The same day, laid out for the room each has: on a desk the
-              cards on the panel beside the map, and on a phone the rail of
-              design 1b, twelve under the strip of days, without the line the
+              cards on the panel beside the map, and on a phone one column of
+              cards on a dotted thread, twelve under the strip of days, without the line the
               design writes between them saying what the day comes to. The
               foot of the phone's page keeps clear of the bar of views
               floating over it. */}
