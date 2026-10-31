@@ -17,33 +17,23 @@ function twoDigits(value: number): string {
 }
 
 /**
- * The time where the day's times are, in their face, their step and their
- * colour, inside a pill that says it is the one of them that is set rather
- * than worked out: a dashed edge in the accent at the weight a hovered card's
- * edge is drawn, over the accent at a tenth, and the stay's chevron after it
- * to say it opens, in the arrow's colour: the accent at two thirds, so the two
- * small glyphs on the line are the same quiet mark beside the times, the way
- * the stay's chevron is quieter than its words.
- *
- * Under the pointer, and while its picker is open, it does what the dashed
- * row offering an end of the day does: the dash takes the whole accent and
- * the paper lifts. The tint is laid over nothing, so it sinks with the card
- * when the card sinks under the same pointer, and a darker edge on its own
- * was all that told the two apart. Raised paper is opaque and lighter than
- * the sunken card around it, so the pill comes up out of the card instead,
- * the way the stay's pill always stands on it.
+ * The time where the day's times are, in their face and their step, with a
+ * chevron after it to say it opens, and no edge round it: the chevron is what
+ * says this time is the one that is set rather than worked out, as on a
+ * phone. Under the pointer, and while its picker is open, it stands on the
+ * lightest tint of the colour it is in.
  *
  * It takes exactly the room the time takes without it, so nothing else on
  * the card or the row moves when it is there: the time's own line height,
- * a pixel of padding and a pixel of edge above and below, and those two
- * pixels given back by the margin round it. The time lands where a reader's
- * plain time does, and the edge is drawn in the room already round the line.
- * Across, everything on the times line is seven apart as it is seen: the
- * edge to the time, the time to the chevron, the chevron to the edge, the
- * edge to the arrow and the arrow to the next time. The chevron and the arrow
- * each carry a little margin of their own inside their box, so the gaps
- * written here are smaller than the ones that show, and the gap to the
- * chevron is the same five the line puts before its arrow.
+ * a pixel of padding and a pixel of edge above and below, the edge drawn in
+ * nothing, and those two pixels given back by the margin round it. The time
+ * lands where a reader's plain time does. Across, everything on the times
+ * line is seven apart as it is seen: the pill's side to the time, the time
+ * to the chevron, the chevron to the pill's side, that to the arrow and the
+ * arrow to the next time. The chevron and the arrow each carry a little
+ * margin of their own inside their box, so the gaps written here are smaller
+ * than the ones that show, and the gap to the chevron is the same five the
+ * line puts before its arrow.
  *
  * The weight is the time step's own, which comes with it when no line height
  * is named after it.
@@ -62,24 +52,37 @@ const TRIGGER =
 
 /**
  * How the time is drawn, for each place it stands, and the colours of the
- * picker it opens.
+ * picker it opens. Everywhere in the colour of what it stands on, so the
+ * start of a day is one colour all through, its time and its picker with it.
  *
- * A desk's is the dashed pill described above, in the display face at the
- * time step, in the accent. A phone's has no edge at all: the time and its
- * chevron alone, in the body face bold at the place step as every time in a
- * phone's day is, in the 800 of what they stand on, the chevron in the same,
- * and that ramp's lighter fill under a pointer and while the picker is open.
- * The edge stays, transparent, so the time stands where it did in the 74px
- * column a phone's day keeps its times in, 4px in and 3px to the chevron. On
- * the start's sage pill that is sage, picker and all; on a first stop's
- * terracotta block, with no start, it is the accent.
+ * A desk's is in the display face at the time step, as the card's times are.
+ * On the start of the day, the sage row the start stands on, in the sage 800
+ * a phone's start is in, the chevron in the same, on sage 100 under the
+ * pointer and while the picker is open: the row sinks to sage 200 under the
+ * same pointer, and the pill comes up lighter out of it, as a phone's does
+ * out of its sage pill. On the first stop of a day with no start, the card's
+ * times' accent, the chevron in the arrow's two thirds beside it, on the
+ * accent's 100 under the pointer, lighter than the card sunk under it.
+ *
+ * A phone's is in the body face bold at the place step as every time in a
+ * phone's day is, in the 800 of what it stands on, the chevron in the same,
+ * and that ramp's lighter fill under a pointer and while the picker is open,
+ * 4px in and 3px to the chevron in the 74px column a phone's day keeps its
+ * times in. On the start's sage pill that is sage, picker and all; on a first
+ * stop's terracotta block, with no start, it is the accent.
  */
 const LOOKS = {
-  desk: {
+  deskStart: {
     type: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
-    closed:
-      "border-dashed border-terracotta/55 bg-terracotta/10 text-terracotta-700 enabled:hover:border-terracotta enabled:hover:bg-paper-raised",
-    open: "border-dashed border-terracotta bg-paper-raised text-terracotta-700",
+    closed: "border-transparent text-sage-800 enabled:hover:bg-sage-100",
+    open: "border-transparent bg-sage-100 text-sage-800",
+    chevron: "text-sage-800",
+    picker: "sage",
+  },
+  deskStop: {
+    type: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
+    closed: "border-transparent text-terracotta-700 enabled:hover:bg-terracotta-100",
+    open: "border-transparent bg-terracotta-100 text-terracotta-700",
     chevron: "text-terracotta-700/65",
     picker: "accent",
   },
@@ -126,7 +129,7 @@ interface LeaveAtProps {
    * hung from the right ran off it.
    */
   readonly align?: "left" | "right";
-  /** Where it stands: a desk's card, or a phone's start of the day or its first stop. */
+  /** Where it stands: the start of the day or its first stop, on a desk or a phone. */
   readonly look?: keyof typeof LOOKS;
 }
 
@@ -153,7 +156,7 @@ export function LeaveAt({
   clock,
   onChoose,
   align = "right",
-  look = "desk",
+  look = "deskStop",
 }: LeaveAtProps) {
   const [draft, setDraft] = useState(value);
   const [seen, setSeen] = useState(value);

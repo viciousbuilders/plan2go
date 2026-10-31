@@ -465,8 +465,9 @@ export function DayItinerary({
    * When the day leaves, set where that time is shown rather than above the
    * day: on the start point's time when the day has one, and otherwise on
    * the first stop's arrival, which with nothing before it is the moment the
-   * day sets out. One of the two, never both. Keyed by the day, so a time
-   * half chosen on one day is not carried to the next.
+   * day sets out. One of the two, never both, in the colour of the one it is
+   * on. Keyed by the day, so a time half chosen on one day is not carried to
+   * the next.
    */
   const leaveAt =
     actions === null ? null : (
@@ -475,6 +476,7 @@ export function DayItinerary({
         value={day.startAtMinutes}
         clock={formatClock(computed.begins.minutesFromMidnight)}
         onChoose={(startAtMinutes) => actions.setDayStart({ startAtMinutes })}
+        look={day.start === null ? "deskStop" : "deskStart"}
       />
     );
 

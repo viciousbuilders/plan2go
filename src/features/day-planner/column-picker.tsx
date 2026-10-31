@@ -23,8 +23,8 @@ const ROW =
 /**
  * The colours a row is picked out in, from the ramp of the control the picker
  * hangs from: the accent's under every control but one, and sage's under the
- * start of a phone's day, whose pill is sage, so the picker reads as that
- * pill's own. The chosen row in the ramp's 800 with its digits in paper, as a
+ * start of a day, on a desk as on a phone, which stands on sage, so the
+ * picker reads as that start's own. The chosen row in the ramp's 800 with its digits in paper, as a
  * chosen chip is; any other row in its 100 under the pointer. The ring that
  * shows the keyboard stays the accent's, as it is on every control.
  */
@@ -53,7 +53,7 @@ interface ColumnPickerProps {
   /** Which end of the control it hangs from, so it opens over the page and not off it. */
   readonly align: "left" | "right";
   readonly onEscape: () => void;
-  /** Sage under the start of a phone's day; the accent everywhere else. */
+  /** Sage under the start of a day; the accent everywhere else. */
   readonly tone?: keyof typeof TONES;
 }
 

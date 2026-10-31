@@ -627,12 +627,11 @@ export function StopCard({
 
           A second row of the card's grid, set as far below the body as the
           body is from the card's edge. Everything in it is drawn the way the
-          same thing already is on the card. The ring is the edge of the
-          leaving time's pill, the other dashed outline in the accent a card
-          can carry: a pixel, dashed, in the accent at the weight a hovered
-          card's edge is drawn. It was the thread bent round for a while, two
-          pixels at the whole accent, and beside that pill it was the
-          heaviest line on the card by twice. The digit is the disc's. The
+          same thing already is on the card. The ring is a pixel, dashed, in
+          the accent at the weight a hovered card's edge is drawn. It was the
+          thread bent round for a while, two pixels at the whole accent, and
+          it was the heaviest line on the card by twice. The digit is the
+          disc's. The
           words are at the stay's step, and the time at the step the opening
           hours are in, since both are the small print of the stop. The time
           sits as far in from the right as the stay's own words do from its

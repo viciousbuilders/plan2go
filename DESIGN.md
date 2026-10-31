@@ -757,21 +757,26 @@ moved from its place's sheet (see Layout).
 When the day leaves is set where that time shows, on the day rather than above it: on
 the start point's time when the day has one, and otherwise on the first stop's arrival,
 which with nothing before it is the moment the day sets out. One of the two carries it,
-never both, and it defaults to 09:00. For someone who may edit, that time is a pill: the
-time in the times' own face, step and `terracotta-700`, with the stay's 12px chevron
-after it in the arrow's `terracotta-700` at 65 percent, quieter than the time as the
-stay's chevron is quieter than its words, inside a dashed 1px edge in `terracotta` at 55 percent, the weight a hovered
-card's edge is drawn at, over `terracotta` at 10 percent. Under the pointer, and while
-the picker is open, it does what the dashed row offering an end of the day does: the
-dash takes the whole accent and the paper lifts to `paper-raised`. The tint alone sank
-with the card, which sinks under the same pointer, and left only a darker edge to tell
-the two apart; raised paper is opaque and comes up out of the sunken card instead. The
-picker is the same two columns the stay opens, hanging from the pill's right end. The pill takes
+never both, and it defaults to 09:00. For someone who may edit, that time is a button:
+the time in the times' own face and step with the stay's 12px chevron after it, and no
+edge round it, as on a phone. On the start of the day it is in the colour of the row it
+stands on, sage 800, the chevron in the same, as a phone's start is; on the first stop of
+a day with no start, in the card's times' `terracotta-700`, the chevron in the arrow's
+`terracotta-700` at 65 percent, quieter than the time as the stay's chevron is quieter
+than its words. Under the pointer, and while the picker is open, it stands on the
+lightest tint of its colour: sage 100 on the start's row, which sinks to sage 200 under
+the same pointer, so the time comes up lighter out of it, and `terracotta-100` on the
+card, which sinks to `paper-sunken`. The picker is the same two columns the stay opens,
+hanging from the button's right end, its chosen rows filled in the 800 of the same
+colour with the digits in `paper`, sage under a start and the accent's under a first
+stop, and the row under the pointer in its 100. The button takes
 exactly the room the plain time takes: the time's own line height, with 1px of padding
-and 1px of edge above and below given back by a 2px margin, so the time sits where a
+and 1px of edge, drawn in nothing, above and below given back by a 2px margin, so the
+time sits where a
 reader's plain time does and nothing else on the card or the row moves. Across, the
-whole times line is 7px apart as it is seen: the edge to the time, the time to the
-chevron, the chevron to the edge, the edge to the arrow, and the arrow to the next time.
+whole times line is 7px apart as it is seen: the button's side to the time, the time to
+the chevron, the chevron to the button's side, that to the arrow, and the arrow to the
+next time.
 The chevron and the arrow carry some margin inside their own boxes, so what is written
 is 6px of padding on the left, 5px before the chevron as before the arrow, and 4px
 after it. A reader
@@ -779,8 +784,8 @@ without the edit link gets the plain time in both places.
 
 The last card on the day ends with the stop that would come next, as a slot in the
 discs' column. Under the disc, with nothing drawn between them, is the number that stop
-would get, in a 30px circle drawn with the leaving time's edge, the other dashed outline
-in the accent a card carries: 1px, dashed, in `terracotta` at 55 percent. The digit is
+would get, in a 30px circle drawn 1px, dashed, in `terracotta` at 55 percent, the weight
+a hovered card's edge is drawn at. The digit is
 the disc's face and step, in `terracotta-700`. Beside it, on the left edge of the name
 above, **Add a place** at the small step in `terracotta-700`, the stay's step, and at
 the right, "from" and the time this stop is left, at the micro step in `ink-muted`, the
