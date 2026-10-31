@@ -43,6 +43,16 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
 }
 
 /**
+ * The column a time stands in, on every line of a phone's day that has one: a
+ * stop's block of times, the next place's, and an end's pill. Each starts it
+ * 10px in and puts the words 14px after it, so the day's times stand in one
+ * column and its names in another. 74px is the pill that sets when the day
+ * leaves, the widest thing ever put in it, with the time bold at the place
+ * step as every time on the day is.
+ */
+const TIME_COLUMN = "min-w-[74px]";
+
+/**
  * The shape both of an end's pills share: 48px tall and rounded to half that,
  * so one line is a pill and a name long enough for two makes a card with the
  * same round ends.
@@ -51,13 +61,14 @@ const END_PILL = "relative flex min-h-12 w-full items-center rounded-[24px] text
 
 /**
  * An end of the day that is there, as the phone's day design draws it: a pill
- * of sage 200 with no glyph on it, when the day passes the end in bold sage
- * 800 at its left and the place's name in bold sage 900 after it. The time
- * stands in a stop card's column of times, 68px wide from 10px in, and the
- * name where a stop's name starts, so the day's times stand in one column and
- * its names in another, ends and stops alike. At the start the time is when
- * the day leaves, which for someone who may edit is the pill that sets it, a
- * desk's dashed pill, in the same column.
+ * of sage 200 with no glyph on it, when the day passes the end at its left in
+ * sage 800, bold at the place step as every time on the day is, and the
+ * place's name after it in sage 900, in the display face at the place step as
+ * a desk sets an end's name. The time stands in the day's column of times and
+ * the name where a stop's name starts, so the day's times stand in one column
+ * and its names in another, ends and stops alike. At the start the time is
+ * when the day leaves, which for someone who may edit is the pill that sets
+ * it, a desk's dashed pill, in the same column.
  *
  * What the day does there, "Leave", "Finish at", "Back at", is read out before
  * the name rather than drawn. The whole pill opens the place, where the end is
@@ -91,11 +102,11 @@ function EndPill({
       {/* Over the button's reach when it holds the pill that sets the time,
           so that pill is pressed and not the place behind it. */}
       <div
-        className={`flex min-w-[68px] shrink-0 justify-center ${setTime === null ? "" : "relative z-[1]"}`}
+        className={`flex ${TIME_COLUMN} shrink-0 justify-center ${setTime === null ? "" : "relative z-[1]"}`}
       >
         {setTime ??
           (time === null ? null : (
-            <p className="text-body/none font-bold whitespace-nowrap text-sage-800 tabular-nums">
+            <p className="text-place/none font-bold whitespace-nowrap text-sage-800 tabular-nums">
               {time}
             </p>
           ))}
@@ -105,7 +116,7 @@ function EndPill({
         onClick={() => {
           onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
         }}
-        className="min-w-0 flex-1 text-left text-place/[1.25] font-bold break-words text-sage-900 after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+        className="min-w-0 flex-1 text-left font-display text-place break-words text-sage-900 after:absolute after:-inset-px after:rounded-[24px] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
       >
         <span className="sr-only">{`${endVerb(which, day)} `}</span>
         {endpoint.place.name}
@@ -143,7 +154,7 @@ function EndOffer({
       >
         <Mark size={14} strokeWidth={2.75} />
       </span>
-      <span className="min-w-0 flex-1 text-place/[1.25] font-bold text-sage-800">
+      <span className="min-w-0 flex-1 text-place/none font-bold text-sage-800">
         {ENDS[which].add}
       </span>
       <PlusIcon size={16} strokeWidth={2.75} className="shrink-0 text-sage-600" />
@@ -200,7 +211,7 @@ function TimelineStop({
            side of it rather than 8, and stands within 3px of the others'
            width, the names beside them on one edge. */
         <div
-          className={`flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-100 py-2.5 text-center tabular-nums ${
+          className={`flex ${TIME_COLUMN} shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-100 py-2.5 text-center tabular-nums ${
             leaveAt === null ? "px-2" : "relative z-[1] px-0.5"
           }`}
         >
@@ -225,7 +236,7 @@ function TimelineStop({
           className="flex flex-col gap-1 text-left after:absolute after:inset-0 after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
         >
           <span className="sr-only">{`Stop ${String(position)}, `}</span>
-          <span className="font-display text-lead/[1.15] break-words text-ink">{stop.placeName}</span>
+          <span className="font-display text-lead break-words text-ink">{stop.placeName}</span>
           {address === null ? null : (
             <span className="text-small break-words text-neutral-700">{address}</span>
           )}
@@ -234,7 +245,7 @@ function TimelineStop({
           <ConflictNotice key={`${conflict.kind}-${String(at)}`} conflict={conflict} />
         ))}
         {note === null ? null : (
-          <p className="flex items-start gap-[6px] text-meta whitespace-pre-line text-ink-muted">
+          <p className="flex items-start gap-[6px] text-small whitespace-pre-line text-neutral-700">
             <NoteIcon size={13} className="mt-[3px] shrink-0" />
             <span className="sr-only">Note: </span>
             {note}
@@ -285,7 +296,7 @@ function NextPlace({
       {from === null ? null : (
         <span
           aria-hidden="true"
-          className="flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-200 px-2 py-2.5 text-center tabular-nums"
+          className={`flex ${TIME_COLUMN} shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-200 px-2 py-2.5 text-center tabular-nums`}
         >
           <span className="text-meta/none font-semibold text-terracotta-700">from</span>
           <span className="text-place/none font-bold text-terracotta-800">{from}</span>
@@ -318,7 +329,7 @@ function NothingPlanned({ onFindPlace }: { readonly onFindPlace: (() => void) | 
         <button
           type="button"
           onClick={onFindPlace}
-          className="mt-[14px] flex h-12 items-center rounded-pill bg-terracotta px-[22px] font-display text-place/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          className="mt-[14px] flex h-12 items-center rounded-pill bg-terracotta px-[22px] text-place/none font-bold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
         >
           Add a place
         </button>
@@ -378,6 +389,7 @@ export function DayTimeline({
         clock={formatClock(computed.begins.minutesFromMidnight)}
         onChoose={(startAtMinutes) => actions.setDayStart({ startAtMinutes })}
         align="left"
+        face="body"
         tone={day.start === null ? "accent" : "sage"}
       />
     );

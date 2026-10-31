@@ -458,39 +458,48 @@ and pill on it is opaque, so the thread shows only in the room between them and 
 the legs, whose discs stand on it as an offered end's disc does. Two things that are not legs
 stand 12px apart; a leg brings its own room above and below.
 
+Its type is one system, each role set one way wherever it stands. The display face, in
+600, is for places' names only, a stop's at the lead step and an end's at the place step,
+as a desk sets an end's; everything else is in the body face. Every time a place is
+reached, left from or passed is bold at the place step, in the 800 of what it stands on,
+with "to" and "from" before a second time in 600 at the meta step in that colour's 700.
+An address and a note are at the small step in neutral 700; a leg's words are 600 at
+the body step in the same; and every offer, **Add a place**, **Add start point**, **Add
+end point**, is bold at the place step. The times stand in one column, 74px wide and
+10px in on every line that has one, and the names start 14px after it, so times stand
+under times and names under names, ends and stops alike.
+
 - An end of the day: a pill of sage 200 with no glyph on it, 48px tall and rounded to
   half that, so a name long enough for two lines makes a card with the same round ends.
-  At its left when the day passes it, in bold at the body step in sage 800, centred in a
-  stop card's column of times, 68px wide from 10px in; then, where a stop's name starts,
-  the place's name in bold at the place step in sage 900. So the day's times stand in
-  one column and its names in another, ends and stops alike. What the day does there,
+  At its left when the day passes it, in sage 800, centred in the column of times; then,
+  where a stop's name starts, the place's name in sage 900. What the day does there,
   "Leave", "Finish at", "Back at", is read out before the name rather than drawn. The
   whole pill is one button that opens the place, where the end is changed for another
   or taken off the day; under a pointer an edge of sage 600 at 55 percent comes round
   it. The start's time is when the day leaves, which for someone who may edit is the
   pill that sets it, in the same column: a desk's dashed pill with its chevron, its
-  shape the same so it is found the same way, in the start's own sage. The time is in
-  sage 800 as the end's time is, the dash in sage 400, with no tint over the sage under
-  it, and it lifts to sage 100 under a pointer and while its picker is open. On a stop's
+  shape the same so it is found the same way, in the start's own sage, its time in the
+  body face as every time on the day is, and drawn tighter than a desk's, 4px in from
+  its edge and 3px to the chevron, so it stands in the column. The time is in sage 800
+  as the end's time is, the dash in sage 400, with no tint over the sage under it, and
+  it lifts to sage 100 under a pointer and while its picker is open. On a stop's
   terracotta block, with no start, it keeps the accent's colours.
 - Without an end, someone who may edit is offered one on the same pill drawn dashed in
   1.5px of sage 400 on `paper`: the end's disc in sage 200 with its glyph in
-  sage 700, **Add start point** or **Add end point** in bold at the place step in sage
-  800, and a 16px plus in sage 600 at its right end. It goes to the search on the map,
+  sage 700, **Add start point** or **Add end point** in sage 800, and a 16px plus in sage
+  600 at its right end. It goes to the search on the map,
   as **Add a place** does. Under a pointer the dash takes sage 600 and the paper lifts to
   `paper-raised`.
 - A leg: a line rather than a box, 50px tall and one button, which brings up its sheet:
   the way's glyph in neutral 800 on a 26px disc of neutral 200 standing on the thread,
-  then the way and how long it takes, "Drive 14 min", in 600 at the body step in neutral
-  700, with a chevron. A leg that cannot be made says so in the same ink, with no glyph
+  then the way and how long it takes, "Drive 14 min", with a chevron. A leg that cannot be made says so in the same ink, with no glyph
   on its disc.
 - A stop: a card of `paper-raised` at the `row` radius under `shadow-sm`, the column's
-  width. At its left, on a block of terracotta 100 at the `chip` radius, at least 68px
-  wide and as tall as the card less its padding, when it is reached in bold at the place
-  step in terracotta 800 over when it is left, "to 10:14", in 600 at the meta step in
-  terracotta 700; then its name in the display face at the lead step over its address at
-  the small step in neutral 700; a conflict under them in its block, and the traveller's
-  note under that, behind its glyph. The whole card is one button, which opens the
+  width. At its left, on a block of terracotta 100 at the `chip` radius filling the
+  column of times and as tall as the card less its padding, when it is reached in
+  terracotta 800 over when it is left, "to 10:14", in terracotta 700; then its name over
+  its address; a conflict under them in its block, and the traveller's note under that,
+  behind its glyph, set as the address is. The whole card is one button, which opens the
   place, where how long is spent there is set and the stop is moved or taken off; under a
   pointer it sinks to `paper-sunken`. With no start, for someone who may edit, the first
   stop's arrival is the pill that sets when the day leaves, in the block in place of the
@@ -500,17 +509,17 @@ stand 12px apart; a leg brings its own room above and below.
   shape and padding, terracotta 100 inside a 1.5px dashed edge of terracotta 400, flat
   where a stop's card is raised, the border outside the padding so the block and the
   words stand on the stops' own edges. At its left a stop's block of times, in
-  terracotta 200 so it shows on the 100 around it, "from" in 600 at the meta step in
-  terracotta 700 over when the last stop is left in bold at the place step in terracotta
-  800, which is when the way to the next place would begin, as the foot of a desk's last
-  card says it; then, where a stop's name stands, **Add a place** in bold at the place
-  step in terracotta 700, and a 16px plus in the same at the card's right end. Under a
+  terracotta 200 so it shows on the 100 around it, "from" in terracotta 700 over when the
+  last stop is left in terracotta 800, which is when the way to the next place would
+  begin, as the foot of a desk's last card says it; then, where a stop's name stands,
+  **Add a place** in terracotta 700, and a 16px plus in the same at the card's right end. Under a
   pointer the dash takes the whole accent. An end not there yet stands 10px under it.
 
 A day with nothing planned says so between its ends, as a desk does: the line its stops
 will hang on runs down the thread's place on its own, dashed in the accent as a desk
-draws it; beside it, on the ends' names' edge, "Nothing planned yet" at the lead step,
-with **Add a place** on the accent's solid pill under it for someone who may edit.
+draws it; beside it, on the ends' names' edge, "Nothing planned yet" in the display face
+at the lead step, with **Add a place** on the accent's solid pill under it for someone who
+may edit, its words set as every offer's are.
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a

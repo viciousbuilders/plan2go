@@ -58,7 +58,20 @@ function twoDigits(value: number): string {
  * nothing else is pressed.
  */
 const TRIGGER =
-  "flex items-center gap-[5px] rounded-pill border py-px font-display text-time tabular-nums disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
+  "flex items-center rounded-pill border py-px tabular-nums disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:relative max-lg:before:absolute max-lg:before:-inset-x-1 max-lg:before:-inset-y-[10px]";
+
+/**
+ * The face and step the time is set in, the times' own wherever it stands,
+ * and the room round it. A desk's times are in the display face at the time
+ * step, spaced as described above. A phone's day sets every time in the body
+ * face, bold at the place step, which is wider, so the pill is drawn tighter
+ * there, 4px in from its edge and 3px to the chevron, to stand in the 74px
+ * column a phone's day keeps its times in.
+ */
+const FACES = {
+  display: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
+  body: "gap-[3px] pr-0.5 pl-1 text-place/none font-bold",
+} as const;
 
 /**
  * The colours the dashed pill is drawn in, its shape the same in both. The
@@ -86,7 +99,7 @@ const LOOKS = {
 
 /** The pill's own look, in the colours of what it stands on. */
 function triggerLook(open: boolean, tone: keyof typeof LOOKS): string {
-  return `border-dashed pr-[4px] pl-[6px] ${open ? LOOKS[tone].open : LOOKS[tone].closed}`;
+  return `border-dashed ${open ? LOOKS[tone].open : LOOKS[tone].closed}`;
 }
 
 /** Minutes from midnight on the clock: "09:05". */
@@ -118,6 +131,8 @@ interface LeaveAtProps {
   readonly align?: "left" | "right";
   /** Sage on a phone's start of the day, which is sage; the accent everywhere else. */
   readonly tone?: keyof typeof LOOKS;
+  /** The body face in a phone's day, where every time is set in it; the display face on a desk. */
+  readonly face?: keyof typeof FACES;
 }
 
 /**
@@ -144,6 +159,7 @@ export function LeaveAt({
   onChoose,
   align = "right",
   tone = "accent",
+  face = "display",
 }: LeaveAtProps) {
   const [draft, setDraft] = useState(value);
   const [seen, setSeen] = useState(value);
@@ -225,7 +241,7 @@ export function LeaveAt({
           }
           setOpen(true);
         }}
-        className={`${TRIGGER} ${triggerLook(open, tone)}`}
+        className={`${TRIGGER} ${FACES[face]} ${triggerLook(open, tone)}`}
       >
         {shown}
         <ChevronDownIcon size={12} strokeWidth={2.75} className={`shrink-0 ${LOOKS[tone].chevron}`} />
