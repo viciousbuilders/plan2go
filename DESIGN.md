@@ -62,6 +62,11 @@ typography:
     fontSize: 20px
     lineHeight: 1.25
     fontWeight: 600
+  anchor:
+    fontFamily: Baloo 2
+    fontSize: 18px
+    lineHeight: 1.25
+    fontWeight: 600
   place:
     fontFamily: Baloo 2
     fontSize: 16px
@@ -273,14 +278,16 @@ English clips the upper one.
 Display carries times, place names, durations and the day heading. Body carries
 everything else.
 
-Ten steps and no others. Every size in the planner is one of them, set with its own
+Eleven steps and no others, the anchor the last added, for an end's name on a phone,
+which at the place step read as too small beside the stops' names and at the lead step
+as one of them. Every size in the planner is one of them, set with its own
 line height and, where it is a pill, with `text-step/none` rather than a second leading
 utility fighting the first. There is one exception, and it is only ever a field's: below
 1024px every field, and what stands in a field such as the search's empty words and the
 .pdf after a file's name, is 16px, because iOS zooms the whole page into any field set
 smaller as it takes the cursor and leaves it zoomed. Lead is the heading of what opens over the page: the place
 open in the sheet, and the question asked before a trip is deleted; and on a phone, a
-stop's name on its card in the day and an end's on its pill.
+stop's name on its card in the day.
 Small is the tier the interface is mostly made of,
 tab labels, menu rows, the words on a leg, which used to be a scatter of 13px and 13.5px
 chosen one component at a time. A number that is not on the scale is a number that has
@@ -292,6 +299,8 @@ one place such a number may appear. Every element that renders a time or a durat
   other heading.
 - **title:** the heading of an empty day, the printed day, and a page that has nothing
   to show.
+- **anchor:** an end of the day's name on a phone, a step under the stops' names in the
+  column it shares with them, as an end is a step under the places the day is for.
 - **place:** a place name, and the time against an anchor row; on a phone, when a stop is
   reached, on its card's block of times, and the offers on its pills.
 - **time:** when a stop is arrived at and left, on its card.
@@ -459,8 +468,8 @@ the legs, whose discs stand on it as an offered end's disc does. Two things that
 stand 12px apart; a leg brings its own room above and below.
 
 Its type is one system, each role set one way wherever it stands. The display face, in
-600, is for places' names only, a stop's and an end's alike at the lead step, since they
-stand in one column; everything else is in the body face. Every time a place is
+600, is for places' names only, a stop's at the lead step and an end's a step under it
+at the anchor step, in the column they share; everything else is in the body face. Every time a place is
 reached, left from or passed is bold at the place step, in the 800 of what it stands on,
 with "to" and "from" before a second time in 600 at the meta step in that colour's 700.
 An address and a note are at the small step in neutral 700; a leg's words are 600 at

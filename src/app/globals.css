@@ -137,6 +137,15 @@
   --text-lead: 20px;
   --text-lead--line-height: 1.25;
   --text-lead--font-weight: 600;
+  /*
+   * An end of the day's name on a phone, in the column a stop's name at the
+   * lead step stands in: a step under it, as an end of the day is a step under
+   * the places the day is for, and not so far under that the two read as
+   * different kinds of name.
+   */
+  --text-anchor: 18px;
+  --text-anchor--line-height: 1.25;
+  --text-anchor--font-weight: 600;
   --text-place: 16px;
   --text-place--line-height: 1.25;
   --text-place--font-weight: 600;
