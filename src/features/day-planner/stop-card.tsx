@@ -157,11 +157,18 @@ interface StopCardProps {
  * One stop, and everything about it that can be changed where it is read.
  *
  * The arrival time is the loudest thing in the card, and the controls that
- * act on the whole stop, opening its place, moving it and taking it off the
- * day, sit directly under it: they are about the row rather than about
- * anything inside it. They are drawn at reduced weight until the pointer is
- * over the card, and they stay visible either way, because half the people
- * using this are on a phone and have no pointer to hover with.
+ * act on the whole stop, opening its place and taking it off the day, sit
+ * directly under it: they are about the row rather than about anything inside
+ * it. They are drawn at reduced weight until the pointer is over the card, and
+ * they stay visible either way, because half the people using this are on a
+ * phone and have no pointer to hover with.
+ *
+ * Moving the stop is done to the card itself. With a mouse the whole card is
+ * the handle, so the pointer over it is a hand that grabs, closing while the
+ * button is held, and over anything on it that can be pressed it is the hand
+ * that points, as on every button; the card says what dragging it does as its
+ * tooltip. A touch screen has no drag of its own, so there the tools carry a
+ * grip that a finger carries the card by.
  */
 export function StopCard({
   position,
@@ -399,7 +406,17 @@ export function StopCard({
          floats; the browser's drag carries a picture of it instead, and
          leaves the card faded where it was. */
       style={lift === null ? undefined : { translate: `0 ${String(lift)}px` }}
+      /* The whole card is what a mouse drags, so it is the card that says so:
+         the tooltip over it, where the grip's used to be, and the hand that
+         grabs. Buttons keep the hand that points, which every button is given
+         in globals.css; a field keeps the text cursor it would have had, since
+         the grab hand is inherited and a field asks for none of its own. What
+         can be pressed on the card clears the tooltip for itself, below, so
+         it is never said over a control that does something else. */
+      title={actions === null ? undefined : "Drag to reorder, or onto another day"}
       className={`day-stop group grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] rounded-row border bg-paper-raised px-4 py-[13px] ${
+        actions === null ? "" : "cursor-grab active:cursor-grabbing [&_textarea]:cursor-text"
+      } ${
         lift !== null ? "relative z-[5] shadow-md" : dragging ? "opacity-35" : ""
       } ${
         dragOver && !dragging
@@ -464,7 +481,10 @@ export function StopCard({
 
                 A div rather than a paragraph, because the pill hangs its picker
                 from itself and a paragraph may not hold one. */}
-            <div className="flex items-center gap-[5px] font-display text-time whitespace-nowrap text-terracotta-700 tabular-nums">
+            <div
+              title={leaveAt === null ? undefined : ""}
+              className="flex items-center gap-[5px] font-display text-time whitespace-nowrap text-terracotta-700 tabular-nums"
+            >
               {leaveAt === null && stop.arrival === null ? (
                 "Time not known"
               ) : (
@@ -496,11 +516,14 @@ export function StopCard({
               <AboutPlaceButton name={stop.placeName} onOpen={onOpen} />
               {actions === null ? null : (
                 <>
-                  {/* A handle, not a shortcut. The arrow keys are left to the
-                      page, so a card under the pointer still scrolls. Under a
-                      finger it carries the card, and the page does not scroll
-                      from it, which is what lets the finger move the card
-                      rather than the day. */}
+                  {/* A handle, not a shortcut, and only where the device is
+                      worked by a finger: with a mouse the card itself is
+                      dragged, and the grip was a second way to do the one
+                      thing. The arrow keys are left to the page, so a card
+                      under the pointer still scrolls. Under a finger it
+                      carries the card, and the page does not scroll from it,
+                      which is what lets the finger move the card rather than
+                      the day. */}
                   <button
                     type="button"
                     title="Drag to reorder, or onto another day"
@@ -518,7 +541,7 @@ export function StopCard({
                     onLostPointerCapture={() => {
                       letGo(false);
                     }}
-                    className={`${TOOL} cursor-grab touch-none active:cursor-grabbing`}
+                    className={`${TOOL} cursor-grab touch-none active:cursor-grabbing pointer-fine:hidden`}
                   >
                     <GripIcon size={TOOL_GLYPH.grip} />
                   </button>
@@ -540,7 +563,7 @@ export function StopCard({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div title="" className="flex flex-wrap items-center gap-3">
           {/* How long the stop lasts: words for a reader, and for an editor
               the pill that opens the hours and minutes, which is the one
               number on the card a person actually sets. */}
@@ -570,17 +593,21 @@ export function StopCard({
           <ConflictNotice key={`${conflict.kind}-${String(at)}`} conflict={conflict} />
         ))}
 
-        <StopNote
-          placeName={stop.placeName}
-          note={note}
-          onSave={
-            actions === null
-              ? null
-              : (written) => {
-                  run("note", () => actions.setNote({ stopId: stop.stopId, note: written }));
-                }
-          }
-        />
+        {/* Laid out as if the wrapper were not there, since the note's
+            offer keeps to its own width in the card's column. */}
+        <div title="" className="contents">
+          <StopNote
+            placeName={stop.placeName}
+            note={note}
+            onSave={
+              actions === null
+                ? null
+                : (written) => {
+                    run("note", () => actions.setNote({ stopId: stop.stopId, note: written }));
+                  }
+            }
+          />
+        </div>
 
         {error === null ? null : (
           <Notice role="alert">
@@ -640,6 +667,7 @@ export function StopCard({
             onHover(stop.stopId);
           }}
           onClick={onAddNext}
+          title=""
           aria-label={
             stop.departure === null
               ? `Add a place as stop ${String(position + 1)}`

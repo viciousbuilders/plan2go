@@ -718,8 +718,8 @@ alone is never the signal.
 
 A stop card carries its own controls and, on the last card of the day, one other,
 described below. The two that act on the whole
-stop, moving it and taking it off the day, sit under the two times at the top right,
-because they are about the row rather than about anything inside it. They sit just
+stop, opening its place and taking it off the day, sit under the two times at the top
+right, because they are about the row rather than about anything inside it. They sit just
 under the times however many lines the name and the address run to, in one column on
 the right with the times, the column the ends of a day keep too; the name and the
 address stand in their own column beside it, so a long name no longer pushes the tools
@@ -734,8 +734,18 @@ left "1 hr" to be read as either. Removing is immediate: a stop is a search away
 coming back, and a dialog asking twice would be a modal over something editable in
 place.
 
-The grip on a card carries the card under a finger on a touch screen as wide as a desk,
-which has no drag of its own: the card goes where the finger takes it, on the shadow of
+A stop is moved by dragging its card, along the day or onto a day in the strip. With a
+mouse the whole card is the handle: over it the pointer is the hand that grabs, closing
+while the button is held, and over anything on it that can be pressed, the tools, the
+pills, the note's offer and the next place's slot, it is the hand that points, as on
+every button; in the note's field it is the text cursor. The card's tooltip says what
+dragging it does, "Drag to reorder, or onto another day", over the card itself and
+never over what can be pressed on it, which says nothing or its own name. A reader,
+who cannot move a stop, gets the plain arrow and no tooltip. There is no grip under a
+mouse, since the card itself is dragged.
+
+A touch screen as wide as a desk has no drag of its own, so there a grip between the
+two tools carries the card under a finger: the card goes where the finger takes it, on the shadow of
 what floats, the card it is over is outlined as a drop is under a pointer, and letting go
 puts it there, brought into sight if it landed past the edge of the list. Carried up
 over the strip, it goes under it, and the day the finger is over is outlined as under
