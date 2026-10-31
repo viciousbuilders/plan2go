@@ -53,10 +53,11 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
  * they are under the words, since a hotel that locks its doors at eleven is
  * as much use to know about as a museum that shuts at five.
  *
- * The card is a desk's row for an end: paper inside a hairline at the row
- * radius, a step under the raised cards the stops are on, since the day
- * passes through an end rather than spending time there, and as deep as what
- * is in it and 9px more over and under, as a desk's is. The time and the
+ * The card is a desk's row for an end: sage 100 inside an edge of sage 200 at
+ * the row radius, the colour an end stands on wherever it is drawn, flat
+ * rather than raised as the stops' cards are, since the day passes through an
+ * end rather than spending time there, and as deep as what is in it and 9px
+ * more over and under, as a desk's is. The time and the
  * marker stand level with its middle, as they stood with the words before
  * there was a card, and the thread runs on to the marker from the leg above
  * it and away from it down the leg below. The whole card is one button that
@@ -172,7 +173,7 @@ function EndLine({
         <span className={`mt-1 flex-1 ${goesOn ? "thread" : ""}`} />
       </div>
       <div
-        className={`relative min-w-0 rounded-row border border-rule bg-paper px-4 py-[9px] hover:border-sage-600/55 hover:bg-paper-sunken`}
+        className={`relative min-w-0 rounded-row border border-sage-200 bg-sage-100 px-4 py-[9px] hover:border-sage-600/55 hover:bg-sage-200`}
       >
         <button
           type="button"

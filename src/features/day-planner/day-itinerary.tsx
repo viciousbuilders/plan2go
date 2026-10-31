@@ -167,17 +167,19 @@ function Anchor({
      * On the stop card's grid, to the pixel: the same marker column, the same
      * gap beside it, the same gutter either side, so the name and address here
      * sit on the same left edge as every stop's and the time and the tools on
-     * the same right edge, with the marker under the discs. A row on paper
-     * inside a hairline rather than a raised card, and a third shorter than
-     * one: the ends of a day are where it passes through, and a card as deep
-     * and as raised as a stop's gave them the weight of the places it is
-     * for. The same row, with the line dashed, is what offers to choose an
-     * end that is not there yet, so the two read as one slot filled and
-     * empty. Under the pointer, it sinks the way a stop card does, inside a
-     * ring in its own colour, which for an end of the day is sage, as its
-     * ring on the map is. The marker sits in the middle of the shorter row
-     * rather than at its top, where a disc sits on a card whose content runs
-     * on below it; the words and the time sit at the top, as a card's do.
+     * the same right edge, with the marker under the discs. A flat row rather
+     * than a raised card, and a third shorter than one: the ends of a day are
+     * where it passes through, and a card as deep and as raised as a stop's
+     * gave them the weight of the places it is for. Sage 100 inside an edge
+     * of sage 200, the colour the sheets give an end, rather than paper inside
+     * a hairline: that was a leg's pill, and the end above the first leg read
+     * as one more of them. The same row, dashed on paper, is what offers to
+     * choose an end that is not there yet, so the two read as one slot filled
+     * and empty. Under the pointer it goes to sage 200, as today's day does,
+     * inside a ring in its own colour, which for an end of the day is sage,
+     * as its ring on the map is. The marker sits in the middle of the shorter
+     * row rather than at its top, where a disc sits on a card whose content
+     * runs on below it; the words and the time sit at the top, as a card's do.
      *
      * On a desk only: a phone draws the day as a timeline, in day-timeline.
      */
@@ -190,7 +192,7 @@ function Anchor({
         onHover(null);
       }}
       className={`group ${ENDPOINT_ROW} border px-4 py-[9px] ${
-        hovered ? "border-sage-600/55 bg-paper-sunken" : "border-rule bg-paper"
+        hovered ? "border-sage-600/55 bg-sage-200" : "border-sage-200 bg-sage-100"
       }`}
     >
       <EndpointMark which={which} />

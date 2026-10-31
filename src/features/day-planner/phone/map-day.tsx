@@ -121,9 +121,13 @@ function StripLeg({
   );
 }
 
-/** A card in the row, a stop's or an end's: one size and one surface for both. */
+/**
+ * A card in the row, a stop's or an end's: one size and one shape for both.
+ * The surface is each one's own, raised paper for a stop and sage 100 for an
+ * end, the colour an end stands on wherever the day is drawn.
+ */
 const CARD =
-  "flex w-[250px] shrink-0 items-center gap-3 rounded-card border-2 bg-paper-raised px-[14px] py-[13px] text-left shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+  "flex w-[250px] shrink-0 items-center gap-3 rounded-card border-2 px-[14px] py-[13px] text-left shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 /**
  * One end of the day in the row, laid out as a stop's card is: the end's own
@@ -160,7 +164,7 @@ function EndCard({
       data-pick={which}
       aria-pressed={on}
       onClick={onPress}
-      className={`${CARD} ${on ? "border-sage-600" : "border-transparent"}`}
+      className={`${CARD} bg-sage-100 ${on ? "border-sage-600" : "border-transparent"}`}
     >
       <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[14px_14px_14px_4px] bg-sage-600 text-paper">
         <Mark size={15} strokeWidth={2.75} />
@@ -357,7 +361,7 @@ export function MapDay({
                     onPick({ kind: "stop", stopId: stop.stopId });
                   }
                 }}
-                className={`${CARD} ${on ? "border-terracotta" : "border-transparent"}`}
+                className={`${CARD} bg-paper-raised ${on ? "border-terracotta" : "border-transparent"}`}
               >
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-pill bg-terracotta font-display text-body/none font-semibold text-paper tabular-nums">
                   <span aria-hidden="true">{index + 1}</span>

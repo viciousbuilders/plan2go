@@ -197,9 +197,12 @@ paper and ink.
   that is on, 600 is hover, 700 is pressed and is the step to use for accent coloured
   text, 800 is a chosen chip or menu row and the words on the city pill in the search.
 - **sage:** the second accent. 100 and 200 mark today in the day strip, 600 is the marker
-  for the ends of a day, 700 draws the public transport route line. On a phone 100 is the
-  pill a leg is drawn on, with its words in 800, and 200 the disc behind a way's glyph in
-  the sheet that changes it.
+  for the ends of a day, 700 draws the public transport route line. 100 is also what an
+  end of the day stands on wherever the day is drawn, the same on a desk and a phone:
+  its row in the day, inside an edge of 200 and going to 200 under the pointer, its card
+  in the map's row of places, and its card on the sheets. A leg is never on sage, so an
+  end never reads as one more leg. On a phone 200 is the disc behind a way's glyph in the
+  sheet that changes a leg.
 - **neutral:** the warm greys behind everything, used for the drive tint and the map's
   own geometry. On paper, 100 is the ground of the map and of an end of the trip not yet
   set, and 800 the words on the pill that counts the stops. In the export's column, 500
@@ -341,7 +344,9 @@ a drop. Letting go there puts the stop last on that day. The open day stays open
 stop leaves it at once, and the day fades under "Working out the new times." until both
 days have their new times, as after a reorder. When the day leaves
 is set on the day itself. Then the day itself: stops on raised cards, legs between them on pills of paper, and the ends of the
-day on shorter rows of paper inside a hairline, dashed where an end is not there yet.
+day on shorter rows of sage 100 inside an edge of sage 200, the colour the sheets give an
+end, so an end never reads as one more leg, going to sage 200 under the pointer; on paper
+and dashed where an end is not there yet.
 The day's thread runs on to a dashed row from the stop card next to it, across 26px
 rather than twelve, as it runs down a leg to an end that is there.
 A day with no stops says so beside the line its stops will hang on, with no card under
@@ -457,23 +462,24 @@ for the pill that sets when the day leaves.
   one button, which opens the place. Under a pointer it sinks as a desk's does, to
   `paper-sunken` inside an edge of `terracotta` at 55 percent, and with the keyboard on
   it the focus ring is drawn round the card.
-- A leg: the dotted thread down the rail, and beside it a pill of sage 100 inside an
-  edge of sage at 40 percent, the way's glyph, its name and how long it takes, "Drive 22
-  min", in bold at the small step in sage 800, with a chevron, 40px tall. A leg that
-  cannot be made the way the day has it says so on a pill of `paper` in `ink-muted`.
+- A leg: the dotted thread down the rail, and beside it a pill of `paper` inside a 1.5px
+  `rule` edge, the colours a desk's leg is drawn in, the way's glyph, its name and how
+  long it takes, "Drive 22 min", in bold at the small step in `ink`, with a chevron, 40px
+  tall. A leg that cannot be made the way the day has it says so on the same pill in
+  `ink-muted`.
 - An end of the day, laid out as a stop is: when the day passes it, the map's marker
   for an end, a 26px sage 600 square with one corner cut, with the end's glyph, and
-  beside them a card, a desk's row for an end: `paper` inside a `rule` hairline at the
-  `row` radius, 16px in at either side and 9px over and under what is in it, a step
-  under the stops' raised cards, since the day passes through an end rather than
+  beside them a card, a desk's row for an end: sage 100 inside an edge of sage 200 at
+  the `row` radius, 16px in at either side and 9px over and under what is in it, flat
+  where the stops' cards are raised, since the day passes through an end rather than
   spending time there. On it what the day does there, "Leave Central Station", "Finish
   at", "Back at", at the body step in 600, and the place's hours under that when it
   keeps any. The time and the marker stand level with the card's middle, and the thread
   runs on to the marker from the leg above it and away from it down the leg below. The
   whole card is one button that opens the place, where the end is changed for another
   or taken off the day, as a stop is changed from its own; nothing on the card changes
-  it. Under a pointer it sinks to
-  `paper-sunken` inside an edge of sage 600 at 55 percent, as a desk's row does. Without
+  it. Under a pointer it goes to
+  sage 200 inside an edge of sage 600 at 55 percent, as a desk's row does. Without
   an end, someone who may edit is offered one as a desk offers it, on the same card
   drawn dashed in 1.5px of `rule-strong`, beside the same marker: the end's name in sage
   800 over what kind of place goes there, 12px from what is next to it on the day's
@@ -578,7 +584,8 @@ Along the foot, 12px over the bar of views, the day's rows. First a chip for eve
 the open day filled in `terracotta-800`, so the map goes from day to day without the
 list. Under the days, 8px clear, the day in order: a card for where it starts, one for
 every stop and one for where it ends, the ends when the day has them, each 250px wide
-on `paper-raised` rounded at the `card` radius under `shadow-md`. A stop's card has its
+rounded at the `card` radius under `shadow-md`, a stop's on `paper-raised` and an end's
+on sage 100, as an end is in the day's own view. A stop's card has its
 number on the disc the map marks it with, its name in the display face, and when it is
 reached and left. An end's has the end's mark where the number is, the sage square with
 one corner cut and its glyph, as large as the disc; the place's name; and what the day

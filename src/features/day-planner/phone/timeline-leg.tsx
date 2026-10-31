@@ -166,12 +166,13 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
       : "No way to get there";
 
   /**
-   * A pill of sage inside an edge of it, with the way in sage's deepest ink,
-   * forty tall, a finger's height; on paper with the ink muted when there is
-   * no way the day can use, since there is no way to name.
+   * A pill of paper inside a hairline, as a desk's leg is, with the way in
+   * ink, forty tall, a finger's height; the ink muted when there is no way the
+   * day can use, since there is no way to name. Not sage, which is what an end
+   * of the day stands on, on a phone as on a desk.
    */
-  const pillShape = `flex min-h-10 items-center gap-2 justify-self-start rounded-pill border-[1.5px] px-[13px] py-[9px] text-small/none font-bold whitespace-nowrap ${
-    covered ? "border-sage/40 bg-sage-100 text-sage-800" : "border-rule bg-paper text-ink-muted"
+  const pillShape = `flex min-h-10 items-center gap-2 justify-self-start rounded-pill border-[1.5px] border-rule bg-paper px-[13px] py-[9px] text-small/none font-bold whitespace-nowrap ${
+    covered ? "text-ink" : "text-ink-muted"
   }`;
 
   return (
