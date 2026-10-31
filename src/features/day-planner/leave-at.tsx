@@ -57,12 +57,14 @@ const TRIGGER =
  *
  * A desk's is in the display face at the time step, as the card's times are.
  * On the start of the day, the sage row the start stands on, in the sage 800
- * a phone's start is in, the chevron in the same, on sage 100 under the
- * pointer and while the picker is open: the row sinks to sage 200 under the
- * same pointer, and the pill comes up lighter out of it, as a phone's does
- * out of its sage pill. On the first stop of a day with no start, the card's
- * times' accent, the chevron in the arrow's two thirds beside it, on the
- * accent's 100 under the pointer, lighter than the card sunk under it.
+ * a phone's start is in, the chevron in the same, on sage 200 under the
+ * pointer and while the picker is open, a step down from the row's sage 100.
+ * On the first stop of a day with no start, the card's times' accent, the
+ * chevron in the arrow's two thirds beside it, on the accent's 200 under the
+ * pointer and while the picker is open, as a phone's first stop takes it.
+ * Neither the row nor the card sinks under a pointer on one of its controls,
+ * so the fill is laid on them as they are at rest, and has to stand apart
+ * from that.
  *
  * A phone's is in the body face bold at the place step as every time in a
  * phone's day is, in the 800 of what it stands on, the chevron in the same,
@@ -74,15 +76,15 @@ const TRIGGER =
 const LOOKS = {
   deskStart: {
     type: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
-    closed: "border-transparent text-sage-800 enabled:hover:bg-sage-100",
-    open: "border-transparent bg-sage-100 text-sage-800",
+    closed: "border-transparent text-sage-800 enabled:hover:bg-sage-200",
+    open: "border-transparent bg-sage-200 text-sage-800",
     chevron: "text-sage-800",
     picker: "sage",
   },
   deskStop: {
     type: "gap-[5px] pr-[4px] pl-[6px] font-display text-time",
-    closed: "border-transparent text-terracotta-700 enabled:hover:bg-terracotta-100",
-    open: "border-transparent bg-terracotta-100 text-terracotta-700",
+    closed: "border-transparent text-terracotta-700 enabled:hover:bg-terracotta-200",
+    open: "border-transparent bg-terracotta-200 text-terracotta-700",
     chevron: "text-terracotta-700/65",
     picker: "accent",
   },

@@ -780,10 +780,11 @@ edge round it, as on a phone. On the start of the day it is in the colour of the
 stands on, sage 800, the chevron in the same, as a phone's start is; on the first stop of
 a day with no start, in the card's times' `terracotta-700`, the chevron in the arrow's
 `terracotta-700` at 65 percent, quieter than the time as the stay's chevron is quieter
-than its words. Under the pointer, and while the picker is open, it stands on the
-lightest tint of its colour: sage 100 on the start's row, which sinks to sage 200 under
-the same pointer, so the time comes up lighter out of it, and `terracotta-100` on the
-card, which sinks to `paper-sunken`. The picker is the same two columns the stay opens,
+than its words. Under the pointer, and while the picker is open, it stands on the next
+tint of its colour, a step down from what it is on: sage 200 on the start's sage 100
+row, and `terracotta-200` on the card, as a phone's first stop takes it. Neither the row
+nor the card sinks under a pointer on one of its controls, so the fill is laid on them
+as they are at rest. The picker is the same two columns the stay opens,
 hanging from the button's right end, its chosen rows filled in the 800 of the same
 colour with the digits in `paper`, sage under a start and the accent's under a first
 stop, and the row under the pointer in its 100. The button takes
