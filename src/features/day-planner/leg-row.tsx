@@ -4,11 +4,11 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import type { TravelMode } from "@/core/model/leg";
 import type { ComputedLeg } from "@/core/time/compute-day";
 import { formatDuration } from "@/core/time/minutes";
-import { ChevronDownIcon, ChevronUpIcon } from "@/ui/icons";
+import { ArrowUpRightIcon, ChevronDownIcon, ChevronUpIcon } from "@/ui/icons";
 import type { LegOption, PlannedLeg } from "./compute-trip";
 import { formatDistance } from "@/core/model/distance";
 import type { DayActions } from "./day-actions";
-import { legDisc, MODE_ICON, MODE_WORDS } from "./leg-marks";
+import { legColor, legDisc, MODE_ICON, MODE_WORDS } from "./leg-marks";
 import { Notice } from "@/ui/notice";
 
 interface LegRowProps {
@@ -110,7 +110,7 @@ function Option({
 }
 
 /**
- * The way to the live version of this leg, under every leg that can be made.
+ * The way to the live version of this leg, at the end of its line.
  *
  * The leg is timed for the moment the day plans to set out on it, but the
  * minute a service leaves and the traffic on the road are not here. The link
@@ -118,36 +118,38 @@ function Option({
  * opened in Google Maps with "depart at" already set to that moment, so the
  * timetable for public transport, the traffic for a drive, and for a walk the
  * same route with turn by turn directions on it are all for the day planned
- * rather than for now.
+ * rather than for now. Two words and an arrow going up and out, since the
+ * arrow says it leaves for somewhere else; where to is read out in full.
  */
-function DirectionsLink({ href }: { readonly href: string }) {
+function LiveTimes({ href }: { readonly href: string }) {
   return (
-    <div className="mt-[3px] px-[10px]">
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-[3px] inline-block rounded-pill text-meta font-semibold text-terracotta-700 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-      >
-        Live times in Google Maps
-      </a>
-    </div>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ml-auto flex shrink-0 items-center gap-1 rounded-pill text-body/none font-semibold whitespace-nowrap text-terracotta-700 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+    >
+      Live times
+      <span className="sr-only"> in Google Maps</span>
+      <ArrowUpRightIcon size={13} strokeWidth={2.75} />
+    </a>
   );
 }
 
 /**
  * How you get from one stop to the next, on the thread that joins them.
  *
- * Closed, it is one line: the mode in words and an icon, and the duration,
- * which is the loudest thing in the row because it is what the day is built out
- * of. Open, it is every other way of covering the same ground with what each
- * one costs in time, so the choice is made by reading the alternatives rather
- * than by trying them one at a time.
+ * Closed, it is one line hung on the thread: the way's glyph on a disc, and
+ * beside it the way in words, how long it takes and how far, and the link to
+ * its live times. Open, it is every other way of covering the same ground
+ * with what each one costs in time, so the choice is made by reading the
+ * alternatives rather than by trying them one at a time.
  *
  * Choosing leaves the panel open. The outline moves to what was picked and the
  * times down the rest of the day move with it, both of which are worth seeing
  * before deciding whether that is the mode you wanted, and trying a second one
- * should not mean opening the panel again. Collapse is what closes it.
+ * should not mean opening the panel again. Collapse is what closes it, as the
+ * way's name above it does too.
  */
 export function LegRow({
   leg,
@@ -196,59 +198,40 @@ export function LegRow({
   const rough = planned.options.some((option) => option.mode === leg.mode && option.rough);
 
   /**
-   * Outside the row's button rather than inside it, because it is a link and
-   * a link cannot live in a button. It reads as part of the leg all the same:
-   * the same indent, directly under the one line.
+   * How long and how far as one quiet run of words, "48 min · 45 km": the two
+   * facts the way comes to, after the way itself.
    */
-  const directions =
-    covered && planned.directions !== null ? <DirectionsLink href={planned.directions} /> : null;
-
-  const summary = covered ? (
-    <>
-      {/* The glyph on a small disc in the mode's own tint. Smaller than a
-          stop's number and never terracotta on its own, so it reads as a
-          way between two stops rather than as a third one. */}
-      <span
-        style={legDisc(leg.index)}
-        className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-pill"
-      >
-        <Icon size={15} strokeWidth={2.4} />
-      </span>
-      <span className="text-small/none font-semibold whitespace-nowrap text-ink">
-        {MODE_WORDS[leg.mode]}
-      </span>
-      {/* The time stands apart in the display face, because it is what the
-          day is built out of and the one number worth reading the row for.
-          How far follows it quietly. */}
-      <span className="font-display text-time whitespace-nowrap text-ink tabular-nums">
-        {rough ? "about " : ""}
-        {formatDuration(leg.durationMinutes ?? 0)}
-      </span>
-      {leg.distanceMeters === null ? null : (
-        <span className="text-meta/none whitespace-nowrap text-ink-muted tabular-nums">
-          {formatDistance(leg.distanceMeters)}
-        </span>
-      )}
-    </>
-  ) : (
-    <span className="text-small/none text-ink-muted">
-      {/* What was looked for and not found, then what to do: the way the
-          day has stored for this leg does not run at this time, and the
-          panel under it offers the ones that do. */}
-      {anyWay
-        ? `No ${MODE_WORDS[leg.mode].toLowerCase()} at this time.${onChange === null ? "" : " Choose another way."}`
-        : "No way to get there"}
-    </span>
-  );
+  const facts = [
+    `${rough ? "about " : ""}${formatDuration(leg.durationMinutes ?? 0)}`,
+    ...(leg.distanceMeters === null ? [] : [formatDistance(leg.distanceMeters)]),
+  ].join(" · ");
 
   /**
-   * One line on a pill of paper inside a hairline, whoever is reading it: a
-   * step under the raised cards either side of it, since it is what happens
-   * between two stops rather than a thing in itself. Under the pointer, here
-   * or on the map, the line darkens and the pill sinks to the ground.
+   * What opens the other ways, for someone who may change it: the way's name
+   * with a chevron pointing where the panel goes, a pill under the pointer as
+   * the card's tools are. On a leg with no way, "Change" in its place, since
+   * the leg does not name a way it cannot be covered by.
    */
-  const rowShape =
-    "flex w-full flex-wrap items-center gap-x-[10px] gap-y-[6px] rounded-pill border py-[7px] pr-3 pl-2 text-left";
+  const toggle =
+    onChange === null ? null : (
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(!open);
+          setError(null);
+        }}
+        aria-expanded={open}
+        title="Change how you get there"
+        className="-mx-[6px] flex shrink-0 items-center gap-[6px] rounded-pill px-[6px] py-1 text-body/none font-semibold whitespace-nowrap text-ink hover:bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      >
+        {covered ? MODE_WORDS[leg.mode] : "Change"}
+        {open ? (
+          <ChevronUpIcon size={12} strokeWidth={2.75} className="shrink-0 text-ink-muted" />
+        ) : (
+          <ChevronDownIcon size={12} strokeWidth={2.75} className="shrink-0 text-ink-muted" />
+        )}
+      </button>
+    );
 
   return (
     /*
@@ -256,40 +239,100 @@ export function LegRow({
      * down the margin outside the cards, thirteen pixels nearer the edge than
      * their discs, which is how the design file draws it and what makes a leg
      * read as the space between two cards rather than as a third column of
-     * them. The words on the leg move with the line, so the glyph in front of
-     * them still lands under the name of the stop it leads to.
+     * them. The words on the leg move with the line, so the way's name lands
+     * on the edge the stops' names keep a step in from.
      *
      * The thread is the row's full height less a hair at each end, so the
      * line reads as one from the card above to the card below. The space
      * above and below the words is the row's own, which is what lets the
      * thread run through it: a margin would have been a gap in the line.
+     *
+     * Under the pointer, here or on the map, the whole row lights the leg's
+     * line on the map, and the disc takes a ring of its ink, as the line on
+     * the map is drawn heavier.
      */
-    <div className="grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] pr-[17px] pl-1">
-      <div className="flex justify-center py-[2px]">
+    <div
+      ref={row}
+      onMouseEnter={() => {
+        onHover(leg.index);
+      }}
+      onMouseLeave={() => {
+        onHover(null);
+      }}
+      className="grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] pr-[17px] pl-1"
+    >
+      <div className="relative flex justify-center py-[2px]">
         <span className="thread" aria-hidden="true" />
-      </div>
-      <div
-        ref={row}
-        className="pt-[9px] pb-[10px]"
-        onMouseEnter={() => {
-          onHover(leg.index);
-        }}
-        onMouseLeave={() => {
-          onHover(null);
-        }}
-      >
-        {onChange === null ? (
-          <div
-            className={`${rowShape} ${
-              hovered ? "border-rule-strong bg-paper-sunken" : "border-rule bg-paper"
-            }`}
+        {/* The glyph on a disc hung on the thread, level with the words, in
+            the leg's own ink, the ink its line on the map is drawn in, so the
+            two are matched by eye across the page. Smaller than a stop's
+            number and never terracotta on its own, so it reads as a way
+            between two stops rather than as a third one. The wash is laid
+            over the panel's ground rather than over nothing, so the disc is
+            solid and the thread passes behind it, as a bead on a string. A
+            leg with no way has no line on the map, and no disc. */}
+        {covered ? (
+          <span
+            aria-hidden="true"
+            style={{
+              ...legDisc(leg.index, "var(--color-paper-sunken)"),
+              boxShadow: hovered ? `0 0 0 2px ${legColor(leg.index)}` : undefined,
+            }}
+            className="absolute top-4 grid h-[26px] w-[26px] place-items-center rounded-pill"
           >
-            {summary}
-          </div>
-        ) : open ? (
+            <Icon size={15} strokeWidth={2.4} />
+          </span>
+        ) : null}
+      </div>
+
+      <div className="min-w-0 py-4">
+        {/* One line, as deep as the disc beside it: the way, then how long
+            and how far, quietly, at the same step, and the live times on
+            the times' right edge. It wraps rather than cutting anything
+            short on a narrow panel, the link going to the right of a line
+            of its own. */}
+        <div className="flex min-h-[26px] flex-wrap items-center gap-x-[10px] gap-y-[6px]">
+          {covered ? (
+            <>
+              {toggle ?? (
+                <span className="text-body/none font-semibold whitespace-nowrap text-ink">
+                  {MODE_WORDS[leg.mode]}
+                </span>
+              )}
+              <span className="text-body/none whitespace-nowrap text-ink-muted tabular-nums">
+                {facts}
+              </span>
+              {planned.directions === null ? null : <LiveTimes href={planned.directions} />}
+            </>
+          ) : (
+            <>
+              {/* What was looked for and not found, then what to do: the way
+                  the day has stored for this leg does not run at this time,
+                  and the panel the way's toggle opens offers the ones that
+                  do. */}
+              <span className="text-small/none text-ink-muted">
+                {anyWay
+                  ? `No ${MODE_WORDS[leg.mode].toLowerCase()} at this time.${onChange === null ? "" : " Choose another way."}`
+                  : "No way to get there"}
+              </span>
+              {toggle}
+            </>
+          )}
+        </div>
+
+        {/* Said under the line, as a conflict is, so a guess is never read as
+            a timetable: what was not found, then what the number is instead. */}
+        {covered && rough ? (
+          <Notice shape="note" className="mt-2">
+            No {MODE_WORDS[leg.mode].toLowerCase()} route was found here. The time is a guess
+            from the distance.
+          </Notice>
+        ) : null}
+
+        {onChange !== null && open ? (
           /* Its own scrollbar on a short window, so a panel too tall to fit
              scrolls inside itself rather than pushing the day down past it. */
-          <div className="scroll-quiet max-h-[50vh] overflow-y-auto rounded-panel border border-rule bg-paper-sunken px-[14px] pt-[13px] pb-[14px]">
+          <div className="scroll-quiet mt-3 max-h-[50vh] overflow-y-auto rounded-panel border border-rule bg-paper-sunken px-[14px] pt-[13px] pb-[14px]">
             <div className="mb-[11px] flex items-baseline gap-2">
               {/* No distance beside the heading: every way of covering the leg
                   is about to say its own, and they are not all the same. */}
@@ -329,42 +372,7 @@ export function LegRow({
               </Notice>
             )}
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(true);
-              setError(null);
-            }}
-            className={`group ${rowShape} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-              hovered
-                ? "border-rule-strong bg-paper-sunken"
-                : "border-rule bg-paper hover:border-rule-strong hover:bg-paper-sunken"
-            }`}
-          >
-            {summary}
-            {/* In the accent, a shade down for text at this size, the way
-                the link under the row is: the one thing on the line that
-                does something rather than says something. The whole row is
-                the button and sinks under the pointer, and the word deepens
-                with it. The chevron points the way the row is about to go. */}
-            <span className="ml-auto flex items-center gap-[5px] text-micro/none font-semibold whitespace-nowrap text-terracotta-700 group-hover:text-terracotta-900">
-              Change
-              <ChevronDownIcon size={13} strokeWidth={2.75} />
-            </span>
-          </button>
-        )}
-
-        {/* Said under the row, as a conflict is, so a guess is never read as a
-            timetable: what was not found, then what the number is instead. */}
-        {covered && rough ? (
-          <Notice shape="note" className="mt-2">
-            No {MODE_WORDS[leg.mode].toLowerCase()} route was found here. The time is a guess
-            from the distance.
-          </Notice>
         ) : null}
-
-        {directions}
       </div>
     </div>
   );

@@ -364,7 +364,7 @@ is over takes the accent's dashed edge at 2px over `paper-sunken`, as a card doe
 a drop. Letting go there puts the stop last on that day. The open day stays open: the
 stop leaves it at once, and the day fades under "Working out the new times." until both
 days have their new times, as after a reorder. When the day leaves
-is set on the day itself. Then the day itself: stops on raised cards, legs between them on pills of paper, and the ends of the
+is set on the day itself. Then the day itself: stops on raised cards, legs between them as one line hung on the thread, and the ends of the
 day on shorter rows of sage 100 inside an edge of sage 200, the colour the sheets give an
 end, so an end never reads as one more leg, going to sage 200 under the pointer; on paper
 and dashed where an end is not there yet.
@@ -799,12 +799,25 @@ this one. It is on the last card because that is where a place found in the sear
 goes, and it is the one control on a card about the day rather than the stop. A reader
 without the edit link does not get it.
 
-A leg opens. Closed it is one line, the mode and how long it takes, with **Change** at
-the end of it. Open it is a sunken panel of every way of covering the same ground, one
+A leg opens. Closed it is one line hung on the thread, 58px from card to card, with no
+pill of its own. On the thread, level with the words, the way's glyph on a 26px disc in
+the leg's own ink, the ink its line on the map is drawn in: the glyph in it outright and
+the disc a 16 percent wash of it over the panel's ground, so the disc is solid and the
+thread passes behind it, as a bead on a string. Beside it, on the edge the legs' words
+keep, the way's name at the body step in 600 with a chevron after it, which is the
+button that opens the panel, a pill of `neutral-200` under the pointer, titled "Change
+how you get there"; then how long it takes and how far, "48 min · 45 km", at the body
+step in `ink-muted`; and on the times' right edge **Live times** at the body step in 600
+`terracotta-700` with an arrow going up and out, the leg in Google Maps at the moment
+the day sets out on it, in a new tab. A reader gets the name without the chevron. Under
+the pointer, here or on the map, the disc takes a 2px ring of its ink, as the line on
+the map is drawn heavier. A leg that cannot be made says so in place of the name and the
+times, with **Change** after it for someone who may edit, and has no disc, since it has
+no line on the map. Open it is a sunken panel of every way of covering the same ground, one
 tile each, carrying the mode, the time and the distance, with the one in use outlined
 in terracotta and its dot filled. Choosing leaves the panel open, because the outline
 moving and the times below changing are the answer and trying a second mode should not
-mean opening it again. Collapse is what closes it. While the new times are being worked
+mean opening it again. Collapse is what closes it, as the way's name above it does. While the new times are being worked
 out the tiles stay on screen at reduced opacity under a line of text saying what is
 happening, which is what this product does instead of a skeleton.
 

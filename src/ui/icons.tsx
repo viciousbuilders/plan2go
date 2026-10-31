@@ -124,6 +124,16 @@ export function ArrowRightIcon(props: IconProps) {
   );
 }
 
+/** Up and out to the right: a link that leaves this product for another. */
+export function ArrowUpRightIcon(props: IconProps) {
+  return (
+    <Glyph {...props}>
+      <path d="M7 7h10v10" />
+      <path d="M7 17 17 7" />
+    </Glyph>
+  );
+}
+
 /** A plane on its way: on from one place to the next. */
 export function PlaneIcon(props: IconProps) {
   return (
