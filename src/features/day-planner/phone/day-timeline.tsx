@@ -45,25 +45,25 @@ function endVerb(which: "start" | "end", day: DayPlan): string {
 /**
  * The shape both of an end's pills share: 48px tall and rounded to half that,
  * so one line is a pill and a name long enough for two makes a card with the
- * same round ends. The disc at its left has its middle 24px in from the day's
- * edge, on the thread, as a leg's disc does, so the ends and the legs stand
- * on one line.
+ * same round ends.
  */
-const END_PILL = "relative flex min-h-12 w-full items-center gap-3 rounded-[24px] text-left";
+const END_PILL = "relative flex min-h-12 w-full items-center rounded-[24px] text-left";
 
 /**
  * An end of the day that is there, as the phone's day design draws it: a pill
- * of sage 200, the end's disc in sage 600 with its glyph in paper, the house
- * where the day sets out and the flag where it finishes, then the place's
- * name in bold sage 900, and at the right when the day passes it, in bold sage
- * 800. At the start that is when the day leaves, which for someone who may
- * edit is the pill that sets it, a desk's dashed pill.
+ * of sage 200 with no glyph on it, when the day passes the end in bold sage
+ * 800 at its left and the place's name in bold sage 900 after it. The time
+ * stands in a stop card's column of times, 68px wide from 10px in, and the
+ * name where a stop's name starts, so the day's times stand in one column and
+ * its names in another, ends and stops alike. At the start the time is when
+ * the day leaves, which for someone who may edit is the pill that sets it, a
+ * desk's dashed pill, in the same column.
  *
  * What the day does there, "Leave", "Finish at", "Back at", is read out before
- * the name rather than drawn, since the disc says which end it is. The whole
- * pill opens the place, where the end is changed for another or taken off the
- * day: on a phone the day is read here and changed there. Under a pointer an
- * edge of sage 600 at 55 percent comes round it, as round a desk's row.
+ * the name rather than drawn. The whole pill opens the place, where the end is
+ * changed for another or taken off the day: on a phone the day is read here
+ * and changed there. Under a pointer an edge of sage 600 at 55 percent comes
+ * round it, as round a desk's row.
  */
 function EndPill({
   which,
@@ -82,17 +82,24 @@ function EndPill({
   readonly setTime: ReactNode;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
-  const Mark = MARKS[which];
   return (
+    /* The edge is a pixel of the padding a stop card has, so the column of
+       times starts 10px in, where a stop's block does. */
     <div
-      className={`${END_PILL} border border-transparent bg-sage-200 py-[7px] pr-4 pl-[7px] hover:border-sage-600/55`}
+      className={`${END_PILL} gap-3.5 border border-transparent bg-sage-200 py-2 pr-4 pl-[9px] hover:border-sage-600/55`}
     >
-      <span
-        aria-hidden="true"
-        className="grid size-8 shrink-0 place-items-center rounded-pill bg-sage-600 text-paper"
+      {/* Over the button's reach when it holds the pill that sets the time,
+          so that pill is pressed and not the place behind it. */}
+      <div
+        className={`flex min-w-[68px] shrink-0 justify-center ${setTime === null ? "" : "relative z-[1]"}`}
       >
-        <Mark size={14} strokeWidth={2.75} />
-      </span>
+        {setTime ??
+          (time === null ? null : (
+            <p className="text-body/none font-bold whitespace-nowrap text-sage-800 tabular-nums">
+              {time}
+            </p>
+          ))}
+      </div>
       <button
         type="button"
         onClick={() => {
@@ -103,27 +110,18 @@ function EndPill({
         <span className="sr-only">{`${endVerb(which, day)} `}</span>
         {endpoint.place.name}
       </button>
-      {/* Over the button's reach, so the pill that sets the time is pressed
-          and not the place behind it. */}
-      {setTime === null ? (
-        time === null ? null : (
-          <p className="shrink-0 text-body/none font-bold whitespace-nowrap text-sage-800 tabular-nums">
-            {time}
-          </p>
-        )
-      ) : (
-        <div className="relative z-[1] shrink-0">{setTime}</div>
-      )}
     </div>
   );
 }
 
 /**
  * An end of the day not there yet, offered to someone who may edit: the same
- * pill drawn dashed, 1.5px of sage 400 on paper, the end's disc in
- * sage 200 with its glyph in sage 700, the end it offers in bold sage 800, and
- * a plus in sage 600 at the right end. It takes them to the search on the
- * map, as "Add a place" does, which finds the end as it finds a place.
+ * pill drawn dashed, 1.5px of sage 400 on paper, the end's disc in sage 200
+ * with its glyph in sage 700, the house where the day would set out or the
+ * flag where it would finish, its middle 24px in, on the thread, as a leg's
+ * disc's is; then the end it offers in bold sage 800, and a plus in sage 600
+ * at the right end. It takes them to the search on the map, as "Add a place"
+ * does, which finds the end as it finds a place.
  */
 function EndOffer({
   which,
@@ -137,7 +135,7 @@ function EndOffer({
     <button
       type="button"
       onClick={onFind}
-      className={`${END_PILL} border-[1.5px] border-dashed border-sage-400 bg-paper py-[6.5px] pr-5 pl-[6.5px] hover:border-sage-600 hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
+      className={`${END_PILL} gap-3 border-[1.5px] border-dashed border-sage-400 bg-paper py-[6.5px] pr-5 pl-[6.5px] hover:border-sage-600 hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
     >
       <span
         aria-hidden="true"
@@ -346,7 +344,7 @@ interface Line {
  * it: where it starts if it starts anywhere, every leg and every stop in
  * order, and where it ends if it ends anywhere, one column the window's
  * width. A dotted thread runs down the left of it behind everything, its
- * middle 24px in, through the ends' discs and the legs' discs, and shows in
+ * middle 24px in, through the legs' discs and an offered end's, and shows in
  * the room between the cards. After the last stop, for someone who may edit,
  * the next place, which is where a place found in the search goes.
  *

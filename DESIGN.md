@@ -205,9 +205,8 @@ paper and ink.
   for the ends of a day, 700 draws the public transport route line. 100 is also what an
   end of the day stands on: its row in a desk's day, inside an edge of 200 and going to
   200 under the pointer, its card in a phone's row of places on the map, and its card on
-  the sheets. In a phone's day an end is a pill of 200 with its disc in 600, its name in
-  900 and its time in 800, and an end not there yet a pill dashed in 400 with its disc
-  in 200.
+  the sheets. In a phone's day an end is a pill of 200, its time in 800 and its name in
+  900, and an end not there yet a pill dashed in 400 with its disc in 200.
   A leg is never on sage, so an end never reads as one more leg. On a phone 200 is also
   the disc behind a way's glyph in the sheet that changes a leg.
 - **neutral:** the warm greys behind everything, used for the drive tint and the map's
@@ -456,20 +455,21 @@ to, as the phone's day design draws it: one column the window's width, with no c
 of times and no numbers on the stops. A dotted thread runs down its left behind
 everything, its middle 24px in, from the first thing's middle to the last's. Every card
 and pill on it is opaque, so the thread shows only in the room between them and through
-the legs, whose discs stand on it as the ends' discs do. Two things that are not legs
+the legs, whose discs stand on it as an offered end's disc does. Two things that are not legs
 stand 12px apart; a leg brings its own room above and below.
 
-- An end of the day: a pill of sage 200, 48px tall and rounded to half that, so a name
-  long enough for two lines makes a card with the same round ends. At its left the end's
-  disc, 32px of sage 600 with the end's glyph in `paper`, the house where the day sets
-  out and the flag where it finishes; then the place's name in bold at the place step in
-  sage 900; and at its right when the day passes it, in bold at the body step in sage
-  800. What the day does there, "Leave", "Finish at", "Back at", is read out before the
-  name rather than drawn. The whole pill is one button that opens the place, where the
-  end is changed for another or taken off the day; under a pointer an edge of sage 600
-  at 55 percent comes round it. The start's time is when the day leaves, which for
-  someone who may edit is the pill that sets it, drawn as a desk draws it, dashed and
-  tinted with its chevron, so the one time a person sets looks the same on either.
+- An end of the day: a pill of sage 200 with no glyph on it, 48px tall and rounded to
+  half that, so a name long enough for two lines makes a card with the same round ends.
+  At its left when the day passes it, in bold at the body step in sage 800, centred in a
+  stop card's column of times, 68px wide from 10px in; then, where a stop's name starts,
+  the place's name in bold at the place step in sage 900. So the day's times stand in
+  one column and its names in another, ends and stops alike. What the day does there,
+  "Leave", "Finish at", "Back at", is read out before the name rather than drawn. The
+  whole pill is one button that opens the place, where the end is changed for another
+  or taken off the day; under a pointer an edge of sage 600 at 55 percent comes round
+  it. The start's time is when the day leaves, which for someone who may edit is the
+  pill that sets it, in the same column, drawn as a desk draws it, dashed and tinted
+  with its chevron, so the one time a person sets looks the same on either.
 - Without an end, someone who may edit is offered one on the same pill drawn dashed in
   1.5px of sage 400 on `paper`: the end's disc in sage 200 with its glyph in
   sage 700, **Add start point** or **Add end point** in bold at the place step in sage
@@ -656,7 +656,7 @@ the legs between the cards, and from a card to the dashed row offering an end of
 day that is not there yet, in the column the legs keep it in, three of its dots whole
 and 2px clear of either, as a leg's are; and it stops at their edges: a stop card's
 numbered terracotta disc stands on its own, with nothing drawn under it. On a phone it runs the length of the day behind
-its cards and pills, 24px in, through the ends' and the legs' discs, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
+its cards and pills, 24px in, through the legs' discs and an offered end's, as Layout says. A leg hangs on the thread with no card of its own, because it is what happens
 between two stops rather than a thing in itself.
 
 The start and end of a day are a different shape from a stop, not merely a different
