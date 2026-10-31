@@ -27,6 +27,12 @@ import {
 } from "./touch-carry";
 import { Notice } from "@/ui/notice";
 
+/**
+ * What on a card answers the pointer on its own: anything pressed or typed in,
+ * and the picker a pill opens, gaps and headings and all.
+ */
+const CONTROLS = "button, a, input, textarea, select, [role='dialog']";
+
 /** The one thing about this stop that is currently being written down. */
 type Busy = "stay" | "note" | "remove" | null;
 
@@ -195,6 +201,19 @@ export function StopCard({
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const [busy, setBusy] = useState<Busy>(null);
+  /**
+   * Whether the pointer is over one of the card's controls rather than the
+   * card itself. The card's own hover is for the card: over a control, only
+   * the control answers, and the card stays as it was. The stop's marker on
+   * the map stays lit all the same, since every control on the card but the
+   * slot under it is about this stop.
+   */
+  const [onControl, setOnControl] = useState(false);
+  /** The control the pointer has come onto, if it is one of the card's. */
+  const pointAt = (target: EventTarget | null): void => {
+    const control = target instanceof Element ? target.closest(CONTROLS) : null;
+    setOnControl(control !== null && card.current?.contains(control) === true);
+  };
   /** The strip of days, which a card carried by a finger can be let go on too. */
   const dayDrop = useDayDrop();
 
@@ -398,8 +417,12 @@ export function StopCard({
       onMouseEnter={() => {
         onHover(stop.stopId);
       }}
+      onMouseOver={(event) => {
+        pointAt(event.target);
+      }}
       onMouseLeave={() => {
         onHover(null);
+        setOnControl(false);
       }}
       /* Carried by a finger, the card itself goes with it, over the rest of
          the day and under the strip of days, lifted onto the shadow of what
@@ -414,7 +437,7 @@ export function StopCard({
          can be pressed on the card clears the tooltip for itself, below, so
          it is never said over a control that does something else. */
       title={actions === null ? undefined : "Drag to reorder, or onto another day"}
-      className={`day-stop group grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] rounded-row border bg-paper-raised px-4 py-[13px] ${
+      className={`day-stop grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] rounded-row border bg-paper-raised px-4 py-[13px] ${
         actions === null ? "" : "cursor-grab active:cursor-grabbing [&_textarea]:cursor-text"
       } ${
         lift !== null ? "relative z-[5] shadow-md" : dragging ? "opacity-35" : ""
@@ -425,9 +448,10 @@ export function StopCard({
              * Under the pointer here, or under the pointer on the map. A place
              * is a card and a marker at once, and pointing at either has to
              * say which one the other is, or the two panes are two lists that
-             * happen to be side by side.
+             * happen to be side by side. Not while the pointer is on one of
+             * the card's controls, which answers it on its own.
              */
-            hovered
+            hovered && !onControl
             ? "border-terracotta/55 bg-paper-sunken"
             : "border-rule"
       }`}
@@ -507,8 +531,12 @@ export function StopCard({
             </div>
 
             <div
-              className={`-mr-1 flex items-center group-hover:opacity-100 focus-within:opacity-100 ${
-                hovered ? "opacity-100" : "opacity-55"
+              /* Whole under the pointer on the card, as the card sinks, and
+                  under the pointer on the tools themselves; not under the
+                  pointer on another of the card's controls, which is all
+                  that answers it then. */
+              className={`-mr-1 flex items-center hover:opacity-100 focus-within:opacity-100 ${
+                hovered && !onControl ? "opacity-100" : "opacity-55"
               }`}
             >
               {/* For anyone reading, not only whoever can edit: what a place
@@ -642,9 +670,10 @@ export function StopCard({
           the times end, and the ring's dash takes the whole accent, as every
           dashed control's does; the words stay as they are. With the
           keyboard on it the focus ring draws that same pill and there is no
-          fill, as on every other control. The card under it lets go
-          of its own hover, and so does this stop's marker on the map: the
-          slot is about the stop after this one.
+          fill, as on every other control. The card under it does not sink,
+          as it does not under any of its controls, and this stop's marker on
+          the map lets go as well, which it does under no other: the slot is
+          about the stop after this one.
 
           The press does not take focus. A note field left open and empty
           above it closes when it loses focus, and the row it leaves is

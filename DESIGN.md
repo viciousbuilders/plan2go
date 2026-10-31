@@ -725,8 +725,13 @@ right, because they are about the row rather than about anything inside it. They
 under the times however many lines the name and the address run to, in one column on
 the right with the times, the column the ends of a day keep too; the name and the
 address stand in their own column beside it, so a long name no longer pushes the tools
-down away from the times. The tools are drawn at 55 percent
-until the pointer is over the card and never hidden, since half the people using this
+down away from the times. Under the pointer, here or on the map, the card sinks to
+`paper-sunken` inside an edge of `terracotta` at 55 percent; not while the pointer is on
+one of its controls, a tool, a pill, the note, the next place's slot or the picker a
+pill opens, which answers the pointer on its own while the card stays as it was. The
+stop's marker on the map stays lit under all of them but the slot, which is about the
+stop after this one. The tools are drawn at 55 percent until the pointer is over the
+card, or over the tools themselves, and never hidden, since half the people using this
 have no pointer to hover with. How long the stop lasts is a pill with an hourglass on it,
 titled "Time at this place" under the pointer, that opens two columns, hours and minutes, the same columns the day's leaving time
 opens, and writes when it closes; the opening hours sit beside it in words after a
