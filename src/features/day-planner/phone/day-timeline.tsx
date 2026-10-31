@@ -120,7 +120,7 @@ function EndPill({
 
 /**
  * An end of the day not there yet, offered to someone who may edit: the same
- * pill drawn dashed, 1.5px of sage at 60 percent on paper, the end's disc in
+ * pill drawn dashed, 1.5px of sage 400 on paper, the end's disc in
  * sage 200 with its glyph in sage 700, the end it offers in bold sage 800, and
  * a plus in sage 600 at the right end. It takes them to the search on the
  * map, as "Add a place" does, which finds the end as it finds a place.
@@ -137,7 +137,7 @@ function EndOffer({
     <button
       type="button"
       onClick={onFind}
-      className={`${END_PILL} border-[1.5px] border-dashed border-sage/60 bg-paper py-[6.5px] pr-5 pl-[6.5px] hover:border-sage-600 hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
+      className={`${END_PILL} border-[1.5px] border-dashed border-sage-400 bg-paper py-[6.5px] pr-5 pl-[6.5px] hover:border-sage-600 hover:bg-paper-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta`}
     >
       <span
         aria-hidden="true"
@@ -248,11 +248,17 @@ function TimelineStop({
 }
 
 /**
- * The next place, after the last stop, for someone who may edit: one pill the
- * day's width, dashed in 1.5px of the accent at 60 percent on terracotta 100,
- * with a plus and "Add a place · from 14:34" in bold terracotta 700 in its
- * middle. The time is when the last stop is left, which is when the way to
- * the next place would begin, as the foot of a desk's last card says it.
+ * The next place, after the last stop, for someone who may edit, laid out as
+ * a stop's card is, so it reads as the slot the next stop would take: the
+ * card's shape and padding, terracotta 100 inside a 1.5px dashed edge of
+ * terracotta 400, flat where a stop's card is raised. At its left a stop's
+ * block of times, in terracotta 200 so it shows on the 100 around it, "from"
+ * over when the last stop is left, which is when the way to the next place
+ * would begin, as the foot of a desk's last card says it; then, where a
+ * stop's name stands, "Add a place" in bold terracotta 700, with a plus in the
+ * same at the card's right end. The border is outside a stop card's padding,
+ * so the block and the words stand on the stops' own edges. Under a pointer
+ * the dash takes the whole accent.
  */
 function NextPlace({
   number,
@@ -276,10 +282,24 @@ function NextPlace({
           ? `Add a place as stop ${String(number)}`
           : `Add a place as stop ${String(number)}, after leaving ${after} at ${from}`
       }
-      className="relative flex min-h-12 w-full items-center justify-center gap-2.5 rounded-pill border-[1.5px] border-dashed border-terracotta/60 bg-terracotta-100 px-5 text-place/none font-bold text-terracotta-700 hover:border-terracotta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+      className="relative flex w-full gap-3.5 rounded-row border-[1.5px] border-dashed border-terracotta-400 bg-terracotta-100 py-[6.5px] pr-[14.5px] pl-[8.5px] text-left hover:border-terracotta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
-      <PlusIcon size={16} strokeWidth={2.75} className="shrink-0" />
-      <span aria-hidden="true">{from === null ? "Add a place" : `Add a place · from ${from}`}</span>
+      {from === null ? null : (
+        <span
+          aria-hidden="true"
+          className="flex min-w-[68px] shrink-0 flex-col items-center justify-center gap-1 rounded-chip bg-terracotta-200 px-2 py-2.5 text-center tabular-nums"
+        >
+          <span className="text-meta/none font-semibold text-terracotta-700">from</span>
+          <span className="text-place/none font-bold text-terracotta-800">{from}</span>
+        </span>
+      )}
+      <span
+        aria-hidden="true"
+        className="flex min-h-[52px] min-w-0 flex-1 items-center gap-2.5 text-place/none font-bold text-terracotta-700"
+      >
+        Add a place
+        <PlusIcon size={16} strokeWidth={2.75} className="ml-auto shrink-0" />
+      </span>
     </button>
   );
 }

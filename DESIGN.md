@@ -17,6 +17,7 @@ colors:
     100: "#FFF2EB"
     200: "#FFE1D0"
     300: "#FFC6A5"
+    400: "#F6A06B"
     600: "#B2622D"
     700: "#8C491A"
     800: "#643312"
@@ -25,6 +26,7 @@ colors:
   sage-ramp:
     100: "#F0FAE1"
     200: "#E1EECC"
+    400: "#AEBF92"
     600: "#728157"
     700: "#56633F"
     800: "#3D472B"
@@ -196,14 +198,16 @@ paper and ink.
   and the error block, the base is the accent itself, 300 is the edge of an export choice
   that is on, 600 is hover, 700 is pressed and is the step to use for accent coloured
   text, 800 is a chosen chip or menu row and the words on the city pill in the search.
-  In a phone's day 100 is the block a stop's times stand on and the pill offering the
-  next place, with 800 the time a stop is reached and 700 when it is left.
+  In a phone's day 100 is the block a stop's times stand on, the bold time in 800 and
+  the words beside it in 700, and the card offering the next place, inside a dashed
+  edge of 400, its block of times in 200 so it shows on the 100 around it.
 - **sage:** the second accent. 100 and 200 mark today in the day strip, 600 is the marker
   for the ends of a day, 700 draws the public transport route line. 100 is also what an
   end of the day stands on: its row in a desk's day, inside an edge of 200 and going to
   200 under the pointer, its card in a phone's row of places on the map, and its card on
   the sheets. In a phone's day an end is a pill of 200 with its disc in 600, its name in
-  900 and its time in 800, and an end not there yet a dashed pill with its disc in 200.
+  900 and its time in 800, and an end not there yet a pill dashed in 400 with its disc
+  in 200.
   A leg is never on sage, so an end never reads as one more leg. On a phone 200 is also
   the disc behind a way's glyph in the sheet that changes a leg.
 - **neutral:** the warm greys behind everything, used for the drive tint and the map's
@@ -223,7 +227,9 @@ Every ramp is generated in OKLCH on one shared lightness scale, so the same step
 ramp carries the same visual weight. Only the steps the product spends are declared, so
 the ramps above have gaps in them; the scale is the authority, not the list. A step that
 is needed later is computed from that scale and added back, never chosen by eye to sit
-between the two steps that happen to survive around it.
+between the two steps that happen to survive around it. Terracotta 400 and sage 400 came
+back this way, both at the scale's 0.78 lightness on their own ramp's hue, for the
+dashed edges of the offers in a phone's day.
 
 Prefer a ramp step to an ad hoc `color-mix()`.
 
@@ -465,7 +471,7 @@ stand 12px apart; a leg brings its own room above and below.
   someone who may edit is the pill that sets it, drawn as a desk draws it, dashed and
   tinted with its chevron, so the one time a person sets looks the same on either.
 - Without an end, someone who may edit is offered one on the same pill drawn dashed in
-  1.5px of sage at 60 percent on `paper`: the end's disc in sage 200 with its glyph in
+  1.5px of sage 400 on `paper`: the end's disc in sage 200 with its glyph in
   sage 700, **Add start point** or **Add end point** in bold at the place step in sage
   800, and a 16px plus in sage 600 at its right end. It goes to the search on the map,
   as **Add a place** does. Under a pointer the dash takes sage 600 and the paper lifts to
@@ -486,13 +492,17 @@ stand 12px apart; a leg brings its own room above and below.
   pointer it sinks to `paper-sunken`. With no start, for someone who may edit, the first
   stop's arrival is the pill that sets when the day leaves, in the block in place of the
   time, the block keeping 2px either side of it.
-- After the last stop, 16px under it, for someone who may edit, the next place: one pill
-  the column's width and 48px tall, dashed in 1.5px of the accent at 60 percent on
-  terracotta 100, with a 16px plus and "Add a place · from 14:34" in bold at the place
-  step in terracotta 700 in its middle. The time is when the last stop is left, which is
-  when the way to the next place would begin, as the foot of a desk's last card says it.
-  Under a pointer the dash takes the whole accent. An end not there yet stands 10px under
-  it.
+- After the last stop, 16px under it, for someone who may edit, the next place, laid out
+  as a stop's card is, so it reads as the slot the next stop would take: the card's
+  shape and padding, terracotta 100 inside a 1.5px dashed edge of terracotta 400, flat
+  where a stop's card is raised, the border outside the padding so the block and the
+  words stand on the stops' own edges. At its left a stop's block of times, in
+  terracotta 200 so it shows on the 100 around it, "from" in 600 at the meta step in
+  terracotta 700 over when the last stop is left in bold at the place step in terracotta
+  800, which is when the way to the next place would begin, as the foot of a desk's last
+  card says it; then, where a stop's name stands, **Add a place** in bold at the place
+  step in terracotta 700, and a 16px plus in the same at the card's right end. Under a
+  pointer the dash takes the whole accent. An end not there yet stands 10px under it.
 
 A day with nothing planned says so between its ends, as a desk does: the line its stops
 will hang on runs down the thread's place on its own, dashed in the accent as a desk
