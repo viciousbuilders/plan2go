@@ -705,7 +705,12 @@ the stops' right edge so the day's times stand in one column, with the tools und
 The tools are a card's, in sight rather than behind a menu: the glyph that opens the
 place, which a reader gets too, and for someone who may edit a pencil that changes the
 end and the cross that takes it off, each named for what it does and drawn at 55
-percent until the pointer is over the row, as a card's are.
+percent until the pointer is over the row, or over the tools themselves, as a card's
+are. Under the pointer, here or on the map, the row goes to sage 200 inside a ring of
+sage 600 at 55 percent; not while the pointer is on one of its controls, the start's
+time and the picker it opens, or a tool, which answers the pointer on its own while the
+row stays as it was, as a card does. The end's marker on the map stays lit under all of
+them.
 
 A stop says when it is arrived at and when it is left, the pair at the top right with an
 arrow between them. The second is the first plus the stay set underneath, which is

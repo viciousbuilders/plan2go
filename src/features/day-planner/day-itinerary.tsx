@@ -17,7 +17,7 @@ import { formatDayDate } from "./format-day-date";
 import { hoursOn } from "./format-opening-hours";
 import { LeaveAt } from "./leave-at";
 import { LegRow } from "./leg-row";
-import { AboutPlaceButton, StopCard, TOOL, TOOL_GLYPH } from "./stop-card";
+import { AboutPlaceButton, StopCard, TOOL, TOOL_GLYPH, useOnControl } from "./stop-card";
 import { Notice } from "@/ui/notice";
 
 /**
@@ -154,6 +154,12 @@ function Anchor({
   readonly onOpen: () => void;
 }) {
   const row = useRef<HTMLDivElement | null>(null);
+  /**
+   * Whether the pointer is over one of the row's controls rather than the row
+   * itself: the start's time, or a tool. The end's marker on the map stays lit
+   * all the same, since every control on the row is about this end.
+   */
+  const { onControl, pointAt, leave } = useOnControl(row);
 
   /** Brought into view when the map points at it, the way a card is. */
   useEffect(() => {
@@ -177,7 +183,9 @@ function Anchor({
      * choose an end that is not there yet, so the two read as one slot filled
      * and empty. Under the pointer it goes to sage 200, as today's day does,
      * inside a ring in its own colour, which for an end of the day is sage,
-     * as its ring on the map is. The marker sits in the middle of the shorter
+     * as its ring on the map is, and not while the pointer is on one of its
+     * controls, which answers the pointer on its own, as a card's do. The
+     * marker sits in the middle of the shorter
      * row rather than at its top, where a disc sits on a card whose content
      * runs on below it; the words and the time sit at the top, as a card's do.
      *
@@ -188,11 +196,15 @@ function Anchor({
       onMouseEnter={() => {
         onHover(endpoint.place.id);
       }}
+      onMouseOver={(event) => {
+        pointAt(event.target);
+      }}
       onMouseLeave={() => {
         onHover(null);
+        leave();
       }}
-      className={`group ${ENDPOINT_ROW} border px-4 py-[9px] ${
-        hovered ? "border-sage-600/55 bg-sage-200" : "border-sage-200 bg-sage-100"
+      className={`${ENDPOINT_ROW} border px-4 py-[9px] ${
+        hovered && !onControl ? "border-sage-600/55 bg-sage-200" : "border-sage-200 bg-sage-100"
       }`}
     >
       <EndpointMark which={which} />
@@ -225,14 +237,18 @@ function Anchor({
           that changes it and the cross that takes it off. The word each
           glyph stands for is its name and its tooltip, so it is read out and
           can be hovered for. Drawn at 55 percent until the row is under the
-          pointer, as a card's tools are. */}
+          pointer, or the tools themselves are, as a card's tools are. */}
       <div className="flex flex-none flex-col items-end gap-[3px] self-start">
         {setTime ?? (
           <p className="font-display text-time whitespace-nowrap text-terracotta-700 tabular-nums">
             {time ?? "Time not known"}
           </p>
         )}
-        <span className="-mr-1 flex items-center opacity-55 group-hover:opacity-100 focus-within:opacity-100">
+        <span
+          className={`-mr-1 flex items-center hover:opacity-100 focus-within:opacity-100 ${
+            hovered && !onControl ? "opacity-100" : "opacity-55"
+          }`}
+        >
           <AboutPlaceButton name={endpoint.place.name} onOpen={onOpen} />
           {onChange === null ? null : (
             <button

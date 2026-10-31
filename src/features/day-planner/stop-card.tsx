@@ -1,6 +1,6 @@
 "use client";
 
-import type { DragEvent, PointerEvent, ReactNode } from "react";
+import type { DragEvent, PointerEvent, ReactNode, RefObject } from "react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { Conflict } from "@/core/model/conflict";
 import type { ComputedStop } from "@/core/time/compute-day";
@@ -32,6 +32,32 @@ import { Notice } from "@/ui/notice";
  * and the picker a pill opens, gaps and headings and all.
  */
 const CONTROLS = "button, a, input, textarea, select, [role='dialog']";
+
+/**
+ * Whether the pointer is over one of a card's own controls rather than the
+ * card itself, for a stop's card and for an end of the day's row alike. Their
+ * own hover is for the card: over a control, only the control answers, and
+ * the card stays as it was. Told where the pointer has come onto by the
+ * card's mouse over, which every element under the pointer passes up, and
+ * told when it has left the card.
+ */
+export function useOnControl(card: RefObject<HTMLElement | null>): {
+  readonly onControl: boolean;
+  readonly pointAt: (target: EventTarget | null) => void;
+  readonly leave: () => void;
+} {
+  const [onControl, setOnControl] = useState(false);
+  return {
+    onControl,
+    pointAt: (target) => {
+      const control = target instanceof Element ? target.closest(CONTROLS) : null;
+      setOnControl(control !== null && card.current?.contains(control) === true);
+    },
+    leave: () => {
+      setOnControl(false);
+    },
+  };
+}
 
 /** The one thing about this stop that is currently being written down. */
 type Busy = "stay" | "note" | "remove" | null;
@@ -203,17 +229,10 @@ export function StopCard({
   const [busy, setBusy] = useState<Busy>(null);
   /**
    * Whether the pointer is over one of the card's controls rather than the
-   * card itself. The card's own hover is for the card: over a control, only
-   * the control answers, and the card stays as it was. The stop's marker on
-   * the map stays lit all the same, since every control on the card but the
-   * slot under it is about this stop.
+   * card itself. The stop's marker on the map stays lit all the same, since
+   * every control on the card but the slot under it is about this stop.
    */
-  const [onControl, setOnControl] = useState(false);
-  /** The control the pointer has come onto, if it is one of the card's. */
-  const pointAt = (target: EventTarget | null): void => {
-    const control = target instanceof Element ? target.closest(CONTROLS) : null;
-    setOnControl(control !== null && card.current?.contains(control) === true);
-  };
+  const { onControl, pointAt, leave } = useOnControl(card);
   /** The strip of days, which a card carried by a finger can be let go on too. */
   const dayDrop = useDayDrop();
 
@@ -422,7 +441,7 @@ export function StopCard({
       }}
       onMouseLeave={() => {
         onHover(null);
-        setOnControl(false);
+        leave();
       }}
       /* Carried by a finger, the card itself goes with it, over the rest of
          the day and under the strip of days, lifted onto the shadow of what
