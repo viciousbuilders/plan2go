@@ -190,9 +190,12 @@ export function TripMenu({ label, children }: TripMenuProps) {
       <button
         type="button"
         ref={button}
-        aria-label={label}
         // Its name under the pointer as well, since three dots say there is
-        // more and not what.
+        // more and not what. Named by that title alone while the menu is
+        // shut, and by the label while it is open and the title is put away
+        // from over it: both at once, and the title is read again after the
+        // name as a description.
+        aria-label={open ? label : undefined}
         title={open ? undefined : label}
         aria-expanded={open}
         onClick={() => {

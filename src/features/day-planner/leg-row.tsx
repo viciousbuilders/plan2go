@@ -119,7 +119,12 @@ function Option({
  * timetable for public transport, the traffic for a drive, and for a walk the
  * same route with turn by turn directions on it are all for the day planned
  * rather than for now. Two words and an arrow going up and out, since the
- * arrow says it leaves for somewhere else; where to is read out in full.
+ * arrow says it leaves for somewhere else; where to is said in full under the
+ * pointer, "Live times in Google Maps", and those are the words it is read out
+ * with. Named by its title alone, the two words on it hidden from a screen
+ * reader, which would otherwise hear the name from the words and then the
+ * title over again as a description. The name begins with the words on it,
+ * so it is still found by them.
  */
 function LiveTimes({ href }: { readonly href: string }) {
   return (
@@ -127,10 +132,10 @@ function LiveTimes({ href }: { readonly href: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      title="Live times in Google Maps"
       className="ml-auto flex shrink-0 items-center gap-1 rounded-pill text-body/none font-semibold whitespace-nowrap text-terracotta-700 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
-      Live times
-      <span className="sr-only"> in Google Maps</span>
+      <span aria-hidden="true">Live times</span>
       <ArrowUpRightIcon size={13} strokeWidth={2.75} />
     </a>
   );
