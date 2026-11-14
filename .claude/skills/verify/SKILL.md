@@ -172,6 +172,14 @@ edit key gets no such button.
   times." with `aria-busy` until the server answers; wait for that line to go before
   reading times.
 - `button:has-text("Change")` index 0 is not a leg. Legs start at index 1.
+- A day is swapped by dragging its tab onto another, with pointer events rather than
+  the browser's drag, so Playwright's mouse works: `mouse.down()` on the tab, moves
+  along the strip past 6px, `mouse.up()` over the other tab. A finger holds 450ms
+  first; drive it with CDP `Input.dispatchTouchEvent` (touchStart, wait, touchMove
+  steps, touchEnd) in a context with `hasTouch`. A finger that moves at once scrolls
+  the strip instead. Tabs are `[role="tablist"][aria-label="Days of this trip"]
+  [role="tab"]`, and their `.sr-only` text names each day's city and stops. Empty
+  days in one city read the same, so tell them apart by `id="day-tab-<dayId>"`.
 - Every leg with a route has a "Live times in Google Maps" link under the row, in the
   mode the leg uses. Rides are no longer listed on screen; they still go to the PDF
   behind the "Distance of each leg" switch.

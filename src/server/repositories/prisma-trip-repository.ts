@@ -26,6 +26,8 @@ import type {
   DayEndpointUpdate,
   DayStartSet,
   DayStartUpdate,
+  DaySwap,
+  DaysSwapped,
   LegModeSet,
   LegModeUpdate,
   NewStop,
@@ -437,6 +439,34 @@ export const prismaTripRepository: TripRepository = {
       db.trip.updateMany({ where: trip, data: { cityColors: { ...update.colors } } }),
     ]);
     return moved.count === 0 ? { status: "refused" } : { status: "set" };
+  },
+
+  async swapDays(swap: DaySwap): Promise<DaysSwapped> {
+    // Scoped to the tokens the browser holds, so finding the two days is also
+    // the check that this trip may be changed, and a day on another trip moves
+    // nothing rather than being taken on trust.
+    const trip = { slug: swap.slug, editKeyHash: swap.editKeyHash };
+    const days = await db.day.findMany({
+      where: { id: { in: [swap.dayId, swap.withDayId] }, trip },
+      select: { id: true, position: true, tripId: true },
+    });
+    const one = days.find((day) => day.id === swap.dayId);
+    const other = days.find((day) => day.id === swap.withDayId);
+    if (one === undefined || other === undefined || one.id === other.id) {
+      return { status: "refused" };
+    }
+
+    // A trip's positions are unique, so the one day is parked out of the way
+    // while the other takes its place, then put in the place the other left.
+    // The colours go in the same transaction, since a trip whose days moved
+    // and whose cities' colours did not follow is a trip half written.
+    await db.$transaction([
+      db.day.update({ where: { id: one.id }, data: { position: one.position + PARKING_OFFSET } }),
+      db.day.update({ where: { id: other.id }, data: { position: one.position } }),
+      db.day.update({ where: { id: one.id }, data: { position: other.position } }),
+      db.trip.update({ where: { id: one.tripId }, data: { cityColors: { ...swap.colors } } }),
+    ]);
+    return { status: "swapped" };
   },
 
   async setLegMode(update: LegModeUpdate): Promise<LegModeSet> {

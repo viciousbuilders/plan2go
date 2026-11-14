@@ -9,6 +9,7 @@ import type { TravelProvider } from "@/core/ports/travel-provider";
 import type {
   CreatedTrip,
   DayCitySet,
+  DaysSwapped,
   DayEndpointSet,
   DayEndpointUpdate,
   DayStartSet,
@@ -102,6 +103,7 @@ function repositoryFor(
       delete: () => Promise.reject<TripDeleted>(new Error(NOT_STUBBED)),
       addStop: () => Promise.reject<StopAdded>(new Error(NOT_STUBBED)),
       setDayCity: () => Promise.reject<DayCitySet>(new Error(NOT_STUBBED)),
+      swapDays: () => Promise.reject<DaysSwapped>(new Error(NOT_STUBBED)),
       setLegMode: (update) => {
         modes.push(update);
         return Promise.resolve<LegModeSet>({ status: "set" });

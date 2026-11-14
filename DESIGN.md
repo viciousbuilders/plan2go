@@ -351,7 +351,7 @@ has, `ink-muted`, and today in sage as before, on the pill or off it.
 In front of the number, four off, a 7px dot in the colour of the day's city, so days
 with the same dot are in the same city; the pill in the search is the key to them, and
 the strip names no city. A dot is only ever drawn on paper, so it is always in its own
-colour. A day with no city has no dot and keeps no gap for one. The city's name is the tab's title and is read out with its date.
+colour. A day with no city has no dot and keeps no gap for one. The city's name is the tab's title and is read out with its date. For someone who may edit, the title says on a line under it what dragging the day does, "Drag onto another day to swap them".
 Under the pointer a day that is not chosen takes `paper-sunken`, the step every control
 on paper takes, with its words in `ink`, and today goes from sage 100 to 200. After the
 last tab, eight off, the button that adds a day: a 32px dashed ring in `rule-strong`
@@ -365,7 +365,23 @@ is offered as somewhere to let it go: a dashed edge 1.5px wide in `rule-strong`,
 is over takes the accent's dashed edge at 2px over `paper-sunken`, as a card does under
 a drop. Letting go there puts the stop last on that day. The open day stays open: the
 stop leaves it at once, and the day fades under "Working out the new times." until both
-days have their new times, as after a reorder. When the day leaves
+days have their new times, as after a reorder.
+A day itself is moved by dragging it onto another day, and the two change places: each
+keeps everything on it, its stops, its two ends, when it leaves and its city, and takes
+the other's number and date, and the days between them stay where they are. Day 2 in
+Canberra and Day 4 in Sydney become Day 2 in Sydney and Day 4 in Canberra. With a mouse
+a tab lifts once it has been dragged a few pixels, so a click still chooses it. It goes
+where the pointer takes it along the strip, never past the first or the last day, on
+the chosen day's raised paper and `rule` edge under the small shadow, which the strip's
+four pixels of room hold whole, and the chosen day's pill stays in the place it left.
+Every other day is offered as when a stop is carried, the open one too, and the day
+under the pointer takes the accent's dashed edge. Held near either end of the strip,
+the strip scrolls on under it. Letting go there swaps the two at once; letting go over
+its own place, or pressing Escape, puts it back. The open day stays open wherever it
+went, and while the swap is written, if it is one of the two, it fades under "Working
+out the new times.", since its times are still the ones worked out for its old date.
+A swap refused is said under the strip, where a day that could not be added is. A
+reader moves nothing. When the day leaves
 is set on the day itself. Then the day itself: stops on raised cards, legs between them as one line hung on the thread, and the ends of the
 day on shorter rows of sage 100 inside an edge of sage 200, the colour the sheets give an
 end, so an end never reads as one more leg, going to sage 200 under the pointer; on paper
@@ -467,6 +483,16 @@ anywhere in the product; today, when it is not chosen, is in sage 100 inside a s
 edge with its words in sage 800. After the last day, centred on the
 cards and as far from them as they are from each other, the button that adds a day, a
 44px dashed ring.
+
+A day is moved as on a desk, onto another day, and the two change places. A finger holds
+it first, about half a second, until it lifts: a finger that moves at once is scrolling
+the strip, and the strip scrolls as before. Lifted, the card keeps its own colours under
+the small shadow and goes along the strip with the finger, the strip and the page under
+it held still; every other card is offered with the dashed edge, and the one under the
+finger takes the accent's. Near either end of the window the strip scrolls on under it.
+A press held and let go without moving chooses nothing and moves nothing. The open day
+stays open wherever it went, faded under "Working out the new times." while the swap is
+written if it is one of the two.
 
 Then the day, 16px under the cards, with nothing between them to say what the day comes
 to, as the phone's day design draws it: one column the window's width, with no column
@@ -1072,7 +1098,9 @@ city, with the name beside it, so the pill in the search does not flash as days 
 Reordering: `transform` over 160ms `ease-out` on the card being moved and on the cards
 displacing around it. Nothing else, no opacity, no scale. A card carried by a finger is
 not animated at all: it is wherever the finger is, at once, which is the
-finger moving it rather than the page.
+finger moving it rather than the page. A day carried along the strip is not animated
+either, under a finger or a mouse. Let go on another day, the two change places at
+once, and the chosen day's pill slides to wherever the open day went.
 
 The trip's actions: `grid-template-columns` from `0fr` to `1fr` over 200ms `ease-out`,
 so the row grows from nothing without anything having to know how wide the buttons are.

@@ -31,6 +31,8 @@ interface DayTimelineProps {
   readonly onFindPlace: (() => void) | null;
   /** Takes the traveller to the same search for one end of the day. Null for a reader who cannot edit. */
   readonly onFindEnd: ((which: "start" | "end") => void) | null;
+  /** Whether the day is changing places with another, and waiting on its times for its new date. */
+  readonly rearranging: boolean;
 }
 
 /** What the day does at each end, read out before the place's name. */
@@ -388,6 +390,7 @@ export function DayTimeline({
   actions,
   onFindPlace,
   onFindEnd,
+  rearranging,
 }: DayTimelineProps) {
   /**
    * When the day leaves, set where that time shows: on the start point's
@@ -543,22 +546,30 @@ export function DayTimeline({
   }
 
   return (
-    <div className="relative">
-      {/* From the first thing's middle to the last's, behind them all: every
-          card and pill is opaque, so the thread shows only in the room
-          between them and through the legs, whose discs stand on it. The
-          same dotted line on a day with nothing planned yet, running behind
-          the card that says so between its ends. */}
-      <span aria-hidden="true" className="thread absolute top-6 bottom-6 left-[23px]" />
-      {lines.map((line, at) => {
-        const before = lines[at - 1];
-        const apart = before !== undefined && !before.roomy && !line.roomy;
-        return (
-          <div key={line.key} className={apart ? (line.gap ?? "mt-3") : undefined}>
-            {line.node}
-          </div>
-        );
-      })}
-    </div>
+    <>
+      {/* Faded while the day changes places with another, under the line a
+          desk says it with: its times are the ones worked out for the date
+          it had, until the ones for its new date arrive. */}
+      <div className={`relative ${rearranging ? "opacity-55" : ""}`} aria-busy={rearranging}>
+        {/* From the first thing's middle to the last's, behind them all: every
+            card and pill is opaque, so the thread shows only in the room
+            between them and through the legs, whose discs stand on it. The
+            same dotted line on a day with nothing planned yet, running behind
+            the card that says so between its ends. */}
+        <span aria-hidden="true" className="thread absolute top-6 bottom-6 left-[23px]" />
+        {lines.map((line, at) => {
+          const before = lines[at - 1];
+          const apart = before !== undefined && !before.roomy && !line.roomy;
+          return (
+            <div key={line.key} className={apart ? (line.gap ?? "mt-3") : undefined}>
+              {line.node}
+            </div>
+          );
+        })}
+      </div>
+      {rearranging ? (
+        <p className="mt-3 px-[6px] text-micro text-ink-muted">Working out the new times.</p>
+      ) : null}
+    </>
   );
 }

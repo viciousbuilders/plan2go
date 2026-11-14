@@ -158,6 +158,7 @@ describe("addStopFromSearch", () => {
         setDayEndpoint: unstubbed,
         setDayStart: unstubbed,
         setDayCity: unstubbed,
+        swapDays: unstubbed,
         updateStop: unstubbed,
         removeStop: unstubbed,
         moveStop: unstubbed,

@@ -64,6 +64,8 @@ interface DayItineraryProps {
   readonly leaving: string | null;
   /** Why the last stop let go on another day did not go, or null. */
   readonly leaveError: string | null;
+  /** Whether the day is changing places with another, and waiting on its times for its new date. */
+  readonly rearranging: boolean;
 }
 
 /** The list with one entry carried from one place to another, the rest closing up. */
@@ -457,6 +459,7 @@ export function DayItinerary({
   onCarry,
   leaving,
   leaveError,
+  rearranging,
 }: DayItineraryProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
@@ -506,12 +509,13 @@ export function DayItinerary({
 
   /**
    * The stops as shown: the order as it was dropped, less a stop let go on
-   * another day, which leaves at once. While either is being written the day
-   * is busy, faded under the line saying so, and nothing on it is picked up.
+   * another day, which leaves at once. While either is being written, or the
+   * day itself is changing places with another, the day is busy, faded under
+   * the line saying so, and nothing on it is picked up.
    */
   const listed =
     leaving === null ? shownStops : shownStops.filter((stop) => stop.stopId !== leaving);
-  const busy = moving || leaving !== null;
+  const busy = moving || leaving !== null || rearranging;
 
   const clearDrag = (): void => {
     setDragIndex(null);

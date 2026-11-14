@@ -70,8 +70,16 @@ export function settleCityColors(
   return settled;
 }
 
-/** The colour each city holds now, read off the days that are in it. */
-function colorsOf(days: readonly DayPlan[]): CityColors {
+/**
+ * The colour each city holds now, read off the days that are in it.
+ *
+ * Also what a change that moves no day to another city writes, such as two
+ * days changing places. A trip kept from before colours were stored has its
+ * colours worked out as it is read, in the order the trip reaches its cities,
+ * so a swap that changed that order would change the colours too. Written as
+ * they are shown, every city keeps the dot it had.
+ */
+export function colorsOf(days: readonly DayPlan[]): CityColors {
   const colors: Record<string, number> = {};
   for (const day of days) {
     if (day.city !== null) {

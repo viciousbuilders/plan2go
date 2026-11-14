@@ -32,6 +32,13 @@ interface DayPlannerProps {
   readonly selectedIndex: number;
   readonly onSelect: (index: number) => void;
   /**
+   * Whether the open day is changing places with another day while that is
+   * written. It is shown on its new date at once, but its times are still the
+   * ones worked out for the old one, so it is faded under a line saying so
+   * until the new ones arrive.
+   */
+  readonly rearranging: boolean;
+  /**
    * The trip's name and the two ends of it, editable. Null for a reader who
    * holds no edit token, who gets the heading and the range as plain text.
    */
@@ -110,6 +117,7 @@ export function DayPlanner({
   onHoverEndpoint,
   selectedIndex,
   onSelect,
+  rearranging,
   settings,
   exporting,
   onAddDay,
@@ -198,11 +206,14 @@ export function DayPlanner({
               {exporting}
             </div>
             <div className={HEADING_BODY}>
+              {/* A reader's strip. An editor's comes with the settings, and
+                  days are moved there. */}
               <DayTabs
                 days={days.map((day) => day.plan)}
                 selectedIndex={selectedIndex}
                 onSelect={onSelect}
                 onAddDay={onAddDay}
+                onSwapDays={null}
               />
             </div>
           </>
@@ -255,6 +266,7 @@ export function DayPlanner({
               onCarry={carry}
               leaving={leaving}
               leaveError={leaveError}
+              rearranging={rearranging}
             />
           </div>
           <div className="lg:hidden">
@@ -267,6 +279,7 @@ export function DayPlanner({
               actions={actions}
               onFindPlace={onFindPlace}
               onFindEnd={onFindEnd}
+              rearranging={rearranging}
             />
           </div>
         </section>

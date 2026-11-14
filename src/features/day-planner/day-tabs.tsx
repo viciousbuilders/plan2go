@@ -11,6 +11,7 @@ import type { EditOutcome } from "./day-actions";
 import { useDayDrop } from "./day-drop";
 import { formatDayDate, formatDayTab } from "./format-day-date";
 import { formatStops } from "./format-stops";
+import { useDayCarry } from "./use-day-carry";
 import { useLocalToday } from "@/ui/use-local-today";
 import "./day-tabs.css";
 import { Notice } from "@/ui/notice";
@@ -24,6 +25,27 @@ interface DayTabsProps {
    * and no way to change what is on it.
    */
   readonly onAddDay: (() => Promise<EditOutcome>) | null;
+  /**
+   * Two days change places, by their places in the strip, each with
+   * everything on it. Null for a reader, who moves nothing.
+   */
+  readonly onSwapDays: ((from: number, to: number) => Promise<EditOutcome>) | null;
+}
+
+/** What dragging a day does, said under the pointer to someone who may do it. */
+const SWAP_HINT = "Drag onto another day to swap them";
+
+/**
+ * What a day says under the pointer: the city it is in, which the strip draws
+ * only as a dot, and, to someone who may change the trip, what dragging it
+ * does, on a line of its own.
+ */
+function tabTitle(day: DayPlan, movable: boolean): string | undefined {
+  const city = day.city?.name;
+  if (!movable) {
+    return city;
+  }
+  return city === undefined ? SWAP_HINT : `${city}\n${SWAP_HINT}`;
 }
 
 /**
@@ -126,7 +148,22 @@ const OFFERED = "outline-[1.5px] outline-offset-2 outline-dashed outline-rule-st
  */
 const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed outline-terracotta";
 
-export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProps) {
+/**
+ * A day carried along the strip, over the days it passes: lifted onto the
+ * small shadow, since the strip cuts off whatever reaches further than its
+ * four pixels of room, and on a desk onto the chosen day's raised paper, so
+ * it is a day being carried rather than its words floating loose. A phone's
+ * card keeps its own colours. The hand that grabs, closed, for a mouse.
+ */
+const LIFTED = "z-[5] cursor-grabbing shadow-sm lg:bg-paper-raised lg:ring-1 lg:ring-rule";
+
+/**
+ * A day that a finger can hold to pick up: no text to select under a held
+ * finger, and no menu of the phone's own.
+ */
+const HOLDABLE = "select-none [-webkit-touch-callout:none]";
+
+export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }: DayTabsProps) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const list = useRef<HTMLDivElement | null>(null);
   /**
@@ -144,6 +181,33 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
    * days by the mark each one carries.
    */
   const dayDrop = useDayDrop();
+
+  /**
+   * A day carried onto another, and the two changing places while that is
+   * written. The strip shows them swapped at once; until the answer lands no
+   * other day is picked up, and a refusal is said under the strip, where a
+   * day that could not be added is.
+   */
+  const [swapping, setSwapping] = useState(false);
+  const swap = (from: number, to: number): void => {
+    if (onSwapDays === null) {
+      return;
+    }
+    setError(null);
+    setSwapping(true);
+    void onSwapDays(from, to).then((outcome) => {
+      setError(outcome.error);
+      setSwapping(false);
+    });
+  };
+  const movable = onSwapDays !== null;
+  const carry = useDayCarry({
+    list,
+    tabs,
+    onSwap: movable ? swap : null,
+    ready: !swapping && !adding && days.length > 1 && !dayDrop.carrying,
+  });
+  const lifted = carry.lifted;
 
   /**
    * The new day is the last one, and it is opened: adding a day is asking for
@@ -275,6 +339,13 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
             /** A carried stop can go to any day but the one it is on, which is the open one. */
             const takes = dayDrop.carrying && !selected;
             const over = takes && dayDrop.overDay === index;
+            /**
+             * A carried day can go onto any day but itself, the open one
+             * included, and changes places with the one under the pointer.
+             */
+            const carried = lifted !== null && lifted.index === index;
+            const swapsWith = lifted !== null && !carried;
+            const swapOver = lifted !== null && !carried && lifted.over === index;
             return (
               <button
                 key={day.id}
@@ -287,10 +358,14 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                 aria-selected={selected}
                 aria-controls={`day-panel-${day.id}`}
                 tabIndex={selected ? 0 : -1}
-                title={day.city?.name}
+                title={tabTitle(day, movable)}
                 data-day-drop={takes ? index : undefined}
-                onClick={() => {
-                  onSelect(index);
+                {...carry.handlers(index)}
+                // A press that carried the day somewhere chose nothing.
+                onClick={(event) => {
+                  if (!carry.carriedClick(event)) {
+                    onSelect(index);
+                  }
                 }}
                 onKeyDown={(event) => {
                   move(event, index);
@@ -323,14 +398,25 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay }: DayTabsProp
                 // every control on paper takes, paper-sunken, and its words
                 // go to ink. The chosen day paints the pill itself until the
                 // strip's own pill has been laid under it. All of it on a desk:
-                // on a phone what changes is the day's card.
-                className={`${TAB} ${words} ${dayCard(selected, isToday)} ${
-                  selected
-                    ? `${RAISED_ON_A_DESK} lg:group-data-[placed]/days:bg-transparent lg:group-data-[placed]/days:shadow-none lg:group-data-[placed]/days:ring-0`
-                    : isToday
-                      ? "lg:bg-sage-100 lg:hover:bg-sage-200"
-                      : "lg:hover:bg-paper-sunken"
-                } ${over ? OVER : takes ? OFFERED : ""}`}
+                // on a phone what changes is the day's card. A day being
+                // carried stands on its own paper wherever it is taken, and
+                // the chosen day's pill stays in the place it left.
+                className={`${TAB} ${movable ? HOLDABLE : ""} ${words} ${dayCard(selected, isToday)} ${
+                  carried
+                    ? LIFTED
+                    : selected
+                      ? `${RAISED_ON_A_DESK} lg:group-data-[placed]/days:bg-transparent lg:group-data-[placed]/days:shadow-none lg:group-data-[placed]/days:ring-0`
+                      : isToday
+                        ? "lg:bg-sage-100 lg:hover:bg-sage-200"
+                        : "lg:hover:bg-paper-sunken"
+                } ${over || swapOver ? OVER : takes || swapsWith ? OFFERED : ""}`}
+                // Wherever the pointer has taken it along the strip, at once:
+                // it is the pointer moving it, not the page.
+                style={
+                  lifted !== null && carried
+                    ? { translate: `${String(lifted.by)}px 0` }
+                    : undefined
+                }
               >
                 {/* The tab draws the day's number and a short date, and a
                     reader who cannot see the strip hears the date in full and

@@ -106,6 +106,24 @@ export type DayCitySet =
   | { readonly status: "set" }
   | { readonly status: "refused" };
 
+/**
+ * Two days of a trip changing places. A day's date is the trip's first day
+ * plus its place, so each takes the other's number and date, and everything
+ * on it goes with it.
+ */
+export interface DaySwap {
+  readonly slug: string;
+  readonly editKeyHash: EditKeyHash;
+  readonly dayId: DayId;
+  readonly withDayId: DayId;
+  /** Every city's colour as the days show it, written with the swap so none changes. */
+  readonly colors: CityColors;
+}
+
+export type DaysSwapped =
+  | { readonly status: "swapped" }
+  | { readonly status: "refused" };
+
 /** Which stop to take off its day. */
 export interface StopRemoval {
   readonly slug: string;
@@ -237,6 +255,14 @@ export interface TripRepository {
 
   /** Moves days to another city. Nothing on them moves with them. */
   setDayCity(update: DayCityUpdate): Promise<DayCitySet>;
+
+  /**
+   * Two days of the trip change places, with everything on them: their
+   * stops, their two ends, when they leave and their city. Only their places
+   * in the trip are written, so the days between them stay where they are. A
+   * day on another trip, or the same day twice, moves nothing.
+   */
+  swapDays(swap: DaySwap): Promise<DaysSwapped>;
 
   /** Changes how one leg of a day is travelled. */
   setLegMode(update: LegModeUpdate): Promise<LegModeSet>;

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { DayCity, DayPlan } from "./day";
 import type { CityIdentity } from "./day-city";
-import { CITY_COLOR_COUNT, cityKey, colorAfterMove, settleCityColors } from "./city-colors";
+import {
+  CITY_COLOR_COUNT,
+  cityKey,
+  colorAfterMove,
+  colorsOf,
+  settleCityColors,
+} from "./city-colors";
 
 function city(name: string, color = 0): DayCity {
   return { providerPlaceId: `g-${name}`, name, position: { lat: 20.25, lng: 105.97 }, color };
@@ -113,6 +119,28 @@ describe("colorAfterMove", () => {
       one.id === "d3" ? { ...one, stops: [stopIn("Temple of Literature")] } : one,
     );
     expect(colorAfterMove(plannedAfter, "d2", city("Hue"))).toBe(4);
+  });
+});
+
+describe("colorsOf", () => {
+  it("reads each city's colour off the days in it", () => {
+    const days = [day("d1", city("Ninh Binh", 0)), day("d2", city("Hanoi", 1)), day("d3", null)];
+    expect(colorsOf(days)).toEqual({ [key(NINH_BINH)]: 0, [key(HANOI)]: 1 });
+  });
+
+  it("keeps every city's dot through a swap on a trip whose colours were never stored", () => {
+    // Worked out as the trip is read, in the order it reaches its cities.
+    const shown = settleCityColors({}, [NINH_BINH, HANOI]);
+    const days = [
+      day("d1", city("Ninh Binh", shown[key(NINH_BINH)])),
+      day("d2", city("Hanoi", shown[key(HANOI)])),
+    ];
+    const swapped = [HANOI, NINH_BINH];
+
+    // Left unstored, the swap would hand Hanoi the first colour.
+    expect(settleCityColors({}, swapped)[key(HANOI)]).toBe(0);
+    // Written as they were shown, both cities keep theirs.
+    expect(settleCityColors(colorsOf(days), swapped)).toEqual(shown);
   });
 });
 

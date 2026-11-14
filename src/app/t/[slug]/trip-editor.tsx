@@ -1,12 +1,15 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import { flushSync } from "react-dom";
+import type { DayId } from "@/core/model/day";
 import type { LatLng, Place } from "@/core/model/place";
 import type { PlannedDay } from "@/features/day-planner/compute-trip";
+import type { EditOutcome } from "@/features/day-planner/day-actions";
 import type { EndpointRef } from "@/features/day-planner/day-itinerary";
 import { ENDS, endSearchWords } from "@/features/day-planner/day-ends";
+import { arrangedDays, swappedOrder } from "@/features/day-planner/day-order";
 import { DayPlanner } from "@/features/day-planner/day-planner";
 import { PlaceSearch } from "@/features/place-search/place-search";
 import { DayTabs } from "@/features/day-planner/day-tabs";
@@ -45,6 +48,7 @@ import { setDayCityAction } from "./set-day-city-action";
 import { setDayEndpointAction } from "./set-day-endpoint-action";
 import { setDayStartAction } from "./set-day-start-action";
 import { setLegModeAction } from "./set-leg-mode-action";
+import { swapDaysAction } from "./swap-days-action";
 import { updateTripAction } from "./update-trip-action";
 import type { View } from "./view-tabs";
 import { ViewTabs } from "./view-tabs";
@@ -197,12 +201,33 @@ interface TripEditorProps {
 export function TripEditor({
   title,
   slug,
-  days,
+  days: storedDays,
   centre,
   cityName,
   editKey,
 }: TripEditorProps) {
-  const [chosenIndex, setChosenIndex] = useState(0);
+  /**
+   * The days in the order a swap has asked for, while the swap is written:
+   * shown at once, everywhere the days are, and let go of when the page drawn
+   * from the swap arrives, or when it is refused and the days go back. Null
+   * while no swap is waiting.
+   */
+  const [order, arrange] = useOptimistic<readonly DayId[] | null>(null);
+  const [, startArranging] = useTransition();
+  const days = useMemo(
+    () => (order === null ? storedDays : arrangedDays(storedDays, order)),
+    [storedDays, order],
+  );
+  /**
+   * The open day, by its id, so it stays open wherever a swap takes it. Its
+   * place stands in for a day not on the page yet, the one being added, and
+   * for one gone with the end of a trip made shorter, where the open day is
+   * then the nearest. No id as the trip opens, on its first day.
+   */
+  const [chosen, setChosen] = useState<{ readonly id: DayId | null; readonly index: number }>({
+    id: null,
+    index: 0,
+  });
   /** Whether the map has been opened over the planner beside it, on a desk. */
   const [expanded, setExpanded] = useState(false);
   /** Which view a phone is showing. A desk shows both, and never reads this. */
@@ -224,7 +249,7 @@ export function TripEditor({
    */
   const [seeking, setSeeking] = useState<Seeking>("stop");
   const chooseDay = (index: number): void => {
-    setChosenIndex(index);
+    setChosen({ id: days[index]?.plan.id ?? null, index });
     setPicked(null);
     setSeeking("stop");
   };
@@ -431,8 +456,43 @@ export function TripEditor({
   // Clearing the trip, or pulling its last day earlier, can leave fewer days
   // than the one being read. Without this the tab strip shows none of them as
   // chosen and the keyboard cannot reach any of them.
-  const selectedIndex = Math.min(chosenIndex, days.length - 1);
+  const found = chosen.id === null ? -1 : days.findIndex((day) => day.plan.id === chosen.id);
+  const selectedIndex = found === -1 ? Math.min(chosen.index, days.length - 1) : found;
   const selected = days[selectedIndex] ?? days[0];
+  /**
+   * Whether the open day is changing places with another while that is
+   * written. Its times are still the ones worked out for its old date, and
+   * it says so until the new ones arrive.
+   */
+  const rearranging =
+    selected !== undefined && storedDays[selectedIndex]?.plan.id !== selected.plan.id;
+  /**
+   * Two days change places, from the strip, by their places in it. The trip
+   * is shown in its new order at once and the open day stays open wherever
+   * it went, held by its id from here on. The order goes back if the swap is
+   * refused, and the open day with it.
+   */
+  const swapDays = (from: number, to: number): Promise<EditOutcome> => {
+    const one = days[from];
+    const other = days[to];
+    if (editKey === null || one === undefined || other === undefined || from === to) {
+      return Promise.resolve({ error: null });
+    }
+    if (selected !== undefined) {
+      setChosen({ id: selected.plan.id, index: selectedIndex });
+    }
+    const swapped = swappedOrder(days, from, to);
+    return new Promise((resolve) => {
+      startArranging(async () => {
+        arrange(swapped);
+        resolve(
+          await recording(
+            swapDaysAction({ slug, editKey, dayId: one.plan.id, withDayId: other.plan.id }),
+          ),
+        );
+      });
+    });
+  };
   const first = days[0];
   const last = days[days.length - 1];
   /** How many stops each day has, for the dates to say what a shorter trip takes with it. */
@@ -805,6 +865,7 @@ export function TripEditor({
           onHoverEndpoint={setHoveredEndpointId}
           selectedIndex={selectedIndex}
           onSelect={chooseDay}
+          rearranging={rearranging}
           exporting={exportControl("heading")}
           onFindPlace={editKey === null ? null : findPlace}
           onFindEnd={editKey === null ? null : find}
@@ -884,6 +945,7 @@ export function TripEditor({
                         ? null
                         : () => recording(addDayAction({ slug, editKey }))
                     }
+                    onSwapDays={swapDays}
                   />
                 }
                 actions={

@@ -26,7 +26,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 - **Places from search.** Search a city's places or use a quick search such as parks or museums, and look at a place's photos, rating and reviews before adding it.
 - **Real travel times.** Every leg is timed by Google Routes, by car, public transport or on foot, with public transport looked up for the time the day reaches it.
 - **Conflicts named with their numbers.** "Fish Market closes at 16:00 and you arrive at 16:30", rather than a warning icon.
-- **Days you can rearrange.** Drag stops into a new order or onto another day, set the time at each place and when the day leaves, add notes, move a day to another city, and start or end a day at a hotel, station or airport.
+- **Days you can rearrange.** Drag stops into a new order or onto another day, drag a whole day onto another to swap the two, set the time at each place and when the day leaves, add notes, move a day to another city, and start or end a day at a hotel, station or airport.
 - **The trip's own clock.** Times are kept in the trip's time zone, across midnight and daylight saving changes.
 - **Sharing.** A read-only link for everyone going, and a PDF with a cover page, a route map for each day, the travel between stops and pages for notes, on A4 or A5, in colour or black and white.
 - **Planning with an AI assistant.** An MCP server lets an assistant open a trip, find places, rework the days and read back every time and conflict, from any app that can connect to one. See [Plan with an AI assistant](#plan-with-an-ai-assistant).

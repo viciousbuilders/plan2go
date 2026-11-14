@@ -53,17 +53,18 @@ export function cardUnder(y: number, cards: readonly CardSpan[], last: number): 
 }
 
 /**
- * How far to scroll this frame with the finger at y, between the top and the
- * bottom of what can be seen of the day: nothing in the middle, and faster
- * the nearer the edge, back up towards the top and on down towards the foot.
- * Whole pixels, since a scroll position is one.
+ * How far to scroll this frame with the finger at a point between two edges
+ * of what can be seen: the top and the foot of the day, or the left and the
+ * right of the strip of days, under a day carried along it. Nothing in the
+ * middle, and faster the nearer an edge, back towards the first and on
+ * towards the second. Whole pixels, since a scroll position is one.
  */
-export function edgeScroll(y: number, top: number, bottom: number): number {
-  if (y < top + EDGE) {
-    return -Math.round(FASTEST * Math.min(1, (top + EDGE - y) / EDGE));
+export function edgeScroll(at: number, near: number, far: number): number {
+  if (at < near + EDGE) {
+    return -Math.round(FASTEST * Math.min(1, (near + EDGE - at) / EDGE));
   }
-  if (y > bottom - EDGE) {
-    return Math.round(FASTEST * Math.min(1, (y - (bottom - EDGE)) / EDGE));
+  if (at > far - EDGE) {
+    return Math.round(FASTEST * Math.min(1, (at - (far - EDGE)) / EDGE));
   }
   return 0;
 }
