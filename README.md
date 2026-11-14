@@ -165,7 +165,7 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 | `find_places`, `get_place`, `add_place` | Look for places on a day, read about one, and put it on the day |
 | `get_trip`, `get_pdf` | Read the trip with every time, conflict and Google Maps link, or get a PDF with the export's choices |
 | `move_stop`, `move_stop_to_day`, `remove_stop`, `set_time_at_place`, `set_note` | Change the stops on a day |
-| `set_travel_mode`, `set_day_endpoint`, `set_leaving_time`, `set_day_city`, `suggest_cities` | Change a day: how each leg is travelled, where it starts and ends, when it leaves, and its city |
+| `set_travel_mode`, `set_day_endpoint`, `set_leaving_time`, `set_day_city`, `suggest_cities`, `swap_days` | Change a day: how each leg is travelled, where it starts and ends, when it leaves, its city, and its place in the trip, swapped with another day |
 | `rename_trip`, `set_trip_dates`, `add_day`, `delete_trip` | Change the trip as a whole |
 
 > [!CAUTION]

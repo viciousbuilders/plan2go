@@ -1,9 +1,11 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { createGooglePlacesProvider } from "@/adapters/places/google-places";
+import type { DayPlan } from "@/core/model/day";
 import { cityRun } from "@/core/model/day-city";
 import { TRAVEL_MODES } from "@/core/model/leg";
 import { formatClock, parseClock } from "@/core/time/minutes";
+import { formatStops } from "@/features/day-planner/format-stops";
 import { MODE_WORDS } from "@/features/day-planner/leg-marks";
 import { googleMapsApiKey } from "@/server/places/google-key";
 import { PREVIEW_POLICY, PREVIEW_ROUTE } from "@/server/places/place-details";
@@ -12,6 +14,7 @@ import { setDayCity } from "@/server/trips/set-day-city";
 import { setDayEndpoint } from "@/server/trips/set-day-endpoint";
 import { setDayStart } from "@/server/trips/set-day-start";
 import { setLegMode } from "@/server/trips/set-leg-mode";
+import { swapDays } from "@/server/trips/swap-days";
 import { travelProviderFor } from "@/app/t/[slug]/travel";
 import { guarded, NO_PLACE_SEARCH, overBudget, refuse } from "./tool-call";
 import {
@@ -24,14 +27,24 @@ import {
   readingOurTableFirst,
   stopOn,
 } from "./trip-edit";
+import { noSuchDay } from "./trip-link";
 import { dayRun } from "./trip-text";
 
 /**
+ * A day in a few words, for saying where a swap put it: the city it is in,
+ * when the trip has one, and how much is planned on it.
+ */
+function dayGist(plan: DayPlan): string {
+  const what = plan.stops.length === 0 ? "nothing planned yet" : formatStops(plan.stops.length);
+  return plan.city === null ? `the day with ${what}` : `the day in ${plan.city.name} with ${what}`;
+}
+
+/**
  * The tools that change a day itself rather than one stop on it: how a leg of
- * it is travelled, where it starts and ends, the city it is in, and when it
- * leaves. Each goes through the server function the planner's own action
- * calls, with the hash of the key out of the editing link, and gives back the
- * day as the change has left it.
+ * it is travelled, where it starts and ends, the city it is in, when it
+ * leaves, and its place in the trip. Each goes through the server function the
+ * planner's own action calls, with the hash of the key out of the editing
+ * link, and gives back the day as the change has left it.
  */
 export function registerDayTools(server: McpServer): void {
   server.registerTool(
@@ -301,6 +314,68 @@ export function registerDayTools(server: McpServer): void {
             .filter((line) => line !== null)
             .join(" ");
           return afterChange(edit.slug, moving, said);
+        },
+      ),
+  );
+
+  server.registerTool(
+    "swap_days",
+    {
+      title: "Swap two days",
+      description:
+        "Swap two days of the trip, as dragging one day onto another in the planner's strip of days does. Each day keeps everything on it: its stops with the time at each and their notes, how each leg is travelled, where it starts and ends, when it leaves, and its city. It takes the other day's number and date, and the days between them do not move. Nothing on either day is changed to suit its new date, so a place closed on the day it lands on shows as a conflict. Needs the trip's editing link. Returns both days as they now stand, with their new times and every conflict.",
+      inputSchema: z.object({
+        link: editLinkInput,
+        day: dayInput,
+        with_day: dayInput.describe("The day it changes places with, counting the first as 1."),
+      }),
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: false,
+        openWorldHint: false,
+      },
+    },
+    async ({ link, day, with_day }) =>
+      guarded(
+        "MCP swap_days failed",
+        "Could not swap the days. Read the trip with get_trip to see where it stands before trying again.",
+        async () => {
+          if (day === with_day) {
+            return refuse(
+              `Day ${String(day)} was named twice, so there is nothing to swap. Name two different days.`,
+            );
+          }
+          const edit = editLinkFrom(link);
+          if ("refusal" in edit) {
+            return edit.refusal;
+          }
+          const editing = await editingDay(edit, day);
+          if ("refusal" in editing) {
+            return editing.refusal;
+          }
+          const other = editing.trip.days[with_day - 1];
+          if (other === undefined) {
+            return refuse(noSuchDay(with_day, editing.trip.days.length));
+          }
+
+          const swapped = await swapDays(
+            {
+              slug: edit.slug,
+              editKeyHash: edit.editKeyHash,
+              dayId: editing.plan.id,
+              withDayId: other.id,
+            },
+            prismaTripRepository,
+          );
+          if (swapped.status === "refused") {
+            return refuse(NOT_YOURS);
+          }
+          return afterChange(
+            edit.slug,
+            [editing.plan.id, other.id],
+            `Day ${String(day)} and Day ${String(with_day)} have changed places, each with everything on it. Day ${String(day)} is now ${dayGist(other)}, and Day ${String(with_day)} ${dayGist(editing.plan)}.`,
+          );
         },
       ),
   );
