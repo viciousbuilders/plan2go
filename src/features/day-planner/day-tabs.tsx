@@ -32,21 +32,13 @@ interface DayTabsProps {
   readonly onSwapDays: ((from: number, to: number) => Promise<EditOutcome>) | null;
 }
 
-/** What dragging a day does, said under the pointer to someone who may do it. */
-const SWAP_HINT = "Drag onto another day to swap them";
-
 /**
- * What a day says under the pointer: the city it is in, which the strip draws
- * only as a dot, and, to someone who may change the trip, what dragging it
- * does, on a line of its own.
+ * What a day says under the pointer, to someone who may move it: what
+ * dragging it does, and nothing else. Its city is not repeated there; the dot
+ * says it, the pill in the search is the key to the dots, and a reader who
+ * hears the strip is told the city with the date.
  */
-function tabTitle(day: DayPlan, movable: boolean): string | undefined {
-  const city = day.city?.name;
-  if (!movable) {
-    return city;
-  }
-  return city === undefined ? SWAP_HINT : `${city}\n${SWAP_HINT}`;
-}
+const SWAP_HINT = "Drag onto another day to swap them";
 
 /**
  * What is on the day, for a reader who hears the strip rather than sees it.
@@ -358,7 +350,7 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                 aria-selected={selected}
                 aria-controls={`day-panel-${day.id}`}
                 tabIndex={selected ? 0 : -1}
-                title={tabTitle(day, movable)}
+                title={movable ? SWAP_HINT : undefined}
                 data-day-drop={takes ? index : undefined}
                 {...carry.handlers(index)}
                 // A press that carried the day somewhere chose nothing.

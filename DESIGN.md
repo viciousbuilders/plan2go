@@ -351,7 +351,7 @@ has, `ink-muted`, and today in sage as before, on the pill or off it.
 In front of the number, four off, a 7px dot in the colour of the day's city, so days
 with the same dot are in the same city; the pill in the search is the key to them, and
 the strip names no city. A dot is only ever drawn on paper, so it is always in its own
-colour. A day with no city has no dot and keeps no gap for one. The city's name is the tab's title and is read out with its date. For someone who may edit, the title says on a line under it what dragging the day does, "Drag onto another day to swap them".
+colour. A day with no city has no dot and keeps no gap for one. The city's name is read out with its date, and is not said under the pointer. For someone who may edit, the tab's title says what dragging the day does, "Drag onto another day to swap them", and nothing more; a reader's tab has no title.
 Under the pointer a day that is not chosen takes `paper-sunken`, the step every control
 on paper takes, with its words in `ink`, and today goes from sage 100 to 200. After the
 last tab, eight off, the button that adds a day: a 32px dashed ring in `rule-strong`
