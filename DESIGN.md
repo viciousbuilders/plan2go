@@ -409,7 +409,8 @@ small step in bold: **Plan**, **Map** and **Export**. The view on show stands on
 of `paper` with its words in `ink`; the others are `paper` at 75 percent on the ink.
 Each changes what the window shows, and Export is out of reach on a trip with nothing to
 export. Nothing else floats over the page: the word that says a change is saved stands
-centred 12px over the bar.
+in the window's bottom right corner, 12px over the bar and 20px in from the right, where
+the day's cards end.
 
 Plan is the page itself, on `paper`, and scrolls as a document. Nothing on it is stuck
 to the top of the window. It keeps 20px at either side, is no wider than 640px on a

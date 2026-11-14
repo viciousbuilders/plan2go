@@ -50,12 +50,14 @@ export function SavedNote({ at }: SavedNoteProps) {
 
           Fixed to the window on a phone, where the panel is the whole page:
           in the panel's corner there, it was under the last stop of the day
-          and seen only by whoever had scrolled to it. Centred over the bar
-          of views that floats at the foot of the window, twelve clear of it,
-          since the corner it once had is where that bar now stands. */}
+          and seen only by whoever had scrolled to it. In the window's bottom
+          right corner, on the page's 20px at its right, so it ends where the
+          day's cards and the trip's menu end, and twelve clear over the bar
+          of views floating at the foot of the window: on a phone's width the
+          corner under that is the end of the bar itself. */}
       <p
         aria-hidden="true"
-        className={`pointer-events-none fixed z-20 flex items-center gap-[4px] rounded-pill bg-sage-600 px-[10px] py-[4px] text-label font-semibold text-paper shadow-sm transition-opacity max-lg:bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] max-lg:left-1/2 max-lg:-translate-x-1/2 lg:absolute lg:right-[14px] lg:bottom-4 ${
+        className={`pointer-events-none fixed z-20 flex items-center gap-[4px] rounded-pill bg-sage-600 px-[10px] py-[4px] text-label font-semibold text-paper shadow-sm transition-opacity max-lg:right-[max(20px,env(safe-area-inset-right))] max-lg:bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] lg:absolute lg:right-[14px] lg:bottom-4 ${
           showing ? "opacity-100" : "opacity-0"
         }`}
       >
