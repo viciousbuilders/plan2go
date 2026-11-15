@@ -839,7 +839,11 @@ every button; in the note's field it is the text cursor. The card's tooltip says
 dragging it does, "Drag to reorder, or onto another day", over the card itself and
 never over what can be pressed on it, which says nothing or its own name. A reader,
 who cannot move a stop, gets the plain arrow and no tooltip. There is no grip under a
-mouse, since the card itself is dragged.
+mouse, since the card itself is dragged. What the pointer carries is a picture of the
+card at half strength, held by the point it was taken by, so the strip of days and the
+cards it passes over show through it and the day it is being taken to can be read; the
+browser's own picture was the card solid, and hid the strip. The card itself stays where
+it was, faded to 35 percent, until it is let go.
 
 A touch screen as wide as a desk has no drag of its own, so there a grip between the
 two tools carries the card under a finger: the card goes where the finger takes it, on the shadow of

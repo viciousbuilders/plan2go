@@ -186,6 +186,55 @@ interface StopCardProps {
 }
 
 /**
+ * How much of the card shows in the picture a pointer carries: enough to tell
+ * which card it is, little enough that the strip of days and the cards it is
+ * carried over show through it.
+ */
+const CARRIED_OPACITY = "0.5";
+
+/**
+ * The picture of the card that the browser carries under a pointer, made
+ * see-through.
+ *
+ * The browser's own picture is the card as it stands, solid, and carried up
+ * to the strip of days it hid the day the stop was being taken to. This one is
+ * a copy of the card at half strength, put where the browser can draw it from,
+ * off the edge of the window, and taken away once it has been drawn. The copy
+ * is what is faded rather than the box holding it, since the browser draws the
+ * picture from the box and may leave the box's own opacity out. It is held by
+ * the point the pointer took the card by, so the picture does not jump. The
+ * copy loses its ids, which the card on the page still has, and its place in
+ * the day, which is how a finger's carry finds the cards.
+ */
+function carrySeeThrough(event: DragEvent<HTMLElement>): void {
+  const card = event.currentTarget;
+  const copy = card.cloneNode(true);
+  if (!(copy instanceof HTMLElement)) {
+    return;
+  }
+  const box = card.getBoundingClientRect();
+  for (const named of [copy, ...copy.querySelectorAll("[id]")]) {
+    named.removeAttribute("id");
+  }
+  copy.removeAttribute("data-stop-index");
+  copy.style.width = `${String(box.width)}px`;
+  copy.style.opacity = CARRIED_OPACITY;
+
+  const holder = document.createElement("div");
+  holder.setAttribute("aria-hidden", "true");
+  holder.style.position = "fixed";
+  holder.style.top = "0";
+  holder.style.left = "-10000px";
+  holder.style.pointerEvents = "none";
+  holder.append(copy);
+  document.body.append(holder);
+  event.dataTransfer.setDragImage(holder, event.clientX - box.left, event.clientY - box.top);
+  setTimeout(() => {
+    holder.remove();
+  }, 0);
+}
+
+/**
  * One stop, and everything about it that can be changed where it is read.
  *
  * The arrival time is the loudest thing in the card, and the controls that
@@ -276,6 +325,8 @@ export function StopCard({
 
   const start = (event: DragEvent<HTMLElement>): void => {
     event.dataTransfer.effectAllowed = "move";
+    // Copied before the card is faded in its place as the one being dragged.
+    carrySeeThrough(event);
     onDragStart(index);
   };
 
