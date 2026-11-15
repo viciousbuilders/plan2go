@@ -113,13 +113,15 @@ function Way({
 }
 
 /**
- * How the day gets from one place to the next on a phone, as the phone's day
- * design draws it: a line rather than a box between two cards, the way's
- * glyph on a 26px disc in the way's colour standing on the day's thread, its
- * middle on the ends' discs' middle, then the way and how long it takes in
- * neutral 700, "Drive 14 min", with a chevron after it. A leg that cannot be
- * made says so in the same ink, with no glyph on a disc of neutral 200, since
- * it names no way as settled. Pressed, the ways
+ * How the day gets from one place to the next on a phone, drawn as a desk's
+ * leg is: a line rather than a box between two cards, the way's glyph on a
+ * 26px disc in the way's colour standing on the day's thread, its middle on
+ * the ends' discs' middle, then the way's name with a chevron after it on the
+ * pill a desk's leg has, and how long it takes and how far, "14 min · 1.2 km",
+ * going under the pill when the line has no room for them. A leg that cannot
+ * be made says so, with no glyph on a disc of neutral 200, since it names no
+ * way as settled, and "Change" on the pill for someone who may edit. Only the
+ * pill opens anything: pressed, the ways
  * of covering the same ground come up from the foot of the window in a sheet,
  * one row each. For someone who may edit, choosing one puts it on the day and
  * lets the sheet go once the new times are worked out, since the day under
@@ -172,45 +174,85 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
   /** The way in use was not found by the provider, so its time is a guess from the distance. */
   const rough = planned.options.some((option) => option.mode === leg.mode && option.rough);
   /**
-   * A leg nobody can cover the way the day has stored does not name that way
-   * as if it were settled: it says what was not found, and the sheet offers
-   * the ways that run.
+   * How long and how far as one quiet run of words, "14 min · 1.2 km", as a
+   * desk's leg says them after the way's pill.
    */
-  const words = covered
-    ? `${MODE_WORDS[leg.mode]} ${took(leg.durationMinutes ?? 0, rough)}`
-    : anyWay
-      ? `No ${MODE_WORDS[leg.mode].toLowerCase()} at this time`
-      : "No way to get there";
+  const facts = [
+    took(leg.durationMinutes ?? 0, rough),
+    ...(leg.distanceMeters === null ? [] : [formatDistance(leg.distanceMeters)]),
+  ].join(" · ");
+  /**
+   * The one thing on the line that opens the sheet: the way's name with a
+   * chevron after it on the pill a desk's leg opens its ways from, in the
+   * warm grey a leg is drawn in, neutral 200 inside an edge of neutral 300,
+   * a step darker while pressed and while its sheet is up, as a desk's goes
+   * under the pointer and while its panel is open. It answers only where it
+   * is drawn: the disc, the time and the room round them do nothing, so a
+   * finger resting on the day to read it opens nothing. A reader gets it
+   * too, since the sheet is where the ways compare and where the leg's
+   * Google Maps link is.
+   */
+  const opener = (words: string) => (
+    <button
+      type="button"
+      ref={pill}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      title={onChange === null ? undefined : "Change how you get there"}
+      onClick={() => {
+        setError(null);
+        setOpen(true);
+      }}
+      className={`flex h-8 shrink-0 items-center gap-2 rounded-pill border pr-[10px] pl-3 text-small/none font-semibold whitespace-nowrap text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+        open
+          ? "border-neutral-400 bg-neutral-300"
+          : "border-neutral-300 bg-neutral-200 active:border-neutral-400 active:bg-neutral-300"
+      }`}
+    >
+      {words}
+      <ChevronDownIcon size={12} strokeWidth={2.75} className="shrink-0 text-ink-muted" />
+    </button>
+  );
 
   return (
     <div>
-      {/* A button for a reader too: the sheet is where the ways compare,
-          and where the leg's live times are linked from. The whole line is
-          the button, fifty tall, so a finger finds it anywhere along it. It
-          is positioned so the disc paints over the day's thread, which shows
+      {/* One line hung on the thread, twelve above and below a 32px pill,
+          the disc level with the pill's middle when the time goes under it.
+          Positioned so the disc paints over the day's thread, which shows
           above and below it. */}
-      <button
-        type="button"
-        ref={pill}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => {
-          setError(null);
-          setOpen(true);
-        }}
-        className="relative flex w-full items-center gap-3 py-3 pl-[11px] text-left text-body/none font-semibold whitespace-nowrap text-neutral-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-      >
+      <div className="relative flex items-start gap-3 py-3 pl-[11px]">
         <span
           aria-hidden="true"
-          className={`grid size-[26px] shrink-0 place-items-center rounded-pill ${
+          className={`mt-[3px] grid size-[26px] shrink-0 place-items-center rounded-pill ${
             covered ? WAY_DISC[leg.mode] : "bg-neutral-200"
           }`}
         >
           {covered ? <Icon size={15} strokeWidth={2.4} /> : null}
         </span>
-        <span className="min-w-0 truncate">{words}</span>
-        <ChevronDownIcon size={13} strokeWidth={3} className="-ml-[5px] shrink-0" />
-      </button>
+        <div className="flex min-h-8 min-w-0 flex-wrap items-center gap-x-[10px] gap-y-[6px]">
+          {covered ? (
+            <>
+              {opener(MODE_WORDS[leg.mode])}
+              <span className="text-body/none whitespace-nowrap text-ink-muted tabular-nums">
+                {facts}
+              </span>
+            </>
+          ) : (
+            <>
+              {/* A leg nobody can cover the way the day has stored does not
+                  name that way as if it were settled: it says what was not
+                  found, and for someone who may edit, the sheet offers the
+                  ways that run. A reader gets the words alone, as on a desk. */}
+              <span className="text-small text-ink-muted">
+                {anyWay
+                  ? `No ${MODE_WORDS[leg.mode].toLowerCase()} at this time`
+                  : "No way to get there"}
+              </span>
+              {onChange === null ? null : opener("Change")}
+            </>
+          )}
+        </div>
+      </div>
 
       {open ? (
         /* Over the whole window, the page dimmed under it, the sheet at the

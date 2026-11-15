@@ -226,9 +226,10 @@ paper and ink.
   A leg is never on sage, so an end never reads as one more leg.
 - **neutral:** the warm greys behind everything, used for the map's own geometry. On paper, 100 is the ground of the map and of an end of the trip not yet
   set, and 800 the words on the pill that counts the stops. In the export's column, 500
-  is the words of a choice that is off and the .pdf after the file's name. In a phone's
-  day 200 is the disc of a leg that cannot be made, and 700 is the words of a leg and a
-  stop's address.
+  is the words of a choice that is off and the .pdf after the file's name. A leg's pill
+  is 200 inside an edge of 300 on a desk and on a phone alike, 300 inside 400 while
+  pressed or open. In a phone's day 200 is also the disc of a leg that cannot be made,
+  and 700 is a stop's address and note.
 - **drive, transit, walk:** one colour for each way of travelling, on a phone's day and
   in the sheet that changes a leg there, and nowhere else: the way's glyph in 700 on a
   disc of 200. Drive is a slate blue, public transport a plum and a walk a teal, hues
@@ -581,10 +582,19 @@ under times and names under names, ends and stops alike.
   600 at its right end. It goes to the search on the map,
   as **Add a place** does. Under a pointer the dash takes sage 600 and the paper lifts to
   `paper-raised`.
-- A leg: a line rather than a box, 50px tall and one button, which brings up its sheet:
-  the way's glyph in its colour's 700 on a 26px disc of its 200 standing on the thread,
-  then the way and how long it takes, "Drive 14 min", with a chevron. A leg that cannot be made says so in the same ink, with no glyph,
-  on a disc of neutral 200.
+- A leg: a line rather than a box, 56px tall, drawn as a desk's leg is: the way's glyph
+  in its colour's 700 on a 26px disc of its 200 standing on the thread, then the way's
+  name with a chevron after it on a 32px pill of `neutral-200` inside an edge of
+  `neutral-300`, the name at the small step in 600, then how long it takes and how far,
+  "14 min · 1.2 km", at the body step in `ink-muted`. The pill is the one thing on the
+  line that does anything: it brings up the leg's sheet and goes a step darker while
+  pressed and while its sheet is up, and the disc, the time and the room round them do
+  nothing. Where the line has no room for them, the time and distance go
+  under the pill, and the disc stays level with the pill. A leg that cannot be made says
+  so at the small step in `ink-muted`, with no glyph, on a disc of neutral 200, and
+  **Change** on the pill after it for someone who may edit. A reader gets the pill too,
+  since it opens the sheet for them as well, and on a leg that cannot be made the words
+  alone, as on a desk. The leg's Google Maps link is in the sheet.
 - A stop: a card of `paper-raised` at the `row` radius under `shadow-sm`, the column's
   width. At its left, on a block of terracotta 100 at the `chip` radius filling the
   column of times and as tall as the card less its padding, when it is reached in
@@ -623,7 +633,7 @@ in the middle of the window. Each answers a finger over 44px but is laid out onl
 tall as its words, so the row stands 16px under the day and, at the end of the page,
 16px over the bar.
 
-A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
+A leg's pill pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a
 handle, "From Sydney Opera House to Taronga Zoo Sydney" at the lead step, the names
 in its weight and "From" and "to" regular, breaking before "to" when it needs two
