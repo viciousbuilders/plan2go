@@ -193,8 +193,9 @@ interface PlaceSheetProps {
   /**
    * What the trip has to say about the place, under its name and over the
    * button that changes the trip: on a phone, a stop's times, its stay and
-   * its note, which a phone changes here rather than on the day. Drawn by
-   * whoever knows the trip; the sheet only gives it its place.
+   * its note, which a phone changes here rather than on the day, and on both
+   * layouts its place in the day. Drawn by whoever knows the trip; the sheet
+   * only gives it its place.
    */
   readonly details?: ReactNode;
   /**

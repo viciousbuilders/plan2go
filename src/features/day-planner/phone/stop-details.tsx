@@ -159,9 +159,13 @@ interface StopDetailsProps {
  * the note is a field, the stay under it is a stepper, and the stop can be
  * moved one place earlier or later in the day, or to the end of another day,
  * which on a desk is done by dragging its card, along the day or onto a day
- * in the strip. It is taken off the day by the sheet's own button.
+ * in the strip as well. It is taken off the day by the sheet's own button.
  *
- * On a desk the card beside the map carries all of it, and this is not drawn.
+ * On a desk the card beside the map carries the times, the stay and the
+ * note, so of all this only the two ways of moving the stop are drawn there,
+ * under the same headings: the same choices as dragging, for someone who
+ * would rather press than drag. With neither, nothing is drawn, so the sheet
+ * keeps no room for it.
  */
 export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetailsProps) {
   const [error, setError] = useState<string | null>(null);
@@ -218,9 +222,12 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
     });
   };
 
+  /** Whether a desk draws anything here: one of the two ways of moving the stop. */
+  const movable = actions !== null && (day.plan.stops.length > 1 || days.length > 1);
+
   return (
-    <div className="flex flex-col gap-4 lg:hidden">
-      <ul className="flex flex-col gap-3">
+    <div className={`flex flex-col gap-4 ${movable ? "" : "lg:hidden"}`}>
+      <ul className="flex flex-col gap-3 lg:hidden">
         {hours === null ? null : (
           <li className={ROW}>
             <ClockIcon size={16} strokeWidth={2.75} className="mt-[3px] shrink-0 text-terracotta" />
@@ -239,27 +246,32 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
         ) : null}
       </ul>
 
-      <StopNote
-        placeName={stop.placeName}
-        note={planned.note}
-        onSave={
-          actions === null
-            ? null
-            : (note) => {
-                write(() => actions.setNote({ stopId, note }));
-              }
-        }
-        offerClassName="min-h-10"
-      />
+      {/* The note and the stay are changed on a desk's card. */}
+      <div className="lg:hidden">
+        <StopNote
+          placeName={stop.placeName}
+          note={planned.note}
+          onSave={
+            actions === null
+              ? null
+              : (note) => {
+                  write(() => actions.setNote({ stopId, note }));
+                }
+          }
+          offerClassName="min-h-10"
+        />
+      </div>
 
       {actions === null ? null : (
-        <StayStepper
-          placeName={stop.placeName}
-          value={stop.stayMinutes}
-          onChoose={(stayMinutes) => {
-            write(() => actions.setStay({ stopId, stayMinutes }));
-          }}
-        />
+        <div className="lg:hidden">
+          <StayStepper
+            placeName={stop.placeName}
+            value={stop.stayMinutes}
+            onChoose={(stayMinutes) => {
+              write(() => actions.setStay({ stopId, stayMinutes }));
+            }}
+          />
+        </div>
       )}
 
       {/* Headed as the other days are under it, so the two ways of moving

@@ -675,7 +675,10 @@ stop one place earlier or later in the day; and
 same kind, as wide as their words and in the words the map's chips use, "Day 2 · Sun 8",
 running to the sheet's edges and scrolling sideways on a long trip, any of which takes
 the stop to the end of that day. On a desk both are done by dragging its card, along
-the day or onto a day in the strip. On a phone both can be done on the day as well,
+the day or onto a day in the strip, and in its sheet as well: the same two headings
+over the same pills, under the place's name and over **Remove from Day 1**, for
+someone who would rather press than drag, while its times, stay and note stay on its
+card and are not drawn in the sheet. On a phone both can be done on the day as well,
 as a day is carried in the strip: a stop's card held as long as a day is held, 450ms,
 lifts, and a picture of it goes wherever the finger takes it, across as well as up and
 down, drawn over the page on `shadow-md` at half strength, as a carried day is, and at

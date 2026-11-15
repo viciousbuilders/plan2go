@@ -1159,8 +1159,9 @@ export function TripEditor({
           }
           /* On a phone a stop is changed here rather than on the day: its
              times, its stay, its note and its place in the day, under its
-             name; and an end of a day is changed for another here too. Drawn
-             on a phone only. */
+             name; and an end of a day is changed for another here too. A
+             desk is drawn only the stop's place in the day, its card having
+             the rest. */
           details={
             opened.kind === "endpoint" && editKey !== null ? (
               <EndDetails
