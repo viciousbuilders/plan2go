@@ -1264,10 +1264,11 @@ and it is the product's own.
 
 ## Motion
 
-Ten things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Eleven things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
-pill of the export's switch moving to the one chosen, the export's bar while its file is
+pills of the export's switch and of its page setup's choices moving to the one chosen,
+the export's page setup unfolding and folding, the export's bar while its file is
 drawn, the export's preview on a phone coming in and going back, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
@@ -1325,8 +1326,17 @@ to find a place, which focuses the field inside the press so a phone brings its
 keyboard up, and a transition would focus it a frame too late: that changes at once.
 
 The export's bar: its fill's `width` over 150ms `linear` each time the clock moves it
-on, and a spinner beside its words turning once every 800ms. The page setup's chevron
-turns over in one frame, as any panel opening does.
+on, and a spinner beside its words turning once every 800ms.
+
+The export's page setup, on a desk and on a phone: its rows unfold from the line or card
+that holds them, the height from nothing to all of it over 200ms `ease-out`, by the grid
+row they stand in going from `0fr` to `1fr` as the trip's actions' columns do, so nothing
+has to know how tall they are, and fold back the same way; its chevron turns over with
+them, `rotate` over the same 200ms. Folded, the rows stay in the page out of sight and
+out of reach, which is what lets them fold away rather than vanish. Each choice in it,
+the paper, which way up, the map, the words and the ink, has one pill for its track,
+slid to the one chosen as the export's switch's is, its word in `ink` wherever it has
+got to and the rest `neutral-600`.
 
 The export's preview on a phone: `transform` from wholly off the right edge of the
 window to its place, 200ms `ease-out`, and back out the same way, 160ms `ease-in`,
@@ -1343,7 +1353,8 @@ Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
 Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
-day's pill, the bar of views' pill and the views under it, the export's switch, a city's dot and everything in the search are instant too, and the empty field's words stay on
+day's pill, the bar of views' pill and the views under it, the export's switch and its
+page setup, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
@@ -1472,9 +1483,10 @@ one that is on is `terracotta-100` inside `terracotta-300` with its words in
 `terracotta-900`, and one that is off is a `neutral-200` outline with its words in
 `neutral-500`. For the cover alone, neither the days nor what is included is shown.
 Last in the column is the page setup, folded to a line saying the paper, which way up
-and the ink, A4 · Portrait · Colour, and opening to a track of pills for each of those
-and for the size of the map and of the words, the one in force raised on `sheet`; the
-map's size is offered only for the full trip. A column longer than the window scrolls
+and the ink, A4 · Portrait · Colour, and unfolding to a track of pills for each of those
+and for the size of the map and of the words, the one in force raised on `sheet`, the
+raised pill sliding to the one chosen (see Motion); the map's size is offered only for
+the full trip. A column longer than the window scrolls
 inside itself under a 2px line drawn along its edge, as the day's list does, rather than
 the browser's own bar, which took its width out of the column and pushed the choices
 left of centre whenever they ran long. Under the column, over a hairline, the

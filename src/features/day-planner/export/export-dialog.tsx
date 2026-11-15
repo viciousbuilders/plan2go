@@ -187,10 +187,20 @@ function labelOf<T extends string>(options: readonly SetupOption<T>[], value: T)
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
+/** The shape of a pill on a track, in the dialog's column or on a phone's page. */
+function setupPill(roomy: boolean): string {
+  return `flex flex-1 items-center justify-center rounded-pill font-bold ${
+    roomy ? "py-[10px] text-small/none" : "py-[7px] text-meta/none"
+  }`;
+}
+
 /**
  * One thing about the paper that is one of a few: a word, and beside it a
- * track of pills with the one in force raised on the sheet's white. A row of
- * radio buttons to a screen reader, which is what it is.
+ * track of pills with the one in force raised on the sheet's white, one pill
+ * for the track slid to the one chosen (see use-sliding-pill), its word in
+ * ink wherever it has got to and the rest neutral 600. The one in force
+ * paints its own until the pill is placed. A row of radio buttons to a
+ * screen reader, which is what it is.
  */
 function SetupRow<T extends string>({
   title,
@@ -210,16 +220,21 @@ function SetupRow<T extends string>({
    */
   readonly roomy?: boolean;
 }) {
+  const track = useSlidingPill<HTMLDivElement>(
+    options.findIndex((option) => option.value === value),
+  );
   return (
     <div className="flex items-center gap-[10px]">
       <span aria-hidden="true" className="w-[52px] shrink-0 text-[12.5px]/none font-semibold text-neutral-600">
         {title}
       </span>
       <div
+        ref={track}
         role="radiogroup"
         aria-label={title}
-        className={`flex flex-1 gap-[2px] rounded-pill ${roomy ? "bg-paper-sunken p-1" : "bg-neutral-200 p-[3px]"}`}
+        className={`group/track relative flex flex-1 gap-[2px] rounded-pill ${roomy ? "bg-paper-sunken p-1" : "bg-neutral-200 p-[3px]"}`}
       >
+        <span aria-hidden="true" className="sliding-pill rounded-pill bg-sheet shadow-sm" />
         {options.map((option) => {
           const on = option.value === value;
           return (
@@ -232,14 +247,26 @@ function SetupRow<T extends string>({
               onClick={() => {
                 onChange(option.value);
               }}
-              className={`flex-1 rounded-pill font-bold ${roomy ? "py-[10px] text-small/none" : "py-[7px] text-meta/none"} ${FOCUS} ${
-                on ? "bg-sheet text-ink shadow-sm" : "text-neutral-600"
+              className={`${setupPill(roomy)} relative ${FOCUS} ${
+                on
+                  ? "bg-sheet text-ink shadow-sm group-data-[placed]/track:bg-transparent group-data-[placed]/track:text-neutral-600 group-data-[placed]/track:shadow-none"
+                  : "text-neutral-600"
               }`}
             >
               {option.label}
             </button>
           );
         })}
+        <span
+          aria-hidden="true"
+          className={`sliding-ink pointer-events-none absolute inset-0 gap-[2px] text-ink ${roomy ? "p-1" : "p-[3px]"}`}
+        >
+          {options.map((option) => (
+            <span key={option.value} className={setupPill(roomy)}>
+              {option.label}
+            </span>
+          ))}
+        </span>
       </div>
     </div>
   );
@@ -969,24 +996,29 @@ export function ExportDialog({
                   <ChevronDownIcon
                     size={18}
                     strokeWidth={2.75}
-                    className={`shrink-0 text-ink ${setupOpen ? "rotate-180" : ""}`}
+                    className={`shrink-0 text-ink transition-transform duration-200 ease-out motion-reduce:transition-none ${setupOpen ? "rotate-180" : ""}`}
                   />
                 </button>
-                {setupOpen ? (
-                  <div id={setupId} className="flex flex-col gap-[10px] px-[2px] pt-[14px]">
-                    <SetupRow title="Paper" options={PAPERS} value={paper} onChange={setPaper} roomy />
-                    <SetupRow
-                      title="Layout"
-                      options={ORIENTATIONS}
-                      value={orientation}
-                      onChange={setOrientation}
-                      roomy
-                    />
-                    <SetupRow title="Map" options={SIZES} value={mapSize} onChange={setMapSize} roomy />
-                    <SetupRow title="Text" options={SIZES} value={text} onChange={setText} roomy />
-                    <SetupRow title="Ink" options={INKS} value={ink} onChange={setInk} roomy />
+                {/* Unfolding from the card and folding back into it (see
+                    export-dialog.css). The rows' room is inside the part that
+                    folds, which keeps none of its own, so folded it is nothing. */}
+                <div className="export-fold" data-open={setupOpen ? "" : undefined}>
+                  <div>
+                    <div id={setupId} className="flex flex-col gap-[10px] px-[2px] pt-[14px] pb-[2px]">
+                      <SetupRow title="Paper" options={PAPERS} value={paper} onChange={setPaper} roomy />
+                      <SetupRow
+                        title="Layout"
+                        options={ORIENTATIONS}
+                        value={orientation}
+                        onChange={setOrientation}
+                        roomy
+                      />
+                      <SetupRow title="Map" options={SIZES} value={mapSize} onChange={setMapSize} roomy />
+                      <SetupRow title="Text" options={SIZES} value={text} onChange={setText} roomy />
+                      <SetupRow title="Ink" options={INKS} value={ink} onChange={setInk} roomy />
+                    </div>
                   </div>
-                ) : null}
+                </div>
               </div>
 
               {/* The way to the sheets, as design 1b draws it: a card with a
@@ -1469,25 +1501,30 @@ export function ExportDialog({
                   <ChevronDownIcon
                     size={16}
                     strokeWidth={2.75}
-                    className={`shrink-0 text-neutral-600 ${setupOpen ? "rotate-180" : ""}`}
+                    className={`shrink-0 text-neutral-600 transition-transform duration-200 ease-out motion-reduce:transition-none ${setupOpen ? "rotate-180" : ""}`}
                   />
                 </button>
-                {setupOpen ? (
-                  <div id={setupId} className="flex flex-col gap-[10px] px-[2px] pt-[14px] pb-[2px]">
-                    <SetupRow title="Paper" options={PAPERS} value={paper} onChange={choose(setPaper)} />
-                    <SetupRow
-                      title="Layout"
-                      options={ORIENTATIONS}
-                      value={orientation}
-                      onChange={choose(setOrientation)}
-                    />
-                    {coverOnly ? null : (
-                      <SetupRow title="Map" options={SIZES} value={mapSize} onChange={choose(setMapSize)} />
-                    )}
-                    <SetupRow title="Text" options={SIZES} value={text} onChange={choose(setText)} />
-                    <SetupRow title="Ink" options={INKS} value={ink} onChange={choose(setInk)} />
+                {/* Unfolding from the line and folding back into it (see
+                    export-dialog.css). The rows' room is inside the part that
+                    folds, which keeps none of its own, so folded it is nothing. */}
+                <div className="export-fold" data-open={setupOpen ? "" : undefined}>
+                  <div>
+                    <div id={setupId} className="flex flex-col gap-[10px] px-[2px] pt-[14px] pb-[2px]">
+                      <SetupRow title="Paper" options={PAPERS} value={paper} onChange={choose(setPaper)} />
+                      <SetupRow
+                        title="Layout"
+                        options={ORIENTATIONS}
+                        value={orientation}
+                        onChange={choose(setOrientation)}
+                      />
+                      {coverOnly ? null : (
+                        <SetupRow title="Map" options={SIZES} value={mapSize} onChange={choose(setMapSize)} />
+                      )}
+                      <SetupRow title="Text" options={SIZES} value={text} onChange={choose(setText)} />
+                      <SetupRow title="Ink" options={INKS} value={ink} onChange={choose(setInk)} />
+                    </div>
                   </div>
-                ) : null}
+                </div>
               </div>
             </div>
 

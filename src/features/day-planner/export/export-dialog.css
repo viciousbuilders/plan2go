@@ -127,6 +127,47 @@
   }
 }
 
+/*
+ * The page setup unfolding from its card and folding back into it: the rows'
+ * height from nothing to all of it over 200ms easing out, as the trip's
+ * actions unfold on a desk, by the grid row they stand in going from 0fr to
+ * 1fr, so nothing has to know how tall the rows are. Folded, the rows stay in
+ * the page, out of sight, out of the keyboard's reach and out of a screen
+ * reader's, which is what lets them fold away rather than vanish: they go out
+ * of sight only once the fold is done, and come back into it at once.
+ *
+ * Clipped while they fold. The rows keep the 2px at their sides and foot that
+ * a focus ring reaches past a pill on its track, so it is never clipped.
+ */
+.export-fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 200ms ease-out,
+    visibility 0s linear 200ms;
+}
+
+.export-fold[data-open] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows 200ms ease-out,
+    visibility 0s;
+}
+
+.export-fold > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .export-fold,
+  .export-fold[data-open] {
+    transition: none;
+  }
+}
+
 /* The spinner in the bar while the file is drawn, a turn every 800ms. It
    still turns under reduced motion, as the search's does, since it is what
    says the export is waiting. */
