@@ -222,12 +222,12 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
             className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[30px] bg-paper-raised px-4 pt-[10px] pb-[max(32px,env(safe-area-inset-bottom))] shadow-lg outline-none"
           >
             <div aria-hidden="true" className="mx-auto mb-4 h-[5px] w-10 rounded-pill bg-ink/20" />
-            <div className="px-[6px]">
-              <h2 id={titleId} className="font-display text-lead text-ink">
-                Getting to {leg.toName}
-              </h2>
-              <p className="mt-1 text-small font-medium text-ink-muted">From {leg.fromName}</p>
-            </div>
+            {/* Each half is kept whole, so a pair of names too long for one
+                line breaks before "to" rather than inside a place's name. */}
+            <h2 id={titleId} className="px-[6px] font-display text-lead text-ink">
+              <span className="inline-block">From {leg.fromName}</span>{" "}
+              <span className="inline-block">to {leg.toName}</span>
+            </h2>
 
             <div className="mt-4 flex flex-col gap-2">
               {planned.options.map((option) => (
