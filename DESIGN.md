@@ -388,15 +388,17 @@ keeps everything on it, its stops, its two ends, when it leaves and its city, an
 the other's number and date, and the days between them stay where they are. Day 2 in
 Canberra and Day 4 in Sydney become Day 2 in Sydney and Day 4 in Canberra. With a mouse
 a tab lifts once it has been dragged a few pixels, so a click still chooses it. It goes
-where the pointer takes it along the strip, never past the first or the last day, on
-the chosen day's raised paper and `rule` edge under the small shadow, which the strip's
-four pixels of room hold whole, at half strength, as a stop card carried by a pointer
-is, so the day it is over shows through it and can be read before it is let go on. The
-chosen day's pill stays in the place it left.
-Every other day is offered as when a stop is carried, the open one too, and the day
-under the pointer takes the accent's dashed edge. Held near either end of the strip,
-the strip scrolls on under it. Letting go there swaps the two at once; letting go over
-its own place, or pressing Escape, puts it back. The open day stays open wherever it
+wherever the pointer takes it, off the strip as well, down over the day or across the
+map, drawn over the page so the strip does not cut it off: on the chosen day's raised
+paper and `rule` edge under the small shadow, at half strength, as a stop card carried
+by a pointer is, so the day it is over shows through it and can be read before it is
+let go on. Its own place in the strip is left empty, and the chosen day's pill stays in
+the place it left. Every other day is offered as when a stop is carried, the open one
+too, and the day under the pointer takes the accent's dashed edge, only while the
+pointer is over the strip: off it there is no day to swap with. Held near either end
+of the strip, level with it, the strip scrolls on under it. Letting go over another day
+swaps the two at once; letting go over its own place or anywhere off the strip, or
+pressing Escape, puts it back. The open day stays open wherever it
 went, and while the swap is written, if it is one of the two, it fades under "Working
 out the new times.", since its times are still the ones worked out for its old date.
 A swap refused is said under the strip, where a day that could not be added is. A

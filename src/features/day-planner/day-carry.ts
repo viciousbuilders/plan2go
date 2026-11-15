@@ -40,6 +40,24 @@ export function slotAlong(along: number, slots: readonly DaySlot[], last: number
   );
 }
 
+/** Where the strip is in the window. */
+export interface StripBox {
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly bottom: number;
+}
+
+/**
+ * Whether a pointer is over the strip, which is the only place a carried day
+ * can be let go on another. On a desk the day goes wherever the pointer takes
+ * it, down over the day or across the map, and let go anywhere but the strip
+ * it goes back to its place: only a day in the strip takes it.
+ */
+export function overTheStrip(x: number, y: number, strip: StripBox): boolean {
+  return x >= strip.left && x <= strip.right && y >= strip.top && y <= strip.bottom;
+}
+
 /**
  * How far the carried day is drawn from its own place: as far as the pointer
  * has gone, but no further than the first day's start or the last day's end,

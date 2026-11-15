@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carriedBy, slotAlong } from "./day-carry";
+import { carriedBy, overTheStrip, slotAlong } from "./day-carry";
 
 /** Four days 82 wide and 4 apart, as a desk's strip lays them. */
 const slots = [
@@ -39,5 +39,26 @@ describe("carriedBy", () => {
 
   it("goes as far as it is told when the days were never measured", () => {
     expect(carriedBy(30, 1, [])).toBe(30);
+  });
+});
+
+describe("overTheStrip", () => {
+  /** A desk's strip, a row of days across the top of the panel. */
+  const strip = { left: 1040, right: 1400, top: 96, bottom: 152 };
+
+  it("is over the strip anywhere along its row of days, its edges included", () => {
+    expect(overTheStrip(1200, 120, strip)).toBe(true);
+    expect(overTheStrip(1040, 96, strip)).toBe(true);
+    expect(overTheStrip(1400, 152, strip)).toBe(true);
+  });
+
+  it("is off it above or below the row, over the trip's name or the day", () => {
+    expect(overTheStrip(1200, 60, strip)).toBe(false);
+    expect(overTheStrip(1200, 400, strip)).toBe(false);
+  });
+
+  it("is off it past either end, over the map or the window's edge", () => {
+    expect(overTheStrip(700, 120, strip)).toBe(false);
+    expect(overTheStrip(1420, 120, strip)).toBe(false);
   });
 });

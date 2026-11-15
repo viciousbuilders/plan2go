@@ -1,8 +1,15 @@
 import type { MouseEvent, PointerEvent, RefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import type { DaySlot } from "./day-carry";
-import { HOLD_MS, carriedBy, slotAlong } from "./day-carry";
+import { HOLD_MS, carriedBy, overTheStrip, slotAlong } from "./day-carry";
 import { CARRY_SLOP, edgeScroll } from "./touch-carry";
+
+/**
+ * A desk's layout, where a carried day goes wherever the pointer takes it
+ * rather than only along the strip, which on a phone runs across the head of
+ * the page and is where a finger carrying a day stays.
+ */
+const WIDE_WINDOW = "(min-width: 1024px)";
 
 /**
  * A press on a day in the strip, from the moment it goes down. Kept in a ref
@@ -19,10 +26,23 @@ interface Press {
   readonly fromY: number;
   /** Whether the day has lifted and is being carried, rather than only pressed. */
   lifted: boolean;
+  /**
+   * Whether it goes wherever the pointer takes it, as on a desk, rather than
+   * along the strip only. Settled as it lifts, from the window's width then.
+   */
+  free: boolean;
   /** Where the pointer is now, in the window. */
   x: number;
-  /** The day it is over, its own until it reaches another. */
+  y: number;
+  /** Whether the pointer is over the strip, which is the only place it can be let go on another day. */
+  inside: boolean;
+  /** The day it is over, its own until it reaches another, and the last one it was over off the strip. */
   over: number;
+  /** Where in the day the pointer took it, and how big it is, measured as it lifts. */
+  grabX: number;
+  grabY: number;
+  width: number;
+  height: number;
   /** Where the strip's left edge is in the window, measured as the day lifts. */
   origin: number;
   /** Where the press went down along the strip's content. */
@@ -37,13 +57,29 @@ interface Press {
   readonly putBack: (event: KeyboardEvent) => void;
 }
 
+/** Where a day carried off the strip is drawn, in the window: its own box, moved with the pointer. */
+export interface Floating {
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
+  readonly height: number;
+}
+
 /** What the strip draws of a day being carried. */
 export interface Lifted {
   /** The day carried, by its place in the trip. */
   readonly index: number;
-  /** How far along the strip it is drawn from its own place. */
+  /** How far along the strip it is drawn from its own place, while it is held to the strip. */
   readonly by: number;
-  /** The day it is over, which it changes places with when let go, or null over its own place. */
+  /**
+   * Where it is drawn while it goes wherever the pointer takes it, as on a
+   * desk, over everything on the page; null while it is held to the strip.
+   */
+  readonly floating: Floating | null;
+  /**
+   * The day it is over, which it changes places with when let go: null over
+   * its own place, and null anywhere off the strip.
+   */
   readonly over: number | null;
 }
 
@@ -89,11 +125,13 @@ export interface DayCarry {
  * it. A finger has to hold it first, since a finger moving at once is
  * scrolling the strip, and the strip scrolls.
  *
- * The carried day goes where the pointer takes it along the strip, and the
- * day under the pointer is the one it swaps with. Held near either end of the
- * strip, the strip scrolls on under it, so a day can be carried to one that
- * cannot be seen yet. Let go over its own place, cut off, or put down with
- * Escape, it goes back and nothing moves.
+ * On a desk the carried day goes wherever the pointer takes it, off the strip
+ * as well, drawn over the page; on a phone it goes along the strip only. The
+ * day of the strip under the pointer is the one it swaps with, and off the
+ * strip there is none. Held near either end of the strip, level with it, the
+ * strip scrolls on under it, so a day can be carried to one that cannot be
+ * seen yet. Let go over its own place, off the strip, cut off, or put down
+ * with Escape, it goes back and nothing moves.
  */
 export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): DayCarry {
   const press = useRef<Press | null>(null);
@@ -103,22 +141,42 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
 
   const stripOf = (): HTMLElement | null => list.current?.parentElement ?? null;
 
-  /** The day drawn where the pointer has taken it, and the day under the pointer. */
+  /**
+   * The day drawn where the pointer has taken it, and the day under the
+   * pointer. Held to the strip, it is always over a day of the strip. Free to
+   * go anywhere, it is over one only while the pointer is over the strip, and
+   * over none anywhere else, where letting go puts it back.
+   */
   const follow = (held: Press): void => {
     const strip = stripOf();
     if (strip === null) {
       return;
     }
     const along = held.x - held.origin + strip.scrollLeft;
-    held.over = slotAlong(along, held.slots, held.over);
+    held.inside = !held.free || overTheStrip(held.x, held.y, strip.getBoundingClientRect());
+    if (held.inside) {
+      held.over = slotAlong(along, held.slots, held.over);
+    }
     setLifted({
       index: held.index,
-      by: carriedBy(along - held.fromAlong, held.index, held.slots),
-      over: held.over === held.index ? null : held.over,
+      by: held.free ? 0 : carriedBy(along - held.fromAlong, held.index, held.slots),
+      floating: held.free
+        ? {
+            left: held.x - held.grabX,
+            top: held.y - held.grabY,
+            width: held.width,
+            height: held.height,
+          }
+        : null,
+      over: held.inside && held.over !== held.index ? held.over : null,
     });
   };
 
-  /** Every frame of a carry: the strip runs on under a pointer held near either end. */
+  /**
+   * Every frame of a carry: the strip runs on under a pointer held near either
+   * end, and only one level with the strip, so a day carried down over the day
+   * near the panel's edge does not send the strip running on.
+   */
   const runOn = (): void => {
     const held = press.current;
     const strip = stripOf();
@@ -127,7 +185,8 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
     }
     const edges = strip.getBoundingClientRect();
     const before = strip.scrollLeft;
-    strip.scrollLeft += edgeScroll(held.x, edges.left, edges.right);
+    const level = !held.free || (held.y >= edges.top && held.y <= edges.bottom);
+    strip.scrollLeft += level ? edgeScroll(held.x, edges.left, edges.right) : 0;
     // A strip already at its end does not move, and neither does anything drawn from it.
     if (strip.scrollLeft !== before) {
       follow(held);
@@ -144,6 +203,16 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
     const edges = strip.getBoundingClientRect();
     const scrolled = strip.scrollLeft;
     held.lifted = true;
+    held.free = window.matchMedia(WIDE_WINDOW).matches;
+    // The day's own box, so the one drawn over the page is the same size and
+    // under the pointer by the same point the pointer took it by.
+    const own = tabs.current[held.index]?.getBoundingClientRect();
+    if (own !== undefined) {
+      held.grabX = held.fromX - own.left;
+      held.grabY = held.fromY - own.top;
+      held.width = own.width;
+      held.height = own.height;
+    }
     held.origin = edges.left;
     held.fromAlong = held.fromX - edges.left + scrolled;
     held.slots = tabs.current.flatMap((tab, index) => {
@@ -166,7 +235,10 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
     window.removeEventListener("keydown", held.putBack);
   };
 
-  /** Let go: over another day the two change places; anywhere else, or cut off, it goes back. */
+  /**
+   * Let go: over another day of the strip the two change places; anywhere
+   * else, off the strip as well, or cut off, it goes back.
+   */
   const letGo = (drop: boolean): void => {
     const held = press.current;
     if (held === null) {
@@ -178,7 +250,7 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
       return;
     }
     setLifted(null);
-    if (drop && held.over !== held.index && onSwap !== null) {
+    if (drop && held.inside && held.over !== held.index && onSwap !== null) {
       onSwap(held.index, held.over);
     }
   };
@@ -202,8 +274,15 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
       fromX: event.clientX,
       fromY: event.clientY,
       lifted: false,
+      free: false,
       x: event.clientX,
+      y: event.clientY,
+      inside: true,
       over: index,
+      grabX: 0,
+      grabY: 0,
+      width: 0,
+      height: 0,
       origin: 0,
       fromAlong: 0,
       slots: [],
@@ -231,6 +310,7 @@ export function useDayCarry({ list, tabs, onSwap, ready }: DayCarryOptions): Day
       return;
     }
     held.x = event.clientX;
+    held.y = event.clientY;
     if (held.lifted) {
       follow(held);
       return;

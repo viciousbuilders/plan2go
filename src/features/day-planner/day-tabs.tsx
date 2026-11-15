@@ -2,6 +2,7 @@
 
 import type { KeyboardEvent } from "react";
 import { useLayoutEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { DayPlan } from "@/core/model/day";
 import { CityDot } from "@/ui/city-dot";
@@ -11,6 +12,7 @@ import type { EditOutcome } from "./day-actions";
 import { useDayDrop } from "./day-drop";
 import { formatDayDate, formatDayTab } from "./format-day-date";
 import { formatStops } from "./format-stops";
+import type { Floating } from "./use-day-carry";
 import { useDayCarry } from "./use-day-carry";
 import { useLocalToday } from "@/ui/use-local-today";
 import "./day-tabs.css";
@@ -154,6 +156,52 @@ const LIFTED =
   "z-[5] cursor-grabbing shadow-sm lg:bg-paper-raised lg:opacity-50 lg:ring-1 lg:ring-rule";
 
 /**
+ * A day carried off the strip on a desk, where it is drawn over the page
+ * instead: its place in the strip is left empty, as it is while the day is
+ * carried along the strip, and the chosen day's pill stays there. Unseen
+ * rather than taken out, since it is the day the pointer's movements still
+ * come to, and the hand that grabs stays closed over it.
+ */
+const LEFT_BEHIND = "cursor-grabbing opacity-0";
+
+/**
+ * A day carried off the strip on a desk, drawn over everything on the page
+ * where the pointer has taken it, so the strip, which clips whatever leaves
+ * it, does not cut it off: the same tab, lifted as a carried day is and at
+ * the same half strength, with its number and its date as the strip draws
+ * them. A picture for the eye only. The pointer goes through it to whatever
+ * is under it, and the day itself stays in the strip, holding the pointer.
+ */
+function CarriedDay({
+  day,
+  index,
+  isToday,
+  at,
+}: {
+  readonly day: DayPlan;
+  readonly index: number;
+  readonly isToday: boolean;
+  readonly at: Floating;
+}) {
+  return createPortal(
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed z-50"
+      style={{ left: at.left, top: at.top, width: at.width, height: at.height }}
+    >
+      <div className={`${TAB} w-full ${isToday ? "lg:text-sage-800" : "lg:text-ink-muted"} ${LIFTED}`}>
+        <span className={`flex items-center gap-1 ${TAB_NUMBER} tabular-nums`}>
+          {day.city === null ? null : <CityDot slot={day.city.color} size={7} />}
+          {`Day ${String(index + 1)}`}
+        </span>
+        <span className={TAB_DATE}>{formatDayTab(day.date)}</span>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/**
  * A day that a finger can hold to pick up: no text to select under a held
  * finger, and no menu of the phone's own.
  */
@@ -204,6 +252,8 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
     ready: !swapping && !adding && days.length > 1 && !dayDrop.carrying,
   });
   const lifted = carry.lifted;
+  /** The day carried, for the picture of it drawn over the page on a desk. */
+  const carriedDay = lifted === null ? undefined : days[lifted.index];
 
   /**
    * The new day is the last one, and it is opened: adding a day is asking for
@@ -340,6 +390,8 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
              * included, and changes places with the one under the pointer.
              */
             const carried = lifted !== null && lifted.index === index;
+            /** Carried over the page on a desk, which draws it there; its place here is left empty. */
+            const leftBehind = lifted !== null && lifted.index === index && lifted.floating !== null;
             const swapsWith = lifted !== null && !carried;
             const swapOver = lifted !== null && !carried && lifted.over === index;
             return (
@@ -396,10 +448,13 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                 // strip's own pill has been laid under it. All of it on a desk:
                 // on a phone what changes is the day's card. A day being
                 // carried stands on its own paper wherever it is taken, and
-                // the chosen day's pill stays in the place it left.
+                // the chosen day's pill stays in the place it left; on a desk
+                // it is drawn over the page, and its place here stays empty.
                 className={`${TAB} ${movable ? HOLDABLE : ""} ${words} ${dayCard(selected, isToday)} ${
                   carried
-                    ? LIFTED
+                    ? leftBehind
+                      ? LEFT_BEHIND
+                      : LIFTED
                     : selected
                       ? `${RAISED_ON_A_DESK} lg:group-data-[placed]/days:bg-transparent lg:group-data-[placed]/days:shadow-none lg:group-data-[placed]/days:ring-0`
                       : isToday
@@ -409,7 +464,7 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                 // Wherever the pointer has taken it along the strip, at once:
                 // it is the pointer moving it, not the page.
                 style={
-                  lifted !== null && carried
+                  lifted !== null && carried && lifted.floating === null
                     ? { translate: `${String(lifted.by)}px 0` }
                     : undefined
                 }
@@ -489,6 +544,15 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
         <Notice role="alert" className="mb-[7px]">
           {error}
         </Notice>
+      )}
+
+      {lifted === null || lifted.floating === null || carriedDay === undefined ? null : (
+        <CarriedDay
+          day={carriedDay}
+          index={lifted.index}
+          isToday={carriedDay.date === today}
+          at={lifted.floating}
+        />
       )}
     </div>
   );
