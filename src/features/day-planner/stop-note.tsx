@@ -15,6 +15,13 @@ interface StopNoteProps {
   readonly onSave: ((note: string | null) => void) | null;
   /** Where the offer to start a note sits against what is above it. */
   readonly offerClassName?: string;
+  /**
+   * Whether Enter writes the note, as leaving the field does, with Shift and
+   * Enter starting a new line. The desk's card sets it. A phone's keyboard has
+   * no Shift and Enter, so there Enter is left to start a new line, or a note
+   * could never be longer than one.
+   */
+  readonly enterSaves?: boolean;
 }
 
 /**
@@ -22,7 +29,13 @@ interface StopNoteProps {
  * one, and otherwise, for someone who may edit, the one line offering to start
  * it. Leaving the field is what writes it.
  */
-export function StopNote({ placeName, note, onSave, offerClassName = "" }: StopNoteProps) {
+export function StopNote({
+  placeName,
+  note,
+  onSave,
+  offerClassName = "",
+  enterSaves = false,
+}: StopNoteProps) {
   const [writing, setWriting] = useState(false);
   /**
    * The note as it was last sent, held until the trip comes back carrying it.
@@ -100,8 +113,22 @@ export function StopNote({ placeName, note, onSave, offerClassName = "" }: StopN
       defaultValue={shown ?? ""}
       autoFocus={writing}
       readOnly={onSave === null}
+      enterKeyHint={enterSaves ? "done" : undefined}
       onInput={(event) => {
         fit(event.currentTarget);
+      }}
+      onKeyDown={(event) => {
+        /* Enter leaves the field, and leaving is what writes the note, so
+           there is one way a note is written rather than two. Not while an
+           input method is still putting a word together, where Enter is
+           what picks the word: Chrome says so with isComposing, and Safari
+           sends that Enter after the word is done, marked only by its 229. */
+        const composing = event.nativeEvent.isComposing || event.keyCode === 229;
+        if (!enterSaves || onSave === null || event.key !== "Enter" || event.shiftKey || composing) {
+          return;
+        }
+        event.preventDefault();
+        event.currentTarget.blur();
       }}
       onBlur={(event) => {
         commit(event.target.value);

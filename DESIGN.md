@@ -807,7 +807,9 @@ titled "Time at this place" under the pointer, that opens two columns, hours and
 opens, and writes when it closes; the opening hours sit beside it in words after a
 clock, and the note is either a field or the one line offering to start one. An
 hourglass and not a second clock, because one glyph for both a length and a time of day
-left "1 hr" to be read as either. Removing is immediate: a stop is a search away from
+left "1 hr" to be read as either. In the note's field Enter writes the note, as leaving
+the field does, and Shift and Enter start a new line; on a phone, whose keyboard has no
+Shift and Enter, Enter starts one. Removing is immediate: a stop is a search away from
 coming back, and a dialog asking twice would be a modal over something editable in
 place.
 

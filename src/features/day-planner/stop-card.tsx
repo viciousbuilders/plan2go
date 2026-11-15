@@ -646,6 +646,7 @@ export function StopCard({
           <StopNote
             placeName={stop.placeName}
             note={note}
+            enterSaves
             onSave={
               actions === null
                 ? null
