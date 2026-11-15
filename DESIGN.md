@@ -892,10 +892,12 @@ thread passes behind it, as a bead on a string. Beside it, on the edge the legs'
 keep, the way's name at the body step in 600 with a chevron after it, which is the
 button that opens the panel, a pill of `neutral-200` under the pointer, titled "Change
 how you get there"; then how long it takes and how far, "48 min · 45 km", at the body
-step in `ink-muted`; and on the times' right edge **Live times** at the body step in 600
+step in `ink-muted`; and on the times' right edge **Google Maps** at the body step in 600
 `terracotta-700` with an arrow going up and out, the leg in Google Maps at the moment
-the day sets out on it, in a new tab, titled "Live times in Google Maps", the words it
-is read out with. A reader gets the name without the chevron. Under
+the day sets out on it, in a new tab, titled "Google Maps directions", the words it
+is read out with. It said **Live times** until someone trying the planner could not tell
+what that meant: it named neither what opens nor where, a drive or a walk has no times
+to be live, and what opens is the day planned rather than now. A reader gets the name without the chevron. Under
 the pointer, here or on the map, the disc takes a 2px ring of its ink, as the line on
 the map is drawn heavier. A leg that cannot be made says so in place of the name and the
 times, with **Change** after it for someone who may edit, and has no disc, since it has

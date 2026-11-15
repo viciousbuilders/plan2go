@@ -187,9 +187,11 @@ edit key gets no such button.
   `[role="dialog"] button:has-text("Reset day")` or `("Delete day")`. While it is
   written the word reads "Resetting" or "Deleting"; wait for it to go before reading
   the strip.
-- Every leg with a route has a "Live times in Google Maps" link under the row, in the
-  mode the leg uses. Rides are no longer listed on screen; they still go to the PDF
-  behind the "Distance of each leg" switch.
+- Every leg with a route links to Google Maps in the mode the leg uses: on a desk,
+  "Google Maps" at the right end of the leg's line, named by its title "Google Maps
+  directions"; on a phone, "Live times in Google Maps" in the leg's sheet. Rides are no
+  longer listed on screen; they still go to the PDF behind the "Distance of each leg"
+  switch.
 
 ## The pane's width
 

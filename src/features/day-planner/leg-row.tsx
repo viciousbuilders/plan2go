@@ -110,32 +110,38 @@ function Option({
 }
 
 /**
- * The way to the live version of this leg, at the end of its line.
+ * The way to this leg in Google Maps, at the end of its line.
  *
  * The leg is timed for the moment the day plans to set out on it, but the
  * minute a service leaves and the traffic on the road are not here. The link
- * is where they live: the same two places and the same way between them,
+ * is where they are: the same two places and the same way between them,
  * opened in Google Maps with "depart at" already set to that moment, so the
  * timetable for public transport, the traffic for a drive, and for a walk the
  * same route with turn by turn directions on it are all for the day planned
- * rather than for now. Two words and an arrow going up and out, since the
- * arrow says it leaves for somewhere else; where to is said in full under the
- * pointer, "Live times in Google Maps", and those are the words it is read out
- * with. Named by its title alone, the two words on it hidden from a screen
- * reader, which would otherwise hear the name from the words and then the
- * title over again as a description. The name begins with the words on it,
- * so it is still found by them.
+ * rather than for now.
+ *
+ * Named for where it goes, with an arrow going up and out, since the arrow
+ * says it leaves for somewhere else. It said "Live times" until someone
+ * trying the planner could not tell what that meant: the words said neither
+ * what opens nor where, a drive or a walk has no times to be live, and what
+ * opens is the day planned rather than now. What Google Maps does with two
+ * places is already known. Under the pointer it says what it opens, "Google
+ * Maps directions", and those are the words it is read out with. Named by its
+ * title alone, the words on it hidden from a screen reader, which would
+ * otherwise hear the name from the words and then the title over again as a
+ * description. The name begins with the words on it, so it is still found by
+ * them.
  */
-function LiveTimes({ href }: { readonly href: string }) {
+function GoogleMapsLink({ href }: { readonly href: string }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      title="Live times in Google Maps"
+      title="Google Maps directions"
       className="ml-auto flex shrink-0 items-center gap-1 rounded-pill text-body/none font-semibold whitespace-nowrap text-terracotta-700 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
     >
-      <span aria-hidden="true">Live times</span>
+      <span aria-hidden="true">Google Maps</span>
       <ArrowUpRightIcon size={13} strokeWidth={2.75} />
     </a>
   );
@@ -146,7 +152,7 @@ function LiveTimes({ href }: { readonly href: string }) {
  *
  * Closed, it is one line hung on the thread: the way's glyph on a disc, and
  * beside it the way in words, how long it takes and how far, and the link to
- * its live times. Open, it is every other way of covering the same ground
+ * it in Google Maps. Open, it is every other way of covering the same ground
  * with what each one costs in time, so the choice is made by reading the
  * alternatives rather than by trying them one at a time.
  *
@@ -292,7 +298,7 @@ export function LegRow({
 
       <div className="min-w-0 py-4">
         {/* One line, as deep as the disc beside it: the way, then how long
-            and how far, quietly, at the same step, and the live times on
+            and how far, quietly, at the same step, and Google Maps on
             the times' right edge. It wraps rather than cutting anything
             short on a narrow panel, the link going to the right of a line
             of its own. */}
@@ -307,7 +313,7 @@ export function LegRow({
               <span className="text-body/none whitespace-nowrap text-ink-muted tabular-nums">
                 {facts}
               </span>
-              {planned.directions === null ? null : <LiveTimes href={planned.directions} />}
+              {planned.directions === null ? null : <GoogleMapsLink href={planned.directions} />}
             </>
           ) : (
             <>
