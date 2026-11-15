@@ -165,11 +165,6 @@ interface TripAction {
   /** What it says while it is being done: "Adding to Day 1". */
   readonly busy: string;
   /**
-   * Drawn on a phone only, for what a desk does from the planner beside the
-   * map instead: an end of a day, which a desk's row takes off.
-   */
-  readonly phoneOnly?: boolean;
-  /**
    * Passed in rather than imported, because a feature may not reach into the
    * route that owns the mutation. Answers with what went wrong, or nothing.
    */
@@ -185,9 +180,8 @@ interface PlaceSheetProps {
    */
   readonly editKey: string | null;
   /**
-   * What the button under the name does, or null when there is none: for a
-   * reader, who cannot change the trip, and on a desk for an end of a day,
-   * which the planner's own row takes off.
+   * What the button under the name does, or null when there is none, for a
+   * reader, who cannot change the trip.
    */
   readonly action: TripAction | null;
   /**
@@ -699,7 +693,7 @@ export function PlaceSheet({
                  kind of thing and the one that leads here. One pill in the
                  accent whichever way it goes: the glyph and the words say
                  which, and a place is as easily put back as taken off. */
-              <div className={`flex flex-col gap-2 ${action.phoneOnly === true ? "lg:hidden" : ""}`}>
+              <div className="flex flex-col gap-2">
                 <button
                   type="button"
                   onClick={act}

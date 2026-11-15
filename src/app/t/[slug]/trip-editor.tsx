@@ -1106,8 +1106,8 @@ export function TripEditor({
           editKey={editKey}
           /* What the sheet can do to the trip: put a place found in a search
              on the open day, as its next stop or as the end a phone's search
-             was finding, or take a stop off the day it is on, and on a phone
-             an end, which a desk takes off from its row. An editor only; a
+             was finding, or take a stop off the day it is on, or an end off
+             its day, which a desk's row can take off as well. An editor only; a
              reader looks and nothing more. One expression rather than a function worked
              out here, because a function called while rendering that builds
              these closures over `recording` is one the compiler cannot see is
@@ -1189,8 +1189,9 @@ export function TripEditor({
                         kind: "remove",
                         words: ENDS[opened.which].removePoint,
                         busy: ENDS[opened.which].removingPoint,
-                        // A desk takes an end off from its own row.
-                        phoneOnly: true,
+                        // On a desk as well as a phone, though a desk's row
+                        // can take it off too: the sheet of a stop offers to
+                        // take the stop off, and the sheet of an end did not.
                         run: () =>
                           recording(
                             setDayEndpointAction({

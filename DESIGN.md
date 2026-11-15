@@ -713,8 +713,11 @@ its name, **Change start point** or **Change end point**, a pencil and the words
 of the stop's outlined pills, as wide as the sheet and 40px tall, goes to the search on
 the map to find that end, and the place chosen there takes this one's place without it
 being taken off first. Under that, **Remove start point** or **Remove end point** takes
-it off, where a stop's sheet has **Remove from Day 1**. A desk's sheet has neither for
-an end, whose row changes it and takes it off.
+it off, where a stop's sheet has **Remove from Day 1**. A desk's sheet for an end has
+**Remove start point** or **Remove end point** too, under the place's name, the same
+40px pill in the accent with the cross, as a stop's sheet has **Remove from Day 1**,
+though the end's row on the day takes it off as well. It has no **Change** pill: the
+row's pencil changes an end on a desk, in a search under the row.
 
 The search is on the map, as design 1b of "PlanToGo iPhone app" draws it, and **Add a
 place** goes there with the cursor in the field and the keyboard up, as **Add start
