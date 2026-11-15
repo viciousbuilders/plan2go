@@ -386,10 +386,13 @@ Under the pointer its dash takes the whole accent, its plus `terracotta-700`, ov
 same `paper-sunken`. The focus ring is drawn outside every tab and the button, as it is
 everywhere, and the strip keeps four pixels round them so no ring is clipped. While a
 stop is carried, by the pointer or by a finger on its grip, every day but the open one
-is offered as somewhere to let it go: a dashed edge 1.5px wide in `rule-strong`, drawn
-2px out as the focus ring is, so the strip's room for a ring holds it. The day the stop
-is over takes the accent's dashed edge at 2px over `paper-sunken`, as a card does under
-a drop, and on a desk so does the day a pill in a stop's place sheet would send it to,
+is offered as somewhere to let it go: a dashed edge 1.5px wide in `rule-strong`. On a
+desk the dash is the day's own edge, drawn just inside it, so days side by side keep
+the four pixels between them clear; drawn 2px out, as the focus ring is, the dashes of
+neighbouring days ran into one another. A phone's cards keep it 2px out, where the
+strip's room for a ring holds it. The day the stop is over takes the accent's dashed
+edge at 2px over `paper-sunken`, on its own edge in the same way on a desk, as a card
+does under a drop, and on a desk so does the day a pill in a stop's place sheet would send it to,
 while the pointer is on that pill (see Layout). Letting go there puts the stop last on that day. The open day stays open: the
 stop leaves it at once, and the day fades under "Working out the new times." until both
 days have their new times, as after a reorder.
@@ -911,7 +914,8 @@ stop after this one. While the place sheet is open on the stop the card is
 `terracotta-100` inside a 2px edge of `terracotta`, the way a leg's panel marks the way
 in use, so the card the sheet is about is found at a glance from the sheet. It holds
 those colours under the pointer, here or on the map, since being open says more than
-being pointed at, and a dashed drop outline is drawn round them as round any card. The
+being pointed at; only a drop on it, while it is under one, draws it as any card under
+a drop is drawn. The
 second pixel of the edge is a ring inside the first, so nothing on the card moves. The
 tools are drawn at 55 percent until the pointer is over the
 card, or over the tools themselves, and never hidden, since half the people using this
@@ -944,7 +948,12 @@ mouse, since the card itself is dragged. What the pointer carries is a picture o
 card at half strength, held by the point it was taken by, so the strip of days and the
 cards it passes over show through it and the day it is being taken to can be read; the
 browser's own picture was the card solid, and hid the strip. The card itself stays where
-it was, faded to 35 percent, until it is let go.
+it was, faded to 35 percent, until it is let go. The card it is over, where it would
+land, sinks to `paper-sunken` and takes the accent's dash at 2px for its edge, drawn
+just inside the card in place of its hairline, which goes clear under it: one line, as
+a day in the strip has under a drop, over the open card's colours as well. It was a
+solid edge in the accent with a dashed ring 3px out round it, which drew the place
+twice and never matched a day's.
 
 A touch screen as wide as a desk has no drag of its own, so there a grip between the
 two tools carries the card under a finger: the card goes where the finger takes it, on the shadow of

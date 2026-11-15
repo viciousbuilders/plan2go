@@ -530,23 +530,30 @@ export function StopCard({
       } ${
         lift !== null ? "relative z-[5] shadow-md" : dragging ? "opacity-35" : ""
       } ${
-        target ? "outline-2 outline-offset-[3px] outline-dashed outline-terracotta" : ""
-      } ${
         /*
-         * Open in the place sheet beside the map: the tint of the accent
-         * inside a 2px edge of it, which is how a leg's panel marks the way
-         * in use, so the card the sheet is about is found at a glance from
-         * the sheet. The second pixel of the edge is a ring inside the first
-         * rather than a wider border, so nothing on the card moves, and a
-         * ring rather than a shadow, so the lift of a card carried by a
-         * finger is still drawn. It holds under the pointer, here or on the
-         * map: being open says more than being pointed at, and the marker is
-         * lit for it already.
+         * Where the stop would land: sunk, as a day in the strip is under a
+         * drop, with the accent's dash at a drop's width for its edge, drawn
+         * just inside the card in place of its hairline, which goes clear
+         * under it. One line, as a day's is. A solid edge in the accent with
+         * a dashed ring three pixels out around it drew the place twice, and
+         * the card's ring and a day's never matched. Over the open card's
+         * colours too, while something is let go on it.
          */
-        opened
-          ? "border-terracotta bg-terracotta-100 inset-ring inset-ring-terracotta"
-          : target
-            ? "border-terracotta bg-paper-raised"
+        target
+          ? "border-transparent bg-paper-sunken outline-2 -outline-offset-2 outline-dashed outline-terracotta"
+          : /*
+             * Open in the place sheet beside the map: the tint of the accent
+             * inside a 2px edge of it, which is how a leg's panel marks the
+             * way in use, so the card the sheet is about is found at a glance
+             * from the sheet. The second pixel of the edge is a ring inside
+             * the first rather than a wider border, so nothing on the card
+             * moves, and a ring rather than a shadow, so the lift of a card
+             * carried by a finger is still drawn. It holds under the pointer,
+             * here or on the map: being open says more than being pointed
+             * at, and the marker is lit for it already.
+             */
+            opened
+            ? "border-terracotta bg-terracotta-100 inset-ring inset-ring-terracotta"
             : /*
                * Under the pointer here, or under the pointer on the map. A
                * place is a card and a marker at once, and pointing at either

@@ -136,17 +136,25 @@ function dayCard(selected: boolean, isToday: boolean): string {
 
 /**
  * A day offered as somewhere to let a carried stop go: dashed, as everything
- * still to be chosen is, in the dashed outlines' own ink. Two pixels out, as
- * the focus ring is, so the strip's room for a ring holds it whole.
+ * still to be chosen is, in the dashed outlines' own ink.
+ *
+ * On a desk the dash is the day's own edge, drawn just inside it, so days
+ * side by side keep the four pixels between them clear, the way a card under
+ * a drop has its dash for an edge. Drawn two pixels out, as the focus ring
+ * is, the dashes of neighbouring days ran into one another. A phone's cards
+ * keep it two pixels out, where the strip's room for a ring holds it whole.
  */
-const OFFERED = "outline-[1.5px] outline-offset-2 outline-dashed outline-rule-strong";
+const OFFERED =
+  "outline-[1.5px] outline-offset-2 outline-dashed outline-rule-strong lg:-outline-offset-[1.5px]";
 
 /**
  * The day the stop is over, which is where letting go takes it: the dash
  * takes the accent at a card's drop width, over the step a day takes under
- * the pointer, which a drag does not give it.
+ * the pointer, which a drag does not give it. On a desk on the day's own
+ * edge, as above.
  */
-const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed outline-terracotta";
+const OVER =
+  "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed outline-terracotta lg:-outline-offset-2";
 
 /**
  * The day a moving pill in the place sheet is aimed at, on a desk: ringed as
@@ -155,7 +163,7 @@ const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed
  * which the tab works out with the rest of its colours. The chosen day keeps
  * its raised pill inside the ring.
  */
-const AIMED = "lg:outline-2 lg:outline-offset-2 lg:outline-dashed lg:outline-terracotta";
+const AIMED = "lg:outline-2 lg:-outline-offset-2 lg:outline-dashed lg:outline-terracotta";
 
 /** How long the strip waits, once no day is aimed at, before going back to where it was. */
 const BACK_AFTER_MS = 250;
