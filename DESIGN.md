@@ -1273,12 +1273,12 @@ and it is the product's own.
 
 ## Motion
 
-Eleven things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Twelve things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
-the export's page setup unfolding and folding, the export's bar while its file is
-drawn, the export's preview on a phone coming in and going back, and the search on the
+the export's page setup unfolding and folding, the switches of a phone's export being
+thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
 pressed and gliding along when an arrow moves the row, the pill's colours and chevron turning, its
@@ -1337,6 +1337,11 @@ keyboard up, and a transition would focus it a frame too late: that changes at o
 The export's bar: its fill's `width` over 150ms `linear` each time the clock moves it
 on, and a spinner beside its words turning once every 800ms.
 
+The switches of a phone's export, what the file includes: thrown, the knob slides to the
+track's other end, `translate` over the sliding pills' 250ms on their curve, as the track
+goes from one colour to the other, `background-color` over the same, so a switch is seen
+to be thrown rather than swapped for another switch the other way.
+
 The export's page setup, on a desk and on a phone: its rows unfold from the line or card
 that holds them, the height from nothing to all of it over 200ms `ease-out`, by the grid
 row they stand in going from `0fr` to `1fr` as the trip's actions' columns do, so nothing
@@ -1362,8 +1367,8 @@ Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
 Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
-day's pill, the bar of views' pill and the views under it, the export's switch and its
-page setup, a city's dot and everything in the search are instant too, and the empty field's words stay on
+day's pill, the bar of views' pill and the views under it, the export's switch, its
+page setup and a phone's switches, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
@@ -1549,7 +1554,8 @@ words in `paper` while it is in the file. A day with nothing on it is dashed and
 be chosen. **Include**, and under it one card of `paper-raised` rounded at the `card`
 radius holding a switch to a row: its name at the place step in 600, and a track 46px
 by 28px, `terracotta` with its knob at the end while on and ink at 18 percent while off,
-the knob 22px across on `sheet` under `shadow-sm`. Cover page, Route map per day,
+the knob 22px across on `sheet` under `shadow-sm`, sliding across as the track changes
+colour when it is thrown (see Motion). Cover page, Route map per day,
 Addresses, Opening hours and Notes, as the design lists them, then Travel between stops,
 Notes pages and Day summary, which it has no row for. The page setup folded to its line
 on a card drawn as the preview's is. The file's name under its own heading, in a pill

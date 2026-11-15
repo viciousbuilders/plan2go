@@ -947,7 +947,11 @@ export function ExportDialog({
 
               {/* What the file includes, a switch to a row on one card of
                   raised paper, as design 1b lists them: the accent's track
-                  with the knob at its end while on, a quiet one while off. */}
+                  with the knob at its end while on, a quiet one while off.
+                  Turned, the knob slides to its other end as the track takes
+                  its other colour, over the sliding pills' 250ms on their
+                  curve, so a switch is seen to be thrown rather than swapped
+                  for another; at once for whoever asks for less motion. */}
               <p className="mt-[26px] text-body/none font-bold text-ink">Include</p>
               <div className="mt-2 rounded-card bg-paper-raised px-4 py-1">
                 {switches.map(({ phone, on, set }) => (
@@ -964,11 +968,11 @@ export function ExportDialog({
                     <span className="min-w-0 flex-1 text-place/[1.2] font-semibold">{phone}</span>
                     <span
                       aria-hidden="true"
-                      className={`relative h-7 w-[46px] shrink-0 rounded-pill ${on ? "bg-terracotta" : "bg-ink/18"}`}
+                      className={`relative h-7 w-[46px] shrink-0 rounded-pill transition-colors duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${on ? "bg-terracotta" : "bg-ink/18"}`}
                     >
                       <span
-                        className={`absolute top-[3px] h-[22px] w-[22px] rounded-pill bg-sheet shadow-sm ${
-                          on ? "left-[21px]" : "left-[3px]"
+                        className={`absolute top-[3px] left-[3px] h-[22px] w-[22px] rounded-pill bg-sheet shadow-sm transition-transform duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                          on ? "translate-x-[18px]" : ""
                         }`}
                       />
                     </span>
