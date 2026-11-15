@@ -28,6 +28,11 @@ interface DayPlannerProps {
   readonly openedStopId: string | null;
   /** The end of a day the place sheet is open on, or null. */
   readonly openedEndpoint: EndpointRef | null;
+  /**
+   * The card on the open day whose place a moving pill in the place sheet
+   * would give the open stop, while a pointer is on that pill, or null.
+   */
+  readonly movingTo: number | null;
   /** The leg under the pointer, here or on the map beside it. */
   readonly hoveredLegIndex: number | null;
   readonly onHoverLeg: (legIndex: number | null) => void;
@@ -118,6 +123,7 @@ export function DayPlanner({
   onOpenEndpoint,
   openedStopId,
   openedEndpoint,
+  movingTo,
   hoveredLegIndex,
   onHoverLeg,
   hoveredEndpointId,
@@ -221,6 +227,7 @@ export function DayPlanner({
                 onSelect={onSelect}
                 onAddDay={onAddDay}
                 onSwapDays={null}
+                movingTo={null}
               />
             </div>
           </>
@@ -272,6 +279,7 @@ export function DayPlanner({
               onOpenEndpoint={onOpenEndpoint}
               openedStopId={openedStopId}
               openedEndpoint={openedEndpoint}
+              movingTo={movingTo}
               hoveredLegIndex={hoveredLegIndex}
               onHoverLeg={onHoverLeg}
               hoveredEndpointId={hoveredEndpointId}

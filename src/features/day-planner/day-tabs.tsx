@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { useLayoutEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { DayPlan } from "@/core/model/day";
@@ -32,6 +32,12 @@ interface DayTabsProps {
    * everything on it. Null for a reader, who moves nothing.
    */
   readonly onSwapDays: ((from: number, to: number) => Promise<EditOutcome>) | null;
+  /**
+   * The day a moving pill in the place sheet would take the open stop to,
+   * while a pointer is on that pill, by its place in the strip; null the rest
+   * of the time, and always for a reader.
+   */
+  readonly movingTo: number | null;
 }
 
 /**
@@ -143,6 +149,18 @@ const OFFERED = "outline-[1.5px] outline-offset-2 outline-dashed outline-rule-st
 const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed outline-terracotta";
 
 /**
+ * The day a moving pill in the place sheet is aimed at, on a desk: ringed as
+ * the day a carried stop is over, since pressing the pill does what letting
+ * the stop go there would, and on the ground the day takes under the pointer,
+ * which the tab works out with the rest of its colours. The chosen day keeps
+ * its raised pill inside the ring.
+ */
+const AIMED = "lg:outline-2 lg:outline-offset-2 lg:outline-dashed lg:outline-terracotta";
+
+/** How long the strip waits, once no day is aimed at, before going back to where it was. */
+const BACK_AFTER_MS = 250;
+
+/**
  * A carried day, drawn over the page where the pointer or the finger has
  * taken it: lifted onto the small shadow, and on a desk onto the chosen day's
  * raised paper, so it is a day being carried rather than its words floating
@@ -249,7 +267,14 @@ function CarriedDay({
  */
 const HOLDABLE = "select-none [-webkit-touch-callout:none]";
 
-export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }: DayTabsProps) {
+export function DayTabs({
+  days,
+  selectedIndex,
+  onSelect,
+  onAddDay,
+  onSwapDays,
+  movingTo,
+}: DayTabsProps) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const list = useRef<HTMLDivElement | null>(null);
   /**
@@ -346,6 +371,42 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
     };
   }, [selectedIndex, days]);
 
+  /**
+   * The day a moving pill is aimed at is brought into the strip, by the least
+   * it can move, as a card the map points at is brought into the day: a day
+   * marked past the strip's edge is a day nobody sees marked.
+   *
+   * Once nothing is aimed at, the strip goes back to where the reader had it,
+   * since pointing at a pill should leave nothing behind, and the open day
+   * would otherwise be left scrolled out of sight. After a moment rather than
+   * at once, so a pointer going along the row of pills, which leaves one a
+   * moment before it reaches the next, does not throw the strip back and
+   * forth between them.
+   */
+  const home = useRef<number | null>(null);
+  useEffect(() => {
+    const strip = list.current?.parentElement;
+    if (strip === null || strip === undefined) {
+      return undefined;
+    }
+    if (movingTo !== null) {
+      home.current ??= strip.scrollLeft;
+      tabs.current[movingTo]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+      return undefined;
+    }
+    const back = home.current;
+    if (back === null) {
+      return undefined;
+    }
+    const timer = setTimeout(() => {
+      strip.scrollLeft = back;
+      home.current = null;
+    }, BACK_AFTER_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [movingTo]);
+
   const move = (event: KeyboardEvent<HTMLButtonElement>, index: number): void => {
     const last = days.length - 1;
     let next: number | null = null;
@@ -422,8 +483,6 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
              * chosen day's pill, and a screen reader is told both.
              */
             const isToday = day.date === today;
-            /** A day's words on a desk, the same whether or not it is the one chosen. */
-            const words = isToday ? "lg:text-sage-800" : "lg:text-ink-muted lg:hover:text-ink";
             /** A carried stop can go to any day but the one it is on, which is the open one. */
             const takes = dayDrop.carrying && !selected;
             const over = takes && dayDrop.overDay === index;
@@ -434,6 +493,18 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
             const carried = lifted !== null && lifted.index === index;
             const swapsWith = lifted !== null && !carried;
             const swapOver = lifted !== null && !carried && lifted.over === index;
+            /**
+             * The day a moving pill in the place sheet is aimed at: drawn as
+             * it is under the pointer, and ringed. Not while a stop or a day
+             * is being carried, which has the strip to itself.
+             */
+            const aimed = movingTo === index && !dayDrop.carrying && lifted === null;
+            /** A day's words on a desk, the same whether or not it is the one chosen. */
+            const words = isToday
+              ? "lg:text-sage-800"
+              : aimed
+                ? "lg:text-ink"
+                : "lg:text-ink-muted lg:hover:text-ink";
             return (
               <button
                 key={day.id}
@@ -497,9 +568,13 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                     : selected
                       ? `${RAISED_ON_A_DESK} lg:group-data-[placed]/days:bg-transparent lg:group-data-[placed]/days:shadow-none lg:group-data-[placed]/days:ring-0`
                       : isToday
-                        ? "lg:bg-sage-100 lg:hover:bg-sage-200"
-                        : "lg:hover:bg-paper-sunken"
-                } ${over || swapOver ? OVER : takes || swapsWith ? OFFERED : ""}`}
+                        ? aimed
+                          ? "lg:bg-sage-200"
+                          : "lg:bg-sage-100 lg:hover:bg-sage-200"
+                        : aimed
+                          ? "lg:bg-paper-sunken"
+                          : "lg:hover:bg-paper-sunken"
+                } ${over || swapOver ? OVER : takes || swapsWith ? OFFERED : aimed ? AIMED : ""}`}
               >
                 {/* The tab draws the day's number and a short date, and a
                     reader who cannot see the strip hears the date in full and

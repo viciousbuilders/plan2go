@@ -1,5 +1,6 @@
 "use client";
 
+import type { PointerEvent } from "react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { formatDuration } from "@/core/time/minutes";
 import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, MinusIcon, PlusIcon } from "@/ui/icons";
@@ -15,6 +16,16 @@ import { StopNote } from "../stop-note";
 
 /** What can be done to a stop from its sheet. */
 export type StopActions = Pick<DayActions, "setStay" | "setNote" | "moveStop" | "moveStopToDay">;
+
+/**
+ * Where a moving pill would take the stop, said while a pointer is on the
+ * pill: to the end of another day, or to another place in its own day,
+ * counted from zero. The planner beside the sheet marks that day or that
+ * place, so the move is seen before it is pressed.
+ */
+export type MoveAim =
+  | { readonly kind: "day"; readonly dayId: DayPlan["id"] }
+  | { readonly kind: "place"; readonly toPosition: number };
 
 /** A quarter of an hour a press: the smallest amount of time worth naming on a day. */
 const STAY_STEP = 15;
@@ -168,6 +179,11 @@ interface StopDetailsProps {
   readonly stopId: string;
   /** Null for a reader who holds no edit link, who reads all of this and changes none of it. */
   readonly actions: StopActions | null;
+  /**
+   * Told where a moving pill would take the stop while a pointer is on it,
+   * and null once nothing is. Never under a finger, which has no hover.
+   */
+  readonly onAim: (aim: MoveAim | null) => void;
 }
 
 /**
@@ -186,11 +202,27 @@ interface StopDetailsProps {
  * would rather press than drag. With neither, nothing is drawn, so the sheet
  * keeps no room for it.
  */
-export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetailsProps) {
+export function StopDetails({ day, dayIndex, days, stopId, actions, onAim }: StopDetailsProps) {
   const [error, setError] = useState<string | null>(null);
   const [moving, startMoving] = useTransition();
   const [, startWriting] = useTransition();
   const watchDays = useScrollBar("x");
+
+  /**
+   * An aim is taken back when the sheet goes or turns to another place, which
+   * no pointer leaving a pill says, or the planner would go on marking a move
+   * nobody can press any more.
+   */
+  const latestAim = useRef(onAim);
+  useEffect(() => {
+    latestAim.current = onAim;
+  });
+  useEffect(
+    () => () => {
+      latestAim.current(null);
+    },
+    [],
+  );
 
   const index = day.computed.stops.findIndex((stop) => stop.stopId === stopId);
   const stop = day.computed.stops[index];
@@ -244,6 +276,30 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
 
   /** Whether a desk draws anything here: one of the two ways of moving the stop. */
   const movable = actions !== null && (day.plan.stops.length > 1 || days.length > 1);
+
+  /**
+   * What a moving pill says while a pointer is on it: where a press would
+   * take the stop, and nothing once the pointer leaves. Said again as the
+   * pointer moves over it, so a pill still under the pointer once a move is
+   * done says where it would take the stop from its new place. A pill that
+   * cannot be pressed says nothing, and nor does a finger. Pressing takes the
+   * aim back first, since the pill pressed, a day's above all, can leave the
+   * row without the pointer ever leaving it.
+   */
+  const aiming = (aim: MoveAim, pressable: boolean) => {
+    const say = (event: PointerEvent<HTMLButtonElement>): void => {
+      if (pressable && event.pointerType !== "touch") {
+        onAim(aim);
+      }
+    };
+    return {
+      onPointerEnter: say,
+      onPointerMove: say,
+      onPointerLeave: () => {
+        onAim(null);
+      },
+    };
+  };
 
   return (
     <div className={`flex flex-col gap-4 ${movable ? "" : "lg:hidden"}`}>
@@ -303,7 +359,9 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
             <button
               type="button"
               disabled={moving || index === 0}
+              {...aiming({ kind: "place", toPosition: index - 1 }, !moving && index > 0)}
               onClick={() => {
+                onAim(null);
                 move(index - 1);
               }}
               className={MOVE}
@@ -314,7 +372,12 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
             <button
               type="button"
               disabled={moving || index === day.plan.stops.length - 1}
+              {...aiming(
+                { kind: "place", toPosition: index + 1 },
+                !moving && index < day.plan.stops.length - 1,
+              )}
               onClick={() => {
+                onAim(null);
                 move(index + 1);
               }}
               className={MOVE}
@@ -348,7 +411,9 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
                   key={other.id}
                   type="button"
                   disabled={moving}
+                  {...aiming({ kind: "day", dayId: other.id }, !moving)}
                   onClick={() => {
+                    onAim(null);
                     moveTo(other);
                   }}
                   aria-label={`Move to Day ${String(at + 1)}, ${formatDayDate(other.date)}`}

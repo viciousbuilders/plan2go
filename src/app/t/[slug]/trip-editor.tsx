@@ -331,6 +331,15 @@ export function TripEditor({
    */
   const [opened, setOpened] = useState<Opened | null>(null);
   /**
+   * Where a moving pill in the sheet would take the stop it is open on, while
+   * a pointer is on the pill: another day, by its id, or another place in the
+   * stop's own day. Two plain values rather than one object, so a pointer
+   * moving over the same pill sets them to what they already are and the
+   * page is not drawn again for it.
+   */
+  const [aimedDayId, setAimedDayId] = useState<DayId | null>(null);
+  const [aimedPosition, setAimedPosition] = useState<number | null>(null);
+  /**
    * Told to go. The sheet slides out and says when it has gone, which is
    * when what it was on is let go of. Held here rather than in the sheet
    * because the way out is not only on the sheet: the cross on the search
@@ -586,6 +595,15 @@ export function TripEditor({
       ? days.findIndex((day) => day.plan.stops.some((stop) => stop.id === opened.stopId))
       : -1;
   const openedStopPlanned = openedStopDay === -1 ? undefined : days[openedStopDay];
+  /** The day in the strip a moving pill in the sheet is aimed at, by its place, or -1. */
+  const aimedDay = aimedDayId === null ? -1 : days.findIndex((day) => day.plan.id === aimedDayId);
+  /**
+   * The card on the open day whose place a moving pill in the sheet would
+   * give the stop, or null. Only while the stop is on the day being shown:
+   * the sheet stays on a stop across the tabs, and another day's cards are
+   * not drawn.
+   */
+  const aimedCard = openedStopDay === selectedIndex ? aimedPosition : null;
   const openStop = (stopId: string): void => {
     open({ kind: "stop", stopId });
   };
@@ -920,6 +938,7 @@ export function TripEditor({
           // it is still open on the same place.
           openedStopId={opened?.kind === "stop" ? opened.stopId : null}
           openedEndpoint={opened?.kind === "endpoint" ? opened : null}
+          movingTo={aimedCard}
           hoveredLegIndex={hoveredLegIndex}
           onHoverLeg={setHoveredLegIndex}
           hoveredEndpointId={hoveredEndpointId}
@@ -1022,6 +1041,7 @@ export function TripEditor({
                         : () => recording(addDayAction({ slug, editKey }))
                     }
                     onSwapDays={swapDays}
+                    movingTo={aimedDay === -1 ? null : aimedDay}
                   />
                 }
                 actions={
@@ -1246,6 +1266,13 @@ export function TripEditor({
                           ),
                       }
                 }
+                // Marked in the planner beside the sheet, so on a desk only:
+                // a phone's sheet is the whole window, with nothing beside it.
+                onAim={(aim) => {
+                  const shown = aim === null || narrowWindow() ? null : aim;
+                  setAimedDayId(shown?.kind === "day" ? shown.dayId : null);
+                  setAimedPosition(shown?.kind === "place" ? shown.toPosition : null);
+                }}
               />
             ) : null
           }

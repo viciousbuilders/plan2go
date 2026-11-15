@@ -50,6 +50,11 @@ interface DayItineraryProps {
    */
   readonly openedStopId: string | null;
   readonly openedEndpoint: EndpointRef | null;
+  /**
+   * The card whose place a moving pill in the place sheet would give the
+   * open stop, while a pointer is on that pill, counted from zero, or null.
+   */
+  readonly movingTo: number | null;
   /** The leg under the pointer, here or on the map beside it. */
   readonly hoveredLegIndex: number | null;
   readonly onHoverLeg: (legIndex: number | null) => void;
@@ -484,6 +489,7 @@ export function DayItinerary({
   onOpenEndpoint,
   openedStopId,
   openedEndpoint,
+  movingTo,
   hoveredLegIndex,
   onHoverLeg,
   hoveredEndpointId,
@@ -661,6 +667,7 @@ export function DayItinerary({
                 onAddNext={index === listed.length - 1 ? onFindPlace : null}
                 dragging={dragIndex === index}
                 dragOver={overIndex === index && overDay === null}
+                aimed={movingTo === index && dragIndex === null && !busy}
                 onDragStart={pickUp}
                 onDragOver={setOverIndex}
                 onDrop={drop}

@@ -181,6 +181,12 @@ interface StopCardProps {
   readonly onAddNext: (() => void) | null;
   readonly dragging: boolean;
   readonly dragOver: boolean;
+  /**
+   * Whether a moving pill in the place sheet would give this card's place to
+   * the open stop, while a pointer is on that pill. Drawn as a card a dragged
+   * one is over, since pressing the pill does what letting it go here would.
+   */
+  readonly aimed: boolean;
   readonly onDragStart: (index: number) => void;
   readonly onDragOver: (index: number) => void;
   readonly onDrop: (index: number) => void;
@@ -270,6 +276,7 @@ export function StopCard({
   onAddNext,
   dragging,
   dragOver,
+  aimed,
   onDragStart,
   onDragOver,
   onDrop,
@@ -312,19 +319,20 @@ export function StopCard({
   };
 
   /**
-   * Brought into the panel when the pointer finds it on the map, because a
-   * card lit up below the fold is a card nobody sees light up.
+   * Brought into the panel when the pointer finds it on the map, or a moving
+   * pill in the place sheet is aimed at it, because a card lit up below the
+   * fold is a card nobody sees light up.
    *
    * "nearest" is doing the work: a card already on screen is left exactly
    * where it is, so hovering one here does not scroll the list out from under
-   * the pointer, and only a card the map is pointing at off the fold moves,
-   * by the least it can.
+   * the pointer, and only a card the map or the sheet is pointing at off the
+   * fold moves, by the least it can.
    */
   useEffect(() => {
-    if (hovered) {
+    if (hovered || aimed) {
       card.current?.scrollIntoView({ block: "nearest" });
     }
-  }, [hovered]);
+  }, [hovered, aimed]);
 
   const start = (event: DragEvent<HTMLElement>): void => {
     event.dataTransfer.effectAllowed = "move";
@@ -475,6 +483,13 @@ export function StopCard({
     }
   };
 
+  /**
+   * Where the stop being moved would go: the card a dragged one is over, or
+   * the card a moving pill in the place sheet is aimed at, drawn the same,
+   * since both are where the stop would land. Never the card being dragged.
+   */
+  const target = (dragOver || aimed) && !dragging;
+
   return (
     <article
       ref={card}
@@ -515,7 +530,7 @@ export function StopCard({
       } ${
         lift !== null ? "relative z-[5] shadow-md" : dragging ? "opacity-35" : ""
       } ${
-        dragOver && !dragging ? "outline-2 outline-offset-[3px] outline-dashed outline-terracotta" : ""
+        target ? "outline-2 outline-offset-[3px] outline-dashed outline-terracotta" : ""
       } ${
         /*
          * Open in the place sheet beside the map: the tint of the accent
@@ -530,7 +545,7 @@ export function StopCard({
          */
         opened
           ? "border-terracotta bg-terracotta-100 inset-ring inset-ring-terracotta"
-          : dragOver && !dragging
+          : target
             ? "border-terracotta bg-paper-raised"
             : /*
                * Under the pointer here, or under the pointer on the map. A

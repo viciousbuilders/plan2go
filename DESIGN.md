@@ -389,7 +389,8 @@ stop is carried, by the pointer or by a finger on its grip, every day but the op
 is offered as somewhere to let it go: a dashed edge 1.5px wide in `rule-strong`, drawn
 2px out as the focus ring is, so the strip's room for a ring holds it. The day the stop
 is over takes the accent's dashed edge at 2px over `paper-sunken`, as a card does under
-a drop. Letting go there puts the stop last on that day. The open day stays open: the
+a drop, and on a desk so does the day a pill in a stop's place sheet would send it to,
+while the pointer is on that pill (see Layout). Letting go there puts the stop last on that day. The open day stays open: the
 stop leaves it at once, and the day fades under "Working out the new times." until both
 days have their new times, as after a reorder.
 A day itself is moved by dragging it onto another day, and the two change places: each
@@ -700,7 +701,17 @@ before it is pressed; the `neutral-200` it took before was a step off the sheet'
 paper and read as nothing happening. A pill that cannot be pressed, the first stop's
 **Move earlier**, the last's **Move later**, or any of them while a move is being
 written, takes nothing. On a phone, with no
-pointer to hover with, it keeps `neutral-200`. On a phone both can be done on the day as well,
+pointer to hover with, it keeps `neutral-200`. On a desk the planner beside the sheet
+shows where a pill would send the stop while the pointer is on it, drawn as a drag
+there would be, since pressing does what letting the stop go there would: a day's pill
+rings that day in the strip as the day a carried stop is over, with the accent's
+dashed edge at 2px over the ground the day takes under the pointer, the chosen day
+keeping its raised pill inside the ring; and **Move earlier** or **Move later** rings
+the card whose place the stop would take, as a card under a drop, when the stop is on
+the day being shown. A day past the strip's edge is brought into it, and a quarter of a
+second after the pointer has left the pills the strip goes back to where it was, so
+pointing leaves nothing behind and going along the row does not throw the strip back
+and forth. A press takes the mark away with it. On a phone both can be done on the day as well,
 as a day is carried in the strip: a stop's card held as long as a day is held, 450ms,
 lifts, and a picture of it goes wherever the finger takes it, across as well as up and
 down, drawn over the page on `shadow-md` at half strength, as a carried day is, and at
