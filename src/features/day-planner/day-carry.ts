@@ -1,13 +1,13 @@
 import { cardUnder } from "./touch-carry";
 
 /**
- * A day carried along the strip onto another, to swap the two, by a pointer
- * or a finger.
+ * A day carried onto another in the strip, to swap the two, by a pointer or
+ * a finger.
  *
- * This is the arithmetic of it: which day the pointer is over, and how far the
- * carried day can go. Where each day is is measured once, when it lifts, along
- * the strip's content rather than the window, so a measure taken before the
- * strip scrolls still holds after it.
+ * This is the arithmetic of it: which day the pointer is over, and whether it
+ * is over the strip at all. Where each day is is measured once, when it
+ * lifts, along the strip's content rather than the window, so a measure taken
+ * before the strip scrolls still holds after it.
  */
 
 /** Where one day sits along the strip, from its start to its end. */
@@ -50,25 +50,10 @@ export interface StripBox {
 
 /**
  * Whether a pointer is over the strip, which is the only place a carried day
- * can be let go on another. On a desk the day goes wherever the pointer takes
- * it, down over the day or across the map, and let go anywhere but the strip
- * it goes back to its place: only a day in the strip takes it.
+ * can be let go on another. The day goes wherever the pointer or the finger
+ * takes it, down over the day, across the map on a desk, and let go anywhere
+ * but the strip it goes back to its place: only a day in the strip takes it.
  */
 export function overTheStrip(x: number, y: number, strip: StripBox): boolean {
   return x >= strip.left && x <= strip.right && y >= strip.top && y <= strip.bottom;
-}
-
-/**
- * How far the carried day is drawn from its own place: as far as the pointer
- * has gone, but no further than the first day's start or the last day's end,
- * so it stays over the row of days rather than going off past them.
- */
-export function carriedBy(by: number, index: number, slots: readonly DaySlot[]): number {
-  const own = slots.find((slot) => slot.index === index);
-  const first = slots[0];
-  const last = slots[slots.length - 1];
-  if (own === undefined || first === undefined || last === undefined) {
-    return by;
-  }
-  return Math.max(first.start - own.start, Math.min(last.end - own.end, by));
 }

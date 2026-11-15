@@ -143,43 +143,85 @@ const OFFERED = "outline-[1.5px] outline-offset-2 outline-dashed outline-rule-st
 const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed outline-terracotta";
 
 /**
- * A day carried along the strip, over the days it passes: lifted onto the
- * small shadow, since the strip cuts off whatever reaches further than its
- * four pixels of room, and on a desk onto the chosen day's raised paper, so
- * it is a day being carried rather than its words floating loose. On a desk
- * at half strength, as a stop card carried by a pointer is, so the day it is
- * over shows through it, dashed edge and all, and can be read before it is
- * let go on; solid, it hid the very day it was being taken to. A phone's card
- * keeps its own colours. The hand that grabs, closed, for a mouse.
+ * A carried day, drawn over the page where the pointer or the finger has
+ * taken it: lifted onto the small shadow, and on a desk onto the chosen day's
+ * raised paper, so it is a day being carried rather than its words floating
+ * loose, while a phone's card keeps its own colours. At half strength on
+ * both, as a stop card carried by a pointer is, so the day it is over shows
+ * through it, dashed edge and all, and can be read before it is let go on;
+ * solid, it hid the very day it was being taken to.
  */
-const LIFTED =
-  "z-[5] cursor-grabbing shadow-sm lg:bg-paper-raised lg:opacity-50 lg:ring-1 lg:ring-rule";
+const LIFTED = "shadow-sm opacity-50 lg:bg-paper-raised lg:ring-1 lg:ring-rule";
 
 /**
- * A day carried off the strip on a desk, where it is drawn over the page
- * instead: its place in the strip is left empty, as it is while the day is
- * carried along the strip, and the chosen day's pill stays there. Unseen
- * rather than taken out, since it is the day the pointer's movements still
- * come to, and the hand that grabs stays closed over it.
+ * A carried day's own place in the strip, while it is drawn over the page
+ * instead: left empty, and on a desk the chosen day's pill stays there.
+ * Unseen rather than taken out, since it is the day the pointer's or the
+ * finger's movements still come to, and the hand that grabs stays closed
+ * over it.
  */
 const LEFT_BEHIND = "cursor-grabbing opacity-0";
 
 /**
- * A day carried off the strip on a desk, drawn over everything on the page
- * where the pointer has taken it, so the strip, which clips whatever leaves
- * it, does not cut it off: the same tab, lifted as a carried day is and at
- * the same half strength, with its number and its date as the strip draws
- * them. A picture for the eye only. The pointer goes through it to whatever
- * is under it, and the day itself stays in the strip, holding the pointer.
+ * What a day in the strip shows, the same in the strip and in the picture of
+ * a carried day, and hidden from a screen reader, which hears the day said in
+ * full on the tab instead.
+ */
+function DayFace({ day, index }: { readonly day: DayPlan; readonly index: number }) {
+  return (
+    <>
+      {/* The city's dot leads the number, so days with the same dot are in
+          the same city and the pill in the search, which carries the dot and
+          the name, is the key to them; a day with no city has no dot and no
+          gap kept for one. */}
+      <span
+        aria-hidden="true"
+        className={`flex items-center gap-1 ${TAB_NUMBER} tabular-nums max-lg:hidden`}
+      >
+        {day.city === null ? null : <CityDot slot={day.city.color} size={7} />}
+        {`Day ${String(index + 1)}`}
+      </span>
+      <span aria-hidden="true" className={`${TAB_DATE} max-lg:hidden`}>
+        {formatDayTab(day.date)}
+      </span>
+
+      {/* The phone's card: the day's number, the date at the body step in
+          bold under it, and the city under the date, quieter. The number and
+          the city are drawn at the card's own colour, a little faded, so they
+          read as said about the date. */}
+      <span aria-hidden="true" className={`${TAB_NUMBER} opacity-80 lg:hidden`}>
+        {`Day ${String(index + 1)}`}
+      </span>
+      <span aria-hidden="true" className="text-body/none font-bold tabular-nums lg:hidden">
+        {formatDayTab(day.date)}
+      </span>
+      {day.city === null ? null : (
+        <span aria-hidden="true" className="text-micro/none font-medium opacity-75 lg:hidden">
+          {day.city.name}
+        </span>
+      )}
+    </>
+  );
+}
+
+/**
+ * A carried day, drawn over everything on the page where the pointer or the
+ * finger has taken it, so the strip, which clips whatever leaves it, does not
+ * cut it off: the same day in the same colours and at the same size, lifted
+ * and at half strength. A picture for the eye only. The pointer goes through
+ * it to whatever is under it, and the day itself stays in the strip, holding
+ * the pointer.
  */
 function CarriedDay({
   day,
   index,
+  selected,
   isToday,
   at,
 }: {
   readonly day: DayPlan;
   readonly index: number;
+  readonly selected: boolean;
   readonly isToday: boolean;
   readonly at: Floating;
 }) {
@@ -189,12 +231,10 @@ function CarriedDay({
       className="pointer-events-none fixed z-50"
       style={{ left: at.left, top: at.top, width: at.width, height: at.height }}
     >
-      <div className={`${TAB} w-full ${isToday ? "lg:text-sage-800" : "lg:text-ink-muted"} ${LIFTED}`}>
-        <span className={`flex items-center gap-1 ${TAB_NUMBER} tabular-nums`}>
-          {day.city === null ? null : <CityDot slot={day.city.color} size={7} />}
-          {`Day ${String(index + 1)}`}
-        </span>
-        <span className={TAB_DATE}>{formatDayTab(day.date)}</span>
+      <div
+        className={`${TAB} h-full w-full ${isToday ? "lg:text-sage-800" : "lg:text-ink-muted"} ${dayCard(selected, isToday)} ${LIFTED}`}
+      >
+        <DayFace day={day} index={index} />
       </div>
     </div>,
     document.body,
@@ -390,8 +430,6 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
              * included, and changes places with the one under the pointer.
              */
             const carried = lifted !== null && lifted.index === index;
-            /** Carried over the page on a desk, which draws it there; its place here is left empty. */
-            const leftBehind = lifted !== null && lifted.index === index && lifted.floating !== null;
             const swapsWith = lifted !== null && !carried;
             const swapOver = lifted !== null && !carried && lifted.over === index;
             return (
@@ -447,27 +485,18 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                 // go to ink. The chosen day paints the pill itself until the
                 // strip's own pill has been laid under it. All of it on a desk:
                 // on a phone what changes is the day's card. A day being
-                // carried stands on its own paper wherever it is taken, and
-                // the chosen day's pill stays in the place it left; on a desk
-                // it is drawn over the page, and its place here stays empty.
+                // carried is drawn over the page wherever it is taken, and its
+                // place here stays empty, on a desk with the chosen day's pill
+                // still in it if it is the chosen day.
                 className={`${TAB} ${movable ? HOLDABLE : ""} ${words} ${dayCard(selected, isToday)} ${
                   carried
-                    ? leftBehind
-                      ? LEFT_BEHIND
-                      : LIFTED
+                    ? LEFT_BEHIND
                     : selected
                       ? `${RAISED_ON_A_DESK} lg:group-data-[placed]/days:bg-transparent lg:group-data-[placed]/days:shadow-none lg:group-data-[placed]/days:ring-0`
                       : isToday
                         ? "lg:bg-sage-100 lg:hover:bg-sage-200"
                         : "lg:hover:bg-paper-sunken"
                 } ${over || swapOver ? OVER : takes || swapsWith ? OFFERED : ""}`}
-                // Wherever the pointer has taken it along the strip, at once:
-                // it is the pointer moving it, not the page.
-                style={
-                  lifted !== null && carried && lifted.floating === null
-                    ? { translate: `${String(lifted.by)}px 0` }
-                    : undefined
-                }
               >
                 {/* The tab draws the day's number and a short date, and a
                     reader who cannot see the strip hears the date in full and
@@ -477,39 +506,7 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                     day.city === null ? "" : `${day.city.name}, `
                   }${stopLine(day)}.${isToday ? " Today." : ""}`}
                 </span>
-                {/* The city's dot leads the number, so days with the same
-                    dot are in the same city and the pill in the search,
-                    which carries the dot and the name, is the key to them;
-                    a day with no city has no dot and no gap kept for one. */}
-                <span
-                  aria-hidden="true"
-                  className={`flex items-center gap-1 ${TAB_NUMBER} tabular-nums max-lg:hidden`}
-                >
-                  {day.city === null ? null : (
-                    <CityDot slot={day.city.color} size={7} />
-                  )}
-                  {`Day ${String(index + 1)}`}
-                </span>
-                <span aria-hidden="true" className={`${TAB_DATE} max-lg:hidden`}>
-                  {formatDayTab(day.date)}
-                </span>
-
-                {/* The phone's card: the day's number, the date at the body
-                    step in bold under it, and the city under the date,
-                    quieter. The number and the city are drawn at the card's
-                    own colour, a little faded, so they read as said about the
-                    date. */}
-                <span aria-hidden="true" className={`${TAB_NUMBER} opacity-80 lg:hidden`}>
-                  {`Day ${String(index + 1)}`}
-                </span>
-                <span aria-hidden="true" className="text-body/none font-bold tabular-nums lg:hidden">
-                  {formatDayTab(day.date)}
-                </span>
-                {day.city === null ? null : (
-                  <span aria-hidden="true" className="text-micro/none font-medium opacity-75 lg:hidden">
-                    {day.city.name}
-                  </span>
-                )}
+                <DayFace day={day} index={index} />
               </button>
             );
           })}
@@ -546,12 +543,13 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
         </Notice>
       )}
 
-      {lifted === null || lifted.floating === null || carriedDay === undefined ? null : (
+      {lifted === null || carriedDay === undefined ? null : (
         <CarriedDay
           day={carriedDay}
           index={lifted.index}
+          selected={lifted.index === selectedIndex}
           isToday={carriedDay.date === today}
-          at={lifted.floating}
+          at={lifted.at}
         />
       )}
     </div>

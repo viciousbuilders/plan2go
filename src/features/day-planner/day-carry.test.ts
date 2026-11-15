@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { carriedBy, overTheStrip, slotAlong } from "./day-carry";
+import { overTheStrip, slotAlong } from "./day-carry";
 
 /** Four days 82 wide and 4 apart, as a desk's strip lays them. */
 const slots = [
@@ -23,22 +23,6 @@ describe("slotAlong", () => {
   it("is the first day before the strip's days and the last past them", () => {
     expect(slotAlong(-30, slots, 2)).toBe(0);
     expect(slotAlong(500, slots, 1)).toBe(3);
-  });
-});
-
-describe("carriedBy", () => {
-  it("goes as far as the pointer has", () => {
-    expect(carriedBy(120, 1, slots)).toBe(120);
-    expect(carriedBy(-50, 1, slots)).toBe(-50);
-  });
-
-  it("stops the day at the first day's start and the last day's end", () => {
-    expect(carriedBy(-400, 1, slots)).toBe(-86);
-    expect(carriedBy(400, 1, slots)).toBe(172);
-  });
-
-  it("goes as far as it is told when the days were never measured", () => {
-    expect(carriedBy(30, 1, [])).toBe(30);
   });
 });
 

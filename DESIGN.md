@@ -536,9 +536,12 @@ cards and as far from them as they are from each other, the button that adds a d
 A day is moved as on a desk, onto another day, and the two change places. A finger holds
 it first, about half a second, until it lifts: a finger that moves at once is scrolling
 the strip, and the strip scrolls as before. Lifted, the card keeps its own colours under
-the small shadow and goes along the strip with the finger, the strip and the page under
-it held still; every other card is offered with the dashed edge, and the one under the
-finger takes the accent's. Near either end of the window the strip scrolls on under it.
+the small shadow, at half strength as on a desk, and goes wherever the finger takes it,
+off the strip as well, drawn over the page, its own place in the strip left empty, the
+strip and the page under it held still; every other card is offered with the dashed
+edge, and the one under the finger takes the accent's, only while the finger is over
+the strip. Near either end of the window, level with the strip, the strip scrolls on
+under it. Let go anywhere off the strip, the card goes back.
 A press held and let go without moving chooses nothing and moves nothing. The open day
 stays open wherever it went, faded under "Working out the new times." while the swap is
 written if it is one of the two.
