@@ -26,7 +26,7 @@ import { placesOnTheTrip } from "@/features/place-search/places-on-the-trip";
 import { searchBias } from "@/features/place-search/search-bias";
 import { colorAfterMove } from "@/core/model/city-colors";
 import { citiesOf } from "@/core/model/day-city";
-import { TripMenu } from "@/features/trip-settings/trip-menu";
+import { TripMenu, useMenuPages } from "@/features/trip-settings/trip-menu";
 import { TripExport } from "@/features/day-planner/export/trip-export";
 import { EditTrip } from "@/features/trip-settings/edit-trip";
 import { ShareLinks } from "@/features/trip-settings/share-links";
@@ -158,6 +158,33 @@ function placeOpened(days: readonly PlannedDay[], opened: Opened): Place | null 
   }
   const end = days.find((day) => day.plan.id === opened.dayId)?.plan[opened.which] ?? null;
   return end !== null && end.place.id === opened.placeId ? end.place : null;
+}
+
+/**
+ * Export as a row of the trip's menu. The menu is put away as the dialog
+ * opens, rather than left open under it and found still open once the dialog
+ * is closed; putting it away hands the focus to the menu's button, and the
+ * dialog takes it from there to its own way out. Rendered inside the menu,
+ * which is what it puts away.
+ */
+function MenuExport({
+  disabled,
+  onOpen,
+}: {
+  readonly disabled: boolean;
+  readonly onOpen: () => void;
+}) {
+  const menu = useMenuPages();
+  return (
+    <TripExport
+      where="menu"
+      disabled={disabled}
+      onOpen={() => {
+        menu.close();
+        onOpen();
+      }}
+    />
+  );
 }
 
 /** One sheet per thing opened, so opening another starts it afresh. */
@@ -539,15 +566,9 @@ export function TripEditor({
    * the dialog over the window. A phone draws neither, and exports from the
    * Export view in the bar of views instead.
    */
-  const exportControl = (where: "menu" | "heading") => (
-    <TripExport
-      where={where}
-      disabled={nothingToExport}
-      onOpen={() => {
-        setExportOpen(true);
-      }}
-    />
-  );
+  const openExport = (): void => {
+    setExportOpen(true);
+  };
 
   /**
    * The shape of each leg the day travels, in the same order the map builds
@@ -901,7 +922,9 @@ export function TripEditor({
           selectedIndex={selectedIndex}
           onSelect={chooseDay}
           rearranging={rearranging}
-          exporting={exportControl("heading")}
+          exporting={
+            <TripExport where="heading" disabled={nothingToExport} onOpen={openExport} />
+          }
           onFindPlace={editKey === null ? null : findPlace}
           onFindEnd={editKey === null ? null : find}
           onAddDay={
@@ -1012,7 +1035,7 @@ export function TripEditor({
                       }
                     />
                     <ShareLinks slug={slug} editKey={editKey} />
-                    {exportControl("menu")}
+                    <MenuExport disabled={nothingToExport} onOpen={openExport} />
                     <TripActions
                       slug={slug}
                       editKey={editKey}
