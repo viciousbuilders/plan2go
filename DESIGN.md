@@ -537,8 +537,10 @@ A day is moved as on a desk, onto another day, and the two change places. A fing
 it first, about half a second, until it lifts: a finger that moves at once is scrolling
 the strip, and the strip scrolls as before. Lifted, the card keeps its own colours under
 the small shadow, at half strength as on a desk, and goes wherever the finger takes it,
-off the strip as well, drawn over the page, its own place in the strip left empty, the
-strip and the page under it held still; every other card is offered with the dashed
+off the strip as well, drawn over the page, its own place in the strip kept by its card
+in its own colours with nothing on it, the empty card a desk's chosen pill is, so the
+strip keeps the shape of the place rather than a gap, the strip and the page under it
+held still; every other card is offered with the dashed
 edge, and the one under the finger takes the accent's, only while the finger is over
 the strip. Near either end of the window, level with the strip, the strip scrolls on
 under it. Let go anywhere off the strip, the card goes back.

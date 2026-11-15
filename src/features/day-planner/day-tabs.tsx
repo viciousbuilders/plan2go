@@ -155,12 +155,14 @@ const LIFTED = "shadow-sm opacity-50 lg:bg-paper-raised lg:ring-1 lg:ring-rule";
 
 /**
  * A carried day's own place in the strip, while it is drawn over the page
- * instead: left empty, and on a desk the chosen day's pill stays there.
- * Unseen rather than taken out, since it is the day the pointer's or the
- * finger's movements still come to, and the hand that grabs stays closed
- * over it.
+ * instead: left empty, and on a desk the chosen day's pill stays there. On a
+ * phone the day's card stays, in its own colours with none of its words, the
+ * empty card a desk's pill is, so the strip keeps the shape of the place the
+ * day left rather than a gap in it. Unseen rather than taken out, since it is
+ * the day the pointer's or the finger's movements still come to, and the
+ * hand that grabs stays closed over it.
  */
-const LEFT_BEHIND = "cursor-grabbing opacity-0";
+const LEFT_BEHIND = "cursor-grabbing lg:opacity-0 max-lg:*:opacity-0";
 
 /**
  * What a day in the strip shows, the same in the strip and in the picture of
@@ -487,7 +489,8 @@ export function DayTabs({ days, selectedIndex, onSelect, onAddDay, onSwapDays }:
                 // on a phone what changes is the day's card. A day being
                 // carried is drawn over the page wherever it is taken, and its
                 // place here stays empty, on a desk with the chosen day's pill
-                // still in it if it is the chosen day.
+                // still in it if it is the chosen day, and on a phone as its
+                // own card with nothing on it.
                 className={`${TAB} ${movable ? HOLDABLE : ""} ${words} ${dayCard(selected, isToday)} ${
                   carried
                     ? LEFT_BEHIND
