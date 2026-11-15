@@ -5,6 +5,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { PlannedDay } from "./compute-trip";
 import { DayDropContext } from "./day-drop";
+import { DayFoot } from "./day-foot";
 import type { EndpointRef } from "./day-itinerary";
 import { DayItinerary } from "./day-itinerary";
 import { DayTabs } from "./day-tabs";
@@ -282,6 +283,19 @@ export function DayPlanner({
               rearranging={rearranging}
             />
           </div>
+
+          {/* Under the day, on both layouts, for someone who may change it:
+              starting the day over and taking it off the trip. Keyed by the
+              day, so a question asked of one day is never answered on the
+              next. */}
+          {actions === null ? null : (
+            <DayFoot
+              key={selected.plan.id}
+              days={days.map((day) => day.plan)}
+              index={days.indexOf(selected)}
+              actions={actions}
+            />
+          )}
         </section>
       )}
     </DayDropContext>

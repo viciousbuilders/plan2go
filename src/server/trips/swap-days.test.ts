@@ -67,6 +67,8 @@ function repositoryFor(
         swaps.push(swap);
         return Promise.resolve(answer);
       },
+      clearDay: unstubbed,
+      deleteDay: unstubbed,
       setLegMode: unstubbed,
       updateStop: unstubbed,
       removeStop: unstubbed,

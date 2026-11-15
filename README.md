@@ -26,7 +26,7 @@ plan2go is for planning a holiday in a city you have never been to and cannot ju
 - **Places from search.** Search a city's places or use a quick search such as parks or museums, and look at a place's photos, rating and reviews before adding it.
 - **Real travel times.** Every leg is timed by Google Routes, by car, public transport or on foot, with public transport looked up for the time the day reaches it.
 - **Conflicts named with their numbers.** "Fish Market closes at 16:00 and you arrive at 16:30", rather than a warning icon.
-- **Days you can rearrange.** Drag stops into a new order or onto another day, drag a whole day onto another to swap the two, set the time at each place and when the day leaves, add notes, move a day to another city, and start or end a day at a hotel, station or airport.
+- **Days you can rearrange.** Drag stops into a new order or onto another day, drag a whole day onto another to swap the two, reset a day or delete it, set the time at each place and when the day leaves, add notes, move a day to another city, and start or end a day at a hotel, station or airport.
 - **The trip's own clock.** Times are kept in the trip's time zone, across midnight and daylight saving changes.
 - **Sharing.** A read-only link for everyone going, and a PDF with a cover page, a route map for each day, the travel between stops and pages for notes, on A4 or A5, in colour or black and white.
 - **Planning with an AI assistant.** An MCP server lets an assistant open a trip, find places, rework the days and read back every time and conflict, from any app that can connect to one. See [Plan with an AI assistant](#plan-with-an-ai-assistant).
@@ -165,8 +165,8 @@ Every deployment serves a [Model Context Protocol](https://modelcontextprotocol.
 | `find_places`, `get_place`, `add_place` | Look for places on a day, read about one, and put it on the day |
 | `get_trip`, `get_pdf` | Read the trip with every time, conflict and Google Maps link, or get a PDF with the export's choices |
 | `move_stop`, `move_stop_to_day`, `remove_stop`, `set_time_at_place`, `set_note` | Change the stops on a day |
-| `set_travel_mode`, `set_day_endpoint`, `set_leaving_time`, `set_day_city`, `suggest_cities`, `swap_days` | Change a day: how each leg is travelled, where it starts and ends, when it leaves, its city, and its place in the trip, swapped with another day |
-| `rename_trip`, `set_trip_dates`, `add_day`, `delete_trip` | Change the trip as a whole |
+| `set_travel_mode`, `set_day_endpoint`, `set_leaving_time`, `set_day_city`, `suggest_cities`, `swap_days`, `clear_day` | Change a day: how each leg is travelled, where it starts and ends, when it leaves, its city, its place in the trip, swapped with another day, or start it over |
+| `rename_trip`, `set_trip_dates`, `add_day`, `delete_day`, `delete_trip` | Change the trip as a whole, a day taken out included |
 
 > [!CAUTION]
 > The tools that change a trip take its editing link, so anyone who can read the conversation can change or delete that trip. Give an assistant the editing link only in a conversation you keep to yourself.

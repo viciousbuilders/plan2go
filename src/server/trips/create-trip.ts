@@ -2,7 +2,7 @@ import type { DayCity, IsoDate } from "@/core/model/day";
 import { sameCity } from "@/core/model/day-city";
 import { createEditKey, hashEditKey } from "../ownership/edit-key";
 import type { TripRepository } from "../repositories/trip-repository";
-import { DEFAULT_START_AT_MINUTES } from "./day-start";
+import { DEFAULT_START_AT_MINUTES } from "@/core/model/day";
 
 /** What a trip is called until the traveller names it. */
 export const UNTITLED = "Untitled trip";

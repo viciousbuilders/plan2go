@@ -36,6 +36,8 @@ import { TripActions } from "@/features/trip-settings/trip-actions";
 import { TripSettings } from "@/features/trip-settings/trip-settings";
 import { addDayAction } from "./add-day-action";
 import { addStopAction } from "./add-stop-action";
+import { clearDayAction } from "./clear-day-action";
+import { deleteDayAction } from "./delete-day-action";
 import { deleteTripAction } from "./delete-trip-action";
 import {
   moveStopAction,
@@ -923,6 +925,19 @@ export function TripEditor({
                     recording(
                       moveStopToDayAction({ slug, editKey, stopId, dayId, toPosition }),
                     ),
+                  clearDay: () =>
+                    recording(clearDayAction({ slug, editKey, dayId: selected.plan.id })),
+                  // The open day goes by its place from here, so once it is
+                  // gone the day that takes its place opens, or the one
+                  // before it when it was the last. Asked inside the foot's
+                  // transition, it lands with the page drawn without the day.
+                  deleteDay: () => {
+                    setChosen({ id: null, index: selectedIndex });
+                    setPicked(null);
+                    return recording(
+                      deleteDayAction({ slug, editKey, dayId: selected.plan.id }),
+                    );
+                  },
                 }
               : null
           }

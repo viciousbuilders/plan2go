@@ -22,6 +22,10 @@ import type {
   CreatedTrip,
   DayCitySet,
   DayCityUpdate,
+  DayClear,
+  DayCleared,
+  DayDeleted,
+  DayRemoval,
   DayEndpointSet,
   DayEndpointUpdate,
   DayStartSet,
@@ -467,6 +471,75 @@ export const prismaTripRepository: TripRepository = {
       db.trip.update({ where: { id: one.tripId }, data: { cityColors: { ...swap.colors } } }),
     ]);
     return { status: "swapped" };
+  },
+
+  async clearDay(clear: DayClear): Promise<DayCleared> {
+    // Scoped to the tokens the browser holds, so finding the day is also the
+    // check that this trip may be changed.
+    const day = await db.day.findFirst({
+      where: { id: clear.dayId, trip: { slug: clear.slug, editKeyHash: clear.editKeyHash } },
+      select: { id: true },
+    });
+    if (day === null) {
+      return { status: "refused" };
+    }
+
+    // One transaction, so the day is never left with its stops gone and its
+    // ends still on it. The way out to the end goes back to the walk a new
+    // day has, since the end it led to is gone.
+    await db.$transaction([
+      db.stop.deleteMany({ where: { dayId: day.id } }),
+      db.day.update({
+        where: { id: day.id },
+        data: {
+          startPlaceId: null,
+          endPlaceId: null,
+          startAtMinutes: clear.startAtMinutes,
+          endTravelMode: TRAVEL_MODE_TO_DB.walk,
+        },
+      }),
+    ]);
+    return { status: "cleared" };
+  },
+
+  async deleteDay(removal: DayRemoval): Promise<DayDeleted> {
+    // Scoped to the tokens the browser holds, so finding the day is also the
+    // check that this trip may be changed. How many days the trip has comes
+    // back on the same read.
+    const day = await db.day.findFirst({
+      where: {
+        id: removal.dayId,
+        trip: { slug: removal.slug, editKeyHash: removal.editKeyHash },
+      },
+      select: { id: true, position: true, tripId: true, trip: { select: { _count: { select: { days: true } } } } },
+    });
+    if (day === null) {
+      return { status: "refused" };
+    }
+    if (day.trip._count.days <= 1) {
+      return { status: "only-day" };
+    }
+
+    // One transaction, as a stop's removal is: the day goes, taking its stops
+    // with it, and the days after it are parked out of the way and brought
+    // back a place further up, since a trip's positions are unique. The
+    // delete holds only while the trip has another day, so two removals at
+    // once can never leave it with none; one that finds none fails whole.
+    await db.$transaction([
+      db.day.delete({
+        where: { id: day.id, trip: { days: { some: { id: { not: day.id } } } } },
+      }),
+      db.day.updateMany({
+        where: { tripId: day.tripId, position: { gt: day.position } },
+        data: { position: { increment: PARKING_OFFSET } },
+      }),
+      db.day.updateMany({
+        where: { tripId: day.tripId, position: { gt: day.position + PARKING_OFFSET } },
+        data: { position: { decrement: PARKING_OFFSET + 1 } },
+      }),
+      db.trip.update({ where: { id: day.tripId }, data: { cityColors: { ...removal.colors } } }),
+    ]);
+    return { status: "deleted" };
   },
 
   async setLegMode(update: LegModeUpdate): Promise<LegModeSet> {

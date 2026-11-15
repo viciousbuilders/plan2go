@@ -161,6 +161,8 @@ describe("refreshLegModes", () => {
         setDayStart: unstubbed,
         setDayCity: unstubbed,
         swapDays: unstubbed,
+        clearDay: unstubbed,
+        deleteDay: unstubbed,
         updateStop: unstubbed,
         removeStop: unstubbed,
         moveStop: unstubbed,

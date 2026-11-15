@@ -5,21 +5,25 @@ import type { Trip } from "@/core/model/trip";
 import { MAX_TRIP_DAYS } from "@/core/model/trip";
 import { formatDateRange } from "@/core/time/date-range";
 import { daysBetween } from "@/core/time/zoned";
-import { computeTrip } from "@/features/day-planner/compute-trip";
 import { daysLost } from "@/features/trip-settings/days-lost";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
-import { legWrites } from "@/server/travel/leg-cache";
 import { addDay } from "@/server/trips/add-day";
 import { calendarDate } from "@/server/trips/calendar-date";
 import { deleteTrip } from "@/server/trips/delete-trip";
 import type { TripSettings } from "@/server/trips/trip-settings-input";
 import { tripSettingsSchema } from "@/server/trips/trip-settings-input";
 import { updateTripSettings } from "@/server/trips/update-trip-settings";
-import { tripTravelProvider } from "@/app/t/[slug]/travel";
 import { answer, guarded, originOf, refuse } from "./tool-call";
 import type { Refusal } from "./trip-edit";
-import { afterChange, editingTrip, editLinkFrom, editLinkInput, NOT_YOURS } from "./trip-edit";
-import { dayRun, tripText } from "./trip-text";
+import {
+  afterChange,
+  editingTrip,
+  editLinkFrom,
+  editLinkInput,
+  NOT_YOURS,
+  wholeTripAfter,
+} from "./trip-edit";
+import { dayRun } from "./trip-text";
 
 /**
  * The trip's name and dates as the planner's form saves them: checked by the
@@ -179,16 +183,7 @@ export function registerSettingsTools(server: McpServer): void {
             .join(" ");
 
           // Every day, since every day may have moved to another date.
-          const now = await prismaTripRepository.findBySlug(edit.slug);
-          if (now === null) {
-            return answer(said);
-          }
-          const writes = legWrites();
-          const days = await computeTrip(now, await tripTravelProvider(now, writes));
-          await writes.landed();
-          return answer(
-            [said, tripText(now, days, `${originOf(ctx) ?? ""}/t/${now.slug}`)].join("\n\n"),
-          );
+          return wholeTripAfter(edit.slug, said, originOf(ctx));
         },
       ),
   );

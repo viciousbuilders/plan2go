@@ -65,4 +65,16 @@ export interface DayActions {
     readonly dayId: string;
     readonly toPosition: number;
   }) => Promise<EditOutcome>;
+
+  /**
+   * Starts the open day over: its stops and its two ends come off, and it
+   * leaves at 09:00 again. Its city and its place in the trip stay.
+   */
+  readonly clearDay: () => Promise<EditOutcome>;
+
+  /**
+   * Takes the open day off the trip, with everything on it. The days after it
+   * each move a day earlier, and the day that takes its place is opened.
+   */
+  readonly deleteDay: () => Promise<EditOutcome>;
 }

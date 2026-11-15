@@ -1,6 +1,6 @@
 import { daysBetween } from "@/core/time/zoned";
 import type { SettingsUpdated, TripRepository } from "../repositories/trip-repository";
-import { DEFAULT_START_AT_MINUTES } from "./day-start";
+import { DEFAULT_START_AT_MINUTES } from "@/core/model/day";
 import type { TripSettings } from "./trip-settings-input";
 
 /**

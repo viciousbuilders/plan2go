@@ -4,6 +4,12 @@ import type { Stop } from "./stop";
 
 export type DayId = string;
 
+/**
+ * A new day begins at 09:00 until the traveller says otherwise, and a day
+ * that is reset begins there again. Minutes from local midnight.
+ */
+export const DEFAULT_START_AT_MINUTES = 9 * 60;
+
 /** A calendar date as YYYY-MM-DD in the trip time zone. */
 export type IsoDate = string;
 

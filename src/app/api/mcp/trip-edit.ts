@@ -12,10 +12,10 @@ import { EDIT_KEY_PATTERN, editKeyHashMatches, hashEditKey } from "@/server/owne
 import { placeDetailsFor } from "@/server/places/place-details";
 import { prismaTripRepository } from "@/server/repositories/prisma-trip-repository";
 import { legWrites } from "@/server/travel/leg-cache";
-import { travelProviderFor } from "@/app/t/[slug]/travel";
+import { travelProviderFor, tripTravelProvider } from "@/app/t/[slug]/travel";
 import { answer, refuse } from "./tool-call";
 import { editLinkParts, noSuchDay, NOT_A_TRIP_LINK, READ_ONLY_LINK, slugFromLink } from "./trip-link";
-import { dayText } from "./trip-text";
+import { dayText, tripText } from "./trip-text";
 
 /**
  * What every tool that changes a trip shares: the editing link read and its key
@@ -137,6 +137,28 @@ export function stopOn(plan: DayPlan, day: number, stop: number): Stop | Refusal
  */
 export function readingOurTableFirst(google: PlacesProvider): PlacesProvider {
   return { ...google, details: (id, session) => placeDetailsFor(id, google, session) };
+}
+
+/**
+ * The whole trip as a change has left it, timed as its page will time it,
+ * under a sentence saying what changed: for a change that moves days to other
+ * dates, since opening hours and timetables go by the date. Read by the read
+ * only link on the deployment the call came in on, which is the link the
+ * text hands on.
+ */
+export async function wholeTripAfter(
+  slug: string,
+  said: string,
+  origin: string | null,
+): Promise<CallToolResult> {
+  const trip = await prismaTripRepository.findBySlug(slug);
+  if (trip === null) {
+    return answer(said);
+  }
+  const writes = legWrites();
+  const days = await computeTrip(trip, await tripTravelProvider(trip, writes));
+  await writes.landed();
+  return answer([said, tripText(trip, days, `${origin ?? ""}/t/${trip.slug}`)].join("\n\n"));
 }
 
 /**

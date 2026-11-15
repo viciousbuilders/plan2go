@@ -180,6 +180,13 @@ edit key gets no such button.
   the strip instead. Tabs are `[role="tablist"][aria-label="Days of this trip"]
   [role="tab"]`, and their `.sr-only` text names each day's city and stops. Empty
   days in one city read the same, so tell them apart by `id="day-tab-<dayId>"`.
+- Under the open day, `button:has-text("Reset this day")` (only on a day with something
+  to reset) and `button:has-text("Delete this day")` each open a
+  `[role="dialog"][aria-modal="true"]` named for the day ("Reset Day 2", "Delete Day 2",
+  or "Day 1 cannot be deleted" on a trip's only day); answer with
+  `[role="dialog"] button:has-text("Reset day")` or `("Delete day")`. While it is
+  written the word reads "Resetting" or "Deleting"; wait for it to go before reading
+  the strip.
 - Every leg with a route has a "Live times in Google Maps" link under the row, in the
   mode the leg uses. Rides are no longer listed on screen; they still go to the PDF
   behind the "Distance of each leg" switch.

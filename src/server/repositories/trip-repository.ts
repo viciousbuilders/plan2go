@@ -124,6 +124,41 @@ export type DaysSwapped =
   | { readonly status: "swapped" }
   | { readonly status: "refused" };
 
+/**
+ * A day put back to how a new day starts: nothing on it, no start or end
+ * point, and leaving at the hour given. Its city and its place in the trip
+ * stay as they are.
+ */
+export interface DayClear {
+  readonly slug: string;
+  readonly editKeyHash: EditKeyHash;
+  readonly dayId: DayId;
+  /** Minutes from local midnight that the day leaves at again. */
+  readonly startAtMinutes: number;
+}
+
+export type DayCleared =
+  | { readonly status: "cleared" }
+  | { readonly status: "refused" };
+
+/**
+ * A day taken off its trip. The days after it each move up a place, so they
+ * take the date before the one they had, and the trip ends a day sooner.
+ */
+export interface DayRemoval {
+  readonly slug: string;
+  readonly editKeyHash: EditKeyHash;
+  readonly dayId: DayId;
+  /** Every city's colour as the days left show it, written with the removal so none changes. */
+  readonly colors: CityColors;
+}
+
+/** "only-day" is a day that cannot go: a trip keeps at least one. */
+export type DayDeleted =
+  | { readonly status: "deleted" }
+  | { readonly status: "refused" }
+  | { readonly status: "only-day" };
+
 /** Which stop to take off its day. */
 export interface StopRemoval {
   readonly slug: string;
@@ -263,6 +298,22 @@ export interface TripRepository {
    * day on another trip, or the same day twice, moves nothing.
    */
   swapDays(swap: DaySwap): Promise<DaysSwapped>;
+
+  /**
+   * Takes everything off a day: its stops, with their stays and notes, and
+   * its start and end points, and sets when it leaves again. Its city and its
+   * place in the trip are kept. The places stay stored for the trip, as they
+   * do when a stop is removed, so a place chosen again is not paid for twice.
+   */
+  clearDay(clear: DayClear): Promise<DayCleared>;
+
+  /**
+   * Takes a day off its trip, with everything on it, and moves every day
+   * after it up a place, so positions stay contiguous from zero. The trip's
+   * first date is kept, so each of those days takes the date before the one
+   * it had. Never the last day left: a trip keeps at least one.
+   */
+  deleteDay(removal: DayRemoval): Promise<DayDeleted>;
 
   /** Changes how one leg of a day is travelled. */
   setLegMode(update: LegModeUpdate): Promise<LegModeSet>;

@@ -101,6 +101,8 @@ function repositoryFor(
       setDayStart: unstubbed,
       setDayCity: unstubbed,
       swapDays: unstubbed,
+      clearDay: unstubbed,
+      deleteDay: unstubbed,
       setLegMode: (update) => {
         modes.push(update);
         return Promise.resolve({ status: "set" });

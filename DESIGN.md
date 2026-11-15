@@ -397,6 +397,30 @@ there is one, and twelve over the end when no leg comes between. The next place 
 the last stop card, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
 nothing drawn edge to edge.
 
+Under the day, 20px under its last row and on its left edge, someone who may edit has
+the two things that act on the day as a whole: words with their glyphs and no edge of
+their own, the quietest things on the day, at the small step in 600, 20px apart.
+**Reset this day**, after a turning arrow, in `ink-muted` going to `ink` under the
+pointer, is offered only on a day with something to reset: a stop, either end, or a
+leaving time other than 09:00. **Delete this day**, after the bin, in `terracotta-700`
+going to 900, is on every day. Both ask first, in the question Delete trip asks over the
+page, saying exactly what goes and what moves, with the dates written out in full:
+"Reset Day 2?", "The 3 stops on it, its start point and its end point come off, and it
+leaves at 09:00 again. It stays in Sydney. This cannot be undone.", answered **Cancel**
+or **Reset day**; and "Delete Day 2?", "Day 2, Wednesday 2 December, comes off the trip
+with the 3 stops on it. Days 3 to 5 each move a day earlier, and the trip ends on Friday
+4 December instead of Saturday 5 December. This cannot be undone.", answered **Cancel**
+or **Delete day**. Resetting starts the day over as a new day starts: every stop off
+with its stay and note, both ends off, leaving at 09:00, in the city it was in and at
+its place in the trip. Deleting takes the day off with everything on it. The trip keeps
+its first date and is a day shorter: every day after it moves up a day, onto the date
+before, so deleting Day 1 moves every other day a day earlier. The day that takes its
+place is opened, or the one before it when the last day went. A trip keeps at least one
+day, so on its only day the question says so, "Day 1 is the trip's only day", and
+offers a reset in its place when there is one to make, or only **Close**. While either
+is written its word says "Resetting" or "Deleting", and neither can be pressed; a
+refusal is said under them. A reader has neither.
+
 **Mobile, below 1024px.** Design 1b of "PlanToGo iPhone", the timeline: one view at a
 time, and a bar of views floating at the foot of the window to go between them. Drawn
 to the design file in everything but its faces and its sizes: the layout, the colours,
@@ -573,6 +597,10 @@ a 16px plus and **Add a place** in `sheet`, set as every offer's words are, deep
 800 under a pointer. The day's thread is the same dotted line as between stops, not a
 dashed line of its own, and runs down beside the card from one end of the day to the
 other.
+
+Under the day, 24px under its last row and on the page's 20px, the same **Reset this
+day** and **Delete this day** as a desk has, each a finger's 44px tall, asking the same
+questions in the same panel in the middle of the window.
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a

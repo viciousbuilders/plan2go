@@ -10,6 +10,8 @@ import type {
   CreatedTrip,
   DayCitySet,
   DaysSwapped,
+  DayCleared,
+  DayDeleted,
   DayEndpointSet,
   DayEndpointUpdate,
   DayStartSet,
@@ -104,6 +106,8 @@ function repositoryFor(
       addStop: () => Promise.reject<StopAdded>(new Error(NOT_STUBBED)),
       setDayCity: () => Promise.reject<DayCitySet>(new Error(NOT_STUBBED)),
       swapDays: () => Promise.reject<DaysSwapped>(new Error(NOT_STUBBED)),
+      clearDay: () => Promise.reject<DayCleared>(new Error(NOT_STUBBED)),
+      deleteDay: () => Promise.reject<DayDeleted>(new Error(NOT_STUBBED)),
       setLegMode: (update) => {
         modes.push(update);
         return Promise.resolve<LegModeSet>({ status: "set" });
