@@ -57,7 +57,7 @@
 .export-pages .printed-trip {
   display: flex;
   align-items: center;
-  gap: calc(16px / var(--sheet-zoom, 1));
+  gap: calc(var(--page-gap, 12px) / var(--sheet-zoom, 1));
   width: max-content;
   zoom: var(--sheet-zoom, 1);
 }
@@ -86,6 +86,51 @@
     color-mix(in srgb, var(--color-neutral-900) 22%, transparent);
 }
 
+/*
+ * The phone's preview comes in from the window's right edge over the export,
+ * as a page a phone goes on to does, and goes back out the same way. The
+ * timing is the place's sheet's, the other panel that slides: the arrival at
+ * 200ms easing out, the going quicker, at 160ms easing in, since a thing
+ * going away does not need to be watched go. Transform only, no opacity, and
+ * nothing under it moves.
+ */
+@keyframes export-preview-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes export-preview-out {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.export-preview-arriving {
+  animation: export-preview-in 200ms ease-out both;
+}
+
+.export-preview-leaving {
+  animation: export-preview-out 160ms ease-in both;
+}
+
+/*
+ * Near enough to at once. Not none: the preview is taken down when its going
+ * ends, and an animation that never ran never ends.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .export-preview-arriving,
+  .export-preview-leaving {
+    animation-duration: 0.01ms;
+  }
+}
+
 /* The spinner in the bar while the file is drawn, a turn every 800ms. It
    still turns under reduced motion, as the search's does, since it is what
    says the export is waiting. */
@@ -100,10 +145,13 @@
 }
 
 @media print {
-  /* The dialog stops floating and becomes the document. */
+  /* The dialog stops floating and becomes the document, wherever a phone's
+     preview had got to on its way in or out. */
   .export-dialog {
     position: static !important;
     display: block !important;
+    animation: none !important;
+    transform: none !important;
     padding: 0 !important;
   }
 

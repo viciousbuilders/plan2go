@@ -1,8 +1,8 @@
 /*
  * The sheet comes in from the left and goes back out the same way.
  *
- * One of the three things that move in this product, and the only panel
- * that does: a sheet that appeared over the map in one frame read as the
+ * One of the few things that move in this product, and one of the two
+ * panels that do, with a phone's export preview: a sheet that appeared over the map in one frame read as the
  * map being replaced, where one that slides in over it reads as something
  * laid on top, which is what it is, and sliding out is how it says where it
  * went. Transform only, no opacity, at the timing DESIGN.md gives the other

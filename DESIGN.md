@@ -1211,9 +1211,10 @@ and it is the product's own.
 
 ## Motion
 
-Six things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Seven things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, the export's bar while
-its file is drawn, and the search on the map, whose movement is its design file's and is written out under Components and in
+its file is drawn, the export's preview on a phone coming in and going back, and the
+search on the map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
 pressed and gliding along when an arrow moves the row, the pill's colours and chevron turning, its
 dot popping and name sliding in on a move, the empty field's words turning over, a
@@ -1251,14 +1252,22 @@ The export's bar: its fill's `width` over 150ms `linear` each time the clock mov
 on, and a spinner beside its words turning once every 800ms. The page setup's chevron
 turns over in one frame, as any panel opening does.
 
+The export's preview on a phone: `transform` from wholly off the right edge of the
+window to its place, 200ms `ease-out`, and back out the same way, 160ms `ease-in`,
+however it is put away, at the place's sheet's timing. It is a page the export goes on
+to, which the chevron on the card that opens it says, and a phone says that by the page
+coming in from the right and going back the way it came; appearing in one frame, it
+read as the export being swapped for something else. Nothing under it moves, and no
+opacity.
+
 Nothing else. No transitions on focus outside the search, any other panel opening, or map
 interaction, and no other transition on hover. Those changes are instant.
 
 Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
-Under `prefers-reduced-motion: reduce`, reordering, the sheet, the day's pill, a city's
-dot and everything in the search are instant too, and the empty field's words stay on
+Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
+day's pill, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
@@ -1460,14 +1469,18 @@ The preview is a card drawn as the setup's is: a page in small at its front, a b
 the accent over a block of sage where the map is and two lines of ink, then **Preview**
 at the place step in bold over how many pages the export comes to, and a chevron. It
 opens over the whole window and the bar of views, on the sunken ground the desk's
-preview stands on: **Close** in `terracotta-800` on the left, which page is in the
-middle of how many in the middle, "Page 2 of 6", and **Export** on the accent's solid
-pill on the right, which puts the preview away and begins the file, or, with no name to
-save it under, puts the preview away and takes the keyboard to the name. Under them the
-sheets themselves, the same ones the desk's preview draws, one beside the next in a row
-that snaps to each, every page scaled to 300px wide on a phone the design's width, or
-as tall as the window has room for less 60px kept clear at its foot, with the pages
-either side peeking in 51px and 16px apart, each on the deepest shadow. Escape puts it
+preview stands on, coming in from the window's right edge as a page a phone goes on to
+does (see Motion): **Back** in `terracotta-800` on the left, a chevron pointing left
+before the word, which page is in the middle of how many in the middle, "Page 2 of 6",
+and **Export** on the accent's solid pill on the right, which puts the preview away and
+begins the file, or, with no name to save it under, puts the preview away and takes the
+keyboard to the name. However it is put away it goes back out to the right. Under them
+the sheets themselves, the same ones the desk's preview draws, one beside the next in a
+row that snaps to each, every page as wide as the window less 24px either side, or as
+tall as the row has room for less 24px at its top and foot, whichever is smaller, with
+the row 60px clear of the window's foot and the pages 12px apart, so 12px of the pages
+either side peeks in, each on the deepest shadow. Design 1b's 300px page with 51px
+either side drew an A4 page under three quarters of the window's width. Escape puts it
 away. Until it is opened the sheets are laid out unseen, for the count and for the
 browser's own print command, which prints them while the view is up, the preview open
 or not.

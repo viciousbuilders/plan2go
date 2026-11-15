@@ -8,6 +8,7 @@ import {
   ChartIcon,
   CheckIcon,
   ChevronDownIcon,
+  ChevronLeftIcon,
   ChevronRightIcon,
   ClockIcon,
   CloseIcon,
@@ -110,12 +111,26 @@ const PROGRESS_CEILING = 90;
 const SAVED_FOR_MS = 2600;
 
 /**
- * How much of the next page and the last peeks in either side of the page on
- * show in a phone's preview, as design 1b gives it: a 300px page on a 402px
- * window. The page is that much narrower than the window on each side, or as
- * tall as the row has room for less this much again, whichever is smaller.
+ * The room between one page and the next in a phone's preview, said to the
+ * stylesheet, which spaces the pages by it.
  */
-const PAGE_PEEK = 51;
+const PAGE_GAP = 12;
+
+/**
+ * How much of the next page and the last peeks in either side of the page on
+ * show in a phone's preview, beyond the room between them: enough of an edge
+ * to say there is more along the row, and no more, so the page itself is as
+ * big as the window lets it be. Design 1b gave it 51 with the room, a 300px
+ * page on a 402px window, which left a page of A4 drawn at under three
+ * quarters of the window's width and barely half its height.
+ */
+const PAGE_PEEK = 12;
+
+/**
+ * What the page keeps clear of the window's sides, and of the top and foot of
+ * the row: the room to the next page and the edge of it that peeks in.
+ */
+const PAGE_SIDE = PAGE_GAP + PAGE_PEEK;
 
 /**
  * The file, saved: a link to it made, followed and taken away again in one
@@ -353,6 +368,11 @@ export function ExportDialog({
   const [onPage, setOnPage] = useState<string | null>(null);
   /** A phone's preview of the sheets, up over the whole window or not. */
   const [previewOpen, setPreviewOpen] = useState(false);
+  /**
+   * The preview on its way back out to the right, still up until it is out,
+   * so the export it slides off is seen under it as it goes.
+   */
+  const [previewLeaving, setPreviewLeaving] = useState(false);
   /** Which of the sheets is in the middle of a phone's preview, counted from zero. */
   const [pageAt, setPageAt] = useState(0);
   /** The row a phone's preview scrolls the sheets along. */
@@ -533,9 +553,10 @@ export function ExportDialog({
       }
       const zoom = Math.max(
         0.05,
-        Math.min((width - 2 * PAGE_PEEK) / sheetWidth, (height - PAGE_PEEK) / sheetHeight),
+        Math.min((width - 2 * PAGE_SIDE) / sheetWidth, (height - 2 * PAGE_SIDE) / sheetHeight),
       );
       row.style.setProperty("--sheet-zoom", String(zoom));
+      row.style.setProperty("--page-gap", `${String(PAGE_GAP)}px`);
       row.style.setProperty("--page-side", `${String((width - sheetWidth * zoom) / 2)}px`);
     };
     fit();
@@ -727,26 +748,37 @@ export function ExportDialog({
 
   const openPreview = (): void => {
     setPageAt(0);
+    setPreviewLeaving(false);
     setPreviewOpen(true);
   };
-  /** The preview put away, the keyboard going back to the button that opened it. */
+  /**
+   * The preview put away: it slides back out to the right, and once it is
+   * out the keyboard goes back to the button that opened it.
+   */
   const closePreview = (): void => {
+    if (previewLeaving) {
+      return;
+    }
     afterPreview.current = previewButton.current;
-    setPreviewOpen(false);
+    setPreviewLeaving(true);
   };
   /**
    * Export from the preview, which goes as the file is asked for, so the
-   * bar is seen filling on the page under it. With no name to save it under,
-   * the preview goes and the keyboard goes to the name, where that is said.
+   * bar is seen filling on the page under it as the preview slides off it.
+   * With no name to save it under, the preview goes and the keyboard goes to
+   * the name, where that is said.
    */
   const exportFromPreview = (): void => {
+    if (previewLeaving) {
+      return;
+    }
     if (nameError) {
       afterPreview.current = nameField.current;
-      setPreviewOpen(false);
+      setPreviewLeaving(true);
       return;
     }
     afterPreview.current = null;
-    setPreviewOpen(false);
+    setPreviewLeaving(true);
     void exportPdf();
   };
   /** Which sheet is nearest the middle of the preview's row, for the count over it. */
@@ -1134,10 +1166,15 @@ export function ExportDialog({
         {/*
          * The sheets, and the preview of them that design 1b opens from its
          * card: over the whole window and the bar of views, on the sunken
-         * ground the desk's preview stands on, Close, which page is in the
+         * ground the desk's preview stands on, Back, which page is in the
          * middle of how many and Export across the top, and the pages one
          * beside the next in a row that snaps to each. Export goes from
          * here and leaves the bar filling on the page. Escape puts it away.
+         *
+         * It comes in from the window's right edge, as a page a phone goes
+         * on to does, which the chevron on the card that opens it says it
+         * will, and goes back out the same way, however it is put away. It
+         * is taken down when it is out.
          *
          * The sheets are the one set, laid out unseen for their count while
          * the preview is down and shown in its row while it is up, so they
@@ -1158,23 +1195,36 @@ export function ExportDialog({
               closePreview();
             }
           }}
+          onAnimationEnd={(event) => {
+            // Only its own going, not a sheet's or a spinner's inside it.
+            if (event.target === event.currentTarget && previewLeaving) {
+              setPreviewLeaving(false);
+              setPreviewOpen(false);
+            }
+          }}
           className={
             previewOpen
-              ? "export-dialog fixed inset-0 z-50 flex flex-col bg-paper-sunken outline-none lg:hidden"
+              ? `export-dialog fixed inset-0 z-50 flex flex-col bg-paper-sunken outline-none lg:hidden ${
+                  previewLeaving ? "export-preview-leaving" : "export-preview-arriving"
+                }`
               : "contents"
           }
         >
-          {/* Across the top, as design 1b has it: Close, which page is in
-              the middle of how many, and Export, which goes from here. */}
+          {/* Across the top, as design 1b has it: the way back, which page
+              is in the middle of how many, and Export, which goes from here.
+              The way back is a chevron pointing where the preview goes and
+              the word for it, as a phone's page a step on says it; a chevron
+              alone would be an icon standing in for a word. */}
           {previewOpen ? (
             <div className="export-chrome flex shrink-0 items-center gap-2 px-4 pt-[max(12px,env(safe-area-inset-top))] pb-[10px]">
               <button
                 ref={previewBack}
                 type="button"
                 onClick={closePreview}
-                className={`-ml-1 shrink-0 rounded-pill px-1 py-3 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FINGER_ROOM} ${FOCUS}`}
+                className={`-ml-2 flex shrink-0 items-center gap-0.5 rounded-pill py-3 pr-1 pl-0.5 text-body/none font-bold text-terracotta-800 hover:text-terracotta-900 ${FINGER_ROOM} ${FOCUS}`}
               >
-                Close
+                <ChevronLeftIcon size={20} strokeWidth={2.75} className="shrink-0" />
+                Back
               </button>
               <p
                 aria-live="polite"
