@@ -3,7 +3,7 @@ import type { DayCity, DayPlan } from "@/core/model/day";
 import type { Stop } from "@/core/model/stop";
 import { computeDay } from "@/core/time/compute-day";
 import type { PlannedDay } from "./compute-trip";
-import { arrangedDays, swappedOrder } from "./day-order";
+import { arrangedDays, movedWithin, swappedOrder } from "./day-order";
 
 function city(name: string): DayCity {
   return { providerPlaceId: `g-${name}`, name, position: { lat: -33.87, lng: 151.21 }, color: 0 };
@@ -99,5 +99,24 @@ describe("arrangedDays", () => {
     expect(arrangedDays(DAYS, ["d1", "d4", "d3"])).toBe(DAYS);
     expect(arrangedDays(DAYS, ["d1", "d4", "d3", "d5"])).toBe(DAYS);
     expect(arrangedDays(DAYS, ["d1", "d1", "d3", "d4"])).toBe(DAYS);
+  });
+});
+
+describe("movedWithin", () => {
+  const stops = ["a", "b", "c", "d"];
+
+  it("puts an entry carried down the list in the place it was let go on", () => {
+    expect(movedWithin(stops, 0, 2)).toEqual(["b", "c", "a", "d"]);
+  });
+
+  it("puts an entry carried up the list in the place it was let go on", () => {
+    expect(movedWithin(stops, 3, 1)).toEqual(["a", "d", "b", "c"]);
+  });
+
+  it("leaves the list as it is for its own place or a place it does not have", () => {
+    expect(movedWithin(stops, 2, 2)).toEqual(stops);
+    expect(movedWithin(stops, 5, 1)).toBe(stops);
+    expect(movedWithin(stops, 1, 4)).toBe(stops);
+    expect(movedWithin(stops, 1, -1)).toBe(stops);
   });
 });

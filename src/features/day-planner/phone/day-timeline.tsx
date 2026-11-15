@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useRef } from "react";
+import type { MouseEvent, ReactNode } from "react";
+import { useOptimistic, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import type { Conflict } from "@/core/model/conflict";
 import { conflictsAtStop } from "@/core/model/conflict";
 import type { DayEndpoint, DayPlan } from "@/core/model/day";
@@ -13,11 +14,13 @@ import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
 import { ENDS, MARKS } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
+import { movedWithin } from "../day-order";
 import { formatDayTime } from "../format-day-time";
 import { LeaveAt } from "../leave-at";
 import { Notice } from "@/ui/notice";
 import { TimelineLeg } from "./timeline-leg";
-import { useStopHold } from "./use-stop-hold";
+import type { StopCarry } from "./use-stop-carry";
+import { useStopCarry } from "./use-stop-carry";
 
 interface DayTimelineProps {
   readonly day: DayPlan;
@@ -184,6 +187,36 @@ function EndOffer({
 }
 
 /**
+ * How a stop's card stands while a stop is carried on the day: as it always
+ * is; offered as somewhere to let the carried stop go; the one under the
+ * finger, where letting go puts it; the carried stop's own place, which the
+ * card keeps with nothing on it; or the picture of the carried stop, drawn
+ * wherever the finger has taken it.
+ */
+type StopLook = "rest" | "offered" | "over" | "left" | "picture";
+
+/**
+ * A card's ground and edges in each look. Offered, dashed in the dashed
+ * outlines' own ink, and under the finger dashed in the accent over the step
+ * a card takes under a pointer, as a day in the strip is offered to a carried
+ * stop, so a place in the day and a day are offered alike. The carried stop's
+ * own place keeps its raised paper and shadow with nothing on it, the empty
+ * card a carried day leaves in the strip. Its picture is lifted onto the
+ * shadow of what floats; how faint it is is the picture's frame's to say.
+ */
+const STOP_LOOK: Readonly<Record<StopLook, string>> = {
+  rest: "bg-paper-raised shadow-sm hover:bg-paper-sunken",
+  offered:
+    "bg-paper-raised shadow-sm outline-[1.5px] outline-offset-2 outline-dashed outline-rule-strong",
+  over: "bg-paper-sunken shadow-sm outline-2 outline-offset-2 outline-dashed outline-terracotta",
+  left: "bg-paper-raised shadow-sm *:opacity-0",
+  picture: "bg-paper-raised shadow-md",
+};
+
+/** What a stop's card answers a press with while stops can be carried. */
+type StopHandlers = ReturnType<StopCarry["handlers"]>;
+
+/**
  * A stop, as the phone's day design draws it: a card of raised paper at the
  * row radius under the small shadow, full width, with no number on it. At its
  * left, on a block of terracotta 100 as tall as the card less its padding,
@@ -199,12 +232,9 @@ function EndOffer({
  * the stop stays on the card under the words, a conflict with its numbers in
  * it, and the note for whoever is travelling.
  *
- * Held, as a day in the strip is held, the card lifts and is carried to
- * another day in the strip (see useStopHold): at half strength while it is,
- * as a carried day is, and on the shadow of what floats. Over the strip it
- * goes down to a quarter, since it is as wide as the strip and taller than
- * a day, and at half its words crossed the days' own; at a quarter the day
- * under the finger reads through it, dashed edge and all.
+ * Held, as a day in the strip is held, it is carried along the day or onto
+ * another day (see useStopCarry). Drawn as its picture, it is the same card
+ * with nothing to press and nothing read out.
  */
 function TimelineStop({
   position,
@@ -213,8 +243,11 @@ function TimelineStop({
   note,
   conflicts,
   leaveAt,
+  at,
+  look,
+  holdable,
+  handlers,
   onOpen,
-  onCarry,
 }: {
   /** Its number in the day, counted from one, read out before its name. */
   readonly position: number;
@@ -228,25 +261,32 @@ function TimelineStop({
    * leaves, for someone who may edit. Null on every other stop.
    */
   readonly leaveAt: ReactNode;
-  readonly onOpen: () => void;
-  /** Null while the stop cannot be carried to another day. */
-  readonly onCarry: ((stopId: string | null) => void) | null;
+  /** Its place in the day as shown, by which a carried stop finds it. Null for the picture. */
+  readonly at: number | null;
+  readonly look: StopLook;
+  /** Whether it can be held and carried, which keeps the phone's own long press, its menu and the words it would pick out, from answering instead. */
+  readonly holdable: boolean;
+  readonly handlers: StopHandlers;
+  /** Opens the place. Null for the picture, which opens nothing. */
+  readonly onOpen: ((event: MouseEvent<HTMLButtonElement>) => void) | null;
 }) {
-  const button = useRef<HTMLButtonElement | null>(null);
-  const hold = useStopHold(stop.stopId, button, onCarry);
   const times = leaveAt !== null || stop.arrival !== null;
+  const words = (
+    <>
+      <span className="sr-only">{`Stop ${String(position)}, `}</span>
+      <span className="font-display text-lead break-words text-ink">{stop.placeName}</span>
+      {address === null ? null : (
+        <span className="text-small break-words text-neutral-700">{address}</span>
+      )}
+    </>
+  );
   return (
-    /* A card that can be held keeps the phone's own long press, its menu and
-       the words it would pick out, from answering the hold instead. */
     <div
-      style={hold.lift === null ? undefined : { translate: `0 ${String(hold.lift)}px` }}
-      className={`relative flex gap-3.5 rounded-row bg-paper-raised py-2 pr-4 pl-2.5 ${
-        onCarry === null ? "" : "select-none [-webkit-touch-callout:none]"
-      } ${
-        hold.lift === null
-          ? "shadow-sm hover:bg-paper-sunken"
-          : `z-[5] shadow-md ${hold.overStrip ? "opacity-25" : "opacity-50"}`
-      }`}
+      data-stop-at={at ?? undefined}
+      aria-hidden={look === "picture" ? true : undefined}
+      className={`relative flex gap-3.5 rounded-row py-2 pr-4 pl-2.5 ${
+        holdable ? "select-none [-webkit-touch-callout:none]" : ""
+      } ${STOP_LOOK[look]}`}
     >
       {times ? (
         /* Over the button's reach only when it holds the pill that sets the
@@ -274,26 +314,20 @@ function TimelineStop({
       ) : null}
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-1.5">
-        <button
-          ref={button}
-          type="button"
-          {...hold.handlers}
-          // A press that carried the stop somewhere opens nothing.
-          onClick={(event) => {
-            if (!hold.carriedClick(event)) {
-              onOpen();
-            }
-          }}
-          className="flex flex-col gap-1 text-left after:absolute after:inset-0 after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
-        >
-          <span className="sr-only">{`Stop ${String(position)}, `}</span>
-          <span className="font-display text-lead break-words text-ink">{stop.placeName}</span>
-          {address === null ? null : (
-            <span className="text-small break-words text-neutral-700">{address}</span>
-          )}
-        </button>
-        {conflicts.map((conflict, at) => (
-          <ConflictNotice key={`${conflict.kind}-${String(at)}`} conflict={conflict} />
+        {onOpen === null ? (
+          <div className="flex flex-col gap-1">{words}</div>
+        ) : (
+          <button
+            type="button"
+            {...handlers}
+            onClick={onOpen}
+            className="flex flex-col gap-1 text-left after:absolute after:inset-0 after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
+          >
+            {words}
+          </button>
+        )}
+        {conflicts.map((conflict, index) => (
+          <ConflictNotice key={`${conflict.kind}-${String(index)}`} conflict={conflict} />
         ))}
         {note === null ? null : (
           <p className="flex items-start gap-[6px] text-small whitespace-pre-line text-neutral-700">
@@ -438,13 +472,58 @@ export function DayTimeline({
   leaveError,
   rearranging,
 }: DayTimelineProps) {
+  const dayRef = useRef<HTMLDivElement | null>(null);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const [moving, startMoving] = useTransition();
   /**
-   * A stop let go on another day leaves this one at once, while the server
-   * moves it and works out both days' times, as on a desk. Until it has, or
-   * while the day changes places with another, the day is busy: faded under
-   * the line saying so, and nothing on it is picked up.
+   * The order as it was let go, shown at once while the server works out the
+   * times it comes to, as on a desk: the cards keep their old times until
+   * then, and the real answer replaces it when it lands, or the old order
+   * comes back if it was refused.
    */
-  const busy = rearranging || leaving !== null;
+  const [shownStops, reorderShown] = useOptimistic(
+    computed.stops,
+    (shown: readonly ComputedStop[], change: { readonly from: number; readonly to: number }) =>
+      movedWithin(shown, change.from, change.to),
+  );
+  /**
+   * The stops as shown: the order as it was let go, less a stop let go on
+   * another day, which leaves this one at once while the server moves it and
+   * works out both days' times, as on a desk. While either is being written,
+   * or the day changes places with another, the day is busy: faded under the
+   * line saying so, and nothing on it is picked up.
+   */
+  const listed = leaving === null ? shownStops : shownStops.filter((stop) => stop.stopId !== leaving);
+  const busy = rearranging || leaving !== null || moving;
+
+  /** Puts the stop carried from one place in the day in another, the stops between closing up. */
+  const move = (from: number, to: number): void => {
+    const carried = listed[from];
+    if (actions === null || carried === undefined || from === to) {
+      return;
+    }
+    setMoveError(null);
+    startMoving(async () => {
+      reorderShown({ from, to });
+      const outcome = await actions.moveStop({ stopId: carried.stopId, toPosition: to });
+      setMoveError(outcome.error);
+    });
+  };
+
+  /**
+   * A stop can be picked up by someone who may edit, while the day is not
+   * busy, when there is somewhere for it to go: another place in the day, or
+   * another day.
+   */
+  const ready = actions !== null && !busy && (listed.length > 1 || onCarry !== null);
+  const carry = useStopCarry({
+    day: dayRef,
+    stopIds: listed.map((stop) => stop.stopId),
+    ready,
+    onCarry,
+    onMove: move,
+  });
+  const lifted = carry.carried;
   /**
    * When the day leaves, set where that time shows: on the start point's
    * time when the day has one, and otherwise on the first stop's arrival.
@@ -513,14 +592,18 @@ export function DayTimeline({
     lines.push({ key: "nothing", roomy: false, node: <NothingPlanned onFindPlace={onFindPlace} /> });
   }
 
-  /** How many stops are shown so far, which numbers each one read out. */
-  let shown = 0;
-  computed.stops.forEach((stop, index) => {
-    // Gone with the way to it, until the day's new times come back.
-    if (stop.stopId === leaving) {
-      return;
-    }
-    shown += 1;
+  /** What a stop's card says, the same on the card and on the picture of it being carried. */
+  const faceOf = (stop: ComputedStop) => {
+    const plan = stops.get(stop.stopId);
+    return {
+      stop,
+      address: plan?.place.address ?? null,
+      note: plan?.note ?? null,
+      conflicts: conflictsAtStop(computed.conflicts, stop.stopId),
+    };
+  };
+
+  listed.forEach((stop, index) => {
     const leg = computed.legs[index + legOffset];
     const planned = leg === undefined ? undefined : legs[leg.index];
     if (leg !== undefined && planned !== undefined) {
@@ -530,26 +613,38 @@ export function DayTimeline({
         node: <TimelineLeg leg={leg} planned={planned} onChange={changeLeg} />,
       });
     }
-    const plan = stops.get(stop.stopId);
+    const look: StopLook =
+      lifted === null
+        ? "rest"
+        : lifted.index === index
+          ? "left"
+          : lifted.over === index
+            ? "over"
+            : "offered";
     lines.push({
       key: stop.stopId,
       roomy: false,
       node: (
         <TimelineStop
-          position={shown}
-          stop={stop}
-          address={plan?.place.address ?? null}
-          note={plan?.note ?? null}
-          conflicts={conflictsAtStop(computed.conflicts, stop.stopId)}
+          position={index + 1}
+          {...faceOf(stop)}
           leaveAt={index === 0 && day.start === null ? leaveAt : null}
-          onOpen={() => {
-            onOpenStop(stop.stopId);
+          at={index}
+          look={look}
+          holdable={ready}
+          handlers={carry.handlers(index)}
+          // A press that carried the stop somewhere opens nothing.
+          onOpen={(event) => {
+            if (!carry.carriedClick(event)) {
+              onOpenStop(stop.stopId);
+            }
           }}
-          onCarry={busy ? null : onCarry}
         />
       ),
     });
   });
+  /** The stop being carried, for its picture, drawn wherever the finger has taken it. */
+  const carriedStop = lifted === null ? undefined : listed[lifted.index];
 
   if (onFindPlace !== null && day.stops.length > 0) {
     lines.push({
@@ -608,10 +703,11 @@ export function DayTimeline({
 
   return (
     <>
-      {/* Faded while the day changes places with another, or a stop goes to
-          another day, under the line a desk says it with: its times are the
-          ones worked out before, until the new ones arrive. */}
-      <div className={`relative ${busy ? "opacity-55" : ""}`} aria-busy={busy}>
+      {/* Faded while the day changes places with another, or a stop moves
+          within it or to another day, under the line a desk says it with:
+          its times are the ones worked out before, until the new ones
+          arrive. */}
+      <div ref={dayRef} className={`relative ${busy ? "opacity-55" : ""}`} aria-busy={busy}>
         {/* From the first thing's middle to the last's, behind them all: every
             card and pill is opaque, so the thread shows only in the room
             between them and through the legs, whose discs stand on it. The
@@ -631,11 +727,39 @@ export function DayTimeline({
       {busy ? (
         <p className="mt-3 px-[6px] text-micro text-ink-muted">Working out the new times.</p>
       ) : null}
-      {leaveError === null ? null : (
+      {(moveError ?? leaveError) === null ? null : (
         <Notice role="alert" className="mt-3">
-          {leaveError}
+          {moveError ?? leaveError}
         </Notice>
       )}
+
+      {/* The carried stop's picture, over everything on the page wherever
+          the finger has taken it, so neither the day nor the strip cuts it
+          off, as a carried day's is: the same card at the same width, at
+          half strength so what it is over shows through it, and at a
+          quarter over the strip, since it is as wide as the strip and its
+          words crossed the days' at half. For the eye only; the finger goes
+          through it to whatever is under it. */}
+      {lifted === null || carriedStop === undefined
+        ? null
+        : createPortal(
+            <div
+              className={`pointer-events-none fixed z-50 ${lifted.overStrip ? "opacity-25" : "opacity-50"}`}
+              style={{ left: lifted.left, top: lifted.top, width: lifted.width }}
+            >
+              <TimelineStop
+                position={lifted.index + 1}
+                {...faceOf(carriedStop)}
+                leaveAt={null}
+                at={null}
+                look="picture"
+                holdable={false}
+                handlers={{}}
+                onOpen={null}
+              />
+            </div>,
+            document.body,
+          )}
     </>
   );
 }

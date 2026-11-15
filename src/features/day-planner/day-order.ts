@@ -59,3 +59,21 @@ export function arrangedDays(
   }
   return arranged;
 }
+
+/**
+ * The list with one entry carried from one place to another, the rest closing
+ * up: a stop let go on another stop's place in the day takes that place, as
+ * the server puts it there. A place outside the list leaves it as it is.
+ */
+export function movedWithin<T>(list: readonly T[], from: number, to: number): readonly T[] {
+  if (to < 0 || to >= list.length) {
+    return list;
+  }
+  const moved = list.slice();
+  const [taken] = moved.splice(from, 1);
+  if (taken === undefined) {
+    return list;
+  }
+  moved.splice(to, 0, taken);
+  return moved;
+}

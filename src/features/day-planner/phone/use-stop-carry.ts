@@ -2,8 +2,10 @@ import type { MouseEvent, PointerEvent, RefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import { HOLD_MS, overTheStrip } from "../day-carry";
 import { useDayDrop } from "../day-drop";
+import type { CardSpan } from "../touch-carry";
 import {
   CARRY_SLOP,
+  cardUnder,
   dayUnder,
   daySpans,
   edgeScroll,
@@ -20,19 +22,30 @@ import {
  */
 interface Press {
   readonly pointer: number;
+  /** The stop pressed, by its place in the day. */
+  readonly index: number;
   /** A finger, which holds the card before it lifts, so a swipe still scrolls the day. */
   readonly finger: boolean;
   /** Where the press went down, in the window. */
   readonly fromX: number;
   readonly fromY: number;
-  /** What the day scrolls in, null being the window, and how far it had scrolled then. */
-  readonly scroller: HTMLElement | null;
-  readonly fromScrolled: number;
   /** Whether the card has lifted and is being carried, rather than only pressed. */
   lifted: boolean;
   /** Where the finger is now, in the window. */
   x: number;
   y: number;
+  /** Where in the card the finger took it, and how wide it is, measured as it lifts. */
+  grabX: number;
+  grabY: number;
+  width: number;
+  /** What the day scrolls in, null being the window, measured as it lifts. */
+  scroller: HTMLElement | null;
+  /** Where every card is down the content of what scrolls, measured as it lifts. */
+  cards: readonly CardSpan[];
+  /** The card it is over: its own until it reaches another, and the last one it was over off the day. */
+  overCard: number;
+  /** Whether the finger is over the strip of days, where no card is under it. */
+  overStrip: boolean;
   /** The day in the strip the finger is over, by its place in the trip, or null. */
   overDay: number | null;
   /** The wait a finger's press makes before the card lifts. */
@@ -43,7 +56,7 @@ interface Press {
   readonly putBack: (event: KeyboardEvent) => void;
 }
 
-/** What a stop's card answers a press with, while it can be carried. */
+/** What a stop's card answers a press with, while stops can be carried. */
 type HoldHandlers = Partial<{
   readonly onPointerDown: (event: PointerEvent<HTMLButtonElement>) => void;
   readonly onPointerMove: (event: PointerEvent<HTMLButtonElement>) => void;
@@ -53,20 +66,48 @@ type HoldHandlers = Partial<{
   readonly onContextMenu: (event: MouseEvent<HTMLButtonElement>) => void;
 }>;
 
-export interface StopHold {
-  /** How far down from its place the card is drawn while it is carried, or null while it is not. */
-  readonly lift: number | null;
+/** What the day draws of a stop being carried. */
+export interface CarriedStop {
+  /** The stop carried, by its place in the day. */
+  readonly index: number;
+  /** Where its picture is drawn, in the window, wherever the finger has taken it. */
+  readonly left: number;
+  readonly top: number;
+  readonly width: number;
   /**
-   * Whether the finger carrying it is over the strip of days, where the card
-   * is drawn over the days it could go to, and their words cross its own.
+   * The card it is over, whose place it takes when let go: null over its own
+   * place, and over the strip of days, where a day is what it goes to.
    */
+  readonly over: number | null;
+  /** Whether the finger is over the strip, where the picture is drawn fainter so the days read. */
   readonly overStrip: boolean;
-  readonly handlers: HoldHandlers;
+}
+
+export interface StopCarry {
+  readonly carried: CarriedStop | null;
+  readonly handlers: (index: number) => HoldHandlers;
   /**
-   * Whether a click ends a press that carried the stop, which opens nothing.
-   * A click from the keyboard comes with no press, and always opens it.
+   * Whether a click ends a press that carried a stop, which opens nothing. A
+   * click from the keyboard comes with no press, and always opens it.
    */
   readonly carriedClick: (event: MouseEvent<HTMLButtonElement>) => boolean;
+}
+
+interface StopCarryOptions {
+  /** The phone's day. Its cards are the elements in it marked with their place in the day. */
+  readonly day: RefObject<HTMLDivElement | null>;
+  /** The stops' ids, in the order the day shows them. */
+  readonly stopIds: readonly string[];
+  /** Whether a stop can be picked up now. */
+  readonly ready: boolean;
+  /**
+   * Tells the planner which stop is being carried, or that none is, so the
+   * strip offers its other days. Null on a trip of one day, where a stop has
+   * only its own day to go to.
+   */
+  readonly onCarry: ((stopId: string | null) => void) | null;
+  /** Lets a stop go on another stop's place in the day, which puts it there. */
+  readonly onMove: (from: number, to: number) => void;
 }
 
 /** The strip of days, which runs on sideways under a finger held near either end of it. */
@@ -75,48 +116,68 @@ function stripOf(): HTMLElement | null {
 }
 
 /**
- * A stop on a phone carried off its day onto another in the strip, as a day
- * in the strip is carried onto another: a finger holds the card first, since
- * a finger moving at once is scrolling the day, and the day scrolls. A mouse,
+ * A stop on a phone carried along its day or onto another day in the strip,
+ * as a day in the strip is carried: a finger holds the card first, since a
+ * finger moving at once is scrolling the day, and the day scrolls. A mouse,
  * on a window narrow enough to be laid out as a phone, lifts it once it has
  * been dragged a few pixels, so a click still opens the place.
  *
- * Once lifted the card goes up and down with the finger, over the rest of the
- * day and the strip, and every other day in the strip is offered, the one
- * under the finger outlined as where the stop would go. Held near the top or
- * the foot of the window the page runs on under it, so a strip scrolled out
- * of sight comes back, and held near either end of the strip, level with it,
- * the strip runs on, so a day not in sight can be reached. Let go on a day it
- * goes last on that day, as Move to another day in its sheet takes it. Let go
- * anywhere else, cut off, or put down with Escape, it goes back and nothing
- * moves. Its place in its own day is changed in its sheet, not here.
+ * Lifted, a picture of the card goes wherever the finger takes it, drawn over
+ * the page, while the card keeps its place in the day with nothing on it.
+ * Every other card is offered, and so is every other day in the strip; the
+ * one under the finger is where it goes. Between two cards, where a leg is,
+ * it stays on the card it was last over, and above the first card or below
+ * the last it is that card, so a stop can be carried to either end of the
+ * day without landing exactly on the end one. Held near the top or the foot
+ * of the window the page runs on under it, so a strip scrolled out of sight
+ * comes back, and held near either end of the strip, level with it, the
+ * strip runs on, so a day not in sight can be reached.
  *
- * The day under the finger, the offer and the move itself are the planner's,
- * through the same calls a card carried on a desk makes, so a stop is moved
- * to another day in one place however it was carried there.
+ * Let go on another card, the stop takes its place, the cards between closing
+ * up, as a card dragged on a desk does. Let go on a day, it goes last on that
+ * day, as Move to another day in its sheet takes it. Let go over its own
+ * place, over the strip but not a day, cut off, or put down with Escape, it
+ * goes back and nothing moves.
  */
-export function useStopHold(
-  stopId: string,
-  card: RefObject<HTMLButtonElement | null>,
-  onCarry: ((stopId: string | null) => void) | null,
-): StopHold {
+export function useStopCarry({ day, stopIds, ready, onCarry, onMove }: StopCarryOptions): StopCarry {
   const dayDrop = useDayDrop();
   const press = useRef<Press | null>(null);
-  /** Whether the latest press carried the stop, so the click that ends it opens nothing. */
+  /** Whether the latest press carried a stop, so the click that ends it opens nothing. */
   const carried = useRef(false);
-  const [lift, setLift] = useState<number | null>(null);
-  const [overStrip, setOverStrip] = useState(false);
+  const [lifted, setLifted] = useState<CarriedStop | null>(null);
 
-  /** The card drawn as far down as the finger has gone, and the day it is over. */
+  /** Every card on the day, measured down the content of what it scrolls in. */
+  const measure = (scroller: HTMLElement | null): readonly CardSpan[] => {
+    const scrolled = scrolledBy(scroller);
+    return Array.from(
+      day.current?.querySelectorAll<HTMLElement>("[data-stop-at]") ?? [],
+      (element) => {
+        const box = element.getBoundingClientRect();
+        return { index: Number(element.dataset.stopAt), top: box.top + scrolled, bottom: box.bottom + scrolled };
+      },
+    );
+  };
+
+  /** The picture drawn where the finger is, and what it is over: a day in the strip, or a card. */
   const follow = (held: Press): void => {
-    setLift(held.y + scrolledBy(held.scroller) - (held.fromY + held.fromScrolled));
     const strip = stripOf();
-    setOverStrip(strip !== null && overTheStrip(held.x, held.y, strip.getBoundingClientRect()));
-    const day = dayUnder(held.x, held.y, daySpans());
-    if (day !== held.overDay) {
-      held.overDay = day;
-      dayDrop.setOverDay(day);
+    held.overStrip = strip !== null && overTheStrip(held.x, held.y, strip.getBoundingClientRect());
+    const overDay = dayUnder(held.x, held.y, daySpans());
+    if (overDay !== held.overDay) {
+      held.overDay = overDay;
+      dayDrop.setOverDay(overDay);
     }
+    if (!held.overStrip) {
+      held.overCard = cardUnder(held.y + scrolledBy(held.scroller), held.cards, held.overCard);
+    }
+    setLifted({
+      index: held.index,
+      left: held.x - held.grabX,
+      top: held.y - held.grabY,
+      width: held.width,
+      over: held.overStrip || held.overCard === held.index ? null : held.overCard,
+      overStrip: held.overStrip,
+    });
   };
 
   /**
@@ -152,20 +213,30 @@ export function useStopHold(
     held.frame = requestAnimationFrame(runOn);
   };
 
-  /** The card lifts: from here it goes with the finger, and the other days take it. */
+  /** The card lifts: every card is measured where it is, and from here its picture goes with the finger. */
   const liftUp = (held: Press): void => {
-    if (onCarry === null) {
+    const own = day.current?.querySelector<HTMLElement>(`[data-stop-at="${String(held.index)}"]`);
+    if (own === null || own === undefined) {
       return;
     }
+    const box = own.getBoundingClientRect();
+    held.grabX = held.fromX - box.left;
+    held.grabY = held.fromY - box.top;
+    held.width = box.width;
+    held.scroller = scrollerOf(own);
+    held.cards = measure(held.scroller);
     held.lifted = true;
     carried.current = true;
-    onCarry(stopId);
+    onCarry?.(stopIds[held.index] ?? null);
     follow(held);
     held.frame = requestAnimationFrame(runOn);
     window.addEventListener("keydown", held.putBack);
   };
 
-  /** Let go: on a day in the strip the stop goes there; anywhere else it goes back. */
+  /**
+   * Let go: on a day in the strip the stop goes there, and on another card it
+   * takes that card's place; anywhere else, or cut off, it goes back.
+   */
   const letGo = (drop: boolean): void => {
     const held = press.current;
     if (held === null) {
@@ -178,18 +249,21 @@ export function useStopHold(
     if (!held.lifted) {
       return;
     }
-    setLift(null);
-    setOverStrip(false);
+    setLifted(null);
     if (drop && held.overDay !== null) {
+      // The planner stops carrying it as it moves it.
       dayDrop.dropOnDay(held.overDay);
-    } else {
-      onCarry?.(null);
+      return;
+    }
+    onCarry?.(null);
+    if (drop && !held.overStrip && held.overCard !== held.index) {
+      onMove(held.index, held.overCard);
     }
   };
 
-  const pressDown = (event: PointerEvent<HTMLButtonElement>): void => {
+  const pressDown = (event: PointerEvent<HTMLButtonElement>, index: number): void => {
     carried.current = false;
-    if (onCarry === null || press.current !== null || event.button !== 0) {
+    if (!ready || press.current !== null || event.button !== 0) {
       return;
     }
     const finger = event.pointerType !== "mouse";
@@ -199,17 +273,22 @@ export function useStopHold(
     if (!finger) {
       event.currentTarget.setPointerCapture(event.pointerId);
     }
-    const scroller = scrollerOf(event.currentTarget);
     const held: Press = {
       pointer: event.pointerId,
+      index,
       finger,
       fromX: event.clientX,
       fromY: event.clientY,
-      scroller,
-      fromScrolled: scrolledBy(scroller),
       lifted: false,
       x: event.clientX,
       y: event.clientY,
+      grabX: 0,
+      grabY: 0,
+      width: 0,
+      scroller: null,
+      cards: [],
+      overCard: index,
+      overStrip: false,
       overDay: null,
       hold: 0,
       frame: 0,
@@ -254,14 +333,13 @@ export function useStopHold(
 
   /**
    * A finger carrying a stop is not scrolling the page under it. Said in a
-   * listener of its own on the card, because React listens to a moving finger
-   * passively, and a passive listener cannot stop the scroll; on the card
+   * listener of its own on the day, because React listens to a moving finger
+   * passively, and a passive listener cannot stop the scroll; on the day
    * rather than the window, so a swipe anywhere else is never held up by it.
    */
-  const movable = onCarry !== null;
   useEffect(() => {
-    const node = card.current;
-    if (!movable || node === null) {
+    const node = day.current;
+    if (!ready || node === null) {
       return;
     }
     const keepStill = (event: TouchEvent): void => {
@@ -273,9 +351,9 @@ export function useStopHold(
     return () => {
       node.removeEventListener("touchmove", keepStill);
     };
-  }, [movable, card]);
+  }, [ready, day]);
 
-  /** A card that goes while it is pressed lets go of the press, as letting go does. */
+  /** A day that goes while a card is pressed lets go of the press, as letting go does. */
   useEffect(
     () => () => {
       const held = press.current;
@@ -289,13 +367,14 @@ export function useStopHold(
   );
 
   return {
-    lift,
-    overStrip,
-    handlers:
-      onCarry === null
+    carried: lifted,
+    handlers: (index) =>
+      !ready
         ? {}
         : {
-            onPointerDown: pressDown,
+            onPointerDown: (event) => {
+              pressDown(event, index);
+            },
             onPointerMove: pressMove,
             onPointerUp: (event) => {
               if (press.current?.pointer === event.pointerId) {

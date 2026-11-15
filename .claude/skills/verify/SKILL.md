@@ -187,13 +187,16 @@ edit key gets no such button.
   the strip instead. Tabs are `[role="tablist"][aria-label="Days of this trip"]
   [role="tab"]`, and their `.sr-only` text names each day's city and stops. Empty
   days in one city read the same, so tell them apart by `id="day-tab-<dayId>"`.
-- On a phone a stop goes to another day by holding its card and carrying it onto a day
-  in the strip, driven the same way: CDP touchStart on the card, 600ms, touchMove steps
-  to the tab, touchEnd (a mouse lifts it after 6px, as a day). While it is held the
-  other days carry `data-day-drop` and the card is the one `div.z-[5]`; the move is
-  written once "Working out the new times." goes. Let go off the strip, nothing moves.
-  A trip of one day and a reader have nothing to hold. Mind where a drag ends: a short
-  day puts the strip within 150px of its first card.
+- On a phone a stop is reordered or sent to another day by holding its card and
+  carrying it onto another card or onto a day in the strip, driven the same way: CDP
+  touchStart on the card, 600ms, touchMove steps, touchEnd (a mouse lifts it after
+  6px, as a day). The phone's cards are `[data-stop-at]` (the desk's hidden ones are
+  `[data-stop-index]`). While one is held its picture is `body > div.fixed.z-50`, its
+  own card has its words at opacity 0, every other card has a dashed outline (the one
+  under the finger in terracotta), and the other days carry `data-day-drop`. The move
+  is written once "Working out the new times." goes. Let go over its own place, or over
+  the strip but not a day, nothing moves. A reader has nothing to hold. Mind where a
+  drag ends: a short day puts the strip within 150px of its first card.
 - Under the open day, `button:has-text("Reset this day")` (only on a day with something
   to reset) and `button:has-text("Delete this day")` each open a
   `[role="dialog"][aria-modal="true"]` named for the day ("Reset Day 2", "Delete Day 2",
