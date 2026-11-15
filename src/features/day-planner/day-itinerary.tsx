@@ -465,8 +465,22 @@ export function DayItinerary({
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
   const [moving, startMoving] = useTransition();
+  const dayDrop = useDayDrop();
   /** Whether a carried stop is over a day in the strip, where the cards are not what it lands on. */
-  const overDay = useDayDrop().overDay;
+  const overDay = dayDrop.overDay;
+
+  // A stop let go on another day leaves this one at once, before the browser
+  // says the drag is over, and the "dragend" it then sends goes to a card no
+  // longer on the page, which React never hears. The planner stops carrying
+  // the stop as it is let go, so that is the end of the drag here as well.
+  // Without this the card that took the stop's place stayed faded as the one
+  // being dragged, and another card outlined as where it would land, until
+  // the page was loaded again. Adjusted during the render rather than in an
+  // effect, so neither is painted first.
+  if (!dayDrop.carrying && (dragIndex !== null || overIndex !== null)) {
+    setDragIndex(null);
+    setOverIndex(null);
+  }
   /**
    * The order as it was dropped, shown at once, while the server works out
    * what the new order does to the times. The times on the cards are the old

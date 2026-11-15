@@ -168,6 +168,13 @@ edit key gets no such button.
 - Playwright's `dragTo` does not fire the HTML5 drop here. Dispatch `dragstart` on the
   card, `dragover` and `drop` on the target, `dragend` on the card, all with one
   `DataTransfer` handle from `page.evaluateHandle(() => new DataTransfer())`.
+- A real mouse drag works too, and is the one to use when the drop takes the dragged
+  card off the page, as a stop let go on another day's tab does: `mouse.down()` on the
+  card, `mouse.move` in a dozen steps 40ms apart, a pause over the target, `mouse.up()`.
+  Chrome then sends `dragend` to the card that is no longer there, as it does for a
+  person. A dispatched `dragend` goes to whatever card a locator finds in that place
+  afterwards, which hid a drag that never ended: the card taking the moved stop's place
+  stayed faded until a reload.
 - A drop reorders on screen at once (`useOptimistic`) and shows "Working out the new
   times." with `aria-busy` until the server answers; wait for that line to go before
   reading times.
