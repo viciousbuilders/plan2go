@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { formatDuration } from "@/core/time/minutes";
 import { CalendarIcon, ChevronDownIcon, ChevronUpIcon, ClockIcon, MinusIcon, PlusIcon } from "@/ui/icons";
 import { Notice } from "@/ui/notice";
+import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { DayPlan } from "@/core/model/day";
 import type { PlannedDay } from "../compute-trip";
 import type { DayActions } from "../day-actions";
@@ -189,6 +190,7 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
   const [error, setError] = useState<string | null>(null);
   const [moving, startMoving] = useTransition();
   const [, startWriting] = useTransition();
+  const watchDays = useScrollBar("x");
 
   const index = day.computed.stops.findIndex((stop) => stop.stopId === stopId);
   const stop = day.computed.stops[index];
@@ -326,11 +328,20 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
 
       {/* The other days, as the map's foot names them, in a row that runs to
           the sheet's edges and scrolls sideways on a trip too long for it, as
-          the sheet's strip of photos does. */}
+          the sheet's strip of photos does.
+
+          Measured for its own line along its foot, as that strip is. Left
+          unmeasured, it had no line of its own to draw, and under the pointer
+          it drew the sheet's instead, borrowed with the sheet's measurements:
+          a short upright bar down its right end, beside the sheet's own. On a
+          phone it draws no line, as it never has. */}
       {actions === null || days.length < 2 ? null : (
         <div className="flex flex-col gap-2" aria-busy={moving}>
           <p className="text-body font-bold text-ink">Move to another day</p>
-          <div className="scroll-line scroll-shy -mx-6 flex gap-2 overflow-x-auto px-6 pb-[6px]">
+          <div
+            ref={watchDays}
+            className="scroll-line scroll-shy -mx-6 flex gap-2 overflow-x-auto px-6 pb-[6px] max-lg:[--bar-ink:transparent]"
+          >
             {days.map((other, at) =>
               at === dayIndex ? null : (
                 <button
