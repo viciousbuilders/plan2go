@@ -397,7 +397,7 @@ there is one, and twelve over the end when no leg comes between. The next place 
 the last stop card, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
 nothing drawn edge to edge.
 
-Under the day, 20px under its last row and on its left edge, someone who may edit has
+Under the day, 20px under its last row and centred under it, someone who may edit has
 the two things that act on the day as a whole: words with their glyphs and no edge of
 their own, the quietest things on the day, at the small step in 600, 20px apart.
 **Reset this day**, after a turning arrow, in `ink-muted` going to `ink` under the

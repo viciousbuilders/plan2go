@@ -84,7 +84,10 @@ export function DayFoot({ days, index, actions }: DayFootProps) {
 
   return (
     <div className="mt-5 print:hidden max-lg:mt-6">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+      {/* Centred under the day on a desk, under the middle of the cards and
+          rows above them; on a phone on the page's left edge, where the day's
+          own words start. */}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 lg:justify-center">
         {canReset(day) ? (
           <button
             ref={resetButton}
