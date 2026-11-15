@@ -653,7 +653,11 @@ step at the row's end. The way in use is `terracotta-100` inside a 2px edge of t
 accent, the rest `sheet` inside `rule`. Choosing one writes it, says the new times are
 being worked out, and lets the sheet go when they are, since the day under the sheet
 cannot be seen to change while it is up. The leg's live times in Google Maps, and the
-sentence saying a time is a guess, are in the sheet. A reader gets the sheet too, with
+sentence saying a time is a guess, are in the sheet: **Live times in Google Maps** at
+the small step in 600 `terracotta-700` with the 13px arrow going up and out a desk's
+link has, 4px after the words, which stand 12px under the last way and 24px over the
+sheet's foot, or the phone's own edge where that is more, the link reaching 8px over
+and under them for a finger. A reader gets the sheet too, with
 the ways to compare and none to choose. Escape or a press on the dimmed page puts it
 away.
 

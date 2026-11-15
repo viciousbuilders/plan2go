@@ -5,7 +5,7 @@ import { formatDistance } from "@/core/model/distance";
 import type { TravelMode } from "@/core/model/leg";
 import type { ComputedLeg } from "@/core/time/compute-day";
 import { formatDuration } from "@/core/time/minutes";
-import { ChevronDownIcon } from "@/ui/icons";
+import { ArrowUpRightIcon, ChevronDownIcon } from "@/ui/icons";
 import { Notice } from "@/ui/notice";
 import type { LegOption, PlannedLeg } from "../compute-trip";
 import type { DayActions } from "../day-actions";
@@ -278,7 +278,7 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
                 close();
               }
             }}
-            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[30px] bg-paper-raised px-4 pt-[10px] pb-[max(32px,env(safe-area-inset-bottom))] shadow-lg outline-none"
+            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[30px] bg-paper-raised px-4 pt-[10px] pb-[max(24px,env(safe-area-inset-bottom))] shadow-lg outline-none"
           >
             <div aria-hidden="true" className="mx-auto mb-4 h-[5px] w-10 rounded-pill bg-ink/20" />
             {/* The places' names keep the lead step's weight and the words
@@ -327,13 +327,20 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
               </Notice>
             ) : null}
             {covered && planned.directions !== null ? (
+              /* With the arrow going up and out after the words that a desk's
+                 link has, since it leaves for somewhere else. Laid out only
+                 as tall as its words: the 8px of reach under them is taken
+                 back from the room under it, and the 8px over them is most
+                 of its 12 from what is above, so a finger finds it without
+                 the sheet standing open round it. */
               <a
                 href={planned.directions}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-block rounded-pill px-[6px] py-2 text-small font-semibold text-terracotta-700 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                className="mt-1 -mb-2 flex w-fit items-center gap-1 rounded-pill px-[6px] py-2 text-small font-semibold text-terracotta-700 hover:text-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
               >
                 Live times in Google Maps
+                <ArrowUpRightIcon size={13} strokeWidth={2.75} className="shrink-0" />
               </a>
             ) : null}
           </div>
