@@ -69,10 +69,11 @@ function narrowWindow(): boolean {
 
 /**
  * Fetched when the export is first opened, not with the page. The dialog is a
- * screen of its own, with its own stylesheet and a preview of every sheet, and
- * most readers of a trip never open it. What is drawn while it arrives is the
- * scrim and frame it will draw itself a moment later, so the click shows the
- * dialog beginning rather than nothing.
+ * screen of its own, with a preview of every sheet, and most readers of a trip
+ * never open it. Its stylesheet is the exception, on the page from the start
+ * with the button that opens it (trip-export says why). What is drawn while it
+ * arrives is the scrim and frame it will draw itself a moment later, so the
+ * click shows the dialog beginning rather than nothing.
  */
 const ExportDialog = dynamic(
   async () => {

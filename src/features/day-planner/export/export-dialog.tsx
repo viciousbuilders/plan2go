@@ -34,7 +34,8 @@ import { exportFileName, LONGEST_FILE_NAME, tidyFileName } from "./export-name";
 import type { Ink, MapSize, Orientation, PaperSize, TextSize } from "./paper";
 import { sheetGeometry } from "./paper";
 import { PrintedTrip } from "./printed-trip";
-import "./export-dialog.css";
+// Its stylesheet, export-dialog.css, is brought in by the button that opens
+// it, trip-export, and is on the page before the dialog is fetched.
 
 /** The heading over the preview. Sentence case, as every label here is. */
 const HEADING = "text-label font-semibold text-ink-muted";

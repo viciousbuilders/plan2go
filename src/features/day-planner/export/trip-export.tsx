@@ -3,6 +3,15 @@
 import { FINGER_ROOM } from "@/ui/finger-room";
 import { DownloadIcon } from "@/ui/icons";
 import { MENU_ITEM } from "@/ui/menu";
+// The dialog's stylesheet comes with the button that opens it, on the page
+// from the start, rather than with the dialog, which is fetched when it is
+// first opened. Fetched with the dialog, it was a stylesheet the development
+// server reloaded on its own, and a page that had lost its link for it stopped
+// on "No link element found for chunk" while the stylesheet was being worked
+// on. On the page's own stylesheet it is reloaded with the rest. Every rule
+// in it is about the dialog's own boxes, its print rules too, so it changes
+// nothing on a page where the dialog is not open.
+import "./export-dialog.css";
 
 const TITLE = "Export";
 
