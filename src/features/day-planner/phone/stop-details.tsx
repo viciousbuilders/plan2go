@@ -262,30 +262,35 @@ export function StopDetails({ day, dayIndex, days, stopId, actions }: StopDetail
         />
       )}
 
+      {/* Headed as the other days are under it, so the two ways of moving
+          the stop read as a pair: within this day, and to another one. */}
       {actions === null || day.plan.stops.length < 2 ? null : (
-        <div className="flex gap-2" aria-busy={moving}>
-          <button
-            type="button"
-            disabled={moving || index === 0}
-            onClick={() => {
-              move(index - 1);
-            }}
-            className={MOVE}
-          >
-            <ChevronUpIcon size={15} strokeWidth={2.75} />
-            Move earlier
-          </button>
-          <button
-            type="button"
-            disabled={moving || index === day.plan.stops.length - 1}
-            onClick={() => {
-              move(index + 1);
-            }}
-            className={MOVE}
-          >
-            <ChevronDownIcon size={15} strokeWidth={2.75} />
-            Move later
-          </button>
+        <div className="flex flex-col gap-2" aria-busy={moving}>
+          <p className="text-body font-bold text-ink">Move within this day</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={moving || index === 0}
+              onClick={() => {
+                move(index - 1);
+              }}
+              className={MOVE}
+            >
+              <ChevronUpIcon size={15} strokeWidth={2.75} />
+              Move earlier
+            </button>
+            <button
+              type="button"
+              disabled={moving || index === day.plan.stops.length - 1}
+              onClick={() => {
+                move(index + 1);
+              }}
+              className={MOVE}
+            >
+              <ChevronDownIcon size={15} strokeWidth={2.75} />
+              Move later
+            </button>
+          </div>
         </div>
       )}
 
