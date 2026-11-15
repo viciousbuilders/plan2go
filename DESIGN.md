@@ -214,9 +214,7 @@ paper and ink.
   text, 800 is a chosen chip or menu row and the words on the city pill in the search.
   In a phone's day 100 is the block a stop's times stand on, the bold time in 800 and
   the words beside it in 700, and the card offering the next place, inside a dashed
-  edge of 400, its block of times in 200 so it shows on the 100 around it. 200 is also
-  the card a day with nothing planned says so on, its heading in 900, its sentence in
-  800 and its way to the first place on 700.
+  edge of 400, its block of times in 200 so it shows on the 100 around it.
 - **sage:** the second accent. 100 and 200 mark today in the day strip, 600 is the marker
   for the ends of a day, 700 draws the public transport route line. 100 is also what an
   end of the day stands on: its row in a desk's day, inside an edge of 200 and going to
@@ -629,16 +627,14 @@ under times and names under names, ends and stops alike.
   **Add a place** in terracotta 700, and a 16px plus in the same at the card's right end. Under a
   pointer the dash takes the whole accent. An end not there yet stands 10px under it.
 
-A day with nothing planned says so between its ends, on a card of terracotta 200 at the
-`card` radius, 24px in on every side, standing 52px in, on the edge an end's offer starts
-its words on, and running to the column's right edge: "Nothing planned yet" in the
-display face at the title step in terracotta 900. For someone who may edit, under it,
-"Add your first place. Travel times fill in as you go." at the body step in terracotta
-800, and 16px under that the way to the first place, a 48px pill of terracotta 700 with
-a 16px plus and **Add a place** in `sheet`, set as every offer's words are, deepening to
-800 under a pointer. The day's thread is the same dotted line as between stops, not a
-dashed line of its own, and runs down beside the card from one end of the day to the
-other.
+A day with nothing planned says so between its ends as a desk's does, with no card: the
+day's thread, from one end to the other, is the line a desk's empty day waits with,
+dashed closer in the accent at 55 percent, and beside it, 52px in, on the edge an end's
+offer starts its words on, "Nothing planned for Wed, 2 Dec yet" in the display face at
+the title step in `ink`, "Search for a place, have a look at it, and add it to the
+day." at the body step in `ink-muted` 6px under it, and for someone who may edit, 14px
+under that, **Find a place**, the accent's solid 40px pill with a 14px magnifier, which
+goes to the search. The words stand 30px from the ends above and below, as on a desk.
 
 Under the day, 16px under its last row and centred under it, the same **Reset this
 day** and **Delete this day** as a desk has, asking the same questions in the same panel

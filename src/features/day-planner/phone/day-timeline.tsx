@@ -8,13 +8,14 @@ import { conflictsAtStop } from "@/core/model/conflict";
 import type { DayEndpoint, DayPlan } from "@/core/model/day";
 import type { ComputedDay, ComputedStop } from "@/core/time/compute-day";
 import { formatClock } from "@/core/time/minutes";
-import { NoteIcon, PlusIcon } from "@/ui/icons";
+import { NoteIcon, PlusIcon, SearchIcon } from "@/ui/icons";
 import type { PlannedDay } from "../compute-trip";
 import { ConflictNotice } from "../conflict-notice";
 import type { DayActions } from "../day-actions";
 import { ENDS, MARKS } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
 import { movedWithin } from "../day-order";
+import { formatDayDate } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
 import { LeaveAt } from "../leave-at";
 import { Notice } from "@/ui/notice";
@@ -399,36 +400,41 @@ function NextPlace({
 }
 
 /**
- * A day with no stops, between its ends, as the phone's day design draws it:
- * a card of terracotta 200 from the ends' offers' words to the column's right
- * edge, with "Nothing planned yet" in the display face at the title step in
- * terracotta 900. For someone who may edit, a sentence under it saying what
- * fills the day, at the body step in terracotta 800, and the way to the first
- * place, the one thing to do: a pill of terracotta 700 with a plus and "Add a
- * place" set as every offer's words are, in sheet. The day's thread is the
- * dotted line it will be once there are stops, and runs down beside the card
- * from one end to the other.
+ * A day with no stops, between its ends, as a desk's empty day is: no card,
+ * the day's thread dashed in the accent where its stops will hang (drawn with
+ * the day's thread, below), and beside it, on the edge an end's offer starts
+ * its words on, "Nothing planned for Wed, 2 Dec yet" in the display face at
+ * the title step, where places come from at the body step in ink-muted, and
+ * for someone who may edit the way to the search, the one thing to do: the
+ * accent's solid pill with a magnifier and "Find a place". The ends keep the
+ * twelve every line keeps from the next, and the words keep eighteen more
+ * inside, thirty in all, as on a desk.
  */
-function NothingPlanned({ onFindPlace }: { readonly onFindPlace: (() => void) | null }) {
+function NothingPlanned({
+  dayName,
+  onFindPlace,
+}: {
+  /** The day as the tabs name it, so the heading says which day is empty. */
+  readonly dayName: string;
+  readonly onFindPlace: (() => void) | null;
+}) {
   return (
-    /* 52px in, on the edge an end's offer starts its words on, so the day's
-       thread runs down beside the card rather than behind it. */
-    <div className="relative ml-[52px] rounded-card bg-terracotta-200 p-6">
-      <p className="font-display text-title text-balance text-terracotta-900">Nothing planned yet</p>
+    <div className="ml-[52px] flex flex-col items-start py-[18px]">
+      <h2 className="font-display text-title text-balance text-ink">
+        Nothing planned for {dayName} yet
+      </h2>
+      <p className="mt-[6px] max-w-[38ch] text-body text-pretty text-ink-muted">
+        Search for a place, have a look at it, and add it to the day.
+      </p>
       {onFindPlace === null ? null : (
-        <>
-          <p className="mt-1.5 text-body text-terracotta-800">
-            Add your first place. Travel times fill in as you go.
-          </p>
-          <button
-            type="button"
-            onClick={onFindPlace}
-            className="mt-4 flex h-12 items-center gap-3 rounded-pill bg-terracotta-700 px-[22px] text-place/none font-bold text-sheet hover:bg-terracotta-800 active:bg-terracotta-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
-          >
-            <PlusIcon size={16} strokeWidth={2.75} className="shrink-0" />
-            Add a place
-          </button>
-        </>
+        <button
+          type="button"
+          onClick={onFindPlace}
+          className="mt-[14px] flex h-10 items-center gap-2 rounded-pill bg-terracotta px-5 text-small/none font-semibold text-paper hover:bg-terracotta-600 active:bg-terracotta-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        >
+          <SearchIcon size={14} strokeWidth={2.75} />
+          Find a place
+        </button>
       )}
     </div>
   );
@@ -589,7 +595,11 @@ export function DayTimeline({
   }
 
   if (day.stops.length === 0) {
-    lines.push({ key: "nothing", roomy: false, node: <NothingPlanned onFindPlace={onFindPlace} /> });
+    lines.push({
+      key: "nothing",
+      roomy: false,
+      node: <NothingPlanned dayName={formatDayDate(day.date)} onFindPlace={onFindPlace} />,
+    });
   }
 
   /** What a stop's card says, the same on the card and on the picture of it being carried. */
@@ -710,10 +720,15 @@ export function DayTimeline({
       <div ref={dayRef} className={`relative ${busy ? "opacity-55" : ""}`} aria-busy={busy}>
         {/* From the first thing's middle to the last's, behind them all: every
             card and pill is opaque, so the thread shows only in the room
-            between them and through the legs, whose discs stand on it. The
-            same dotted line on a day with nothing planned yet, running behind
-            the card that says so between its ends. */}
-        <span aria-hidden="true" className="thread absolute top-6 bottom-6 left-[23px]" />
+            between them and through the legs, whose discs stand on it. On a
+            day with nothing planned yet it is the line a desk's empty day
+            waits with, dashed closer in the accent, from one end to the
+            other beside the words that say so: waiting for its first stop
+            rather than joining two. */}
+        <span
+          aria-hidden="true"
+          className={`${day.stops.length === 0 ? "thread-waiting" : "thread"} absolute top-6 bottom-6 left-[23px]`}
+        />
         {lines.map((line, at) => {
           const before = lines[at - 1];
           const apart = before !== undefined && !before.roomy && !line.roomy;
