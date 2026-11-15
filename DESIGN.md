@@ -609,8 +609,9 @@ tall as its words, so the row stands 16px under the day and, at the end of the p
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a
-handle, "From Sydney Opera House to Taronga Zoo Sydney" at the lead step, breaking
-before "to" when it needs two lines, and a row for every way of covering the leg, its glyph on a 38px disc of sage 200, its
+handle, "From Sydney Opera House to Taronga Zoo Sydney" at the lead step, the names
+in its weight and "From" and "to" regular, breaking before "to" when it needs two
+lines, and a row for every way of covering the leg, its glyph on a 38px disc of sage 200, its
 name in bold over how far it goes, and how long it takes in the display face at the lead
 step at the row's end. The way in use is `terracotta-100` inside a 2px edge of the
 accent, the rest `sheet` inside `rule`. Choosing one writes it, says the new times are

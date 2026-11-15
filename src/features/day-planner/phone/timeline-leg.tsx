@@ -222,11 +222,17 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
             className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[30px] bg-paper-raised px-4 pt-[10px] pb-[max(32px,env(safe-area-inset-bottom))] shadow-lg outline-none"
           >
             <div aria-hidden="true" className="mx-auto mb-4 h-[5px] w-10 rounded-pill bg-ink/20" />
-            {/* Each half is kept whole, so a pair of names too long for one
-                line breaks before "to" rather than inside a place's name. */}
+            {/* The places' names keep the lead step's weight and the words
+                between them are regular. Each half is kept whole, so a pair
+                of names too long for one line breaks before "to" rather than
+                inside a place's name. */}
             <h2 id={titleId} className="px-[6px] font-display text-lead text-ink">
-              <span className="inline-block">From {leg.fromName}</span>{" "}
-              <span className="inline-block">to {leg.toName}</span>
+              <span className="inline-block">
+                <span className="font-normal">From</span> {leg.fromName}
+              </span>{" "}
+              <span className="inline-block">
+                <span className="font-normal">to</span> {leg.toName}
+              </span>
             </h2>
 
             <div className="mt-4 flex flex-col gap-2">
