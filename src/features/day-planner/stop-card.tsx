@@ -152,6 +152,8 @@ interface StopCardProps {
   readonly position: number;
   /** Whether the pointer is on this place, here or on the map beside it. */
   readonly hovered: boolean;
+  /** Whether the place sheet beside the map is open on this stop. */
+  readonly opened: boolean;
   readonly onHover: (stopId: string | null) => void;
   /** Opens what the place is like: its pictures, its rating, what people say. */
   readonly onOpen: () => void;
@@ -254,6 +256,7 @@ function carrySeeThrough(event: DragEvent<HTMLElement>): void {
 export function StopCard({
   position,
   hovered,
+  opened,
   onHover,
   onOpen,
   index,
@@ -507,23 +510,38 @@ export function StopCard({
          can be pressed on the card clears the tooltip for itself, below, so
          it is never said over a control that does something else. */
       title={actions === null ? undefined : "Drag to reorder, or onto another day"}
-      className={`day-stop grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] rounded-row border bg-paper-raised px-4 py-[13px] ${
+      className={`day-stop grid grid-cols-[30px_minmax(0,1fr)] gap-x-[13px] rounded-row border px-4 py-[13px] ${
         actions === null ? "" : "cursor-grab active:cursor-grabbing [&_textarea]:cursor-text"
       } ${
         lift !== null ? "relative z-[5] shadow-md" : dragging ? "opacity-35" : ""
       } ${
-        dragOver && !dragging
-          ? "border-terracotta outline-2 outline-offset-[3px] outline-dashed outline-terracotta"
-          : /*
-             * Under the pointer here, or under the pointer on the map. A place
-             * is a card and a marker at once, and pointing at either has to
-             * say which one the other is, or the two panes are two lists that
-             * happen to be side by side. Not while the pointer is on one of
-             * the card's controls, which answers it on its own.
-             */
-            hovered && !onControl
-            ? "border-terracotta/55 bg-paper-sunken"
-            : "border-rule"
+        dragOver && !dragging ? "outline-2 outline-offset-[3px] outline-dashed outline-terracotta" : ""
+      } ${
+        /*
+         * Open in the place sheet beside the map: the tint of the accent
+         * inside a 2px edge of it, which is how a leg's panel marks the way
+         * in use, so the card the sheet is about is found at a glance from
+         * the sheet. The second pixel of the edge is a ring inside the first
+         * rather than a wider border, so nothing on the card moves, and a
+         * ring rather than a shadow, so the lift of a card carried by a
+         * finger is still drawn. It holds under the pointer, here or on the
+         * map: being open says more than being pointed at, and the marker is
+         * lit for it already.
+         */
+        opened
+          ? "border-terracotta bg-terracotta-100 inset-ring inset-ring-terracotta"
+          : dragOver && !dragging
+            ? "border-terracotta bg-paper-raised"
+            : /*
+               * Under the pointer here, or under the pointer on the map. A
+               * place is a card and a marker at once, and pointing at either
+               * has to say which one the other is, or the two panes are two
+               * lists that happen to be side by side. Not while the pointer
+               * is on one of the card's controls, which answers it on its own.
+               */
+              hovered && !onControl
+              ? "border-terracotta/55 bg-paper-sunken"
+              : "border-rule bg-paper-raised"
       }`}
     >
       {/* The disc on its own, with nothing drawn under it: the thread the day

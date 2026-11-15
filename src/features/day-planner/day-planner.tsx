@@ -24,6 +24,10 @@ interface DayPlannerProps {
   readonly onOpenStop: (stopId: string) => void;
   /** One end of a day opened the same way. */
   readonly onOpenEndpoint: (endpoint: EndpointRef) => void;
+  /** The stop the place sheet is open on, or null. */
+  readonly openedStopId: string | null;
+  /** The end of a day the place sheet is open on, or null. */
+  readonly openedEndpoint: EndpointRef | null;
   /** The leg under the pointer, here or on the map beside it. */
   readonly hoveredLegIndex: number | null;
   readonly onHoverLeg: (legIndex: number | null) => void;
@@ -112,6 +116,8 @@ export function DayPlanner({
   onHoverStop,
   onOpenStop,
   onOpenEndpoint,
+  openedStopId,
+  openedEndpoint,
   hoveredLegIndex,
   onHoverLeg,
   hoveredEndpointId,
@@ -264,6 +270,8 @@ export function DayPlanner({
               onHoverStop={onHoverStop}
               onOpenStop={onOpenStop}
               onOpenEndpoint={onOpenEndpoint}
+              openedStopId={openedStopId}
+              openedEndpoint={openedEndpoint}
               hoveredLegIndex={hoveredLegIndex}
               onHoverLeg={onHoverLeg}
               hoveredEndpointId={hoveredEndpointId}

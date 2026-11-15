@@ -44,6 +44,12 @@ interface DayItineraryProps {
   readonly onOpenStop: (stopId: string) => void;
   /** One end of the day opened the same way. */
   readonly onOpenEndpoint: (endpoint: EndpointRef) => void;
+  /**
+   * The stop the place sheet is open on, which may be on another day, and the
+   * end of a day it is open on instead, which may be another day's.
+   */
+  readonly openedStopId: string | null;
+  readonly openedEndpoint: EndpointRef | null;
   /** The leg under the pointer, here or on the map beside it. */
   readonly hoveredLegIndex: number | null;
   readonly onHoverLeg: (legIndex: number | null) => void;
@@ -124,6 +130,7 @@ function Anchor({
   onRemove,
   saving,
   hovered,
+  opened,
   onHover,
   onOpen,
 }: {
@@ -151,6 +158,8 @@ function Anchor({
   readonly saving: boolean;
   /** Whether the pointer is on this place, here or on the map beside it. */
   readonly hovered: boolean;
+  /** Whether the place sheet beside the map is open on this end, from this row. */
+  readonly opened: boolean;
   readonly onHover: (placeId: string | null) => void;
   /** Opens what the place is like: its pictures, its rating, what people say. */
   readonly onOpen: () => void;
@@ -191,6 +200,12 @@ function Anchor({
      * row rather than at its top, where a disc sits on a card whose content
      * runs on below it; the words and the time sit at the top, as a card's do.
      *
+     * Open in the place sheet beside the map, it keeps its sage 100 inside a
+     * 2px edge of sage 600, as a stop card open there takes its accent's,
+     * and as a phone's map marks an end picked out. The second pixel is a
+     * ring inside the first, so nothing on the row moves, and it holds under
+     * the pointer, as an open card's colours do.
+     *
      * On a desk only: a phone draws the day as a timeline, in day-timeline.
      */
     <div
@@ -206,7 +221,11 @@ function Anchor({
         leave();
       }}
       className={`${ENDPOINT_ROW} border px-4 py-[9px] ${
-        hovered && !onControl ? "border-sage-600/55 bg-sage-200" : "border-sage-200 bg-sage-100"
+        opened
+          ? "border-sage-600 bg-sage-100 inset-ring inset-ring-sage-600"
+          : hovered && !onControl
+            ? "border-sage-600/55 bg-sage-200"
+            : "border-sage-200 bg-sage-100"
       }`}
     >
       <EndpointMark which={which} />
@@ -328,6 +347,7 @@ function EndpointSlot({
   joined,
   hoveredEndpointId,
   onHoverEndpoint,
+  opened,
   onOpen,
 }: {
   readonly which: "start" | "end";
@@ -345,6 +365,8 @@ function EndpointSlot({
   readonly joined: boolean;
   readonly hoveredEndpointId: string | null;
   readonly onHoverEndpoint: (placeId: string | null) => void;
+  /** The end of a day the place sheet is open on, which may be another day's or another end. */
+  readonly opened: EndpointRef | null;
   readonly onOpen: (endpoint: EndpointRef) => void;
 }) {
   const { picking, setPicking, saving, error, write } = useEndEdit(which, actions);
@@ -364,6 +386,15 @@ function EndpointSlot({
           onRemove={actions === null || picking ? null : () => write(null)}
           saving={saving}
           hovered={hoveredEndpointId === endpoint.place.id}
+          /* This row and no other: a day that starts and ends at one place
+             has two rows for it, and the sheet was opened from one of them,
+             whose end it offers to take off. */
+          opened={
+            opened !== null &&
+            opened.dayId === day.id &&
+            opened.which === which &&
+            opened.placeId === endpoint.place.id
+          }
           onHover={onHoverEndpoint}
           onOpen={() => {
             onOpen({ dayId: day.id, which, placeId: endpoint.place.id });
@@ -451,6 +482,8 @@ export function DayItinerary({
   onHoverStop,
   onOpenStop,
   onOpenEndpoint,
+  openedStopId,
+  openedEndpoint,
   hoveredLegIndex,
   onHoverLeg,
   hoveredEndpointId,
@@ -576,6 +609,7 @@ export function DayItinerary({
         joined={day.stops.length > 0}
         hoveredEndpointId={hoveredEndpointId}
         onHoverEndpoint={onHoverEndpoint}
+        opened={openedEndpoint}
         onOpen={onOpenEndpoint}
       />
 
@@ -607,6 +641,7 @@ export function DayItinerary({
               <StopCard
                 position={index + 1}
                 hovered={hoveredStopId === stop.stopId}
+                opened={openedStopId === stop.stopId}
                 onHover={onHoverStop}
                 onOpen={() => {
                   onOpenStop(stop.stopId);
@@ -662,6 +697,7 @@ export function DayItinerary({
         joined={day.stops.length > 0}
         hoveredEndpointId={hoveredEndpointId}
         onHoverEndpoint={onHoverEndpoint}
+        opened={openedEndpoint}
         onOpen={onOpenEndpoint}
       />
 

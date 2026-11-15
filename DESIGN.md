@@ -214,6 +214,8 @@ paper and ink.
   and the error block, the base is the accent itself, 300 is the edge of an export choice
   that is on, 600 is hover, 700 is pressed and is the step to use for accent coloured
   text, 800 is a chosen chip or menu row and the words on the city pill in the search.
+  100 inside a 2px edge of the base marks the one chosen: the way in use in a leg's
+  panel, and on a desk the stop card the place sheet is open on.
   In a phone's day 100 is the block a stop's times stand on, the bold time in 800 and
   the words beside it in 700, and the card offering the next place, inside a dashed
   edge of 400, its block of times in 200 so it shows on the 100 around it.
@@ -221,7 +223,9 @@ paper and ink.
   for the ends of a day, 700 draws the public transport route line. 100 is also what an
   end of the day stands on: its row in a desk's day, inside an edge of 200 and going to
   200 under the pointer, its card in a phone's row of places on the map, and its card on
-  the sheets. In a phone's day an end is a pill of 200, its time in 800 and its name in
+  the sheets. 100 inside a 2px edge of 600 is an end picked out: its card on a phone's
+  map, and on a desk its row while the place sheet is open on it.
+  In a phone's day an end is a pill of 200, its time in 800 and its name in
   900, and an end not there yet a pill dashed in 400 with its disc in 200.
   A leg is never on sage, so an end never reads as one more leg.
 - **neutral:** the warm greys behind everything, used for the map's own geometry. On paper, 100 is the ground of the map and of an end of the trip not yet
@@ -855,7 +859,11 @@ are. Under the pointer, here or on the map, the row goes to sage 200 inside a ri
 sage 600 at 55 percent; not while the pointer is on one of its controls, the start's
 time and the picker it opens, or a tool, which answers the pointer on its own while the
 row stays as it was, as a card does. The end's marker on the map stays lit under all of
-them.
+them. While the place sheet is open on the end, the row it was opened from keeps its
+sage 100 inside a 2px edge of sage 600, as a phone's map marks an end picked out, and
+holds it under the pointer. A day that starts and ends at one place has two rows for
+it, and only the one the sheet was opened from is marked, since the sheet offers to
+take that end off.
 
 A stop says when it is arrived at and when it is left, the pair at the top right with an
 arrow between them. The second is the first plus the stay set underneath, which is
@@ -880,7 +888,13 @@ down away from the times. Under the pointer, here or on the map, the card sinks 
 one of its controls, a tool, a pill, the note, the next place's slot or the picker a
 pill opens, which answers the pointer on its own while the card stays as it was. The
 stop's marker on the map stays lit under all of them but the slot, which is about the
-stop after this one. The tools are drawn at 55 percent until the pointer is over the
+stop after this one. While the place sheet is open on the stop the card is
+`terracotta-100` inside a 2px edge of `terracotta`, the way a leg's panel marks the way
+in use, so the card the sheet is about is found at a glance from the sheet. It holds
+those colours under the pointer, here or on the map, since being open says more than
+being pointed at, and a dashed drop outline is drawn round them as round any card. The
+second pixel of the edge is a ring inside the first, so nothing on the card moves. The
+tools are drawn at 55 percent until the pointer is over the
 card, or over the tools themselves, and never hidden, since half the people using this
 have no pointer to hover with. How long the stop lasts is a pill with an hourglass on it,
 titled "Time at this place" under the pointer, that opens two columns, hours and minutes, the same columns the day's leaving time
@@ -888,8 +902,9 @@ opens, and writes when it closes; the opening hours sit beside it in words after
 clock, and the note is either a field or the one line offering to start one. An
 hourglass and not a second clock, because one glyph for both a length and a time of day
 left "1 hr" to be read as either. The pill has no fill of its own, only its edge, so it
-is the card's colour: raised paper at rest, and `paper-sunken` with the rest of the card
-while the card is under the pointer, here or on the map. Filled with raised paper it
+is the card's colour: raised paper at rest, `paper-sunken` with the rest of the card
+while the card is under the pointer, here or on the map, and `terracotta-100` while the
+place sheet is open on the stop. Filled with raised paper it
 stayed at the card's resting colour while the card around it sank. With the pointer on
 the pill itself the card does not sink, so the pill is raised paper with its edge in the
 accent, as it always was. In the note's field Enter writes the note, as leaving
@@ -1018,7 +1033,9 @@ this place** on its row or by pressing its marker on the map. What opens is a sh
 the left edge of the map: a card 408px wide, standing 8px in from the map's edge and
 8px short of the top and bottom of the window, rounded at the `panel` radius and edged
 with `rule` under `shadow-md`, with the map still in sight beside it, and the whole
-window on a phone. The map frames the day, or the place a search is looking at,
+window on a phone. On a desk the stop card or the end's row it was opened from is
+marked for as long as the sheet is open on it, put aside included, as the marker on the
+map is held (see Components). The map frames the day, or the place a search is looking at,
 in what is left of it beside the sheet, so nothing it is showing is under the sheet.
 The search field stays in the map's corner, floating over the top of the sheet: a 48px
 pill, 16px in from the sheet's sides and 20px down from its top, so over the sheet it

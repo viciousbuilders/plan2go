@@ -915,6 +915,11 @@ export function TripEditor({
           onOpenEndpoint={(endpoint) => {
             open({ kind: "endpoint", ...endpoint });
           }}
+          // What the sheet is on, for a desk's day to mark the card or the
+          // row it was opened from. Held while the sheet is put aside, since
+          // it is still open on the same place.
+          openedStopId={opened?.kind === "stop" ? opened.stopId : null}
+          openedEndpoint={opened?.kind === "endpoint" ? opened : null}
           hoveredLegIndex={hoveredLegIndex}
           onHoverLeg={setHoveredLegIndex}
           hoveredEndpointId={hoveredEndpointId}
