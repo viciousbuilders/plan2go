@@ -39,14 +39,17 @@
   margin-top: 24px;
 }
 
-/* The phone's preview, drawn to design 1b of "PlanToGo iPhone": the same
-   sheets, one beside the next in a row that snaps to each, scaled so a page
-   is the width the design gives it with the next peeking in at either side.
-   The scale, and the room before the first and after the last that puts
-   either in the middle of the window, come from the export, which measures
-   the row. Both are said inside the scaled row, so they are given back. */
+/* The phone's preview: the same sheets, one under the next in a column that
+   scrolls down, as a phone shows a document, each as wide as the window less
+   the room at either side. Side by side, as design 1b of "PlanToGo iPhone"
+   had them, a page could only be as big as the window was wide, and a page
+   of A4 stood in the middle of a tall window with empty ground over and under
+   it. The scale and the room between them come from the export, which
+   measures the column; both are said inside the scaled column, so they are
+   given back. The room over the first page is the room between them, and
+   under the last it is twice that, or clear of the phone's own edge at its
+   foot where that is more. */
 .export-pages {
-  scroll-snap-type: x mandatory;
   scrollbar-width: none;
 }
 
@@ -56,23 +59,16 @@
 
 .export-pages .printed-trip {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: calc(var(--page-gap, 12px) / var(--sheet-zoom, 1));
-  width: max-content;
+  padding-top: calc(var(--page-gap, 12px) / var(--sheet-zoom, 1));
+  padding-bottom: calc(max(2 * var(--page-gap, 12px), env(safe-area-inset-bottom)) / var(--sheet-zoom, 1));
   zoom: var(--sheet-zoom, 1);
 }
 
 .export-pages .printed-page {
   flex: none;
-  scroll-snap-align: center;
-}
-
-.export-pages .printed-page:first-child {
-  margin-left: calc(var(--page-side, 0px) / var(--sheet-zoom, 1));
-}
-
-.export-pages .printed-page:last-child {
-  margin-right: calc(var(--page-side, 0px) / var(--sheet-zoom, 1));
 }
 
 /* Every page the paper's own size, a sheet of the paper's white lifted off
@@ -209,18 +205,14 @@
     margin-top: 0;
   }
 
-  /* The phone's preview printed: the row is a column of pages again, at
-     full size, with nothing of the screen's sheet left on them. */
+  /* The phone's preview printed: the column of pages at full size, with
+     nothing of the screen's sheet or its room left on them. */
   .export-pages .printed-trip {
     display: block !important;
     width: auto !important;
     margin: 0 !important;
+    padding: 0 !important;
     zoom: 1 !important;
-  }
-
-  .export-pages .printed-page:first-child,
-  .export-pages .printed-page:last-child {
-    margin: 0;
   }
 
   .export-pages .printed-sheet {

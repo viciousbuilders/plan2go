@@ -1514,13 +1514,15 @@ before the word, which page is in the middle of how many in the middle, "Page 2 
 and **Export** on the accent's solid pill on the right, which puts the preview away and
 begins the file, or, with no name to save it under, puts the preview away and takes the
 keyboard to the name. However it is put away it goes back out to the right. Under them
-the sheets themselves, the same ones the desk's preview draws, one beside the next in a
-row that snaps to each, every page as wide as the window less 24px either side, or as
-tall as the row has room for less 24px at its top and foot, whichever is smaller, with
-the row 60px clear of the window's foot and the pages 12px apart, so 12px of the pages
-either side peeks in, each on the deepest shadow. Design 1b's 300px page with 51px
-either side drew an A4 page under three quarters of the window's width. Escape puts it
-away. Until it is opened the sheets are laid out unseen, for the count and for the
+the sheets themselves, the same ones the desk's preview draws, one under the next in a
+column that scrolls down to the window's foot, as a phone shows a document: every page
+as wide as the window less 12px either side, landscape or upright, the pages 12px
+apart, the first 12px under the bar across the top and the last 24px over the window's
+foot, or clear of the phone's own edge there where that is more, each on the deepest
+shadow. "Page 2 of 6" is the page in the middle of the window. Design 1b had the pages
+side by side in a row that snapped to each, which kept a page short enough for the
+window's width, so a page of A4 stood in the middle of a tall window with as much empty
+ground over it as under it. Escape puts it away. Until it is opened the sheets are laid out unseen, for the count and for the
 browser's own print command, which prints them while the view is up, the preview open
 or not.
 

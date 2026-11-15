@@ -119,20 +119,13 @@ const SAVED_FOR_MS = 2600;
 const PAGE_GAP = 12;
 
 /**
- * How much of the next page and the last peeks in either side of the page on
- * show in a phone's preview, beyond the room between them: enough of an edge
- * to say there is more along the row, and no more, so the page itself is as
- * big as the window lets it be. Design 1b gave it 51 with the room, a 300px
- * page on a 402px window, which left a page of A4 drawn at under three
- * quarters of the window's width and barely half its height.
+ * What a page keeps clear of the window's sides in a phone's preview, where
+ * the pages stand one under the next as wide as the window lets them be. Side
+ * by side, a row of pages had to keep each one short enough for the window's
+ * width, so a page of A4 stood in the middle of a tall window with as much
+ * empty ground over it as under it.
  */
-const PAGE_PEEK = 12;
-
-/**
- * What the page keeps clear of the window's sides, and of the top and foot of
- * the row: the room to the next page and the edge of it that peeks in.
- */
-const PAGE_SIDE = PAGE_GAP + PAGE_PEEK;
+const PAGE_SIDE = 12;
 
 /**
  * The file, saved: a link to it made, followed and taken away again in one
@@ -384,7 +377,7 @@ export function ExportDialog({
   const [previewLeaving, setPreviewLeaving] = useState(false);
   /** Which of the sheets is in the middle of a phone's preview, counted from zero. */
   const [pageAt, setPageAt] = useState(0);
-  /** The row a phone's preview scrolls the sheets along. */
+  /** The column a phone's preview scrolls the sheets down. */
   const pagesRow = useRef<HTMLDivElement | null>(null);
   const previewButton = useRef<HTMLButtonElement | null>(null);
   const previewBack = useRef<HTMLButtonElement | null>(null);
@@ -418,8 +411,6 @@ export function ExportDialog({
   const requestKey = exportRequestKey(request);
   /** How wide a sheet is drawn, which is what the preview scales down from. */
   const sheetWidth = sheetGeometry(paper, orientation).widthPx;
-  /** And how tall, which a phone's preview fits the page to as well. */
-  const sheetHeight = sheetGeometry(paper, orientation).heightPx;
   const sheets = sheetsFor?.key === requestKey ? sheetsFor.count : null;
   /** Where the preview fetches each day's map from: our own map route. */
   const maps = useMemo(() => dayMapSources(slug, days), [slug, days]);
@@ -542,12 +533,11 @@ export function ExportDialog({
   }, [placeOnPage, requestKey, sheets]);
 
   /**
-   * A phone's preview fits a page to the row it scrolls along: as wide as
-   * the row less what of the pages either side peeks in, or as tall as the
-   * row has room for, whichever is smaller, so a page landscape or upright
-   * is seen whole. Said to the stylesheet before the browser paints, so the
-   * sheets are never seen at their full size first, and again whenever the
-   * row changes size.
+   * A phone's preview fits a page to the column it scrolls down: as wide as
+   * the window less the room at either side, landscape or upright, the
+   * pages one under the next. Said to the stylesheet before the browser
+   * paints, so the sheets are never seen at their full size first, and again
+   * whenever the column changes size.
    */
   useLayoutEffect(() => {
     const row = pagesRow.current;
@@ -556,17 +546,12 @@ export function ExportDialog({
     }
     const fit = (): void => {
       const width = row.clientWidth;
-      const height = row.clientHeight;
-      if (width <= 0 || height <= 0) {
+      if (width <= 0) {
         return;
       }
-      const zoom = Math.max(
-        0.05,
-        Math.min((width - 2 * PAGE_SIDE) / sheetWidth, (height - 2 * PAGE_SIDE) / sheetHeight),
-      );
+      const zoom = Math.max(0.05, (width - 2 * PAGE_SIDE) / sheetWidth);
       row.style.setProperty("--sheet-zoom", String(zoom));
       row.style.setProperty("--page-gap", `${String(PAGE_GAP)}px`);
-      row.style.setProperty("--page-side", `${String((width - sheetWidth * zoom) / 2)}px`);
     };
     fit();
     const observer = new ResizeObserver(fit);
@@ -574,7 +559,7 @@ export function ExportDialog({
     return () => {
       observer.disconnect();
     };
-  }, [previewOpen, sheetWidth, sheetHeight]);
+  }, [previewOpen, sheetWidth]);
 
   /**
    * The keyboard goes to the way back as a phone's preview comes up, since it
@@ -790,19 +775,19 @@ export function ExportDialog({
     setPreviewLeaving(true);
     void exportPdf();
   };
-  /** Which sheet is nearest the middle of the preview's row, for the count over it. */
+  /** Which sheet is nearest the middle of the preview's column, for the count over it. */
   const notePage = (): void => {
     const row = pagesRow.current;
     if (row === null) {
       return;
     }
     const box = row.getBoundingClientRect();
-    const middle = box.left + box.width / 2;
+    const middle = box.top + box.height / 2;
     let nearest = 0;
     let closest = Number.POSITIVE_INFINITY;
     row.querySelectorAll<HTMLElement>(".printed-page").forEach((page, index) => {
       const at = page.getBoundingClientRect();
-      const off = Math.abs(at.left + at.width / 2 - middle);
+      const off = Math.abs(at.top + at.height / 2 - middle);
       if (off < closest) {
         closest = off;
         nearest = index;
@@ -1177,7 +1162,8 @@ export function ExportDialog({
          * card: over the whole window and the bar of views, on the sunken
          * ground the desk's preview stands on, Back, which page is in the
          * middle of how many and Export across the top, and the pages one
-         * beside the next in a row that snaps to each. Export goes from
+         * under the next in a column that scrolls down to the window's
+         * foot, as a phone shows a document. Export goes from
          * here and leaves the bar filling on the page. Escape puts it away.
          *
          * It comes in from the window's right edge, as a page a phone goes
@@ -1257,7 +1243,7 @@ export function ExportDialog({
             onScroll={previewOpen ? notePage : undefined}
             className={
               previewOpen
-                ? "export-scroll export-pages flex min-h-0 flex-1 items-center overflow-x-auto overflow-y-hidden"
+                ? "export-scroll export-pages min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain"
                 : "contents"
             }
           >
@@ -1275,12 +1261,6 @@ export function ExportDialog({
               />
             )}
           </div>
-
-          {/* Room under the pages, where design 1b leaves them sixty clear
-              of the window's foot. */}
-          {previewOpen ? (
-            <div aria-hidden="true" className="h-[max(60px,env(safe-area-inset-bottom))] shrink-0" />
-          ) : null}
         </div>
       </>
     );
