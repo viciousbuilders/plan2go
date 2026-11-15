@@ -170,7 +170,7 @@ export function ShareLinks({ slug, editKey }: ShareLinksProps) {
     >
       <LinkIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
       <span className="max-lg:hidden">Share</span>
-      <SheetRow icon={LinkIcon} title="Share trip" detail="View-only and edit links" />
+      <SheetRow icon={LinkIcon} title="Share trip" detail="View-only and edit links" tint="denim" />
     </MenuPageRow>
   );
 }

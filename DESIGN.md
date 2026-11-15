@@ -46,13 +46,15 @@ colors:
     4: "#8C491A"
     5: "#4D5936"
     6: "#B5654A"
-  drive-ramp:
+  denim-ramp:
     200: "#D9EAFF"
     700: "#405F87"
-  transit-ramp:
+    800: "#2C4462"
+  plum-ramp:
     200: "#F6E0F3"
     700: "#764E72"
-  walk-ramp:
+    800: "#543652"
+  lagoon-ramp:
     200: "#CEF0ED"
     700: "#196B67"
 typography:
@@ -228,15 +230,20 @@ paper and ink.
   is 200 inside an edge of 300 on a desk and on a phone alike, 300 inside 400 while
   pressed or open. In a phone's day 200 is also the disc of a leg that cannot be made,
   and 700 is a stop's address and note.
-- **drive, transit, walk:** one colour for each way of travelling, on a phone's day and
-  in the sheet that changes a leg there, and nowhere else: the way's glyph in 700 on a
-  disc of 200. Drive is a slate blue, public transport a plum and a walk a teal, hues
-  nothing else in the product is drawn in, so a way is never taken for an end's sage,
-  for the accent, or for a leg's ink on the map, which says which leg and not which
-  way. The map, a phone's map view and a desk keep the legs' inks. They are not an
-  accent and not a status, and the way is still said in words beside its glyph. Cut at
-  OKLCH hue 255, 330 and 190 on the shared scale, at chroma 0.035 for 200 and 0.075
-  for 700.
+- **denim, plum, lagoon:** three cool hues beside the warm ramps, a slate blue, a plum
+  and a teal, named for their colour since each has more than one use. On a phone's day
+  and in the sheet that changes a leg there they are the three ways of travelling, the
+  way's glyph in 700 on a disc of 200: denim a drive, plum public transport and lagoon
+  a walk. Nothing else on the day is drawn in them, so a way is never taken for an
+  end's sage, for the accent, or for a leg's ink on the map, which says which leg and
+  not which way. The map, a phone's map view and a desk keep the legs' inks. In a
+  phone's trip menu, plum and denim are the discs of **Edit trip** and **Share trip**,
+  their glyphs in 800, beside **New trip** on sage and **Delete trip** on the accent, so
+  the rows are told apart before their names are read. They are not an accent and not a
+  status, and what each stands for is still said in words beside its glyph. Cut at
+  OKLCH hue 255, 330 and 190 on the shared scale, at chroma 0.035 for 200, 0.075 for 700
+  and 0.06 for 800. Not slate and teal, which are Tailwind's own names and would bring
+  its other steps with them.
 - **city:** six colours, one for each city a trip goes to, handed out in the order the
   trip reaches them and round again for a seventh: terracotta, sage, ochre, deep clay,
   deep sage and rose clay. They mark which days share a city and nothing else. A city
@@ -480,11 +487,14 @@ over the page dimmed with `ink` at 35 percent, raised paper rounded 30px at the 
 under `shadow-lg`, with a handle, and under the handle, with nothing heading them, a
 card for each thing that can be done to the
 trip, 8px apart: on `sheet` inside a 2px `rule` edge, rounded at the `panel` radius, its
-glyph on a 38px disc of sage 200, and its name in bold at the body step over what it
-does at the meta step in `ink-muted`. **Edit trip**, "Name, start date and duration";
-**Share trip**, "View-only and edit links"; **New trip**, "Start planning another
-trip"; and **Delete trip**, "Remove this trip and all its days", its disc in terracotta
-200 and its name in `terracotta-800`. Export is not one of them, since it is a view in
+glyph on a 38px disc of a colour of its own, and its name in bold at the body step over
+what it does at the meta step in `ink-muted`. **Edit trip**, "Name, start date and
+duration", on plum 200 with its glyph in plum 800; **Share trip**, "View-only and edit
+links", on denim 200 and 800; **New trip**, "Start planning another trip", on sage 200
+and 800; and **Delete trip**, "Remove this trip and all its days", its disc in
+terracotta 200 and its name in `terracotta-800`. The last card stands 24px over the
+sheet's foot, as every sheet up from a phone's foot ends, the leg's, the calendar's and
+this one's, or clear of the phone's own edge there where that is more. Export is not one of them, since it is a view in
 the bar. Edit trip and Share trip turn the sheet into their page, under the page's name
 and an arrow back to the cards: "Plan your trip" and "Share this trip". Share this trip,
 on a phone's sheet as in a desk's menu, gives each link a sunken pill, the read only

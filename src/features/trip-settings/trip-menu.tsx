@@ -90,10 +90,12 @@ export function MenuPageRow({ title, content, className, children }: MenuPageRow
  * The panel as a phone draws it, the way a leg's sheet is drawn: flush with
  * the window at the sides and the foot, rounded thirty at the top, as tall as
  * what is on it up to most of the window and scrolling inside itself past
- * that, with its last row clear of the phone's own bar at the foot.
+ * that, with its last row 24px over its foot, as every sheet up from a
+ * phone's foot ends, or clear of the phone's own bar there where that is
+ * more.
  */
 const SHEET =
-  "max-lg:fixed max-lg:inset-x-0 max-lg:top-auto max-lg:bottom-0 max-lg:z-50 max-lg:mt-0 max-lg:max-h-[85dvh] max-lg:w-auto max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:rounded-t-[30px] max-lg:rounded-b-none max-lg:border-0 max-lg:px-4 max-lg:pt-[10px] max-lg:pb-[max(32px,env(safe-area-inset-bottom))]";
+  "max-lg:fixed max-lg:inset-x-0 max-lg:top-auto max-lg:bottom-0 max-lg:z-50 max-lg:mt-0 max-lg:max-h-[85dvh] max-lg:w-auto max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:rounded-t-[30px] max-lg:rounded-b-none max-lg:border-0 max-lg:px-4 max-lg:pt-[10px] max-lg:pb-[max(24px,env(safe-area-inset-bottom))]";
 
 interface TripMenuProps {
   readonly label: string;

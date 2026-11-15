@@ -205,7 +205,7 @@ export function EditTrip(props: EditTripProps) {
       content={<EditTripPage {...props} />}
       className={`${MENU_ITEM} lg:hidden`}
     >
-      <SheetRow icon={PencilIcon} title="Edit trip" detail="Name, start date and duration" />
+      <SheetRow icon={PencilIcon} title="Edit trip" detail="Name, start date and duration" tint="plum" />
     </MenuPageRow>
   );
 }

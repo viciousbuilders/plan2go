@@ -82,7 +82,7 @@ export function TripActions({
         <Link href={startAnotherPath} target="_blank" className={MENU_ITEM}>
           <PlusIcon size={15} strokeWidth={2.75} className="shrink-0 max-lg:hidden" />
           <span className="max-lg:hidden">New trip</span>
-          <SheetRow icon={PlusIcon} title="New trip" detail="Start planning another trip" />
+          <SheetRow icon={PlusIcon} title="New trip" detail="Start planning another trip" tint="sage" />
         </Link>
 
         {/* What ends the trip is kept apart from what the trip does, and wears

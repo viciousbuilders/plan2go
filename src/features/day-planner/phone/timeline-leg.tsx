@@ -27,13 +27,14 @@ function stopIdOf(planned: PlannedLeg): string | null {
 /**
  * Each way's own colour, its glyph in 700 on a disc of 200, the same on the
  * day's thread and in the sheet, so a way is known by its colour before its
- * word is read. Only the phone's day wears them: the map colours a leg by
- * which leg it is, and the desk keeps the map's inks.
+ * word is read: denim a drive, plum public transport and lagoon a walk. Only
+ * the phone's day wears them: the map colours a leg by which leg it is, and
+ * the desk keeps the map's inks.
  */
 const WAY_DISC: Readonly<Record<TravelMode, string>> = {
-  drive: "bg-drive-200 text-drive-700",
-  transit: "bg-transit-200 text-transit-700",
-  walk: "bg-walk-200 text-walk-700",
+  drive: "bg-denim-200 text-denim-700",
+  transit: "bg-plum-200 text-plum-700",
+  walk: "bg-lagoon-200 text-lagoon-700",
 };
 
 /** How long a way takes, said as a guess when the provider found no route that way. */

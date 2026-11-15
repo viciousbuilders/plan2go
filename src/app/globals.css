@@ -78,22 +78,30 @@
   --color-city-6-light: #e2a590;
 
   /*
-   * The three ways of travelling, each in its own colour on a phone's day
-   * and in the sheet that changes a leg: the way's glyph in 700 on a disc of
-   * 200. Hues nothing else in the product is drawn in, so a way's colour is
-   * never taken for a leg's ink on the map, which says which leg and not
-   * which way, nor for an end's sage or the accent. Cut from the shared
-   * lightness scale at OKLCH hue 255 for a drive, 330 for public transport
-   * and 190 for a walk, chroma 0.035 at 200 and 0.075 at 700, which is the
-   * chroma of an earth rather than a chart. A step needed later is cut the
-   * same way.
+   * Three cool hues beside the warm ramps, named for their colour rather than
+   * for one use, since each has more than one. On a phone's day, and in the
+   * sheet that changes a leg there, they are the three ways of travelling,
+   * the way's glyph in 700 on a disc of 200: denim a drive, plum public
+   * transport and lagoon a walk. Nothing else on the day is drawn in them,
+   * so a way's colour is never taken for a leg's ink on the map, which says
+   * which leg and not which way, nor for an end's sage or the accent. In a
+   * phone's trip menu, denim and plum are two of the rows' discs, the glyph
+   * in 800, telling the rows apart beside sage and the accent.
+   *
+   * Cut from the shared lightness scale at OKLCH hue 255 for denim, 330 for
+   * plum and 190 for lagoon, chroma 0.035 at 200, 0.075 at 700 and 0.06 at
+   * 800, which is the chroma of an earth rather than a chart. A step needed
+   * later is cut the same way. Not slate or teal, which are Tailwind's own
+   * names and would bring its other steps with them.
    */
-  --color-drive-200: #d9eaff;
-  --color-drive-700: #405f87;
-  --color-transit-200: #f6e0f3;
-  --color-transit-700: #764e72;
-  --color-walk-200: #cef0ed;
-  --color-walk-700: #196b67;
+  --color-denim-200: #d9eaff;
+  --color-denim-700: #405f87;
+  --color-denim-800: #2c4462;
+  --color-plum-200: #f6e0f3;
+  --color-plum-700: #764e72;
+  --color-plum-800: #543652;
+  --color-lagoon-200: #cef0ed;
+  --color-lagoon-700: #196b67;
 
   /*
    * The map has no hues of its own any more.

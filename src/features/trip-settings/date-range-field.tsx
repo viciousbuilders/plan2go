@@ -303,11 +303,12 @@ function CalendarFrame({ wide, label, shift, frame, onClose, children }: Calenda
             onClose();
           }
         }}
-        // The shadow cast upwards in the accent's darkest brown, and room at
-        // the foot for a phone's own edge where it has one. No padding over
+        // The shadow cast upwards in the accent's darkest brown, and 24px at
+        // the foot as every sheet up from a phone's foot keeps, or room for
+        // a phone's own edge where that is more. No padding over
         // the handle: the line held at the top holds to the padding's inner
         // edge, and anything scrolled past would show through above it.
-        className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[85dvh] w-full max-w-[480px] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-paper-raised px-5 pb-[max(32px,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)]"
+        className="absolute inset-x-0 bottom-0 mx-auto flex max-h-[85dvh] w-full max-w-[480px] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-paper-raised px-5 pb-[max(24px,env(safe-area-inset-bottom))] shadow-[0_-12px_32px_color-mix(in_srgb,var(--color-terracotta-900)_18%,transparent)]"
       >
         <span aria-hidden="true" className="mt-3 mb-4 h-[5px] w-10 flex-none self-center rounded-pill bg-ink/18" />
         {children}
