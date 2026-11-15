@@ -37,16 +37,134 @@
     width 250ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* On a desk only. On a phone the chosen day is its filled card and there is
-   no pill to slide. */
+/* On a desk only. A phone has a sliding card of its own, below. */
 @media (width >= 1024px) {
   [data-placed] > .day-pill {
     display: block;
   }
 }
 
+/*
+ * A phone's chosen day: one card for the strip, filled in the accent's
+ * deepest brown, slid to the day chosen over the same 250ms on the same
+ * curve as a desk's pill. Over the cards rather than under them, since every
+ * card on a phone is solid and would hide it on its way past, and the days'
+ * words drawn again in paper over it, cut to its shape and moved with it, so
+ * whatever day it is over reads in paper on it as it goes, the days it
+ * slides past included. Where it goes and how big it is come from
+ * day-tabs.tsx, which measures the chosen card, as it does for a desk's
+ * pill; until then the chosen card paints its own fill.
+ */
+.day-slider,
+.day-slider-ink {
+  display: none;
+}
+
+@media (width < 1024px) {
+  [data-placed] > .day-slider,
+  [data-placed] > .day-slider-ink {
+    display: flex;
+  }
+
+  .day-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: var(--pill-w);
+    height: var(--pill-h);
+    translate: var(--pill-x) var(--pill-y);
+    pointer-events: none;
+    transition:
+      translate 250ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .day-slider-ink {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    align-items: stretch;
+    pointer-events: none;
+    clip-path: inset(
+      var(--pill-y) calc(100% - var(--pill-x) - var(--pill-w))
+        calc(100% - var(--pill-y) - var(--pill-h)) var(--pill-x) round var(--radius-panel)
+    );
+    transition: clip-path 250ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/*
+ * The day under the strip on a phone, slid across to the day chosen: the day
+ * on show goes out of the window on one side as the day chosen comes in on the
+ * other, a later day from the right and an earlier from the left, over the
+ * card's 250ms on its curve, so the day and the card in the strip move as one.
+ * Done as a view transition started by the strip, which marks the root with
+ * the way it goes while it runs: the day is a picture of its own then, and
+ * everything else is the window as it now is, at once, so the strip's card is
+ * seen sliding in it rather than as a picture of before.
+ */
+@keyframes day-out-to-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes day-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes day-out-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes day-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+:root[data-slide^="day-"] .day-panel {
+  view-transition-name: day-panel;
+}
+
+:root[data-slide^="day-"]::view-transition-old(root) {
+  display: none;
+}
+
+:root[data-slide^="day-"]::view-transition-new(root) {
+  animation: none;
+}
+
+:root[data-slide^="day-"]::view-transition-group(day-panel) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-slide="day-on"]::view-transition-old(day-panel) {
+  animation: day-out-to-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="day-on"]::view-transition-new(day-panel) {
+  animation: day-in-from-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="day-back"]::view-transition-old(day-panel) {
+  animation: day-out-to-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="day-back"]::view-transition-new(day-panel) {
+  animation: day-in-from-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .day-pill {
+  .day-pill,
+  .day-slider,
+  .day-slider-ink {
     transition: none;
   }
 }

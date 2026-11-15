@@ -551,7 +551,9 @@ faded. No dot leads the number, neither the city's nor one for whether anything 
 planned on the day. The chosen day's card is filled in `terracotta-800` with its words
 in `paper`, the way a chosen chip is
 anywhere in the product; today, when it is not chosen, is in sage 100 inside a sage 200
-edge with its words in sage 800. After the last day, centred on the
+edge with its words in sage 800. The chosen fill is one card for the strip, laid over
+the chosen day and slid to the day chosen as a desk's pill is (see Motion), and the
+day under the strip slides across with it. After the last day, centred on the
 cards and as far from them as they are from each other, the button that adds a day, a
 44px dashed ring.
 
@@ -1273,8 +1275,9 @@ and it is the product's own.
 
 ## Motion
 
-Twelve things animate: reordering a stop, the trip's actions unfolding, a place's sheet
-arriving and leaving, the chosen day's pill moving along the strip, the pill of a phone's
+Thirteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
+with the day under it sliding across, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
 the export's page setup unfolding and folding, the switches of a phone's export being
@@ -1313,6 +1316,16 @@ per tab, so choosing a day moves it there rather than one going out and another 
 on, the way a phone app's tab bar moves its highlight. Nothing else on the strip
 moves: a day's words and dot are the same on the pill as off it.
 
+A phone's strip has a sliding card of its own, the chosen day's `terracotta-800` fill
+as one card for the strip, moving the same way, `translate` and `width` over 250ms on
+the same curve, with its height and how far down it is taken from the card as well.
+Over the cards rather than under them, since a phone's cards are solid and would hide
+it on its way past, and the days' words drawn again in `paper` and cut to it, the cut
+moving with it, so whatever day it is over reads in paper on it as it goes. Once it is
+laid, the chosen card is drawn as any other under it, so a card it has left or not yet
+reached is never a second chosen day. A day being carried leaves its place empty under
+it too.
+
 The pill of a phone's bar of views moves the same way, `translate` and `width` over 250ms
 on the same curve, to the view chosen, and so does the pill of the export's switch
 between the full trip and the cover only, one sliding pill for both (`use-sliding-pill`
@@ -1333,6 +1346,15 @@ picture of its own that stays put, its pill doing the moving. A browser without 
 transitions changes the view at once. Not when the search takes the window to the map
 to find a place, which focuses the field inside the press so a phone brings its
 keyboard up, and a transition would focus it a frame too late: that changes at once.
+
+A phone's day, chosen in the strip, slides the same way under it: the day on show goes
+out of the window on one side as the day chosen comes in on the other, a later day
+from the right and an earlier from the left, over the strip card's 250ms on its curve,
+so the day and the card move as one. Done as a view transition too, with the day a
+picture of its own while it runs and everything else the window as it now is, at once,
+so the strip's card is seen sliding rather than as a picture of before. The day is
+named for the transition only while it runs. On a desk the day changes at once, beside
+the map, as the pill moves.
 
 The export's bar: its fill's `width` over 150ms `linear` each time the clock moves it
 on, and a spinner beside its words turning once every 800ms.
@@ -1367,7 +1389,8 @@ Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
 Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
-day's pill, the bar of views' pill and the views under it, the export's switch, its
+day's pill and a phone's card with the day under it, the bar of views' pill and the
+views under it, the export's switch, its
 page setup and a phone's switches, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's

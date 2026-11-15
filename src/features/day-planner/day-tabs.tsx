@@ -1,8 +1,8 @@
 "use client";
 
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, RefObject } from "react";
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { DayPlan } from "@/core/model/day";
 import { CityDot } from "@/ui/city-dot";
@@ -124,14 +124,50 @@ const RAISED_ON_A_DESK = "lg:bg-paper-raised lg:shadow-sm lg:ring-1 lg:ring-rule
  * today, when it is not chosen, is in sage, the strip's second voice for it
  * on a desk too; any other day is on raised paper inside a hairline, and
  * takes the step every control on paper takes under the pointer.
+ *
+ * The chosen day paints its own fill only until the strip's sliding card has
+ * been laid over it (see day-tabs.css), and from then on is drawn as any other
+ * day under it, so a card the slider has left, or not yet reached, is never a
+ * second chosen day.
  */
 function dayCard(selected: boolean, isToday: boolean): string {
   if (selected) {
-    return "max-lg:border-terracotta-800 max-lg:bg-terracotta-800 max-lg:text-paper";
+    return isToday
+      ? "max-lg:border-terracotta-800 max-lg:bg-terracotta-800 max-lg:text-paper max-lg:group-data-[placed]/days:border-sage-200 max-lg:group-data-[placed]/days:bg-sage-100 max-lg:group-data-[placed]/days:text-sage-800"
+      : "max-lg:border-terracotta-800 max-lg:bg-terracotta-800 max-lg:text-paper max-lg:group-data-[placed]/days:border-rule max-lg:group-data-[placed]/days:bg-paper-raised max-lg:group-data-[placed]/days:text-ink";
   }
   return isToday
     ? "max-lg:border-sage-200 max-lg:bg-sage-100 max-lg:text-sage-800 max-lg:hover:bg-sage-200"
     : "max-lg:border-rule max-lg:bg-paper-raised max-lg:text-ink max-lg:hover:bg-paper-sunken";
+}
+
+/** Wide enough for a desk, where the strip's own pill marks the chosen day and nothing slides under it. */
+const WIDE_WINDOW = "(min-width: 1024px)";
+
+/**
+ * Changes the day as a view transition that slides it across (see
+ * day-tabs.css), the root saying which way it goes while it runs. Said only
+ * while it runs: a name left on the day after it would set the day apart
+ * from the page around it in every transition to come. So once it is done,
+ * if no other has started since, the root says nothing again.
+ */
+function slideDay(
+  way: "day-on" | "day-back",
+  change: () => void,
+  latest: RefObject<ViewTransition | null>,
+): void {
+  const root = document.documentElement;
+  root.dataset.slide = way;
+  const transition = document.startViewTransition(() => {
+    flushSync(change);
+  });
+  latest.current = transition;
+  void transition.finished.finally(() => {
+    if (latest.current === transition && root.dataset.slide === way) {
+      delete root.dataset.slide;
+      latest.current = null;
+    }
+  });
 }
 
 /**
@@ -369,6 +405,10 @@ export function DayTabs({
       }
       strip.style.setProperty("--pill-x", `${String(tab.offsetLeft)}px`);
       strip.style.setProperty("--pill-w", `${String(tab.offsetWidth)}px`);
+      // How far down and how tall, for a phone's sliding card, which is the
+      // card's whole shape where a desk's pill is the strip's own height.
+      strip.style.setProperty("--pill-y", `${String(tab.offsetTop)}px`);
+      strip.style.setProperty("--pill-h", `${String(tab.offsetHeight)}px`);
       strip.dataset.placed = "";
     };
     place();
@@ -415,6 +455,37 @@ export function DayTabs({
     };
   }, [movingTo]);
 
+  /** The day slide running on a phone, so only the latest one tidies up after itself. */
+  const sliding = useRef<ViewTransition | null>(null);
+
+  /**
+   * A day chosen. On a phone, the day under the strip slides across to it
+   * (see day-tabs.css): out of the window on one side as the day chosen comes
+   * in on the other, the way the strip's card goes, a later day from the
+   * right and an earlier from the left, as a view transition, where the
+   * browser has them and the reader has not asked for less motion. On a desk,
+   * where the pill moves and the day is beside the map, and otherwise, the
+   * day changes at once.
+   */
+  const choose = (index: number): void => {
+    if (
+      index === selectedIndex ||
+      window.matchMedia(WIDE_WINDOW).matches ||
+      !("startViewTransition" in document) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      onSelect(index);
+      return;
+    }
+    slideDay(
+      index > selectedIndex ? "day-on" : "day-back",
+      () => {
+        onSelect(index);
+      },
+      sliding,
+    );
+  };
+
   const move = (event: KeyboardEvent<HTMLButtonElement>, index: number): void => {
     const last = days.length - 1;
     let next: number | null = null;
@@ -433,7 +504,7 @@ export function DayTabs({
       return;
     }
     event.preventDefault();
-    onSelect(next);
+    choose(next);
     tabs.current[next]?.focus();
   };
 
@@ -483,6 +554,10 @@ export function DayTabs({
               drawn above it, so the day is marked by what it stands on
               and its words and dot are the ones every other day has. */}
           <span aria-hidden="true" className={`day-pill h-11 rounded-pill ${RAISED}`} />
+          {/* A phone's chosen day, one card for the strip slid to the day
+              chosen, over the cards rather than under them (see
+              day-tabs.css). */}
+          <span aria-hidden="true" className="day-slider rounded-panel bg-terracotta-800" />
           {days.map((day, index) => {
             const selected = index === selectedIndex;
             /**
@@ -531,7 +606,7 @@ export function DayTabs({
                 // A press that carried the day somewhere chose nothing.
                 onClick={(event) => {
                   if (!carry.carriedClick(event)) {
-                    onSelect(index);
+                    choose(index);
                   }
                 }}
                 onKeyDown={(event) => {
@@ -596,6 +671,20 @@ export function DayTabs({
               </button>
             );
           })}
+          {/* The days' words again in paper, laid out as the cards are and
+              cut to the sliding card, so whatever day it is over reads in
+              paper on it as it goes. A day being carried leaves its place
+              empty here too. */}
+          <span aria-hidden="true" className="day-slider-ink gap-[6px] text-paper lg:hidden">
+            {days.map((day, index) => (
+              <span
+                key={day.id}
+                className={`${TAB} border-transparent ${lifted?.index === index ? "opacity-0" : ""}`}
+              >
+                <DayFace day={day} index={index} />
+              </span>
+            ))}
+          </span>
         </div>
 
         {onAddDay === null ? null : (

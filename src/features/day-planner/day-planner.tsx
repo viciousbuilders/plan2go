@@ -260,7 +260,7 @@ export function DayPlanner({
            * foot as the phone's own edge asks, 20px at least, and is 54px tall.
            */
           ref={watchList}
-          className={`scroll-line [--bar-width:6px] min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pb-4 [overflow-anchor:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${GUTTER} max-lg:overflow-visible max-lg:pb-[calc(max(20px,env(safe-area-inset-bottom))+70px)]`}
+          className={`day-panel scroll-line [--bar-width:6px] min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pb-4 [overflow-anchor:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${GUTTER} max-lg:overflow-visible max-lg:pb-[calc(max(20px,env(safe-area-inset-bottom))+70px)]`}
         >
           {/* The same day, laid out for the room each has: on a desk the
               cards on the panel beside the map, and on a phone one column of
