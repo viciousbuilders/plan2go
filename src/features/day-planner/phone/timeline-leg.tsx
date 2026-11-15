@@ -24,6 +24,18 @@ function stopIdOf(planned: PlannedLeg): string | null {
   return planned.target.kind === "stop" ? planned.target.stopId : null;
 }
 
+/**
+ * Each way's own colour, its glyph in 700 on a disc of 200, the same on the
+ * day's thread and in the sheet, so a way is known by its colour before its
+ * word is read. Only the phone's day wears them: the map colours a leg by
+ * which leg it is, and the desk keeps the map's inks.
+ */
+const WAY_DISC: Readonly<Record<TravelMode, string>> = {
+  drive: "bg-drive-200 text-drive-700",
+  transit: "bg-transit-200 text-transit-700",
+  walk: "bg-walk-200 text-walk-700",
+};
+
 /** How long a way takes, said as a guess when the provider found no route that way. */
 function took(minutes: number, rough: boolean): string {
   return `${rough ? "about " : ""}${formatDuration(minutes)}`;
@@ -31,7 +43,7 @@ function took(minutes: number, rough: boolean): string {
 
 /**
  * One way of covering the leg, as a row of the sheet: the way's glyph on a
- * disc of sage, its name over how far it goes, and how long it takes in the
+ * disc in the way's colour, its name over how far it goes, and how long it takes in the
  * display face at the end, the one number the sheet is opened to compare.
  * The one in use is filled with the accent's lightest tint inside the
  * accent's edge.
@@ -61,7 +73,9 @@ function Way({
   }`;
   const inside = (
     <>
-      <span className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-pill bg-sage-200 text-sage-800">
+      <span
+        className={`grid h-[38px] w-[38px] shrink-0 place-items-center rounded-pill ${WAY_DISC[option.mode]}`}
+      >
         <Icon size={18} strokeWidth={2.4} />
       </span>
       <span className="min-w-0 flex-1">
@@ -101,10 +115,11 @@ function Way({
 /**
  * How the day gets from one place to the next on a phone, as the phone's day
  * design draws it: a line rather than a box between two cards, the way's
- * glyph on a 26px disc of neutral 200 standing on the day's thread, its
+ * glyph on a 26px disc in the way's colour standing on the day's thread, its
  * middle on the ends' discs' middle, then the way and how long it takes in
  * neutral 700, "Drive 14 min", with a chevron after it. A leg that cannot be
- * made says so in the same ink, with no glyph on its disc. Pressed, the ways
+ * made says so in the same ink, with no glyph on a disc of neutral 200, since
+ * it names no way as settled. Pressed, the ways
  * of covering the same ground come up from the foot of the window in a sheet,
  * one row each. For someone who may edit, choosing one puts it on the day and
  * lets the sheet go once the new times are worked out, since the day under
@@ -187,7 +202,9 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
       >
         <span
           aria-hidden="true"
-          className="grid size-[26px] shrink-0 place-items-center rounded-pill bg-neutral-200 text-neutral-800"
+          className={`grid size-[26px] shrink-0 place-items-center rounded-pill ${
+            covered ? WAY_DISC[leg.mode] : "bg-neutral-200"
+          }`}
         >
           {covered ? <Icon size={15} strokeWidth={2.4} /> : null}
         </span>

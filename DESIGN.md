@@ -46,6 +46,15 @@ colors:
     4: "#8C491A"
     5: "#4D5936"
     6: "#B5654A"
+  drive-ramp:
+    200: "#D9EAFF"
+    700: "#405F87"
+  transit-ramp:
+    200: "#F6E0F3"
+    700: "#764E72"
+  walk-ramp:
+    200: "#CEF0ED"
+    700: "#196B67"
 typography:
   headline:
     fontFamily: Baloo 2
@@ -214,14 +223,21 @@ paper and ink.
   200 under the pointer, its card in a phone's row of places on the map, and its card on
   the sheets. In a phone's day an end is a pill of 200, its time in 800 and its name in
   900, and an end not there yet a pill dashed in 400 with its disc in 200.
-  A leg is never on sage, so an end never reads as one more leg. On a phone 200 is also
-  the disc behind a way's glyph in the sheet that changes a leg.
-- **neutral:** the warm greys behind everything, used for the drive tint and the map's
-  own geometry. On paper, 100 is the ground of the map and of an end of the trip not yet
+  A leg is never on sage, so an end never reads as one more leg.
+- **neutral:** the warm greys behind everything, used for the map's own geometry. On paper, 100 is the ground of the map and of an end of the trip not yet
   set, and 800 the words on the pill that counts the stops. In the export's column, 500
   is the words of a choice that is off and the .pdf after the file's name. In a phone's
-  day 200 is the disc a leg's glyph stands on, the glyph in 800, and 700 is the words of
-  a leg and a stop's address.
+  day 200 is the disc of a leg that cannot be made, and 700 is the words of a leg and a
+  stop's address.
+- **drive, transit, walk:** one colour for each way of travelling, on a phone's day and
+  in the sheet that changes a leg there, and nowhere else: the way's glyph in 700 on a
+  disc of 200. Drive is a slate blue, public transport a plum and a walk a teal, hues
+  nothing else in the product is drawn in, so a way is never taken for an end's sage,
+  for the accent, or for a leg's ink on the map, which says which leg and not which
+  way. The map, a phone's map view and a desk keep the legs' inks. They are not an
+  accent and not a status, and the way is still said in words beside its glyph. Cut at
+  OKLCH hue 255, 330 and 190 on the shared scale, at chroma 0.035 for 200 and 0.075
+  for 700.
 - **city:** six colours, one for each city a trip goes to, handed out in the order the
   trip reaches them and round again for a seventh: terracotta, sage, ochre, deep clay,
   deep sage and rose clay. They mark which days share a city and nothing else. A city
@@ -566,9 +582,9 @@ under times and names under names, ends and stops alike.
   as **Add a place** does. Under a pointer the dash takes sage 600 and the paper lifts to
   `paper-raised`.
 - A leg: a line rather than a box, 50px tall and one button, which brings up its sheet:
-  the way's glyph in neutral 800 on a 26px disc of neutral 200 standing on the thread,
-  then the way and how long it takes, "Drive 14 min", with a chevron. A leg that cannot be made says so in the same ink, with no glyph
-  on its disc.
+  the way's glyph in its colour's 700 on a 26px disc of its 200 standing on the thread,
+  then the way and how long it takes, "Drive 14 min", with a chevron. A leg that cannot be made says so in the same ink, with no glyph,
+  on a disc of neutral 200.
 - A stop: a card of `paper-raised` at the `row` radius under `shadow-sm`, the column's
   width. At its left, on a block of terracotta 100 at the `chip` radius filling the
   column of times and as tall as the card less its padding, when it is reached in
@@ -611,7 +627,8 @@ A leg pressed brings up a sheet from the foot of the window, over the page dimme
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a
 handle, "From Sydney Opera House to Taronga Zoo Sydney" at the lead step, the names
 in its weight and "From" and "to" regular, breaking before "to" when it needs two
-lines, and a row for every way of covering the leg, its glyph on a 38px disc of sage 200, its
+lines, and a row for every way of covering the leg, its glyph on a 38px disc in the way's
+colour, as on the thread, its
 name in bold over how far it goes, and how long it takes in the display face at the lead
 step at the row's end. The way in use is `terracotta-100` inside a 2px edge of the
 accent, the rest `sheet` inside `rule`. Choosing one writes it, says the new times are
@@ -892,7 +909,7 @@ the disc a 16 percent wash of it over the panel's ground, so the disc is solid a
 thread passes behind it, as a bead on a string. Beside it, on the edge the legs' words
 keep, the way's name with a chevron after it on a pill the shape of the stay's on the
 card, 32px tall, the name at the small step in 600, in the warm grey a leg is drawn in:
-`neutral-200` inside an edge of `neutral-300`, the grey of the phone's leg discs, going a
+`neutral-200` inside an edge of `neutral-300`, going a
 step darker under the pointer and while the panel is open, `neutral-300` inside
 `neutral-400`. Not the cards' raised cream, in which it read as one more stop, and not
 the accent edge a card and the stay's pill take under the pointer. It is the

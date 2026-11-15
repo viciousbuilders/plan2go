@@ -78,6 +78,24 @@
   --color-city-6-light: #e2a590;
 
   /*
+   * The three ways of travelling, each in its own colour on a phone's day
+   * and in the sheet that changes a leg: the way's glyph in 700 on a disc of
+   * 200. Hues nothing else in the product is drawn in, so a way's colour is
+   * never taken for a leg's ink on the map, which says which leg and not
+   * which way, nor for an end's sage or the accent. Cut from the shared
+   * lightness scale at OKLCH hue 255 for a drive, 330 for public transport
+   * and 190 for a walk, chroma 0.035 at 200 and 0.075 at 700, which is the
+   * chroma of an earth rather than a chart. A step needed later is cut the
+   * same way.
+   */
+  --color-drive-200: #d9eaff;
+  --color-drive-700: #405f87;
+  --color-transit-200: #f6e0f3;
+  --color-transit-700: #764e72;
+  --color-walk-200: #cef0ed;
+  --color-walk-700: #196b67;
+
+  /*
    * The map has no hues of its own any more.
    *
    * It kept three, spread as far apart on the wheel as three colours could be,
