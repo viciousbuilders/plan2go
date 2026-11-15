@@ -219,9 +219,13 @@ export function LegRow({
 
   /**
    * What opens the other ways, for someone who may change it: the way's name
-   * with a chevron pointing where the panel goes, a pill under the pointer as
-   * the card's tools are. On a leg with no way, "Change" in its place, since
-   * the leg does not name a way it cannot be covered by.
+   * with a chevron pointing where the panel goes, on a pill drawn as the
+   * stay's pill on the card is, so the two things on the day that open to be
+   * changed look alike. The edge takes the accent under the pointer and keeps
+   * it while the panel is open. It was the bare name, a pill only under the
+   * pointer, which left nothing to say it could be pressed until it was
+   * pointed at. On a leg with no way, "Change" in its place, since the leg
+   * does not name a way it cannot be covered by.
    */
   const toggle =
     onChange === null ? null : (
@@ -233,7 +237,9 @@ export function LegRow({
         }}
         aria-expanded={open}
         title="Change how you get there"
-        className="-mx-[6px] flex shrink-0 items-center gap-[6px] rounded-pill px-[6px] py-1 text-body/none font-semibold whitespace-nowrap text-ink hover:bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+        className={`flex h-8 shrink-0 items-center gap-2 rounded-pill border bg-paper-raised pr-[10px] pl-3 text-small/none font-semibold whitespace-nowrap text-ink hover:border-terracotta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+          open ? "border-terracotta" : "border-rule"
+        }`}
       >
         {covered ? MODE_WORDS[leg.mode] : "Change"}
         {open ? (
@@ -296,13 +302,16 @@ export function LegRow({
         ) : null}
       </div>
 
-      <div className="min-w-0 py-4">
-        {/* One line, as deep as the disc beside it: the way, then how long
-            and how far, quietly, at the same step, and Google Maps on
-            the times' right edge. It wraps rather than cutting anything
-            short on a narrow panel, the link going to the right of a line
-            of its own. */}
-        <div className="flex min-h-[26px] flex-wrap items-center gap-x-[10px] gap-y-[6px]">
+      <div className="min-w-0 py-[13px]">
+        {/* One line, as deep as the way's pill, with the disc beside it
+            level with the middle of it: the way, then how long and how far,
+            quietly, and Google Maps on the times' right edge. Thirteen
+            pixels above and below, so a 32px pill keeps the leg 58px from
+            card to card, as it was when the way was bare words; a reader,
+            who gets no pill, gets the same depth, so the disc is level for
+            both. It wraps rather than cutting anything short on a narrow
+            panel, the link going to the right of a line of its own. */}
+        <div className="flex min-h-8 flex-wrap items-center gap-x-[10px] gap-y-[6px]">
           {covered ? (
             <>
               {toggle ?? (

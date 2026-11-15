@@ -885,14 +885,18 @@ this one. It is on the last card because that is where a place found in the sear
 goes, and it is the one control on a card about the day rather than the stop. A reader
 without the edit link does not get it.
 
-A leg opens. Closed it is one line hung on the thread, 58px from card to card, with no
-pill of its own. On the thread, level with the words, the way's glyph on a 26px disc in
+A leg opens. Closed it is one line hung on the thread, 58px from card to card, with
+nothing drawn round the line. On the thread, level with the words, the way's glyph on a 26px disc in
 the leg's own ink, the ink its line on the map is drawn in: the glyph in it outright and
 the disc a 16 percent wash of it over the panel's ground, so the disc is solid and the
 thread passes behind it, as a bead on a string. Beside it, on the edge the legs' words
-keep, the way's name at the body step in 600 with a chevron after it, which is the
-button that opens the panel, a pill of `neutral-200` under the pointer, titled "Change
-how you get there"; then how long it takes and how far, "48 min · 45 km", at the body
+keep, the way's name with a chevron after it on a pill drawn as the stay's is on the
+card, 32px tall, raised paper inside an edge of `rule`, the name at the small step in
+600, the edge taking the accent under the pointer and while the panel is open. It is the
+button that opens the panel, titled "Change how you get there". It was the bare name,
+a pill of `neutral-200` only under the pointer, which left nothing to say it could be
+pressed until it was pointed at. The line is 13px from the cards above and below it, so
+the pill keeps the 58px. Then how long it takes and how far, "48 min · 45 km", at the body
 step in `ink-muted`; and on the times' right edge **Google Maps** at the body step in 600
 `terracotta-700` with an arrow going up and out, the leg in Google Maps at the moment
 the day sets out on it, in a new tab, titled "Google Maps directions", the words it
