@@ -455,7 +455,9 @@ families at the step of the scale nearest the file's own.
 The bar of views is a pill of `ink` under `shadow-lg`, centred 20px clear of the foot of
 the window, holding three pills a finger's height, each a glyph and its word at the
 small step in bold: **Plan**, **Map** and **Export**. The view on show stands on a pill
-of `paper` with its words in `ink`; the others are `paper` at 75 percent on the ink.
+of `paper` with its words in `ink`; the others are `paper` at 75 percent on the ink. One
+pill for the bar, slid along to the view chosen (see Motion), and the words it is under
+in `ink` wherever it has got to.
 Each changes what the window shows, and Export is out of reach on a trip with nothing to
 export. Nothing else floats over the page: the word that says a change is saved stands
 in the window's bottom right corner, 12px over the bar and 20px in from the right, where
@@ -1211,10 +1213,10 @@ and it is the product's own.
 
 ## Motion
 
-Seven things animate: reordering a stop, the trip's actions unfolding, a place's sheet
-arriving and leaving, the chosen day's pill moving along the strip, the export's bar while
-its file is drawn, the export's preview on a phone coming in and going back, and the
-search on the map, whose movement is its design file's and is written out under Components and in
+Eight things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+arriving and leaving, the chosen day's pill moving along the strip, the pill of a phone's
+bar of views moving to the view chosen, the export's bar while its file is drawn, the
+export's preview on a phone coming in and going back, and the search on the map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
 pressed and gliding along when an arrow moves the row, the pill's colours and chevron turning, its
 dot popping and name sliding in on a move, the empty field's words turning over, a
@@ -1248,6 +1250,14 @@ per tab, so choosing a day moves it there rather than one going out and another 
 on, the way a phone app's tab bar moves its highlight. Nothing else on the strip
 moves: a day's words and dot are the same on the pill as off it.
 
+The pill of a phone's bar of views moves the same way, `translate` and `width` over 250ms
+on the same curve, to the view chosen. The words differ on and off it, `ink` on the pill
+and `paper` on the bar, so the words are drawn a second time in `ink` and cut to the
+pill, the cut moving with it over the same 250ms: whatever the pill is under reads in
+ink as it goes, a view it slides past included. Turning the words over as the pill set
+off left them `paper` on the paper pill until it arrived. The view itself changes at
+once, as a phone's own tab bar changes it.
+
 The export's bar: its fill's `width` over 150ms `linear` each time the clock moves it
 on, and a spinner beside its words turning once every 800ms. The page setup's chevron
 turns over in one frame, as any panel opening does.
@@ -1267,7 +1277,7 @@ Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
 Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
-day's pill, a city's dot and everything in the search are instant too, and the empty field's words stay on
+day's pill, the bar of views' pill, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.

@@ -1,0 +1,55 @@
+/*
+ * The chosen view's pill, laid under the views and slid along to whichever is
+ * chosen, as the chosen day's pill is slid along a desk's strip, and the way a
+ * phone's own tab bar moves its highlight rather than swapping it: 250ms on a
+ * curve that covers most of the way at once and settles into the rest, so a
+ * choice is answered straight away and still seen to travel. Where it goes
+ * and how big it is are set from view-tabs.tsx, measured from the button.
+ *
+ * Out of the page until it has been placed, so the first time it is placed is
+ * not a slide in from the bar's corner; the chosen button paints its own pill
+ * until then.
+ */
+.view-pill,
+.view-ink {
+  display: none;
+}
+
+[data-placed] > .view-pill,
+[data-placed] > .view-ink {
+  display: flex;
+}
+
+.view-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pill-w);
+  height: var(--pill-h);
+  translate: var(--pill-x) var(--pill-y);
+  transition:
+    translate 250ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * The views' words and glyphs again, in ink, cut to the pill and moved with
+ * it: the words on the pill are ink and the rest are paper wherever the pill
+ * has got to. Turning a view's words from one colour to the other as the pill
+ * set off left them paper on the paper pill for as long as it took to arrive,
+ * and the view it slid past went the colour of the pill as it went under it.
+ */
+.view-ink {
+  clip-path: inset(
+    var(--pill-y) calc(100% - var(--pill-x) - var(--pill-w))
+      calc(100% - var(--pill-y) - var(--pill-h)) var(--pill-x) round 999px
+  );
+  transition: clip-path 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-pill,
+  .view-ink {
+    transition: none;
+  }
+}
