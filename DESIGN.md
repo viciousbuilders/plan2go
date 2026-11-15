@@ -411,10 +411,14 @@ The day's thread runs on to a dashed row from the stop card next to it, across 2
 rather than twelve, as it runs down a leg to an end that is there.
 A day with no stops says so beside the line its stops will hang on, with no card under
 it, since a card on the day is a stop. The line is 2px of `terracotta` at 55 percent in
-4px dashes 2px apart, down the middle of the ends' marks, and stops 18px short of the
-rows above and below; the words are set left on the stops' left edge, the heading at the
-title step, with **Find a place** under them. Twelve under the start of the day when
-there is one, and twelve over the end when no leg comes between. The next place is offered as the next number, drawn dashed under the disc at the foot of
+4px dashes 2px apart, in the thread's own column, 13px nearer the edge than the ends'
+marks, where the thread runs once there are stops, and runs from the row above to the
+row below, the start of the day to its end, or on into the leg to the end when there is
+one, as one line with it, 2px short of each as the thread is short of what it joins. It
+stopped 18px short of both and stood between them tied to neither, and down the middle
+of the marks it met the leg's line 13px to the side. The words are set left on the
+stops' left edge, 30px under the row above and over the row below, the heading at the
+title step, with **Find a place** under them. The next place is offered as the next number, drawn dashed under the disc at the foot of
 the last stop card, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
 nothing drawn edge to edge.
 

@@ -393,12 +393,13 @@ function EndpointSlot({
           place goes there. The name and the line under it sit where the
           place's name and address will. */}
       {endpoint === null && !picking && actions !== null ? (
-        /* Twelve from what is next to it on the day's side, the room every
-           block on the panel keeps from the next; the panel's own padding
-           is on the other side. With a stop card there, the day's thread
-           runs across that room instead, as it would down a leg to an end
-           that was there. */
-        <div className={joined ? "" : which === "start" ? "pb-3" : "pt-3"}>
+        /* No room of its own from what is next to it on the day's side; the
+           panel's own padding is on the other side. With a stop card there,
+           the day's thread runs across the room between them, as it would
+           down a leg to an end that was there. With nothing on the day, the
+           empty day's line runs up to the row, and the empty day keeps the
+           room beside its words. */
+        <div>
           {joined && which === "end" ? <ThreadToEnd /> : null}
           <button
             type="button"
@@ -578,20 +579,13 @@ export function DayItinerary({
         onOpen={onOpenEndpoint}
       />
 
-      {/* Twelve under the start of the day when there is one, the room every
-          block on the panel keeps from the next. The row offering a start
-          keeps its own twelve, and with neither the empty day is the top.
-          Twelve over the end as well when nothing comes between: with no
-          start there is no leg to the end, and the end's row keeps no room
-          of its own. The row offering an end keeps its own twelve. */}
+      {/* Right up against the start of the day and the end, whether each is
+          a place or the row offering one, or the leg to the end when there
+          is one, so the empty day's line runs from where the day starts to
+          where it ends. The room every block keeps from the next is inside
+          the empty day, beside its words. */}
       {day.stops.length === 0 ? (
-        <div
-          className={`${day.start === null ? "" : "mt-3"} ${
-            day.end !== null && (legToEnd === undefined || plannedToEnd === undefined) ? "mb-3" : ""
-          }`}
-        >
-          <EmptyDay dayName={formatDayDate(day.date)} onFindPlace={onFindPlace} />
-        </div>
+        <EmptyDay dayName={formatDayDate(day.date)} onFindPlace={onFindPlace} />
       ) : null}
 
       <div className={busy ? "opacity-55" : ""} aria-busy={busy}>
