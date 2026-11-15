@@ -51,10 +51,19 @@ function Option({
       disabled={disabled || unavailable}
       aria-pressed={isChosen}
       /*
-       * The one in use is drawn on raised paper inside a heavier terracotta
-       * line, with its dot filled. The rest sit straight on the well behind a
-       * hairline, so the chosen tile is the one thing in the panel that looks
-       * like a card.
+       * The one in use is filled with the accent's lightest tint inside a
+       * 2px edge of the accent, with its dot filled, as the phone's sheet
+       * marks the way in use, so the same choice looks the same on both.
+       * Raised paper inside a thinner line was the lightest grey in a grey
+       * panel, and the choice had to be found by its outline alone. The
+       * second pixel of the edge is drawn inside the first rather than as a
+       * wider border, so the tile's words sit where the others' do and the
+       * times stay level across the row.
+       *
+       * The rest sit straight on the panel's grey behind a hairline, and go
+       * a step darker under the pointer, as the pill above them does: a
+       * hairline that only darkened was too little to see. Not while they
+       * cannot be chosen, when the times are being worked out.
        */
       /*
        * The tile's rows are the panel's rows: the glyph, the name, the time
@@ -64,12 +73,12 @@ function Option({
        * is the whole of what the panel is opened for. When no name wraps
        * the row is one line and nothing is held open for a second.
        */
-      className={`row-span-4 grid min-w-0 grid-rows-subgrid items-start justify-items-start gap-y-[5px] rounded-chip px-[10px] pt-[11px] pb-3 text-left disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+      className={`row-span-4 grid min-w-0 grid-rows-subgrid items-start justify-items-start gap-y-[5px] rounded-chip border px-[10px] pt-[11px] pb-3 text-left disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
         isChosen
-          ? "border-[1.5px] border-terracotta bg-paper-raised"
+          ? "border-terracotta bg-terracotta-100 shadow-[inset_0_0_0_1px_var(--color-terracotta)]"
           : unavailable
-            ? "border border-rule bg-transparent"
-            : "border border-rule bg-transparent hover:border-rule-strong"
+            ? "border-rule bg-transparent"
+            : "border-rule bg-transparent enabled:hover:border-neutral-400 enabled:hover:bg-neutral-300"
       }`}
     >
       <span
@@ -219,13 +228,18 @@ export function LegRow({
 
   /**
    * What opens the other ways, for someone who may change it: the way's name
-   * with a chevron pointing where the panel goes, on a pill drawn as the
-   * stay's pill on the card is, so the two things on the day that open to be
-   * changed look alike. The edge takes the accent under the pointer and keeps
-   * it while the panel is open. It was the bare name, a pill only under the
-   * pointer, which left nothing to say it could be pressed until it was
+   * with a chevron pointing where the panel goes, on a pill the shape of the
+   * stay's pill on the card, so the two things on the day that open to be
+   * changed are found the same way. It was the bare name, a pill only under
+   * the pointer, which left nothing to say it could be pressed until it was
    * pointed at. On a leg with no way, "Change" in its place, since the leg
    * does not name a way it cannot be covered by.
+   *
+   * In the warm grey a leg is drawn in, the grey of the phone's leg discs,
+   * and not in the raised cream of the cards: in cream it read as a small
+   * card, one more stop. Under the pointer it goes a step darker, and stays
+   * so while the panel is open, rather than taking the accent edge a card
+   * and the stay's pill take, which would say it was one of them.
    */
   const toggle =
     onChange === null ? null : (
@@ -237,8 +251,10 @@ export function LegRow({
         }}
         aria-expanded={open}
         title="Change how you get there"
-        className={`flex h-8 shrink-0 items-center gap-2 rounded-pill border bg-paper-raised pr-[10px] pl-3 text-small/none font-semibold whitespace-nowrap text-ink hover:border-terracotta focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-          open ? "border-terracotta" : "border-rule"
+        className={`flex h-8 shrink-0 items-center gap-2 rounded-pill border pr-[10px] pl-3 text-small/none font-semibold whitespace-nowrap text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
+          open
+            ? "border-neutral-400 bg-neutral-300"
+            : "border-neutral-300 bg-neutral-200 hover:border-neutral-400 hover:bg-neutral-300"
         }`}
       >
         {covered ? MODE_WORDS[leg.mode] : "Change"}
@@ -350,9 +366,13 @@ export function LegRow({
         ) : null}
 
         {onChange !== null && open ? (
-          /* Its own scrollbar on a short window, so a panel too tall to fit
+          /* In the pill's grey, so the pill and what it opens read as one
+             thing: the pill's own grey inside an edge the grey of its own
+             edge. It was the panel's ground, which left the pill a grey
+             button over a panel that belonged to the page. Its own
+             scrollbar on a short window, so a panel too tall to fit
              scrolls inside itself rather than pushing the day down past it. */
-          <div className="scroll-quiet mt-3 max-h-[50vh] overflow-y-auto rounded-panel border border-rule bg-paper-sunken px-[14px] pt-[13px] pb-[14px]">
+          <div className="scroll-quiet mt-3 max-h-[50vh] overflow-y-auto rounded-panel border border-neutral-300 bg-neutral-200 px-[14px] pt-[13px] pb-[14px]">
             <div className="mb-[11px] flex items-baseline gap-2">
               {/* No distance beside the heading: every way of covering the leg
                   is about to say its own, and they are not all the same. */}

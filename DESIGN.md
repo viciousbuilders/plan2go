@@ -890,9 +890,12 @@ nothing drawn round the line. On the thread, level with the words, the way's gly
 the leg's own ink, the ink its line on the map is drawn in: the glyph in it outright and
 the disc a 16 percent wash of it over the panel's ground, so the disc is solid and the
 thread passes behind it, as a bead on a string. Beside it, on the edge the legs' words
-keep, the way's name with a chevron after it on a pill drawn as the stay's is on the
-card, 32px tall, raised paper inside an edge of `rule`, the name at the small step in
-600, the edge taking the accent under the pointer and while the panel is open. It is the
+keep, the way's name with a chevron after it on a pill the shape of the stay's on the
+card, 32px tall, the name at the small step in 600, in the warm grey a leg is drawn in:
+`neutral-200` inside an edge of `neutral-300`, the grey of the phone's leg discs, going a
+step darker under the pointer and while the panel is open, `neutral-300` inside
+`neutral-400`. Not the cards' raised cream, in which it read as one more stop, and not
+the accent edge a card and the stay's pill take under the pointer. It is the
 button that opens the panel, titled "Change how you get there". It was the bare name,
 a pill of `neutral-200` only under the pointer, which left nothing to say it could be
 pressed until it was pointed at. The line is 13px from the cards above and below it, so
@@ -906,9 +909,15 @@ to be live, and what opens is the day planned rather than now. A reader gets the
 the pointer, here or on the map, the disc takes a 2px ring of its ink, as the line on
 the map is drawn heavier. A leg that cannot be made says so in place of the name and the
 times, with **Change** after it for someone who may edit, and has no disc, since it has
-no line on the map. Open it is a sunken panel of every way of covering the same ground, one
-tile each, carrying the mode, the time and the distance, with the one in use outlined
-in terracotta and its dot filled. Choosing leaves the panel open, because the outline
+no line on the map. Open it is a panel in the pill's grey, `neutral-200` inside an edge
+of `neutral-300`, so the pill and what it opens read as one thing, of every way of
+covering the same ground, one tile each, carrying the mode, the time and the distance,
+with the one in use filled with `terracotta-100` inside a 2px edge of `terracotta` and
+its dot filled, as the phone's sheet marks the way in use. It was raised paper inside a
+thinner line, the lightest grey in a grey panel, found by its outline alone. The others
+sit on the panel's grey behind a hairline and go a step darker under the pointer,
+`neutral-300` inside `neutral-400`, as the pill does; a hairline that only darkened was
+too little to see. Choosing leaves the panel open, because the outline
 moving and the times below changing are the answer and trying a second mode should not
 mean opening it again. Collapse is what closes it, as the way's name above it does. While the new times are being worked
 out the tiles stay on screen at reduced opacity under a line of text saying what is
