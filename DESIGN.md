@@ -438,7 +438,8 @@ the day's cards end.
 
 Plan is the page itself, on `paper`, and scrolls as a document. Nothing on it is stuck
 to the top of the window. It keeps 20px at either side, is no wider than 640px on a
-tablet held upright, and keeps 120px at its foot so its last line clears the bar.
+tablet held upright, and keeps room at its foot for the bar, so scrolled to its end its
+last line stands 16px clear of it.
 
 At its head the trip's name at the headline step, in plain words for someone who may
 edit as for a reader, and under it its dates as the desk writes them and how many days
@@ -598,9 +599,11 @@ a 16px plus and **Add a place** in `sheet`, set as every offer's words are, deep
 dashed line of its own, and runs down beside the card from one end of the day to the
 other.
 
-Under the day, 24px under its last row and on the page's 20px, the same **Reset this
-day** and **Delete this day** as a desk has, each a finger's 44px tall, asking the same
-questions in the same panel in the middle of the window.
+Under the day, 16px under its last row and on the page's 20px, the same **Reset this
+day** and **Delete this day** as a desk has, asking the same questions in the same panel
+in the middle of the window. Each answers a finger over 44px but is laid out only as
+tall as its words, so the row stands 16px under the day and, at the end of the page,
+16px over the bar.
 
 A leg pressed brings up a sheet from the foot of the window, over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a

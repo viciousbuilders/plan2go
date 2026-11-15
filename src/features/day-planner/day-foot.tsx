@@ -22,11 +22,13 @@ type Asker = "reset" | "delete";
 
 /**
  * A word and its glyph, with no edge of its own: the two are the quietest
- * things on the day, under everything planned on it. A finger's height on a
- * phone.
+ * things on the day, under everything planned on it. On a phone each answers
+ * a finger over 44px, 13px above and below its words, and takes back the same
+ * 13px as it is laid out, so it stands only as tall as its words and the
+ * room round it is the room it is given, not the finger's.
  */
 const ACTION =
-  "flex items-center gap-[6px] rounded-pill text-small font-semibold disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:min-h-11";
+  "flex items-center gap-[6px] rounded-pill text-small font-semibold disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:-my-[13px] max-lg:py-[13px]";
 
 /**
  * What can be done to the open day as a whole, at its foot, under the last
@@ -83,7 +85,7 @@ export function DayFoot({ days, index, actions }: DayFootProps) {
   const question = asked?.question ?? null;
 
   return (
-    <div className="mt-5 print:hidden max-lg:mt-6">
+    <div className="mt-5 print:hidden max-lg:mt-4">
       {/* Centred under the day on a desk, under the middle of the cards and
           rows above them; on a phone on the page's left edge, where the day's
           own words start. */}
