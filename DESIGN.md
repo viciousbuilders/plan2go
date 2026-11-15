@@ -692,7 +692,15 @@ over the same pills, under the place's name and over **Remove from Day 1**, for
 someone who would rather press than drag, while its times, stay and note stay on its
 card and are not drawn in the sheet. On a desk the pills are 40px tall, as
 **Remove from Day 1** is, so every pill in the sheet is one height; on a phone they
-keep a finger's 44. On a phone both can be done on the day as well,
+keep a finger's 44. Each pill is a 1.5px edge of `rule` with no fill of its own. On a
+desk, under the pointer, it takes the accent: its edge `terracotta`, as a pill's edge
+does under the pointer everywhere else, its ground `terracotta-100` and its words and
+glyph `terracotta-700`, so the day or the way a press would send the stop is plain
+before it is pressed; the `neutral-200` it took before was a step off the sheet's
+paper and read as nothing happening. A pill that cannot be pressed, the first stop's
+**Move earlier**, the last's **Move later**, or any of them while a move is being
+written, takes nothing. On a phone, with no
+pointer to hover with, it keeps `neutral-200`. On a phone both can be done on the day as well,
 as a day is carried in the strip: a stop's card held as long as a day is held, 450ms,
 lifts, and a picture of it goes wherever the finger takes it, across as well as up and
 down, drawn over the page on `shadow-md` at half strength, as a carried day is, and at

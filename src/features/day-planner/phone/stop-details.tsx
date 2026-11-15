@@ -30,21 +30,32 @@ const STEP =
   "grid h-11 w-11 shrink-0 place-items-center rounded-pill bg-neutral-200 text-ink hover:bg-neutral-300 disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 /**
+ * A moving pill under the pointer. On a desk it takes the accent: its edge
+ * the whole accent, as a pill's edge does under the pointer everywhere else,
+ * its ground the accent's lightest tint and its words and glyph the accent's
+ * step for words, so the day or the way a press would send the stop is plain
+ * before it is pressed. The grey it had was a step off the sheet's paper, and
+ * did not read as anything happening. Instant, as every hover is, and never
+ * on a pill that cannot be pressed. A phone keeps the grey, since a finger has
+ * nothing to hover with.
+ */
+const PILL_HOVER =
+  "max-lg:hover:bg-neutral-200 max-lg:disabled:hover:bg-transparent lg:enabled:hover:border-terracotta lg:enabled:hover:bg-terracotta-100 lg:enabled:hover:text-terracotta-700";
+
+/**
  * A pill that moves the stop one place earlier or later in its day. Forty four
  * tall on a phone, a finger's; forty on a desk, the height of the sheet's own
  * pill under them that takes the stop off, so every pill in the sheet is one
  * size there, and the moving pills are not the biggest thing in it.
  */
-const MOVE =
-  "flex h-11 flex-1 items-center justify-center gap-2 rounded-pill border-[1.5px] border-rule text-small/none font-semibold text-ink hover:bg-neutral-200 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-10";
+const MOVE = `flex h-11 flex-1 items-center justify-center gap-2 rounded-pill border-[1.5px] border-rule text-small/none font-semibold text-ink ${PILL_HOVER} disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-10`;
 
 /**
  * Another day the stop can go to: one of the moving pills, as wide as its
  * words rather than half the sheet, in the words the map's chips name a day,
  * and as tall as the others.
  */
-const DAY_CHIP =
-  "flex h-11 shrink-0 items-center rounded-pill border-[1.5px] border-rule px-4 text-small/none font-semibold whitespace-nowrap text-ink tabular-nums hover:bg-neutral-200 disabled:opacity-45 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-10";
+const DAY_CHIP = `flex h-11 shrink-0 items-center rounded-pill border-[1.5px] border-rule px-4 text-small/none font-semibold whitespace-nowrap text-ink tabular-nums ${PILL_HOVER} disabled:opacity-45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta lg:h-10`;
 
 /**
  * How long the stop lasts, stepped a quarter of an hour at a time, as design
