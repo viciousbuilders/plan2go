@@ -1,8 +1,8 @@
 "use client";
 
-import type { KeyboardEvent, RefObject } from "react";
+import type { KeyboardEvent } from "react";
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
-import { createPortal, flushSync } from "react-dom";
+import { createPortal } from "react-dom";
 import { useScrollBar } from "@/ui/use-scroll-bar";
 import type { DayPlan } from "@/core/model/day";
 import { CityDot } from "@/ui/city-dot";
@@ -10,6 +10,7 @@ import { FINGER_ROOM } from "@/ui/finger-room";
 import { PlusIcon } from "@/ui/icons";
 import type { EditOutcome } from "./day-actions";
 import { useDayDrop } from "./day-drop";
+import { canSlideDays, slideDay } from "./day-slide";
 import { formatDayDate, formatDayTab } from "./format-day-date";
 import { formatStops } from "./format-stops";
 import type { Floating } from "./use-day-carry";
@@ -141,34 +142,6 @@ function dayCard(selected: boolean, isToday: boolean): string {
     : "max-lg:border-rule max-lg:bg-paper-raised max-lg:text-ink max-lg:hover:bg-paper-sunken";
 }
 
-/** Wide enough for a desk, where the strip's own pill marks the chosen day and nothing slides under it. */
-const WIDE_WINDOW = "(min-width: 1024px)";
-
-/**
- * Changes the day as a view transition that slides it across (see
- * day-tabs.css), the root saying which way it goes while it runs. Said only
- * while it runs: a name left on the day after it would set the day apart
- * from the page around it in every transition to come. So once it is done,
- * if no other has started since, the root says nothing again.
- */
-function slideDay(
-  way: "day-on" | "day-back",
-  change: () => void,
-  latest: RefObject<ViewTransition | null>,
-): void {
-  const root = document.documentElement;
-  root.dataset.slide = way;
-  const transition = document.startViewTransition(() => {
-    flushSync(change);
-  });
-  latest.current = transition;
-  void transition.finished.finally(() => {
-    if (latest.current === transition && root.dataset.slide === way) {
-      delete root.dataset.slide;
-      latest.current = null;
-    }
-  });
-}
 
 /**
  * A day offered as somewhere to let a carried stop go: dashed, as everything
@@ -455,25 +428,19 @@ export function DayTabs({
     };
   }, [movingTo]);
 
-  /** The day slide running on a phone, so only the latest one tidies up after itself. */
+  /** The day slide running, so only the latest one tidies up after itself. */
   const sliding = useRef<ViewTransition | null>(null);
 
   /**
-   * A day chosen. On a phone, the day under the strip slides across to it
-   * (see day-tabs.css): out of the window on one side as the day chosen comes
-   * in on the other, the way the strip's card goes, a later day from the
-   * right and an earlier from the left, as a view transition, where the
-   * browser has them and the reader has not asked for less motion. On a desk,
-   * where the pill moves and the day is beside the map, and otherwise, the
-   * day changes at once.
+   * A day chosen, and the day under the strip, or beside the map on a desk,
+   * slid across to it (see day-slide.css): out on one side as the day chosen
+   * comes in on the other, the way the strip's pill or card goes, a later
+   * day from the right and an earlier from the left, where the browser has
+   * view transitions and the reader has not asked for less motion, and at
+   * once otherwise.
    */
   const choose = (index: number): void => {
-    if (
-      index === selectedIndex ||
-      window.matchMedia(WIDE_WINDOW).matches ||
-      !("startViewTransition" in document) ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
+    if (index === selectedIndex || !canSlideDays()) {
       onSelect(index);
       return;
     }

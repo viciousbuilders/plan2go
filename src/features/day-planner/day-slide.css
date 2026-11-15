@@ -1,0 +1,82 @@
+/*
+ * The day slid across to the day chosen, on a desk and on a phone, from the
+ * strip of days or from a phone's row of days on the map: the day on show goes
+ * out on one side as the day chosen comes in on the other, a later day from the
+ * right and an earlier from the left, over the 250ms on the curve the chosen
+ * day's pill or card moves on, so the day and the strip move as one.
+ *
+ * Done as a view transition, started by whatever chose the day, which marks
+ * the root with the way it goes while it runs (see day-slide.ts). What shows
+ * the day is a picture of its own then: the day's list, beside the map on a
+ * desk and the page on a phone, and on a phone's map the row of the day's
+ * places along its foot. Each is cut to its own box, so on a desk the day
+ * slides inside its pane rather than across the map. Everything else is the
+ * window as it now is, at once, so the strip's pill or card, the map and the
+ * row of days are seen moving in it rather than as a picture of before.
+ */
+@keyframes day-out-to-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes day-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes day-out-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes day-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+:root[data-slide^="day-"] .day-panel {
+  view-transition-name: day-panel;
+}
+
+:root[data-slide^="day-"] .map-day-cards {
+  view-transition-name: map-day-cards;
+}
+
+:root[data-slide^="day-"]::view-transition-old(root) {
+  display: none;
+}
+
+:root[data-slide^="day-"]::view-transition-new(root) {
+  animation: none;
+}
+
+:root[data-slide^="day-"]::view-transition-group(day-panel),
+:root[data-slide^="day-"]::view-transition-group(map-day-cards) {
+  overflow: clip;
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-slide="day-on"]::view-transition-old(day-panel),
+:root[data-slide="day-on"]::view-transition-old(map-day-cards) {
+  animation: day-out-to-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="day-on"]::view-transition-new(day-panel),
+:root[data-slide="day-on"]::view-transition-new(map-day-cards) {
+  animation: day-in-from-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="day-back"]::view-transition-old(day-panel),
+:root[data-slide="day-back"]::view-transition-old(map-day-cards) {
+  animation: day-out-to-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="day-back"]::view-transition-new(day-panel),
+:root[data-slide="day-back"]::view-transition-new(map-day-cards) {
+  animation: day-in-from-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}

@@ -1,0 +1,91 @@
+/*
+ * A phone's sheet up from the foot of the window, the trip's menu and a leg's
+ * ways: it comes up from under the window's foot and goes back down under it.
+ *
+ * Put up in one frame, a sheet read as the page under it having changed,
+ * where one that rises over it reads as something laid on top, which is what
+ * it is, and going back down is how it says where it went. The timing is the
+ * place's sheet's and the export's preview's, the other panels that slide:
+ * the arrival at 200ms easing out, the going quicker, at 160ms easing in,
+ * because a thing going away does not need to be watched go. The sheet moves
+ * by transform only, no opacity, the whole of its own height, so it starts
+ * and ends wholly under the window. The page dimmed under it comes and goes
+ * with it, its dimming over the same time, so the page is not darkened in a
+ * frame before the sheet has come up or lit again in one after it has gone.
+ */
+@keyframes phone-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes phone-sheet-out {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes phone-dim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes phone-dim-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/*
+ * Coming up only on a phone: on a desk the trip's menu is a panel under its
+ * button, and appears at once as every panel there does.
+ */
+@media (width < 1024px) {
+  .phone-sheet-arriving {
+    animation: phone-sheet-in 200ms ease-out both;
+  }
+
+  .phone-dim-arriving {
+    animation: phone-dim-in 200ms ease-out both;
+  }
+}
+
+/*
+ * Going down at any width. It is only ever begun on a phone, which
+ * use-phone-sheet asks as the sheet is put away, and the sheet is taken down
+ * when its going ends: held to a phone's width, a window widened while it ran
+ * would stop it short, and the sheet would never be taken down.
+ */
+.phone-sheet-leaving {
+  animation: phone-sheet-out 160ms ease-in both;
+}
+
+.phone-dim-leaving {
+  animation: phone-dim-out 160ms ease-in both;
+}
+
+/*
+ * Near enough to at once. Not none: the sheet is taken down when its going
+ * ends, and an animation that never ran never ends.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .phone-sheet-arriving,
+  .phone-sheet-leaving,
+  .phone-dim-arriving,
+  .phone-dim-leaving {
+    animation-duration: 0.01ms;
+  }
+}

@@ -1277,7 +1277,8 @@ and it is the product's own.
 
 Thirteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
-with the day under it sliding across, the pill of a phone's
+and the chosen fill of the map's row of days, with the day sliding across under them on
+a desk and a phone, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
 the export's page setup unfolding and folding, the switches of a phone's export being
@@ -1347,14 +1348,18 @@ transitions changes the view at once. Not when the search takes the window to th
 to find a place, which focuses the field inside the press so a phone brings its
 keyboard up, and a transition would focus it a frame too late: that changes at once.
 
-A phone's day, chosen in the strip, slides the same way under it: the day on show goes
-out of the window on one side as the day chosen comes in on the other, a later day
-from the right and an earlier from the left, over the strip card's 250ms on its curve,
-so the day and the card move as one. Done as a view transition too, with the day a
-picture of its own while it runs and everything else the window as it now is, at once,
-so the strip's card is seen sliding rather than as a picture of before. The day is
-named for the transition only while it runs. On a desk the day changes at once, beside
-the map, as the pill moves.
+A day chosen slides the same way, on a desk and on a phone: the day on show goes out on
+one side as the day chosen comes in on the other, a later day from the right and an
+earlier from the left, over the 250ms on the curve the strip's pill or card moves on,
+so the day and the strip move as one. On a desk it is the list beside the map, which
+slides inside its own pane rather than across the map; on a phone, the page under the
+strip, and on the map the row of the day's places along its foot, whose row of days
+has a sliding fill of its own, one `terracotta-800` pill over the chips, the days'
+words drawn again in `paper` and cut to it, as the strip's card has. Done as a view
+transition too, with what shows the day a picture of its own while it runs, cut to its
+own box, and everything else the window as it now is, at once, so the strip's pill or
+card, the map and the row of days are seen moving rather than as pictures of before.
+What shows the day is named for the transition only while it runs (`day-slide.ts`).
 
 The export's bar: its fill's `width` over 150ms `linear` each time the clock moves it
 on, and a spinner beside its words turning once every 800ms.
@@ -1389,7 +1394,7 @@ Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
 Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
-day's pill and a phone's card with the day under it, the bar of views' pill and the
+day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
 page setup and a phone's switches, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what

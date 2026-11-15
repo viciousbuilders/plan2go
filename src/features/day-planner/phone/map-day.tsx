@@ -5,8 +5,10 @@ import type { ComputedLeg } from "@/core/time/compute-day";
 import { routeStroke } from "@/features/trip-map/route-style";
 import { ArrowRightIcon } from "@/ui/icons";
 import { outsidePressIsTaken } from "@/ui/use-outside-press";
+import { useSlidingPill } from "@/ui/use-sliding-pill";
 import type { PlannedDay } from "../compute-trip";
 import { MARKS } from "../day-ends";
+import { canSlideDays, slideDay } from "../day-slide";
 import { formatDayDate, formatDayTab } from "../format-day-date";
 import { formatDayTime } from "../format-day-time";
 import { legColor, MODE_ICON, MODE_WORDS } from "../leg-marks";
@@ -232,6 +234,32 @@ export function MapDay({
   const cards = useRef<HTMLDivElement | null>(null);
   /** Whether the press under way began with the search open, and so is the search's. */
   const spent = useRef(false);
+  /** The row of days, whose chosen fill slides to the day chosen. */
+  const chips = useSlidingPill<HTMLDivElement>(selectedIndex);
+  /** The day slide running, so only the latest one tidies up after itself. */
+  const sliding = useRef<ViewTransition | null>(null);
+
+  /**
+   * A day chosen on the map, slid to as one chosen in the strip is (see
+   * day-slide.css): the row of its places goes out on one side as the day
+   * chosen's comes in on the other, a later day from the right and an
+   * earlier from the left, as the chosen day's fill slides along the row of
+   * days above it. At once where the browser has no view transitions or the
+   * reader has asked for less motion.
+   */
+  const choose = (index: number): void => {
+    if (index === selectedIndex || !canSlideDays()) {
+      onSelect(index);
+      return;
+    }
+    slideDay(
+      index > selectedIndex ? "day-on" : "day-back",
+      () => {
+        onSelect(index);
+      },
+      sliding,
+    );
+  };
 
   /** A place picked on the map has its card brought into sight, by the least the row can move. */
   useEffect(() => {
@@ -291,11 +319,21 @@ export function MapDay({
       }}
       className="fixed inset-x-0 bottom-[calc(max(20px,env(safe-area-inset-bottom))+66px)] z-[2] flex flex-col lg:hidden"
     >
+      {/* The chosen day's fill is one pill for the row, slid to the day
+          chosen as the strip's card is, over the chips rather than under
+          them, since each chip is solid on the map, and the days' words drawn
+          again in paper and cut to it (see use-sliding-pill). The chosen chip
+          paints its own fill only until the pill is laid over it. */}
       <div
+        ref={chips}
         role="group"
         aria-label="Days of this trip"
-        className="flex gap-[6px] overflow-x-auto px-4 pt-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="group/chips relative flex gap-[6px] overflow-x-auto px-4 pt-2 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
+        <span
+          aria-hidden="true"
+          className="sliding-pill pointer-events-none z-[1] rounded-pill bg-terracotta-800 shadow-sm"
+        />
         {days.map((day, index) => {
           const on = index === selectedIndex;
           return (
@@ -305,11 +343,11 @@ export function MapDay({
               aria-pressed={on}
               aria-label={`Day ${String(index + 1)}, ${formatDayDate(day.plan.date)}`}
               onClick={() => {
-                onSelect(index);
+                choose(index);
               }}
-              className={`${CHIP} ${
+              className={`${CHIP} relative ${
                 on
-                  ? "border-terracotta-800 bg-terracotta-800 text-paper"
+                  ? "border-terracotta-800 bg-terracotta-800 text-paper group-data-[placed]/chips:border-rule group-data-[placed]/chips:bg-paper-raised group-data-[placed]/chips:text-ink"
                   : "border-rule bg-paper-raised text-ink hover:bg-paper-sunken"
               }`}
             >
@@ -317,13 +355,24 @@ export function MapDay({
             </button>
           );
         })}
+        <span
+          aria-hidden="true"
+          className="sliding-ink pointer-events-none absolute inset-0 z-[1] gap-[6px] px-4 pt-2 pb-1 text-paper"
+        >
+          {days.map((day, index) => (
+            <span key={day.plan.id} className={`${CHIP} border-transparent shadow-none`}>
+              {`Day ${String(index + 1)} · ${formatDayTab(day.plan.date)}`}
+            </span>
+          ))}
+        </span>
       </div>
 
+      {/* What slides when the day changes (see day-slide.css). */}
       <div
         ref={cards}
         role="group"
         aria-label={`Places on Day ${String(selectedIndex + 1)}`}
-        className="flex gap-[10px] overflow-x-auto px-4 pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="map-day-cards flex gap-[10px] overflow-x-auto px-4 pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <EndCard
           which="start"
