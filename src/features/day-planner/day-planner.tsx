@@ -240,14 +240,14 @@ export function DayPlanner({
            * hold the stop underneath it in place. Off, the list stays exactly
            * where it was and the panel opens downwards, where it was clicked.
            *
-           * On a phone the page keeps room at its foot for the bar of views
-           * floating over it, so its last line stands 16px clear of the bar
-           * once it is scrolled to the end: the bar stands as far off the
-           * window's foot as the phone's own edge asks, 20px at least, and is
-           * 54px tall.
+           * Scrolled to its end, the day's last line stands 16px over the foot
+           * of the list on a desk. On a phone the page keeps room at its foot
+           * for the bar of views floating over it, so its last line stands the
+           * same 16px clear of the bar: the bar stands as far off the window's
+           * foot as the phone's own edge asks, 20px at least, and is 54px tall.
            */
           ref={watchList}
-          className={`scroll-line [--bar-width:6px] min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pb-5 [overflow-anchor:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${GUTTER} max-lg:overflow-visible max-lg:pb-[calc(max(20px,env(safe-area-inset-bottom))+70px)]`}
+          className={`scroll-line [--bar-width:6px] min-h-0 flex-1 overflow-x-hidden overflow-y-auto pt-3 pb-4 [overflow-anchor:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${GUTTER} max-lg:overflow-visible max-lg:pb-[calc(max(20px,env(safe-area-inset-bottom))+70px)]`}
         >
           {/* The same day, laid out for the room each has: on a desk the
               cards on the panel beside the map, and on a phone one column of

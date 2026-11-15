@@ -397,9 +397,11 @@ there is one, and twelve over the end when no leg comes between. The next place 
 the last stop card, where a place found in the search is added. Three surfaces, each a step up from the one it sits on, and
 nothing drawn edge to edge.
 
-Under the day, 20px under its last row and centred under it, someone who may edit has
+Under the day, 16px under its last row and centred under it, someone who may edit has
 the two things that act on the day as a whole: words with their glyphs and no edge of
-their own, the quietest things on the day, at the small step in 600, 20px apart.
+their own, the quietest things on the day, at the small step in 600, 20px apart. The
+list keeps 16px under them, so scrolled to its end the row stands as far over the
+list's foot as under the day.
 **Reset this day**, after a turning arrow, in `ink-muted` going to `ink` under the
 pointer, is offered only on a day with something to reset: a stop, either end, or a
 leaving time other than 09:00. **Delete this day**, after the bin, in `terracotta-700`
@@ -599,7 +601,7 @@ a 16px plus and **Add a place** in `sheet`, set as every offer's words are, deep
 dashed line of its own, and runs down beside the card from one end of the day to the
 other.
 
-Under the day, 16px under its last row and on the page's 20px, the same **Reset this
+Under the day, 16px under its last row and centred under it, the same **Reset this
 day** and **Delete this day** as a desk has, asking the same questions in the same panel
 in the middle of the window. Each answers a finger over 44px but is laid out only as
 tall as its words, so the row stands 16px under the day and, at the end of the page,
