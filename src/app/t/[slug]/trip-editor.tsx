@@ -53,7 +53,7 @@ import { setLegModeAction } from "./set-leg-mode-action";
 import { swapDaysAction } from "./swap-days-action";
 import { updateTripAction } from "./update-trip-action";
 import type { View } from "./view-tabs";
-import { ViewTabs } from "./view-tabs";
+import { VIEWS, ViewTabs } from "./view-tabs";
 
 /**
  * Tailwind's lg, from which the planner is two panes side by side. Under it
@@ -413,6 +413,38 @@ export function TripEditor({
   };
   const findPlace = (): void => {
     find("stop");
+  };
+  /**
+   * A view chosen in the bar of views, or the way back to the day from the
+   * export, slid to (see view-tabs.css): out of the window the way the bar's
+   * pill goes, as a view transition, where the browser has them and the
+   * reader has not asked for less motion, and at once otherwise. The search
+   * is put away and nothing stays picked out, as when it changed at once.
+   *
+   * Not for the search's own way to the map, which focuses the field inside
+   * the press so a phone brings its keyboard up, and a transition would
+   * focus it a frame too late.
+   */
+  const chooseView = (next: View): void => {
+    const change = (): void => {
+      setView(next);
+      setPicked(null);
+      setSeeking("stop");
+    };
+    const from = VIEWS.findIndex((each) => each.view === view);
+    const to = VIEWS.findIndex((each) => each.view === next);
+    if (
+      from === to ||
+      !("startViewTransition" in document) ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      change();
+      return;
+    }
+    document.documentElement.dataset.slide = to > from ? "on" : "back";
+    document.startViewTransition(() => {
+      flushSync(change);
+    });
   };
   /**
    * Another place for an end of a day, from its sheet on a phone, without
@@ -1000,15 +1032,7 @@ export function TripEditor({
 
       {/* Over the search's clear page as well, so a view can be chosen
           while the search is open; the press closes the search on its way. */}
-      <ViewTabs
-        view={view}
-        onView={(next) => {
-          setView(next);
-          setPicked(null);
-          setSeeking("stop");
-        }}
-        exportDisabled={nothingToExport}
-      />
+      <ViewTabs view={view} onView={chooseView} exportDisabled={nothingToExport} />
 
       {/* A phone's Export view, under the bar of views. It lays out the
           sheets it is choosing, unseen, and they are what the printer gets
@@ -1021,7 +1045,7 @@ export function TripEditor({
           days={days}
           layout="page"
           onClose={() => {
-            setView("plan");
+            chooseView("plan");
           }}
         />
       ) : null}

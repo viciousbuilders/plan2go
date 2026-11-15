@@ -23,6 +23,7 @@ import {
 import { FINGER_ROOM } from "@/ui/finger-room";
 import { Notice } from "@/ui/notice";
 import { useScrollBar } from "@/ui/use-scroll-bar";
+import { useSlidingPill } from "@/ui/use-sliding-pill";
 import type { PlannedDay } from "../compute-trip";
 import { dayMapSources } from "./day-map-source";
 import { exportRequestQuery, MOST_DAYS } from "./export-query";
@@ -185,6 +186,9 @@ const MODES: readonly { readonly coverOnly: boolean; readonly label: string }[] 
   { coverOnly: true, label: "Cover only" },
 ];
 
+/** The shape of each of the two, half the switch each, its word in the middle. */
+const MODE = "flex flex-1 items-center justify-center rounded-pill py-[10px] text-[13.5px]/none font-bold";
+
 /** What the pill in force says, for the line the page setup folds to. */
 function labelOf<T extends string>(options: readonly SetupOption<T>[], value: T): string {
   return options.find((option) => option.value === value)?.label ?? value;
@@ -334,6 +338,10 @@ export function ExportDialog({
    * wanted again.
    */
   const [coverOnly, setCoverOnly] = useState(false);
+  /** The dialog's switch between the two, whose pill slides to the one chosen. */
+  const modes = useSlidingPill<HTMLDivElement>(
+    MODES.findIndex((mode) => mode.coverOnly === coverOnly),
+  );
   const [cover, setCover] = useState(DEFAULT_EXPORT.cover);
   const [map, setMap] = useState(DEFAULT_EXPORT.map);
   const [mapSize, setMapSize] = useState<MapSize>(DEFAULT_EXPORT.mapSize);
@@ -1325,11 +1333,17 @@ export function ExportDialog({
               inert={busy}
               className={`scroll-line min-h-0 flex-1 overflow-y-auto px-5 pt-[22px] pb-[18px] ${busy ? "opacity-45" : ""}`}
             >
+              {/* One pill of terracotta 800 for the switch, slid to the one
+                  chosen as the bar of views' pill is on a phone, its words
+                  in sheet wherever it has got to and the rest neutral 700.
+                  The one chosen paints its own until the pill is placed. */}
               <div
+                ref={modes}
                 role="radiogroup"
                 aria-label="What to export"
-                className="flex gap-[3px] rounded-pill bg-neutral-200 p-1"
+                className="group/modes relative flex gap-[3px] rounded-pill bg-neutral-200 p-1"
               >
+                <span aria-hidden="true" className="sliding-pill rounded-pill bg-terracotta-800 shadow-sm" />
                 {MODES.map((mode) => {
                   const on = mode.coverOnly === coverOnly;
                   return (
@@ -1341,14 +1355,26 @@ export function ExportDialog({
                       onClick={() => {
                         choose(setCoverOnly)(mode.coverOnly);
                       }}
-                      className={`flex-1 rounded-pill py-[10px] text-[13.5px]/none font-bold ${FOCUS} ${
-                        on ? "bg-terracotta-800 text-sheet shadow-sm" : "text-neutral-700"
+                      className={`${MODE} relative ${FOCUS} ${
+                        on
+                          ? "bg-terracotta-800 text-sheet shadow-sm group-data-[placed]/modes:bg-transparent group-data-[placed]/modes:text-neutral-700 group-data-[placed]/modes:shadow-none"
+                          : "text-neutral-700"
                       }`}
                     >
                       {mode.label}
                     </button>
                   );
                 })}
+                <span
+                  aria-hidden="true"
+                  className="sliding-ink pointer-events-none absolute inset-0 gap-[3px] p-1 text-sheet"
+                >
+                  {MODES.map((mode) => (
+                    <span key={mode.label} className={MODE}>
+                      {mode.label}
+                    </span>
+                  ))}
+                </span>
               </div>
 
               {coverOnly ? null : (

@@ -1,0 +1,57 @@
+/*
+ * A pill laid under the chosen one of a row of buttons and slid along to
+ * whichever is chosen next, the way a phone's own tab bar moves its
+ * highlight rather than swapping it: 250ms on a curve that covers most of
+ * the way at once and settles into the rest, so a choice is answered
+ * straight away and still seen to travel, as the chosen day's pill moves
+ * along a desk's strip. Where it goes and how big it is are set from
+ * use-sliding-pill.ts, measured from the button.
+ *
+ * Out of the page until it has been placed, so the first time it is placed
+ * is not a slide in from the row's corner; the chosen button paints its own
+ * pill until then.
+ */
+.sliding-pill,
+.sliding-ink {
+  display: none;
+}
+
+[data-placed] > .sliding-pill,
+[data-placed] > .sliding-ink {
+  display: flex;
+}
+
+.sliding-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pill-w);
+  height: var(--pill-h);
+  translate: var(--pill-x) var(--pill-y);
+  transition:
+    translate 250ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * The buttons' words again in the colour they take on the pill, laid out as
+ * the buttons are, cut to the pill and moved with it: the words on the pill
+ * are in its colour and the rest in theirs, wherever the pill has got to.
+ * Turning a button's words from one colour to the other as the pill set off
+ * left them in the pill's own colour on it for as long as it took to arrive,
+ * and a button it slid past went the pill's colour as it went under it.
+ */
+.sliding-ink {
+  clip-path: inset(
+    var(--pill-y) calc(100% - var(--pill-x) - var(--pill-w))
+      calc(100% - var(--pill-y) - var(--pill-h)) var(--pill-x) round 999px
+  );
+  transition: clip-path 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sliding-pill,
+  .sliding-ink {
+    transition: none;
+  }
+}

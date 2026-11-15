@@ -1,55 +1,69 @@
 /*
- * The chosen view's pill, laid under the views and slid along to whichever is
- * chosen, as the chosen day's pill is slid along a desk's strip, and the way a
- * phone's own tab bar moves its highlight rather than swapping it: 250ms on a
- * curve that covers most of the way at once and settles into the rest, so a
- * choice is answered straight away and still seen to travel. Where it goes
- * and how big it is are set from view-tabs.tsx, measured from the button.
+ * A phone's views, laid side by side in the order the bar of views holds
+ * them, Plan, Map and Export, and slid from one to the next: the view on
+ * show goes out of the window on one side as the view chosen comes in on the
+ * other, the way the bar's pill goes, over the pill's 250ms on its curve, so
+ * the two move together. Done as a view transition, which slides pictures of
+ * the window before and after, so nothing on either view is moved itself and
+ * whatever stays fixed to the window on it stays where it is in the picture.
  *
- * Out of the page until it has been placed, so the first time it is placed is
- * not a slide in from the bar's corner; the chosen button paints its own pill
- * until then.
+ * Which way is said on the root by the bar as the transition starts, and
+ * left there after: it only means anything while a transition is running.
  */
-.view-pill,
-.view-ink {
-  display: none;
+@keyframes view-out-to-left {
+  to {
+    transform: translateX(-100%);
+  }
 }
 
-[data-placed] > .view-pill,
-[data-placed] > .view-ink {
-  display: flex;
+@keyframes view-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
 }
 
-.view-pill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--pill-w);
-  height: var(--pill-h);
-  translate: var(--pill-x) var(--pill-y);
-  transition:
-    translate 250ms cubic-bezier(0.22, 1, 0.36, 1),
-    width 250ms cubic-bezier(0.22, 1, 0.36, 1);
+@keyframes view-out-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes view-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+:root[data-slide="on"]::view-transition-old(root) {
+  animation: view-out-to-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="on"]::view-transition-new(root) {
+  animation: view-in-from-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="back"]::view-transition-old(root) {
+  animation: view-out-to-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="back"]::view-transition-new(root) {
+  animation: view-in-from-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /*
- * The views' words and glyphs again, in ink, cut to the pill and moved with
- * it: the words on the pill are ink and the rest are paper wherever the pill
- * has got to. Turning a view's words from one colour to the other as the pill
- * set off left them paper on the paper pill for as long as it took to arrive,
- * and the view it slid past went the colour of the pill as it went under it.
+ * The bar stays where it is over the sliding views, as a phone's own tab bar
+ * does, and its pill does the moving: a picture of its own, the live one
+ * only, the picture of it before set aside so the pill is not seen twice.
  */
-.view-ink {
-  clip-path: inset(
-    var(--pill-y) calc(100% - var(--pill-x) - var(--pill-w))
-      calc(100% - var(--pill-y) - var(--pill-h)) var(--pill-x) round 999px
-  );
-  transition: clip-path 250ms cubic-bezier(0.22, 1, 0.36, 1);
+.view-tabs {
+  view-transition-name: view-tabs;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .view-pill,
-  .view-ink {
-    transition: none;
-  }
+::view-transition-group(view-tabs),
+::view-transition-new(view-tabs) {
+  animation: none;
+}
+
+::view-transition-old(view-tabs) {
+  display: none;
 }
