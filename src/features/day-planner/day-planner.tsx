@@ -286,6 +286,9 @@ export function DayPlanner({
               actions={actions}
               onFindPlace={onFindPlace}
               onFindEnd={onFindEnd}
+              onCarry={actions !== null && days.length > 1 ? carry : null}
+              leaving={leaving}
+              leaveError={leaveError}
               rearranging={rearranging}
             />
           </div>

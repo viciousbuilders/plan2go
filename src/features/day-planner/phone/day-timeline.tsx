@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useRef } from "react";
 import type { Conflict } from "@/core/model/conflict";
 import { conflictsAtStop } from "@/core/model/conflict";
 import type { DayEndpoint, DayPlan } from "@/core/model/day";
@@ -14,7 +15,9 @@ import { ENDS, MARKS } from "../day-ends";
 import type { EndpointRef } from "../day-itinerary";
 import { formatDayTime } from "../format-day-time";
 import { LeaveAt } from "../leave-at";
+import { Notice } from "@/ui/notice";
 import { TimelineLeg } from "./timeline-leg";
+import { useStopHold } from "./use-stop-hold";
 
 interface DayTimelineProps {
   readonly day: DayPlan;
@@ -31,6 +34,16 @@ interface DayTimelineProps {
   readonly onFindPlace: (() => void) | null;
   /** Takes the traveller to the same search for one end of the day. Null for a reader who cannot edit. */
   readonly onFindEnd: ((which: "start" | "end") => void) | null;
+  /**
+   * Tells the planner a stop has been picked up to go to another day, or put
+   * back. Null when no stop can go anywhere: for a reader, and on a trip of
+   * one day.
+   */
+  readonly onCarry: ((stopId: string | null) => void) | null;
+  /** A stop let go on another day and on its way there, which this day no longer shows. */
+  readonly leaving: string | null;
+  /** Why the last stop let go on another day did not go, or null. */
+  readonly leaveError: string | null;
   /** Whether the day is changing places with another, and waiting on its times for its new date. */
   readonly rearranging: boolean;
 }
@@ -185,6 +198,13 @@ function EndOffer({
  * phone the day is read here and changed there. What the day has to say about
  * the stop stays on the card under the words, a conflict with its numbers in
  * it, and the note for whoever is travelling.
+ *
+ * Held, as a day in the strip is held, the card lifts and is carried to
+ * another day in the strip (see useStopHold): at half strength while it is,
+ * as a carried day is, and on the shadow of what floats. Over the strip it
+ * goes down to a quarter, since it is as wide as the strip and taller than
+ * a day, and at half its words crossed the days' own; at a quarter the day
+ * under the finger reads through it, dashed edge and all.
  */
 function TimelineStop({
   position,
@@ -194,6 +214,7 @@ function TimelineStop({
   conflicts,
   leaveAt,
   onOpen,
+  onCarry,
 }: {
   /** Its number in the day, counted from one, read out before its name. */
   readonly position: number;
@@ -208,10 +229,25 @@ function TimelineStop({
    */
   readonly leaveAt: ReactNode;
   readonly onOpen: () => void;
+  /** Null while the stop cannot be carried to another day. */
+  readonly onCarry: ((stopId: string | null) => void) | null;
 }) {
+  const button = useRef<HTMLButtonElement | null>(null);
+  const hold = useStopHold(stop.stopId, button, onCarry);
   const times = leaveAt !== null || stop.arrival !== null;
   return (
-    <div className="relative flex gap-3.5 rounded-row bg-paper-raised py-2 pr-4 pl-2.5 shadow-sm hover:bg-paper-sunken">
+    /* A card that can be held keeps the phone's own long press, its menu and
+       the words it would pick out, from answering the hold instead. */
+    <div
+      style={hold.lift === null ? undefined : { translate: `0 ${String(hold.lift)}px` }}
+      className={`relative flex gap-3.5 rounded-row bg-paper-raised py-2 pr-4 pl-2.5 ${
+        onCarry === null ? "" : "select-none [-webkit-touch-callout:none]"
+      } ${
+        hold.lift === null
+          ? "shadow-sm hover:bg-paper-sunken"
+          : `z-[5] shadow-md ${hold.overStrip ? "opacity-25" : "opacity-50"}`
+      }`}
+    >
       {times ? (
         /* Over the button's reach only when it holds the pill that sets the
            time; otherwise a press on the times opens the place too. That
@@ -239,8 +275,15 @@ function TimelineStop({
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 py-1.5">
         <button
+          ref={button}
           type="button"
-          onClick={onOpen}
+          {...hold.handlers}
+          // A press that carried the stop somewhere opens nothing.
+          onClick={(event) => {
+            if (!hold.carriedClick(event)) {
+              onOpen();
+            }
+          }}
           className="flex flex-col gap-1 text-left after:absolute after:inset-0 after:rounded-row focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-terracotta"
         >
           <span className="sr-only">{`Stop ${String(position)}, `}</span>
@@ -390,8 +433,18 @@ export function DayTimeline({
   actions,
   onFindPlace,
   onFindEnd,
+  onCarry,
+  leaving,
+  leaveError,
   rearranging,
 }: DayTimelineProps) {
+  /**
+   * A stop let go on another day leaves this one at once, while the server
+   * moves it and works out both days' times, as on a desk. Until it has, or
+   * while the day changes places with another, the day is busy: faded under
+   * the line saying so, and nothing on it is picked up.
+   */
+  const busy = rearranging || leaving !== null;
   /**
    * When the day leaves, set where that time shows: on the start point's
    * time when the day has one, and otherwise on the first stop's arrival.
@@ -460,7 +513,14 @@ export function DayTimeline({
     lines.push({ key: "nothing", roomy: false, node: <NothingPlanned onFindPlace={onFindPlace} /> });
   }
 
+  /** How many stops are shown so far, which numbers each one read out. */
+  let shown = 0;
   computed.stops.forEach((stop, index) => {
+    // Gone with the way to it, until the day's new times come back.
+    if (stop.stopId === leaving) {
+      return;
+    }
+    shown += 1;
     const leg = computed.legs[index + legOffset];
     const planned = leg === undefined ? undefined : legs[leg.index];
     if (leg !== undefined && planned !== undefined) {
@@ -476,7 +536,7 @@ export function DayTimeline({
       roomy: false,
       node: (
         <TimelineStop
-          position={index + 1}
+          position={shown}
           stop={stop}
           address={plan?.place.address ?? null}
           note={plan?.note ?? null}
@@ -485,6 +545,7 @@ export function DayTimeline({
           onOpen={() => {
             onOpenStop(stop.stopId);
           }}
+          onCarry={busy ? null : onCarry}
         />
       ),
     });
@@ -547,10 +608,10 @@ export function DayTimeline({
 
   return (
     <>
-      {/* Faded while the day changes places with another, under the line a
-          desk says it with: its times are the ones worked out for the date
-          it had, until the ones for its new date arrive. */}
-      <div className={`relative ${rearranging ? "opacity-55" : ""}`} aria-busy={rearranging}>
+      {/* Faded while the day changes places with another, or a stop goes to
+          another day, under the line a desk says it with: its times are the
+          ones worked out before, until the new ones arrive. */}
+      <div className={`relative ${busy ? "opacity-55" : ""}`} aria-busy={busy}>
         {/* From the first thing's middle to the last's, behind them all: every
             card and pill is opaque, so the thread shows only in the room
             between them and through the legs, whose discs stand on it. The
@@ -567,9 +628,14 @@ export function DayTimeline({
           );
         })}
       </div>
-      {rearranging ? (
+      {busy ? (
         <p className="mt-3 px-[6px] text-micro text-ink-muted">Working out the new times.</p>
       ) : null}
+      {leaveError === null ? null : (
+        <Notice role="alert" className="mt-3">
+          {leaveError}
+        </Notice>
+      )}
     </>
   );
 }

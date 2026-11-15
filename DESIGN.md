@@ -664,8 +664,20 @@ an hour at a time on a 44px disc of `neutral-200` either side of the stay, on a 
 same kind, as wide as their words and in the words the map's chips use, "Day 2 · Sun 8",
 running to the sheet's edges and scrolling sideways on a long trip, any of which takes
 the stop to the end of that day. On a desk both are done by dragging its card, along
-the day or onto a day in the strip. The sheet stays on the stop, which then says the day
-it is on. The stepper writes once its presses stop, so an hour more is one write rather
+the day or onto a day in the strip. On a phone the second can be done on the day as
+well: a stop's card held as long as a day in the strip is held, 450ms, lifts onto
+`shadow-md` at half strength and goes up and down with the finger, and the other days
+in the strip are offered, dashed in `rule-strong`, the one under the finger dashed in
+`terracotta` as a desk's are to a carried card. Over the strip the card goes down to a
+quarter, since it is as wide as the strip and its words crossed the days' at half. Let
+go on a day, the stop goes to the end of it, as **Move to another day** takes it, and
+leaves this day at once under "Working out the new times."; let go anywhere else it
+goes back. Held near the top or foot of the window the page runs on under it, so a
+strip scrolled out of sight comes back, and near either end of the strip, level with
+it, the strip runs on. A finger that moves before the hold is up is scrolling, and a
+quick press still opens the place. Its place in its own day is still changed in its
+sheet. A reader, and a trip of one day, have nothing to hold. The sheet stays on the
+stop, which then says the day it is on. The stepper writes once its presses stop, so an hour more is one write rather
 than four. An end of the day pressed opens its place too, and is changed there. Under
 its name, **Change start point** or **Change end point**, a pencil and the words on one
 of the stop's outlined pills, as wide as the sheet and 40px tall, goes to the search on
