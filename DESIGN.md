@@ -676,7 +676,9 @@ the stop to the end of that day. On a desk both are done by dragging its card, a
 the day or onto a day in the strip, and in its sheet as well: the same two headings
 over the same pills, under the place's name and over **Remove from Day 1**, for
 someone who would rather press than drag, while its times, stay and note stay on its
-card and are not drawn in the sheet. On a phone both can be done on the day as well,
+card and are not drawn in the sheet. On a desk the pills are 40px tall, as
+**Remove from Day 1** is, so every pill in the sheet is one height; on a phone they
+keep a finger's 44. On a phone both can be done on the day as well,
 as a day is carried in the strip: a stop's card held as long as a day is held, 450ms,
 lifts, and a picture of it goes wherever the finger takes it, across as well as up and
 down, drawn over the page on `shadow-md` at half strength, as a carried day is, and at
