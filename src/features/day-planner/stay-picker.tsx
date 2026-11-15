@@ -17,18 +17,26 @@ const HOURS = Array.from({ length: 25 }, (_unused, hour) => hour);
 const MINUTES = Array.from({ length: 12 }, (_unused, step) => step * 5);
 
 /**
- * How long the stop lasts, on a small pill of raised paper: the hourglass in
- * the accent in front of the number, the chevron after it saying it opens. An
- * hourglass and not a clock, because the clock on the same line is when the
- * place is open, and one glyph for both a length and a time of day left "1 hr"
- * to be read as either. The card's own number to set; the day's leaving time,
- * on the first card or the start point, is the other pill on the day that
- * opens these columns, and carries the same chevron so the two are found the
- * same way. The edge takes the accent under the pointer and keeps it while
- * the picker is open.
+ * How long the stop lasts, on a small pill drawn on the card's own ground:
+ * the hourglass in the accent in front of the number, the chevron after it
+ * saying it opens. An hourglass and not a clock, because the clock on the same
+ * line is when the place is open, and one glyph for both a length and a time
+ * of day left "1 hr" to be read as either. The card's own number to set; the
+ * day's leaving time, on the first card or the start point, is the other pill
+ * on the day that opens these columns, and carries the same chevron so the two
+ * are found the same way. The edge takes the accent under the pointer and
+ * keeps it while the picker is open.
+ *
+ * No fill of its own, so it is whatever the card is: raised paper at rest, and
+ * sunk with the rest of the card while the card is under the pointer, here or
+ * on the map. Filled with raised paper it stayed at the card's resting colour
+ * while the card around it sank, a patch of the card left behind. Under the
+ * pointer itself nothing changes, since the card does not sink while the
+ * pointer is on one of its controls, and the pill is raised paper there as it
+ * always was.
  */
 const TRIGGER =
-  "flex h-8 items-center gap-2 rounded-pill border bg-paper-raised pr-[10px] pl-3 text-small/none font-semibold text-ink tabular-nums hover:border-terracotta disabled:opacity-45 disabled:hover:border-rule focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
+  "flex h-8 items-center gap-2 rounded-pill border bg-transparent pr-[10px] pl-3 text-small/none font-semibold text-ink tabular-nums hover:border-terracotta disabled:opacity-45 disabled:hover:border-rule focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
 interface StayPickerProps {
   /** For the name the control is read out by: the time is at somewhere. */

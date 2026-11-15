@@ -835,7 +835,12 @@ titled "Time at this place" under the pointer, that opens two columns, hours and
 opens, and writes when it closes; the opening hours sit beside it in words after a
 clock, and the note is either a field or the one line offering to start one. An
 hourglass and not a second clock, because one glyph for both a length and a time of day
-left "1 hr" to be read as either. In the note's field Enter writes the note, as leaving
+left "1 hr" to be read as either. The pill has no fill of its own, only its edge, so it
+is the card's colour: raised paper at rest, and `paper-sunken` with the rest of the card
+while the card is under the pointer, here or on the map. Filled with raised paper it
+stayed at the card's resting colour while the card around it sank. With the pointer on
+the pill itself the card does not sink, so the pill is raised paper with its edge in the
+accent, as it always was. In the note's field Enter writes the note, as leaving
 the field does, and Shift and Enter start a new line; on a phone, whose keyboard has no
 Shift and Enter, Enter starts one. Removing is immediate: a stop is a search away from
 coming back, and a dialog asking twice would be a modal over something editable in
