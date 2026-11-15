@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { array, int, nullable, number, object, optional, safeParse, string } from "zod/mini";
 import type { Place, PlaceCard, PlacePhoto, PlaceReview } from "@/core/model/place";
 import {
+  ArrowUpRightIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CloseIcon,
@@ -789,13 +790,19 @@ export function PlaceSheet({
               )}
               {card?.mapsUrl === null || card === null ? null : (
                 <li>
+                  {/* With the arrow going up and out after the words that the
+                      legs' links to Google Maps have, since it leaves for
+                      somewhere else too. Set in the line as the words alone
+                      were, so the row keeps its height and the words their
+                      place in it. */}
                   <a
                     href={card.mapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-meta font-semibold text-terracotta-700 hover:text-terracotta-900 max-lg:-my-1 max-lg:inline-block max-lg:py-1"
+                    className="inline-flex items-center gap-1 text-meta font-semibold text-terracotta-700 hover:text-terracotta-900 max-lg:-my-1 max-lg:py-1"
                   >
                     Open in Google Maps
+                    <ArrowUpRightIcon size={13} strokeWidth={2.75} className="shrink-0" />
                   </a>
                 </li>
               )}

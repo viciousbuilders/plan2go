@@ -1017,7 +1017,10 @@ the sheet stands under its name (see Layout). The picture comes first because it
 fastest; then the name, the kind of place and its rating out of five with a filled
 terracotta star; then the sentence the provider has for it, a strip of more pictures, the
 address and the ways to reach it, and what people say, each with their stars and how
-long ago. Any picture opens as large as the window allows, with the next and the last a
+long ago. The last of the ways to reach it, **Open in Google Maps**, at the meta step in
+600 `terracotta-700`, opens the place in Google Maps in a new tab, with the 13px arrow
+going up and out that the legs' links have, 4px after the words, on a desk and a phone
+alike. Any picture opens as large as the window allows, with the next and the last a
 press or an arrow key away. Nothing in the sheet changes the trip. It is asked for when
 opened and never before, because it is the dearest question the place provider answers,
 and it is shown whole once its words and pictures are all here rather than as they
