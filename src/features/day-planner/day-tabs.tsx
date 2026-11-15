@@ -144,10 +144,14 @@ const OVER = "bg-paper-sunken text-ink outline-2 outline-offset-2 outline-dashed
  * A day carried along the strip, over the days it passes: lifted onto the
  * small shadow, since the strip cuts off whatever reaches further than its
  * four pixels of room, and on a desk onto the chosen day's raised paper, so
- * it is a day being carried rather than its words floating loose. A phone's
- * card keeps its own colours. The hand that grabs, closed, for a mouse.
+ * it is a day being carried rather than its words floating loose. On a desk
+ * at half strength, as a stop card carried by a pointer is, so the day it is
+ * over shows through it, dashed edge and all, and can be read before it is
+ * let go on; solid, it hid the very day it was being taken to. A phone's card
+ * keeps its own colours. The hand that grabs, closed, for a mouse.
  */
-const LIFTED = "z-[5] cursor-grabbing shadow-sm lg:bg-paper-raised lg:ring-1 lg:ring-rule";
+const LIFTED =
+  "z-[5] cursor-grabbing shadow-sm lg:bg-paper-raised lg:opacity-50 lg:ring-1 lg:ring-rule";
 
 /**
  * A day that a finger can hold to pick up: no text to select under a held
