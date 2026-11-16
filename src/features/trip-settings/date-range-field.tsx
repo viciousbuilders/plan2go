@@ -20,6 +20,7 @@ import {
   weeksIn,
 } from "./month-grid";
 import { EDGE_GAP, WEEK_ROW, weekRowFor } from "./calendar-fit";
+import { canSlideMonths, slideMonths } from "./month-slide";
 
 /** Two at once, so a trip that crosses the end of a month is one gesture. */
 const MONTHS_SHOWN = 2;
@@ -404,6 +405,8 @@ export function DateRangeField({
   const trigger = useRef<HTMLButtonElement | null>(null);
   const grid = useRef<HTMLDivElement | null>(null);
   const frame = useRef<HTMLDivElement | null>(null);
+  /** The latest slide of the months, which alone clears the root once it is done. */
+  const monthSlide = useRef<ViewTransition | null>(null);
   /** Read by the dismiss listener, which outlives the render that set it up. */
   const closing = useRef(onClose);
   useEffect(() => {
@@ -519,13 +522,43 @@ export function DateRangeField({
     setPreviewing(null);
   };
 
-  /** Keeps the focused day on show, stepping the months when it walks off. */
+  /**
+   * The months on show moved along by one, and whatever goes with them, as a
+   * slide under the field on a desk (see month-slide.css), however they were
+   * moved: by a step, by Page Up or Page Down, or by the keys walking a day
+   * off either end. A phone's sheet, one month at a time, changes at once, as
+   * it always has. Moved from where they are when the change lands rather
+   * than from where they were when it was asked for: a slide lands a frame
+   * after it is asked for, and a second press can come before it has.
+   */
+  const stepMonths = (by: 1 | -1, alongWith?: () => void): void => {
+    const change = (): void => {
+      setLeftMonth((left) => shiftMonths(left, by));
+      alongWith?.();
+    };
+    if (!wide || !canSlideMonths()) {
+      change();
+      return;
+    }
+    slideMonths(by > 0 ? "month-on" : "month-back", change, monthSlide);
+  };
+
+  /**
+   * Keeps the focused day on show, stepping the months when it walks off. A
+   * day is at most a week from the one before it, so a day walking off goes
+   * into the month just before the left one or just after the right one.
+   */
   const moveFocus = (date: IsoDate): void => {
-    setFocused(date);
     if (date < leftMonth) {
-      setLeftMonth(firstOfMonth(date));
+      stepMonths(-1, () => {
+        setFocused(date);
+      });
     } else if (date >= afterShown) {
-      setLeftMonth(shiftMonths(firstOfMonth(date), -(monthsShown - 1)));
+      stepMonths(1, () => {
+        setFocused(date);
+      });
+    } else {
+      setFocused(date);
     }
   };
 
@@ -549,8 +582,10 @@ export function DateRangeField({
       // month along, so it stays on show and the focus is never left on a
       // day that has gone from the grid.
       const delta = event.key === "PageUp" ? -1 : 1;
-      setLeftMonth(shiftMonths(leftMonth, delta));
-      setFocused(sameDayIn(stop ?? focused, delta));
+      const day = sameDayIn(stop ?? focused, delta);
+      stepMonths(delta, () => {
+        setFocused(day);
+      });
       return;
     }
     if (event.key === "Escape") {
@@ -629,7 +664,7 @@ export function DateRangeField({
               type="button"
               aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}
               onClick={() => {
-                setLeftMonth(before);
+                stepMonths(-1);
               }}
               className={`${STEP} ${targets.step}`}
             >
@@ -642,7 +677,7 @@ export function DateRangeField({
               type="button"
               aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(after))}`}
               onClick={() => {
-                setLeftMonth(shiftMonths(leftMonth, 1));
+                stepMonths(1);
               }}
               className={`${STEP} ${targets.step}`}
             >
@@ -658,13 +693,16 @@ export function DateRangeField({
               : `${READABLE.format(isoDateAsUtc(drawingFrom))} chosen.`}
           </p>
 
+          {/* The months, which slide along as a picture of their own on a
+              desk (see month-slide.css): on the calendar's own paper, so the
+              picture coming in covers the one going out where they meet. */}
           <div
             ref={grid}
             onKeyDown={onKeyDown}
             onMouseLeave={() => {
               setPreviewing(null);
             }}
-            className={`mt-4 grid gap-x-6 gap-y-5 ${wide ? "grid-cols-2" : ""}`}
+            className={`calendar-months mt-4 grid gap-x-6 gap-y-5 bg-paper-raised ${wide ? "grid-cols-2" : ""}`}
           >
             {months.map((month) => {
               const cells = Array.from(

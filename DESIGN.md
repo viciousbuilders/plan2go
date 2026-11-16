@@ -1275,14 +1275,14 @@ and it is the product's own.
 
 ## Motion
 
-Fifteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Sixteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
 and the chosen fill of the map's row of days, with the day sliding across under them on
 a desk and a phone, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
 the export's page setup unfolding and folding, a leg's ways unfolding and folding on a
-desk, the switches of a phone's export being
+desk, the months of a desk's calendar moving along, the switches of a phone's export being
 thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
@@ -1389,6 +1389,20 @@ the other way. Appearing in one frame, the panel read as the day jumping down un
 Folded, it stays in the page out of sight and out of reach, as the page setup's rows
 do. Nothing else moves, and no opacity. A phone's leg opens a sheet instead.
 
+A desk's calendar, the two months under a dates field, in the planner and on the
+starter page alike: moved by a month, by its steps, by Page Up or Page Down, or by the
+keys walking a day off either month, the months slide along by one month's width over
+the 250ms on the curve a day slides on, the month going out on one side as the next
+comes in on the other, a later month from the right and an earlier from the left. One
+month's width and not the pair's, since two months share one with the pair before or
+after them: slid the pair's width, the shared month went out and came back, two of it
+side by side halfway, where slid a month's width it stays put and the months read as
+one strip moving along. Done as a view transition, as a day's slide is, the months a
+picture of their own cut to their box and drawn on the calendar's paper, so the month
+coming in covers the one going out where they meet, and everything else at once; a
+press during a slide still lands. A phone's sheet, one month at a time, changes at
+once, and so does a browser without view transitions (`month-slide.css`).
+
 The export's preview on a phone: `transform` from wholly off the right edge of the
 window to its place, 200ms `ease-out`, and back out the same way, 160ms `ease-in`,
 however it is put away, at the place's sheet's timing. It is a page the export goes on
@@ -1418,7 +1432,7 @@ Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's prev
 phone's sheets up from its foot, the
 day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
-page setup and a phone's switches, a leg's ways on a desk, a city's dot and everything in the search are instant too, and the empty field's words stay on
+page setup and a phone's switches, a leg's ways on a desk, a desk calendar's months, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
