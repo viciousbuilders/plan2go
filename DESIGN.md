@@ -1042,7 +1042,7 @@ to be live, and what opens is the day planned rather than now. A reader gets the
 the pointer, here or on the map, the disc takes a 2px ring of its ink, as the line on
 the map is drawn heavier. A leg that cannot be made says so in place of the name and the
 times, with **Change** after it for someone who may edit, and has no disc, since it has
-no line on the map. Open it is a panel in the pill's grey, `neutral-200` inside an edge
+no line on the map. Open, unfolding from the line (see Motion), it is a panel in the pill's grey, `neutral-200` inside an edge
 of `neutral-300`, so the pill and what it opens read as one thing, of every way of
 covering the same ground, one tile each, carrying the mode, the time and the distance,
 with the one in use filled with `terracotta-100` inside a 2px edge of `terracotta` and
@@ -1275,13 +1275,14 @@ and it is the product's own.
 
 ## Motion
 
-Fourteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Fifteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
 and the chosen fill of the map's row of days, with the day sliding across under them on
 a desk and a phone, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
-the export's page setup unfolding and folding, the switches of a phone's export being
+the export's page setup unfolding and folding, a leg's ways unfolding and folding on a
+desk, the switches of a phone's export being
 thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
@@ -1379,6 +1380,15 @@ the paper, which way up, the map, the words and the ink, has one pill for its tr
 slid to the one chosen as the export's switch's is, its word in `ink` wherever it has
 got to and the rest `neutral-600`.
 
+A leg's ways on a desk: the panel unfolds from the leg's line the way the export's page
+setup does, the height from nothing to all of it over 200ms `ease-out`, by the grid row
+it stands in going from `0fr` to `1fr`, pushing the day under it down as it goes, and
+folds back the same way, from its pill or from **Collapse**; the pill's chevron turns
+over with it, `rotate` over the same 200ms, rather than being swapped for one pointing
+the other way. Appearing in one frame, the panel read as the day jumping down under it.
+Folded, it stays in the page out of sight and out of reach, as the page setup's rows
+do. Nothing else moves, and no opacity. A phone's leg opens a sheet instead.
+
 The export's preview on a phone: `transform` from wholly off the right edge of the
 window to its place, 200ms `ease-out`, and back out the same way, 160ms `ease-in`,
 however it is put away, at the place's sheet's timing. It is a page the export goes on
@@ -1408,7 +1418,7 @@ Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's prev
 phone's sheets up from its foot, the
 day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
-page setup and a phone's switches, a city's dot and everything in the search are instant too, and the empty field's words stay on
+page setup and a phone's switches, a leg's ways on a desk, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
@@ -1608,7 +1618,7 @@ the file's name in sage 900, and **Done** at its end, which puts the button back
 where the file went, which the browser decides and a phone's may ask about first.
 Everything over the button is faded and out of reach from the moment the file is asked
 for until Done. Escape goes back to the day, and every other way out is the bar of
-views.
+views. At the end of the page its last line stands 16px over the bar, as the day's does.
 
 The preview is a card drawn as the setup's is: a page in small at its front, a bar of
 the accent over a block of sage where the map is and two lines of ink, then **Preview**

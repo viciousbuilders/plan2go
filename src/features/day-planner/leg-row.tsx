@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import type { TravelMode } from "@/core/model/leg";
 import type { ComputedLeg } from "@/core/time/compute-day";
 import { formatDuration } from "@/core/time/minutes";
@@ -10,6 +10,7 @@ import { formatDistance } from "@/core/model/distance";
 import type { DayActions } from "./day-actions";
 import { legColor, legDisc, MODE_ICON, MODE_WORDS } from "./leg-marks";
 import { Notice } from "@/ui/notice";
+import "./leg-row.css";
 
 interface LegRowProps {
   readonly leg: ComputedLeg;
@@ -182,6 +183,8 @@ export function LegRow({
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const row = useRef<HTMLDivElement | null>(null);
+  /** The panel of ways, which stays in the page folded, so the pill can name it. */
+  const panelId = useId();
 
   /**
    * Brought into the panel when the pointer finds this leg on the map, the
@@ -240,6 +243,10 @@ export function LegRow({
    * card, one more stop. Under the pointer it goes a step darker, and stays
    * so while the panel is open, rather than taking the accent edge a card
    * and the stay's pill take, which would say it was one of them.
+   *
+   * The chevron turns over as the panel unfolds and back as it folds, over
+   * the fold's own 200ms, as the export's page setup's does, rather than
+   * being swapped for one pointing the other way.
    */
   const toggle =
     onChange === null ? null : (
@@ -250,6 +257,7 @@ export function LegRow({
           setError(null);
         }}
         aria-expanded={open}
+        aria-controls={panelId}
         title="Change how you get there"
         className={`flex h-8 shrink-0 items-center gap-2 rounded-pill border pr-[10px] pl-3 text-small/none font-semibold whitespace-nowrap text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
           open
@@ -258,11 +266,13 @@ export function LegRow({
         }`}
       >
         {covered ? MODE_WORDS[leg.mode] : "Change"}
-        {open ? (
-          <ChevronUpIcon size={12} strokeWidth={2.75} className="shrink-0 text-ink-muted" />
-        ) : (
-          <ChevronDownIcon size={12} strokeWidth={2.75} className="shrink-0 text-ink-muted" />
-        )}
+        <ChevronDownIcon
+          size={12}
+          strokeWidth={2.75}
+          className={`shrink-0 text-ink-muted transition-transform duration-200 ease-out motion-reduce:transition-none ${
+            open ? "rotate-180" : ""
+          }`}
+        />
       </button>
     );
 
@@ -365,54 +375,65 @@ export function LegRow({
           </Notice>
         ) : null}
 
-        {onChange !== null && open ? (
-          /* In the pill's grey, so the pill and what it opens read as one
+        {onChange === null ? null : (
+          /* Unfolding from the line and folding back into it (see
+             leg-row.css), so it stays in the page while folded. The room
+             above it is its own margin, inside the part that folds.
+
+             In the pill's grey, so the pill and what it opens read as one
              thing: the pill's own grey inside an edge the grey of its own
              edge. It was the panel's ground, which left the pill a grey
              button over a panel that belonged to the page. Its own
              scrollbar on a short window, so a panel too tall to fit
              scrolls inside itself rather than pushing the day down past it. */
-          <div className="scroll-quiet mt-3 max-h-[50vh] overflow-y-auto rounded-panel border border-neutral-300 bg-neutral-200 px-[14px] pt-[13px] pb-[14px]">
-            <div className="mb-[11px] flex items-baseline gap-2">
-              {/* No distance beside the heading: every way of covering the leg
-                  is about to say its own, and they are not all the same. */}
-              <p className="text-small/none font-semibold text-ink-muted">How you get there</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                }}
-                className="ml-auto flex items-center gap-1 rounded-pill px-1 py-[2px] text-micro/none font-semibold text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+          <div className="leg-fold" data-open={open ? "" : undefined}>
+            <div>
+              <div
+                id={panelId}
+                className="scroll-quiet mt-3 max-h-[50vh] overflow-y-auto rounded-panel border border-neutral-300 bg-neutral-200 px-[14px] pt-[13px] pb-[14px]"
               >
-                Collapse
-                <ChevronUpIcon size={13} strokeWidth={2.75} />
-              </button>
-            </div>
+                <div className="mb-[11px] flex items-baseline gap-2">
+                  {/* No distance beside the heading: every way of covering the
+                      leg is about to say its own, and they are not all the same. */}
+                  <p className="text-small/none font-semibold text-ink-muted">How you get there</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                    className="ml-auto flex items-center gap-1 rounded-pill px-1 py-[2px] text-micro/none font-semibold text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta"
+                  >
+                    Collapse
+                    <ChevronUpIcon size={13} strokeWidth={2.75} />
+                  </button>
+                </div>
 
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
-              {planned.options.map((option) => (
-                <Option
-                  key={option.mode}
-                  option={option}
-                  chosen={option.mode === planned.chosen}
-                  disabled={saving}
-                  onPick={() => {
-                    choose(option.mode);
-                  }}
-                />
-              ))}
-            </div>
+                <div className="grid grid-cols-2 gap-2 lg:grid-cols-3">
+                  {planned.options.map((option) => (
+                    <Option
+                      key={option.mode}
+                      option={option}
+                      chosen={option.mode === planned.chosen}
+                      disabled={saving}
+                      onPick={() => {
+                        choose(option.mode);
+                      }}
+                    />
+                  ))}
+                </div>
 
-            {saving ? (
-              <p className="mt-2 text-micro text-ink-muted">Working out the new times.</p>
-            ) : null}
-            {error === null ? null : (
-              <Notice role="alert" className="mt-2">
-                  {error}
-              </Notice>
-            )}
+                {saving ? (
+                  <p className="mt-2 text-micro text-ink-muted">Working out the new times.</p>
+                ) : null}
+                {error === null ? null : (
+                  <Notice role="alert" className="mt-2">
+                    {error}
+                  </Notice>
+                )}
+              </div>
+            </div>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   );

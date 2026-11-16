@@ -860,7 +860,11 @@ export function ExportDialog({
           }}
           className="fixed inset-0 z-20 scroll-pt-4 scroll-pb-[calc(104px+env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain bg-paper outline-none lg:hidden print:hidden"
         >
-          <div className="mx-auto max-w-[640px] px-5 pt-4 pb-[calc(120px+env(safe-area-inset-bottom))]">
+          {/* Scrolled to its end, its last line stands 16px clear of the bar
+              of views, as the day's does on the Plan view: the bar stands as
+              far off the window's foot as the phone's own edge asks, 20px at
+              least, and is 54px tall. */}
+          <div className="mx-auto max-w-[640px] px-5 pt-4 pb-[calc(max(20px,env(safe-area-inset-bottom))+70px)]">
             <h1 id={titleId} className="pt-[10px] font-display text-headline text-ink">
               Export PDF
             </h1>

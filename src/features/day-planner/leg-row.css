@@ -1,0 +1,42 @@
+/*
+ * A leg's ways unfolding from its line and folding back into it, the fold
+ * the export's page setup makes: the panel's height from nothing to all of it
+ * over 200ms easing out, by the grid row it stands in going from 0fr to 1fr,
+ * so nothing has to know how tall it is. Appearing in one frame, the panel
+ * read as the day jumping down under it, where unfolding shows it opening
+ * from the way's pill and pushing the day down as it goes.
+ *
+ * Folded, the panel stays in the page, out of sight, out of the keyboard's
+ * reach and out of a screen reader's, which is what lets it fold away rather
+ * than vanish: it goes out of sight only once the fold is done, and comes
+ * back into sight at once. Clipped while it folds. The room above it is
+ * inside the part that folds, so folded it is nothing.
+ */
+.leg-fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 200ms ease-out,
+    visibility 0s linear 200ms;
+}
+
+.leg-fold[data-open] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows 200ms ease-out,
+    visibility 0s;
+}
+
+.leg-fold > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leg-fold,
+  .leg-fold[data-open] {
+    transition: none;
+  }
+}
