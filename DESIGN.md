@@ -749,8 +749,8 @@ though the end's row on the day takes it off as well. It has no **Change** pill:
 row's pencil changes an end on a desk, in a search under the row.
 
 The search is on the map, as design 1b of "PlanToGo iPhone app" draws it, and **Add a
-place** goes there with the cursor in the field and the keyboard up, as **Add start
-point** and **Add end point** do to find an end. A phone has no search of an end's own:
+place** slides there (see Motion) with the cursor in the field and the keyboard up, as
+**Add start point** and **Add end point** do to find an end. A phone has no search of an end's own:
 sent from a card offering one, the search finds that end rather than the next stop. It
 says so after the heading, in place of the day it adds to, "Popular in Sydney · where
 Day 1 starts"; a row's plus is titled "Start Day 1 here" and read out "Start Day 1 at
@@ -1347,9 +1347,13 @@ on show goes out of the window on one side as the view chosen comes in on the ot
 Done as a view transition, which slides pictures of the window before and after, so
 nothing fixed to the window on either view is moved itself; the bar of views is a
 picture of its own that stays put, its pill doing the moving. A browser without view
-transitions changes the view at once. Not when the search takes the window to the map
-to find a place, which focuses the field inside the press so a phone brings its
-keyboard up, and a transition would focus it a frame too late: that changes at once.
+transitions changes the view at once. The search taking the window to the map slides
+there the same way, from **Add a place**, **Add start point** and **Add end point** on
+the day, and from an end's **Change** in its sheet, the sheet going out with the view it
+is over rather than sliding out on its own. A phone brings its keyboard up only for a
+field focused inside the press, and the map comes a frame after it, so the keyboard is
+brought up in the press on a stand-in field out of sight, asking for the search's own
+keyboard, and handed to the search once the map is on show.
 
 A day chosen slides the same way, on a desk and on a phone: the day on show goes out on
 one side as the day chosen comes in on the other, a later day from the right and an

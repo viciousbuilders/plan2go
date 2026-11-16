@@ -34,6 +34,7 @@ import { PlaceSheet, SHEET_REACH } from "@/features/place-details/place-sheet";
 import { SavedNote } from "@/features/trip-settings/saved-note";
 import { TripActions } from "@/features/trip-settings/trip-actions";
 import { TripSettings } from "@/features/trip-settings/trip-settings";
+import { holdKeyboard } from "@/ui/keyboard-stand-in";
 import { addDayAction } from "./add-day-action";
 import { addStopAction } from "./add-stop-action";
 import { clearDayAction } from "./clear-day-action";
@@ -65,6 +66,18 @@ const WIDE_WINDOW = "(min-width: 1024px)";
 /** Whether the window is a phone's, asked at the moment something is pressed. */
 function narrowWindow(): boolean {
   return !window.matchMedia(WIDE_WINDOW).matches;
+}
+
+/**
+ * Whether a phone's views can slide from one to the next: the browser has
+ * view transitions and the reader has not asked for less motion. Otherwise
+ * they change at once.
+ */
+function viewsCanSlide(): boolean {
+  return (
+    "startViewTransition" in document &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 }
 
 /**
@@ -420,24 +433,7 @@ export function TripEditor({
    * a press after typing, a press after Escape.
    */
   const searchField = useRef<HTMLInputElement | null>(null);
-  /**
-   * The same field for one end of the open day, from a phone's card offering
-   * it, as "Add a place" goes there for the next stop: the search then says
-   * which end it is finding, and its plus sets it. A desk finds an end in a
-   * search of its own, under the row offering it.
-   */
-  const find = (what: Seeking): void => {
-    setSeeking(what);
-    // On a phone the field is over the map, which is not the view showing
-    // yet. The map is put up before the field is focused, and at once rather
-    // than on the next render, because a phone only brings its keyboard up
-    // for a field focused inside the press itself.
-    if (narrowWindow()) {
-      flushSync(() => {
-        setView("map");
-        setPicked(null);
-      });
-    }
+  const focusSearch = (): void => {
     const field = searchField.current;
     if (field === null) {
       return;
@@ -446,6 +442,51 @@ export function TripEditor({
       field.blur();
     }
     field.focus();
+  };
+  /**
+   * The same field for one end of the open day, from a phone's card offering
+   * it, as "Add a place" goes there for the next stop: the search then says
+   * which end it is finding, and its plus sets it. A desk finds an end in a
+   * search of its own, under the row offering it.
+   *
+   * On a phone the field is over the map, which is not the view showing yet,
+   * and the map slides in from the right as it does when chosen in the bar
+   * (see view-tabs.css), the view on show going out to the left with
+   * whatever is over it. A phone brings its keyboard up only for a field
+   * focused inside the press itself, and the slide puts the map up a frame
+   * after the press: so the keyboard is brought up in the press on a
+   * stand-in, and handed to the field once the map is on show. Without the
+   * slide the map is put up at once, inside the press, and the field focused
+   * there. `alongWith` is told which, for what goes with the change.
+   */
+  const find = (what: Seeking, alongWith?: (sliding: boolean) => void): void => {
+    if (narrowWindow() && view !== "map" && viewsCanSlide()) {
+      const letGo = holdKeyboard(searchField.current);
+      document.documentElement.dataset.slide = "on";
+      document.startViewTransition(() => {
+        try {
+          flushSync(() => {
+            alongWith?.(true);
+            setSeeking(what);
+            setView("map");
+            setPicked(null);
+          });
+          focusSearch();
+        } finally {
+          letGo();
+        }
+      });
+      return;
+    }
+    alongWith?.(false);
+    setSeeking(what);
+    if (narrowWindow()) {
+      flushSync(() => {
+        setView("map");
+        setPicked(null);
+      });
+    }
+    focusSearch();
   };
   const findPlace = (): void => {
     find("stop");
@@ -456,10 +497,7 @@ export function TripEditor({
    * pill goes, as a view transition, where the browser has them and the
    * reader has not asked for less motion, and at once otherwise. The search
    * is put away and nothing stays picked out, as when it changed at once.
-   *
-   * Not for the search's own way to the map, which focuses the field inside
-   * the press so a phone brings its keyboard up, and a transition would
-   * focus it a frame too late.
+   * The search's own way to the map slides the same way (see `find`).
    */
   const chooseView = (next: View): void => {
     const change = (): void => {
@@ -469,11 +507,7 @@ export function TripEditor({
     };
     const from = VIEWS.findIndex((each) => each.view === view);
     const to = VIEWS.findIndex((each) => each.view === next);
-    if (
-      from === to ||
-      !("startViewTransition" in document) ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
+    if (from === to || !viewsCanSlide()) {
       change();
       return;
     }
@@ -487,14 +521,24 @@ export function TripEditor({
    * taking this one off first: the sheet goes, the day the end is on is
    * opened if it is not already, and the search finds that end, as the card
    * offering one sends it to. The place chosen there takes the old one's.
+   *
+   * Sliding to the map, the sheet goes out with the view it is over, in the
+   * picture of the window going out to the left, so it is taken down at once
+   * rather than slid out on its own as well.
    */
   const changeEnd = (end: EndpointRef): void => {
     const at = days.findIndex((day) => day.plan.id === end.dayId);
-    if (at !== -1) {
-      chooseDay(at);
-    }
-    dismiss();
-    find(end.which);
+    find(end.which, (sliding) => {
+      if (at !== -1) {
+        chooseDay(at);
+      }
+      if (sliding) {
+        setOpened(null);
+        setLeaving(false);
+      } else {
+        dismiss();
+      }
+    });
   };
   /**
    * A window widened past a phone's puts away what only a phone has: a view
