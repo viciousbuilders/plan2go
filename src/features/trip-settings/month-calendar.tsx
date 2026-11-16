@@ -16,6 +16,7 @@ import {
   shiftMonths,
   weeksIn,
 } from "./month-grid";
+import { canSlideMonths, monthInSight, slideMonths } from "./month-slide";
 
 /** The trip's two ends as they are drawn: the last is null between the two presses. */
 export interface DrawnRange {
@@ -58,7 +59,9 @@ const STEP =
  * The arrow keys walk the days, stepping the month when they walk off it, and
  * Page Up and Page Down step the month, taking the day to the same date in it.
  * The focus follows the keys and nothing else: stepping the month by its
- * arrows leaves it on the arrow.
+ * arrows leaves it on the arrow. However it is stepped, the weeks slide
+ * across under the days of the week, a later month in from the right and an
+ * earlier from the left (see month-slide.css).
  */
 export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCalendarProps) {
   const labelId = useId();
@@ -73,6 +76,10 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
    */
   const steered = useRef(false);
   const grid = useRef<HTMLDivElement | null>(null);
+  /** The weeks, the part of the month that slides as it is stepped. */
+  const slidingWeeks = useRef<HTMLDivElement | null>(null);
+  /** The latest slide of the month, which alone clears the root once it is done. */
+  const slide = useRef<ViewTransition | null>(null);
 
   const shown = parseIsoDate(month).month;
   /** The one day Tab stops at: the day the keys are on while it is on show, else the month's first. */
@@ -85,6 +92,27 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
     steered.current = false;
     grid.current?.querySelector<HTMLButtonElement>(`[data-date="${focused}"]`)?.focus();
   }, [focused, month]);
+
+  /**
+   * The month on show stepped by one, and whatever goes with it, as a slide
+   * of the weeks, however it was stepped. Stepped from where it is when the
+   * change lands rather than from where it was when it was asked for: a
+   * slide lands a frame after it is asked for, and a second press can come
+   * before it has. At once with weeks partly scrolled out of the top of the
+   * sheet, whose picture would be drawn over the page above it.
+   */
+  const stepMonth = (by: 1 | -1, alongWith?: () => void): void => {
+    const change = (): void => {
+      setMonth((now) => shiftMonths(now, by));
+      alongWith?.();
+    };
+    const weekRows = slidingWeeks.current;
+    if (!canSlideMonths() || weekRows === null || !monthInSight(weekRows)) {
+      change();
+      return;
+    }
+    slideMonths(by > 0 ? "month-on" : "month-back", change, slide);
+  };
 
   const pick = (date: IsoDate): void => {
     setFocused(date);
@@ -107,18 +135,26 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
       event.preventDefault();
       const next = addDays(stop, step);
       steered.current = true;
-      setFocused(next);
-      setMonth(firstOfMonth(next));
+      // A week at most, so a day walked off the month is in the one beside it.
+      if (firstOfMonth(next) === month) {
+        setFocused(next);
+      } else {
+        stepMonth(next < month ? -1 : 1, () => {
+          setFocused(next);
+        });
+      }
       return;
     }
     if (event.key === "PageUp" || event.key === "PageDown") {
       event.preventDefault();
       // The day goes with the month, or the focus would be left on a day
       // that has gone from the grid.
-      const next = sameDayIn(stop, event.key === "PageUp" ? -1 : 1);
+      const by = event.key === "PageUp" ? -1 : 1;
+      const next = sameDayIn(stop, by);
       steered.current = true;
-      setFocused(next);
-      setMonth(firstOfMonth(next));
+      stepMonth(by, () => {
+        setFocused(next);
+      });
     }
   };
 
@@ -145,7 +181,7 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
           type="button"
           aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(before))}`}
           onClick={() => {
-            setMonth(before);
+            stepMonth(-1);
           }}
           className={STEP}
         >
@@ -158,7 +194,7 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
           type="button"
           aria-label={`Go to ${MONTH_AND_YEAR.format(isoDateAsUtc(after))}`}
           onClick={() => {
-            setMonth(after);
+            stepMonth(1);
           }}
           className={STEP}
         >
@@ -179,9 +215,9 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
         role="grid"
         aria-labelledby={labelId}
         onKeyDown={onKeyDown}
-        className="mt-[10px] rounded-card border-[1.5px] border-rule bg-paper-raised px-2 py-3"
+        className="mt-[10px] rounded-card border-[1.5px] border-rule bg-paper-raised py-3"
       >
-        <div role="row" className="grid grid-cols-7">
+        <div role="row" className="grid grid-cols-7 px-2">
           {WEEKDAYS.map((weekday, index) => (
             <span
               key={index}
@@ -194,56 +230,61 @@ export function MonthCalendar({ label, range, maxSpanDays, onChange }: MonthCale
           ))}
         </div>
 
-        {Array.from({ length: weeks }, (_unused, week) => (
-          <div role="row" key={week} className="mt-1 grid grid-cols-7">
-            {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
-              if (parseIsoDate(date).month !== shown) {
-                return <span role="gridcell" key={date} />;
-              }
-              const isEnd = date === start || date === end;
-              const tooFar = furthest !== null && date > furthest;
-              const banded = end !== null && end > start && date >= start && date <= end;
-              return (
-                <span
-                  role="gridcell"
-                  key={date}
-                  aria-selected={isEnd}
-                  className={[
-                    "grid h-[42px] place-items-center",
-                    banded ? "bg-terracotta-100" : "",
-                    banded && date === start ? "rounded-l-pill" : "",
-                    banded && date === end ? "rounded-r-pill" : "",
-                  ].join(" ")}
-                >
-                  <button
-                    type="button"
-                    data-date={date}
-                    tabIndex={date === stop ? 0 : -1}
-                    // Past the longest a trip may run: faint, and not offered
-                    // to a press, but still reached by the keys, so walking
-                    // them past it never drops the focus.
-                    aria-disabled={tooFar ? true : undefined}
-                    onClick={() => {
-                      if (!tooFar) {
-                        pick(date);
-                      }
-                    }}
-                    className={`grid h-10 w-10 place-items-center rounded-pill text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
-                      isEnd
-                        ? "bg-terracotta-800 text-paper"
-                        : tooFar
-                          ? "cursor-not-allowed text-ink-faint"
-                          : "text-ink hover:bg-terracotta-100"
-                    }`}
+        {/* The weeks, which slide across under the days of the week as the
+            month is stepped (see month-slide.css): the whole width inside
+            the card's edge, so the days go out of sight at the edge itself. */}
+        <div ref={slidingWeeks} role="rowgroup" className="calendar-month px-2">
+          {Array.from({ length: weeks }, (_unused, week) => (
+            <div role="row" key={week} className="mt-1 grid grid-cols-7">
+              {cells.slice(week * DAYS_IN_WEEK, (week + 1) * DAYS_IN_WEEK).map((date) => {
+                if (parseIsoDate(date).month !== shown) {
+                  return <span role="gridcell" key={date} />;
+                }
+                const isEnd = date === start || date === end;
+                const tooFar = furthest !== null && date > furthest;
+                const banded = end !== null && end > start && date >= start && date <= end;
+                return (
+                  <span
+                    role="gridcell"
+                    key={date}
+                    aria-selected={isEnd}
+                    className={[
+                      "grid h-[42px] place-items-center",
+                      banded ? "bg-terracotta-100" : "",
+                      banded && date === start ? "rounded-l-pill" : "",
+                      banded && date === end ? "rounded-r-pill" : "",
+                    ].join(" ")}
                   >
-                    <span aria-hidden="true">{parseIsoDate(date).day}</span>
-                    <span className="sr-only">{READABLE.format(isoDateAsUtc(date))}</span>
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-        ))}
+                    <button
+                      type="button"
+                      data-date={date}
+                      tabIndex={date === stop ? 0 : -1}
+                      // Past the longest a trip may run: faint, and not offered
+                      // to a press, but still reached by the keys, so walking
+                      // them past it never drops the focus.
+                      aria-disabled={tooFar ? true : undefined}
+                      onClick={() => {
+                        if (!tooFar) {
+                          pick(date);
+                        }
+                      }}
+                      className={`grid h-10 w-10 place-items-center rounded-pill text-body/none font-bold tabular-nums focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-terracotta ${
+                        isEnd
+                          ? "bg-terracotta-800 text-paper"
+                          : tooFar
+                            ? "cursor-not-allowed text-ink-faint"
+                            : "text-ink hover:bg-terracotta-100"
+                      }`}
+                    >
+                      <span aria-hidden="true">{parseIsoDate(date).day}</span>
+                      <span className="sr-only">{READABLE.format(isoDateAsUtc(date))}</span>
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

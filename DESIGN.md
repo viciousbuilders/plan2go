@@ -517,7 +517,8 @@ Edit trip's page is drawn as design 1b draws the start of a trip less its main c
 "Trip name" in bold at the small
 step over the name's field, 50px tall on `paper-raised` inside a 1.5px `rule` edge, at
 16px. Then "Dates" in bold at the small step, and on the same row the month, "October
-2026", in bold at the body step between the two arrows that step it, each 40px across.
+2026", in bold at the body step between the two arrows that step it, each 40px across
+(see Motion).
 Under that row, centred and on the page rather than on the month's card, the line a
 desk's calendar has over its months, saying which press comes next, "Choose the first
 day" or, once it is pressed, "Now choose the last day", at the body step in 500
@@ -1282,7 +1283,7 @@ a desk and a phone, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
 the export's page setup unfolding and folding, a leg's ways unfolding and folding on a
-desk, the months of a desk's calendar moving along, the switches of a phone's export being
+desk, the months of a calendar moving along, the switches of a phone's export being
 thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
@@ -1400,8 +1401,20 @@ side by side halfway, where slid a month's width it stays put and the months rea
 one strip moving along. Done as a view transition, as a day's slide is, the months a
 picture of their own cut to their box and drawn on the calendar's paper, so the month
 coming in covers the one going out where they meet, and everything else at once; a
-press during a slide still lands. A phone's sheet, one month at a time, changes at
-once, and so does a browser without view transitions (`month-slide.css`).
+press during a slide still lands. A browser without view transitions changes the months
+at once (`month-slide.css`).
+
+A phone's calendar, one month at a time, Edit trip's in the trip's menu and the starter
+page's sheet: stepped by a month, by its arrows or by the keys, the month slides across
+the same way, over the same 250ms on the same curve, a later month in from the right and
+an earlier from the left. It moves its own width and the 24px between a desk's two
+months, so the month going out and the one coming in pass as neighbours, 24px apart the
+whole way, and never stand on each other. On Edit trip's page only the weeks move,
+inside the card, under the days of the week, which stay put with the card and the
+month's name between the arrows; the card takes the new month's height at once, and the
+weeks are cut to it. The starter page's sheet moves its month whole, its name with it.
+A month partly scrolled under the steps held over it, or out of the top of its sheet,
+changes at once, since its picture would be drawn over whatever hides it.
 
 The export's preview on a phone: `transform` from wholly off the right edge of the
 window to its place, 200ms `ease-out`, and back out the same way, 160ms `ease-in`,
@@ -1432,7 +1445,7 @@ Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's prev
 phone's sheets up from its foot, the
 day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
-page setup and a phone's switches, a leg's ways on a desk, a desk calendar's months, a city's dot and everything in the search are instant too, and the empty field's words stay on
+page setup and a phone's switches, a leg's ways on a desk, a calendar's months, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.

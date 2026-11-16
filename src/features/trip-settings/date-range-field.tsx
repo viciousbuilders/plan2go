@@ -20,7 +20,7 @@ import {
   weeksIn,
 } from "./month-grid";
 import { EDGE_GAP, WEEK_ROW, weekRowFor } from "./calendar-fit";
-import { canSlideMonths, slideMonths } from "./month-slide";
+import { canSlideMonths, monthInSight, slideMonths } from "./month-slide";
 
 /** Two at once, so a trip that crosses the end of a month is one gesture. */
 const MONTHS_SHOWN = 2;
@@ -524,10 +524,11 @@ export function DateRangeField({
 
   /**
    * The months on show moved along by one, and whatever goes with them, as a
-   * slide under the field on a desk (see month-slide.css), however they were
-   * moved: by a step, by Page Up or Page Down, or by the keys walking a day
-   * off either end. A phone's sheet, one month at a time, changes at once, as
-   * it always has. Moved from where they are when the change lands rather
+   * slide under the field on a desk and across a phone's sheet (see
+   * month-slide.css), however they were moved: by a step, by Page Up or Page
+   * Down, or by the keys walking a day off either end. A phone's month partly
+   * scrolled under the steps changes at once, since its picture would be
+   * drawn over them. Moved from where they are when the change lands rather
    * than from where they were when it was asked for: a slide lands a frame
    * after it is asked for, and a second press can come before it has.
    */
@@ -536,7 +537,8 @@ export function DateRangeField({
       setLeftMonth((left) => shiftMonths(left, by));
       alongWith?.();
     };
-    if (!wide || !canSlideMonths()) {
+    const shown = grid.current;
+    if (!canSlideMonths() || (!wide && (shown === null || !monthInSight(shown)))) {
       change();
       return;
     }
@@ -693,16 +695,18 @@ export function DateRangeField({
               : `${READABLE.format(isoDateAsUtc(drawingFrom))} chosen.`}
           </p>
 
-          {/* The months, which slide along as a picture of their own on a
-              desk (see month-slide.css): on the calendar's own paper, so the
-              picture coming in covers the one going out where they meet. */}
+          {/* The months, which slide along as a picture of their own (see
+              month-slide.css), a desk's two by one month's width and a
+              phone's one by its whole width: on the calendar's own paper, so
+              on a desk the picture coming in covers the one going out where
+              they meet. */}
           <div
             ref={grid}
             onKeyDown={onKeyDown}
             onMouseLeave={() => {
               setPreviewing(null);
             }}
-            className={`calendar-months mt-4 grid gap-x-6 gap-y-5 bg-paper-raised ${wide ? "grid-cols-2" : ""}`}
+            className={`mt-4 grid gap-x-6 gap-y-5 bg-paper-raised ${wide ? "calendar-months grid-cols-2" : "calendar-month"}`}
           >
             {months.map((month) => {
               const cells = Array.from(

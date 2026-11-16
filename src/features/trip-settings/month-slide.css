@@ -75,3 +75,68 @@
 :root[data-slide="month-back"]::view-transition-new(calendar-months) {
   animation: month-in-from-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/*
+ * A phone's calendar, one month at a time, moving along by a month the same
+ * way, over the same 250ms on the same curve: Edit trip's in the trip's
+ * menu, whose weeks slide under the days of the week, the card round them
+ * and the month's name between the arrows staying where they are, and the
+ * starter page's sheet, whose month slides whole, its name with it.
+ *
+ * The month's own width and the 24px a desk keeps between its two months, so
+ * the month going out and the one coming in pass as neighbours in one strip,
+ * the same 24px apart the whole way, and never stand on each other.
+ *
+ * Cut to the month coming in, at once and not grown or shrunk to it: Edit
+ * trip's card takes the new month's height at once with everything else, and
+ * a month of five weeks after one of six cut to five as it goes is never
+ * drawn over the line under the card.
+ */
+@keyframes month-whole-out-to-left {
+  to {
+    transform: translateX(calc(-100% - 24px));
+  }
+}
+
+@keyframes month-whole-in-from-right {
+  from {
+    transform: translateX(calc(100% + 24px));
+  }
+}
+
+@keyframes month-whole-out-to-right {
+  to {
+    transform: translateX(calc(100% + 24px));
+  }
+}
+
+@keyframes month-whole-in-from-left {
+  from {
+    transform: translateX(calc(-100% - 24px));
+  }
+}
+
+:root[data-slide^="month-"] .calendar-month {
+  view-transition-name: calendar-month;
+}
+
+:root[data-slide^="month-"]::view-transition-group(calendar-month) {
+  overflow: clip;
+  animation: none;
+}
+
+:root[data-slide="month-on"]::view-transition-old(calendar-month) {
+  animation: month-whole-out-to-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="month-on"]::view-transition-new(calendar-month) {
+  animation: month-whole-in-from-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="month-back"]::view-transition-old(calendar-month) {
+  animation: month-whole-out-to-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="month-back"]::view-transition-new(calendar-month) {
+  animation: month-whole-in-from-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
