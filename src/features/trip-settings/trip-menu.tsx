@@ -6,6 +6,8 @@ import { FINGER_ROOM } from "@/ui/finger-room";
 import { ArrowLeftIcon, MoreIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
 import { usePhoneSheet } from "@/ui/use-phone-sheet";
+import type { MenuWay } from "./menu-slide";
+import { canSlideMenu, slideMenu } from "./menu-slide";
 
 /**
  * A page a row can turn the menu into: the menu's panel stays where it is
@@ -114,9 +116,11 @@ interface TripMenuProps {
  * A row that has more to show than a row can hold turns the panel into its
  * page rather than opening a second panel over the first: the same box, wider
  * for the page, with the page's name and an arrow back to the rows across the
- * top. Escape on a page goes back; Escape on the rows closes the menu. The
- * rows are kept in the document while a page is up, only hidden, so the row
- * that opened the page is still there to take the focus back.
+ * top. On a desk the box grows to the page as the rows slide out and the page
+ * slides in, and back the other way (see menu-slide.css). Escape on a page
+ * goes back; Escape on the rows closes the menu. The rows are kept in the
+ * document while a page is up, only hidden, so the row that opened the page
+ * is still there to take the focus back.
  *
  * On a phone the same panel comes up from the foot of the window as a sheet,
  * drawn as a leg's sheet is: the page dimmed under it, raised paper rounded
@@ -143,10 +147,31 @@ export function TripMenu({ label, children }: TripMenuProps) {
   const backButton = useRef<HTMLButtonElement | null>(null);
   /** The page just left, until the rows are drawn again and it can be told. */
   const returning = useRef<MenuPage | null>(null);
+  /** The latest slide to a page or back, which alone clears the root once done. */
+  const menuSlide = useRef<ViewTransition | null>(null);
+
+  /**
+   * The panel turned to a page, or back to the rows with null. On a desk it
+   * slides there (see menu-slide.css); on a phone, whose sheet takes the page
+   * whole, it turns at once, as it does wherever the slide cannot be drawn.
+   */
+  const turn = (to: MenuPage | null, way: MenuWay): void => {
+    if (!canSlideMenu()) {
+      setPage(to);
+      return;
+    }
+    slideMenu(
+      way,
+      () => {
+        setPage(to);
+      },
+      menuSlide,
+    );
+  };
 
   const back = (): void => {
     returning.current = page;
-    setPage(null);
+    turn(null, "menu-back");
   };
 
   /**
@@ -162,7 +187,14 @@ export function TripMenu({ label, children }: TripMenuProps) {
 
   // Built afresh each render rather than memoised: the menu renders when it
   // opens, closes or turns a page, and its rows are all that read this.
-  const pages: MenuPages = { page, open: setPage, back, close: putAway };
+  const pages: MenuPages = {
+    page,
+    open: (next) => {
+      turn(next, "menu-on");
+    },
+    back,
+    close: putAway,
+  };
 
   /**
    * A page arriving takes the focus to its way back, which is its first
@@ -249,7 +281,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
             // Close under the button, so the menu reads as what the button
             // opened rather than as a panel that appeared near it. Wider and
             // more padded as a page, the way the panels off this menu were.
-            className={`absolute top-full right-0 z-40 mt-[6px] rounded-panel border border-rule bg-paper-raised shadow-lg ${
+            className={`trip-menu-panel absolute top-full right-0 z-40 mt-[6px] rounded-panel border border-rule bg-paper-raised shadow-lg ${
               page === null ? "w-[172px] p-[6px]" : "w-[min(320px,calc(100vw-2rem))] p-[14px]"
             } ${SHEET} ${sheet.sheetClass}`}
           >
@@ -258,25 +290,33 @@ export function TripMenu({ label, children }: TripMenuProps) {
               className="mx-auto mb-4 h-[5px] w-10 rounded-pill bg-ink/20 lg:hidden"
             />
             <MenuPagesContext value={pages}>
+              {/* The page, under its name and the way back, held together
+                  so a desk's panel can slide it in and out as one (see
+                  menu-slide.css). */}
               {page === null ? null : (
-                <div className="flex items-center gap-2 max-lg:mb-4">
-                  <button
-                    type="button"
-                    ref={backButton}
-                    onClick={back}
-                    aria-label="Back to the menu"
-                    // A negative margin takes it out to the panel's edge, so
-                    // the arrow sits where the rows' glyphs did.
-                    className={`-ml-1 grid h-7 w-7 shrink-0 place-items-center rounded-pill text-ink-muted hover:bg-neutral-200 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${FINGER_ROOM}`}
-                  >
-                    <ArrowLeftIcon size={15} strokeWidth={2.75} />
-                  </button>
-                  <p className="font-display text-place text-ink max-lg:text-lead">{page.title}</p>
+                <div className="trip-menu-page">
+                  <div className="flex items-center gap-2 max-lg:mb-4">
+                    <button
+                      type="button"
+                      ref={backButton}
+                      onClick={back}
+                      aria-label="Back to the menu"
+                      // A negative margin takes it out to the panel's edge, so
+                      // the arrow sits where the rows' glyphs did.
+                      className={`-ml-1 grid h-7 w-7 shrink-0 place-items-center rounded-pill text-ink-muted hover:bg-neutral-200 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${FINGER_ROOM}`}
+                    >
+                      <ArrowLeftIcon size={15} strokeWidth={2.75} />
+                    </button>
+                    <p className="font-display text-place text-ink max-lg:text-lead">{page.title}</p>
+                  </div>
+                  {page.content}
                 </div>
               )}
-              {page === null ? null : page.content}
               {/* Eight apart on a phone, where each row is a card. */}
-              <div hidden={page !== null} className="max-lg:flex max-lg:flex-col max-lg:gap-2">
+              <div
+                hidden={page !== null}
+                className="trip-menu-rows max-lg:flex max-lg:flex-col max-lg:gap-2"
+              >
                 {children}
               </div>
             </MenuPagesContext>

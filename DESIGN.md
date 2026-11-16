@@ -1276,14 +1276,15 @@ and it is the product's own.
 
 ## Motion
 
-Sixteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Seventeen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
 and the chosen fill of the map's row of days, with the day sliding across under them on
 a desk and a phone, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
 the export's page setup unfolding and folding, a leg's ways unfolding and folding on a
-desk, the months of a calendar moving along, the switches of a phone's export being
+desk, the months of a calendar moving along, the trip's menu on a desk turning to a page
+and back, the switches of a phone's export being
 thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
@@ -1435,6 +1436,19 @@ has gone. The sheet itself has no opacity, nothing on it moves, and on its way d
 nothing on it answers. On a desk the trip's menu is a panel under its button and
 appears at once.
 
+The trip's menu on a desk, turning to a page, **Share**, and back: the panel grows from
+its corner under the button to the page's size, or shrinks back to the rows', its
+width and height over the 250ms on the curve a day slides on, while what it holds
+slides across inside it, cut to it as it goes: going on, the rows go out to the left as
+the page comes in from the right; going back, by the arrow or Escape, the page goes out
+to the right as the rows come in from the left. Appearing in one frame, the page read
+as the menu swapped for another panel, where sliding in reads as going on to it. Done
+as a view transition, the panel drawn on the box that moves, its paper, hairline,
+radius and shadow, so it is never stretched, and the rows and the page pictures of
+their own nested in it, so it cuts them (`menu-slide.css`); a browser whose view
+transitions cannot nest one picture in another turns the page at once, as a phone's
+sheet does. No opacity.
+
 Nothing else. No transitions on focus outside the search, any other panel opening, or map
 interaction, and no other transition on hover. Those changes are instant.
 
@@ -1445,7 +1459,7 @@ Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's prev
 phone's sheets up from its foot, the
 day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
-page setup and a phone's switches, a leg's ways on a desk, a calendar's months, a city's dot and everything in the search are instant too, and the empty field's words stay on
+page setup and a phone's switches, a leg's ways on a desk, a calendar's months, the trip's menu turning to a page, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.

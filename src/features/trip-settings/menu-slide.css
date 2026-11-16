@@ -1,0 +1,98 @@
+/*
+ * The trip's menu turning to a page and back, on a desk. The panel grows to
+ * the page from its corner under the button, or shrinks back to the rows,
+ * over the 250ms on the curve a day slides on, while what it holds slides
+ * across inside it: going to a page, the rows go out to the left as the page
+ * comes in from the right; going back, the page goes out to the right as the
+ * rows come in from the left. Both are cut to the panel as it goes, so
+ * nothing is drawn past its edge. Appearing in one frame, a page read as the
+ * menu being swapped for another panel, where sliding in reads as going on
+ * to it, and sliding back as coming back.
+ *
+ * Done as a view transition, started by the row that opens a page or by the
+ * way back, which mark the root with the way it goes while it runs (see
+ * menu-slide.ts). The panel is drawn by the transition while it runs, its
+ * paper, its hairline, its radius and its shadow laid on the box that moves,
+ * so it changes size without being stretched. The rows and the page are
+ * pictures of their own nested in it, so the box cuts them to itself.
+ * Everything else is the page as it now is, at once.
+ */
+@keyframes menu-out-to-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes menu-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes menu-out-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes menu-in-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+:root[data-slide^="menu-"] .trip-menu-panel {
+  view-transition-name: trip-menu;
+}
+
+:root[data-slide^="menu-"] .trip-menu-rows {
+  view-transition-name: trip-menu-rows;
+  view-transition-group: nearest;
+}
+
+:root[data-slide^="menu-"] .trip-menu-page {
+  view-transition-name: trip-menu-page;
+  view-transition-group: nearest;
+}
+
+:root[data-slide^="menu-"]::view-transition-old(root) {
+  display: none;
+}
+
+:root[data-slide^="menu-"]::view-transition-new(root) {
+  animation: none;
+}
+
+/* The panel itself, drawn on the box that moves rather than as a picture of
+   it, which would be stretched from one size to the other. */
+:root[data-slide^="menu-"]::view-transition-group(trip-menu) {
+  overflow: clip;
+  border-radius: var(--radius-panel);
+  background-color: var(--color-paper-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--color-rule),
+    var(--shadow-lg);
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-slide^="menu-"]::view-transition-old(trip-menu),
+:root[data-slide^="menu-"]::view-transition-new(trip-menu) {
+  display: none;
+}
+
+:root[data-slide="menu-on"]::view-transition-old(trip-menu-rows) {
+  animation: menu-out-to-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="menu-on"]::view-transition-new(trip-menu-page) {
+  animation: menu-in-from-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="menu-back"]::view-transition-old(trip-menu-page) {
+  animation: menu-out-to-right 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-slide="menu-back"]::view-transition-new(trip-menu-rows) {
+  animation: menu-in-from-left 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
