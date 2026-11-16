@@ -85,7 +85,7 @@
 /*
  * The phone's preview comes in from the window's right edge over the export,
  * as a page a phone goes on to does, and goes back out the same way. The
- * timing is the place's sheet's, the other panel that slides: the arrival at
+ * timing is the place's sheet's, kept by every panel that slides: the arrival at
  * 200ms easing out, the going quicker, at 160ms easing in, since a thing
  * going away does not need to be watched go. Transform only, no opacity, and
  * nothing under it moves.

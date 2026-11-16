@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { FINGER_ROOM } from "@/ui/finger-room";
 import { ArrowLeftIcon, MoreIcon } from "@/ui/icons";
 import { useOutsidePress } from "@/ui/use-outside-press";
+import { usePhoneSheet } from "@/ui/use-phone-sheet";
 
 /**
  * A page a row can turn the menu into: the menu's panel stays where it is
@@ -122,11 +123,21 @@ interface TripMenuProps {
  * at the top under the deepest shadow, and a handle over the rows, which are
  * cards there. Nothing heads the rows: the trip they are about is named on
  * the page under the sheet. A page takes the whole sheet, under its name and
- * the arrow back. A press on the dimmed page puts it away.
+ * the arrow back. A press on the dimmed page puts it away. The sheet rises
+ * from under the window's foot as it opens and goes back down as it is put
+ * away, the dimming coming and going with it (see phone-sheet.css); on a
+ * desk the panel appears and goes at once.
  */
 export function TripMenu({ label, children }: TripMenuProps) {
-  const [open, setOpen] = useState(false);
   const [page, setPage] = useState<MenuPage | null>(null);
+  /**
+   * Whether the menu is open. On a phone, put away, it goes back down the
+   * window showing what it showed, a page included, and the rows are put
+   * back for its next opening only once it has gone.
+   */
+  const sheet = usePhoneSheet(() => {
+    setPage(null);
+  });
   const container = useRef<HTMLDivElement | null>(null);
   const button = useRef<HTMLButtonElement | null>(null);
   const backButton = useRef<HTMLButtonElement | null>(null);
@@ -138,11 +149,6 @@ export function TripMenu({ label, children }: TripMenuProps) {
     setPage(null);
   };
 
-  const close = (): void => {
-    setOpen(false);
-    setPage(null);
-  };
-
   /**
    * Put away from inside: by Escape, by the dimmed page, or by a page whose
    * work is done. The focus goes back to the button that opened it, rather
@@ -150,7 +156,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
    * else, which has put the focus where it wanted.
    */
   const putAway = (): void => {
-    close();
+    sheet.close();
     button.current?.focus();
   };
 
@@ -172,7 +178,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
     }
   }, [page]);
 
-  useOutsidePress(container, open, close);
+  useOutsidePress(container, sheet.up, sheet.close);
 
   return (
     <div
@@ -181,7 +187,8 @@ export function TripMenu({ label, children }: TripMenuProps) {
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault();
-          if (page !== null) {
+          // A page on a sheet already on its way down goes down with it.
+          if (page !== null && sheet.up) {
             back();
           } else {
             putAway();
@@ -197,14 +204,14 @@ export function TripMenu({ label, children }: TripMenuProps) {
         // shut, and by the label while it is open and the title is put away
         // from over it: both at once, and the title is read again after the
         // name as a description.
-        aria-label={open ? label : undefined}
-        title={open ? undefined : label}
-        aria-expanded={open}
+        aria-label={sheet.up ? label : undefined}
+        title={sheet.up ? undefined : label}
+        aria-expanded={sheet.up}
         onClick={() => {
-          if (open) {
-            close();
+          if (sheet.up) {
+            sheet.close();
           } else {
-            setOpen(true);
+            sheet.open();
           }
         }}
         // Thirty-two, a little over the name's line of thirty, so it sits in
@@ -214,7 +221,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
         // it is the one round button at the right of the name, forty four
         // across on raised paper inside a hairline, a finger's size as drawn.
         className={`grid h-8 w-8 place-items-center rounded-pill border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta max-lg:h-11 max-lg:w-11 max-lg:border-[1.5px] ${FINGER_ROOM} ${
-          open
+          sheet.up
             ? "border-terracotta-800 bg-terracotta-800 text-paper"
             : "border-rule bg-transparent text-ink-muted hover:bg-neutral-200 hover:text-ink max-lg:bg-paper-raised max-lg:text-ink"
         }`}
@@ -222,7 +229,7 @@ export function TripMenu({ label, children }: TripMenuProps) {
         <MoreIcon size={16} strokeWidth={2.75} />
       </button>
 
-      {open ? (
+      {sheet.drawn ? (
         <>
           {/* The page dimmed under the sheet on a phone, and the press that
               puts the sheet away. Inside the menu, so that press is not one
@@ -230,17 +237,21 @@ export function TripMenu({ label, children }: TripMenuProps) {
           <div
             aria-hidden="true"
             onClick={putAway}
-            className="fixed inset-0 z-50 touch-none bg-ink/35 lg:hidden"
+            className={`fixed inset-0 z-50 touch-none bg-ink/35 lg:hidden ${sheet.dimClass}`}
           />
           <div
             role={page === null ? "menu" : "dialog"}
             aria-label={page === null ? label : page.title}
+            // On its way down a phone's window nothing on it answers, and a
+            // press there lands on the dimmed page under it.
+            inert={!sheet.up}
+            onAnimationEnd={sheet.onSheetAnimationEnd}
             // Close under the button, so the menu reads as what the button
             // opened rather than as a panel that appeared near it. Wider and
             // more padded as a page, the way the panels off this menu were.
             className={`absolute top-full right-0 z-40 mt-[6px] rounded-panel border border-rule bg-paper-raised shadow-lg ${
               page === null ? "w-[172px] p-[6px]" : "w-[min(320px,calc(100vw-2rem))] p-[14px]"
-            } ${SHEET}`}
+            } ${SHEET} ${sheet.sheetClass}`}
           >
             <div
               aria-hidden="true"

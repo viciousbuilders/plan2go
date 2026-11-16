@@ -7,6 +7,7 @@ import type { ComputedLeg } from "@/core/time/compute-day";
 import { formatDuration } from "@/core/time/minutes";
 import { ArrowUpRightIcon, ChevronDownIcon } from "@/ui/icons";
 import { Notice } from "@/ui/notice";
+import { usePhoneSheet } from "@/ui/use-phone-sheet";
 import type { LegOption, PlannedLeg } from "../compute-trip";
 import type { DayActions } from "../day-actions";
 import { MODE_ICON, MODE_WORDS } from "../leg-marks";
@@ -133,22 +134,26 @@ function Way({
  * them; the leg is one line on the thread.
  */
 export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
-  const [open, setOpen] = useState(false);
+  const sheet = usePhoneSheet();
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
   const pill = useRef<HTMLButtonElement | null>(null);
-  const sheet = useRef<HTMLDivElement | null>(null);
+  const dialog = useRef<HTMLDivElement | null>(null);
   const titleId = useId();
 
-  /** The sheet takes the keyboard as it comes up, so Escape and Tab start there. */
+  /**
+   * The sheet takes the keyboard as it comes up, so Escape and Tab start
+   * there. Without scrolling to it: it is fixed to the window and starts
+   * under its foot, where scrolling the page could only move the day.
+   */
   useEffect(() => {
-    if (open) {
-      sheet.current?.focus();
+    if (sheet.up) {
+      dialog.current?.focus({ preventScroll: true });
     }
-  }, [open]);
+  }, [sheet.up]);
 
   const close = (): void => {
-    setOpen(false);
+    sheet.close();
     pill.current?.focus();
   };
 
@@ -198,14 +203,14 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
       type="button"
       ref={pill}
       aria-haspopup="dialog"
-      aria-expanded={open}
+      aria-expanded={sheet.up}
       title={onChange === null ? undefined : "Change how you get there"}
       onClick={() => {
         setError(null);
-        setOpen(true);
+        sheet.open();
       }}
       className={`flex h-8 shrink-0 items-center gap-2 rounded-pill border pr-[10px] pl-3 text-small/none font-semibold whitespace-nowrap text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta ${
-        open
+        sheet.up
           ? "border-neutral-400 bg-neutral-300"
           : "border-neutral-300 bg-neutral-200 active:border-neutral-400 active:bg-neutral-300"
       }`}
@@ -255,31 +260,35 @@ export function TimelineLeg({ leg, planned, onChange }: TimelineLegProps) {
         </div>
       </div>
 
-      {open ? (
+      {sheet.drawn ? (
         /* Over the whole window, the page dimmed under it, the sheet at the
            foot of it on raised paper rounded at the top, under the deepest
            shadow, the one kept for a layer over the whole viewport. A press
-           on the dimmed page puts it away, as Escape does. It comes up in
-           one frame, as every panel but the place's sheet does. */
+           on the dimmed page puts it away, as Escape does. It rises from
+           under the window's foot and goes back down it, the dimming coming
+           and going with it (see phone-sheet.css), and on its way down
+           nothing on it answers. */
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
             aria-hidden="true"
             onClick={close}
-            className="absolute inset-0 touch-none bg-ink/35"
+            className={`absolute inset-0 touch-none bg-ink/35 ${sheet.dimClass}`}
           />
           <div
-            ref={sheet}
+            ref={dialog}
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
             tabIndex={-1}
+            inert={!sheet.up}
+            onAnimationEnd={sheet.onSheetAnimationEnd}
             onKeyDown={(event) => {
               if (event.key === "Escape") {
                 event.preventDefault();
                 close();
               }
             }}
-            className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[30px] bg-paper-raised px-4 pt-[10px] pb-[max(24px,env(safe-area-inset-bottom))] shadow-lg outline-none"
+            className={`absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[30px] bg-paper-raised px-4 pt-[10px] pb-[max(24px,env(safe-area-inset-bottom))] shadow-lg outline-none ${sheet.sheetClass}`}
           >
             <div aria-hidden="true" className="mx-auto mb-4 h-[5px] w-10 rounded-pill bg-ink/20" />
             {/* The places' names keep the lead step's weight and the words

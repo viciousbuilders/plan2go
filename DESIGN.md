@@ -490,7 +490,7 @@ either. At the right of the name, for someone who may edit, the trip's menu, a r
 button 44px across on `paper-raised` inside a 1.5px hairline. A reader has none, and
 exports from the bar.
 
-The menu comes up from the foot of the window as a sheet, drawn as a leg's sheet is:
+The menu comes up from the foot of the window as a sheet (see Motion), drawn as a leg's sheet is:
 over the page dimmed with `ink` at 35 percent, raised paper rounded 30px at the top
 under `shadow-lg`, with a handle, and under the handle, with nothing heading them, a
 card for each thing that can be done to the
@@ -664,7 +664,7 @@ in the middle of the window. Each answers a finger over 44px but is laid out onl
 tall as its words, so the row stands 16px under the day and, at the end of the page,
 16px over the bar.
 
-A leg's pill pressed brings up a sheet from the foot of the window, over the page dimmed with
+A leg's pill pressed brings up a sheet from the foot of the window (see Motion), over the page dimmed with
 `ink` at 35 percent: raised paper rounded 30px at the top under `shadow-lg`, with a
 handle, "From Sydney Opera House to Taronga Zoo Sydney" at the lead step, the names
 in its weight and "From" and "to" regular, breaking before "to" when it needs two
@@ -1275,14 +1275,14 @@ and it is the product's own.
 
 ## Motion
 
-Thirteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Fourteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
 and the chosen fill of the map's row of days, with the day sliding across under them on
 a desk and a phone, the pill of a phone's
 bar of views moving to the view chosen, a phone's views sliding from one to the next, the
 pills of the export's switch and of its page setup's choices moving to the one chosen,
 the export's page setup unfolding and folding, the switches of a phone's export being
-thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, and the search on the
+thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
 pressed and gliding along when an arrow moves the row, the pill's colours and chevron turning, its
@@ -1387,13 +1387,25 @@ coming in from the right and going back the way it came; appearing in one frame,
 read as the export being swapped for something else. Nothing under it moves, and no
 opacity.
 
+A phone's sheets up from the foot of the window, the trip's menu and a leg's ways:
+`transform` from wholly under the window's foot to its place, 200ms `ease-out`, and back
+down the same way, 160ms `ease-in`, however it is put away, at the place's sheet's
+timing. Appearing in one frame, a sheet read as the page under it having changed, where
+one rising over it reads as laid on top, and going back down is how it says where it
+went. The page dimmed under it comes and goes with it, its `opacity` over the same
+times, so the page is not darkened before the sheet has come up or lit again after it
+has gone. The sheet itself has no opacity, nothing on it moves, and on its way down
+nothing on it answers. On a desk the trip's menu is a panel under its button and
+appears at once.
+
 Nothing else. No transitions on focus outside the search, any other panel opening, or map
 interaction, and no other transition on hover. Those changes are instant.
 
 Focus is a 2px `terracotta` ring at 2px offset, visible immediately, on every
 interactive element.
 
-Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, the
+Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's preview, a
+phone's sheets up from its foot, the
 day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
 page setup and a phone's switches, a city's dot and everything in the search are instant too, and the empty field's words stay on
