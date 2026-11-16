@@ -47,6 +47,19 @@ const GROUP = "text-small/none font-bold text-neutral-700";
 /** The ring every control here takes under the keyboard, as everywhere in the product. */
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta";
 
+/**
+ * A choice in the export pressed and turned on or off: a day for the file,
+ * on a desk and on a phone, and a desk's toggle of what the file includes.
+ * Pressed, it sinks to 95 percent, as a quick search does on the map, and
+ * comes back as it is let go; turned, its ground, edge and words go from one
+ * colour to the other over the 250ms on the curve a phone's switch is thrown
+ * on, so the choice is seen to be made rather than the choice swapped for
+ * another. A day that cannot be chosen does not sink, and under reduced
+ * motion nothing does and the colours change at once.
+ */
+const TOGGLE_MOTION =
+  "transition-[background-color,border-color,color,scale] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:enabled:active:scale-95 motion-reduce:transition-none";
+
 /** What the export route says when it will not, or cannot, draw the file. */
 const refusalSchema = object({ error: string(), action: optional(string()) });
 
@@ -912,7 +925,7 @@ export function ExportDialog({
                       onClick={() => {
                         toggleDay(day.plan.id);
                       }}
-                      className={`flex min-w-0 flex-col items-center gap-[5px] rounded-panel border-[1.5px] px-[2px] py-[11px] ${FOCUS} ${
+                      className={`flex min-w-0 flex-col items-center gap-[5px] rounded-panel border-[1.5px] px-[2px] py-[11px] ${TOGGLE_MOTION} ${FOCUS} ${
                         empty
                           ? "cursor-not-allowed border-dashed border-neutral-300 text-neutral-400"
                           : on
@@ -1431,7 +1444,7 @@ export function ExportDialog({
                             onClick={() => {
                               toggleDay(day.plan.id);
                             }}
-                            className={`flex flex-col items-center gap-1 rounded-chip border-[1.5px] pt-2 pb-[9px] ${FOCUS} ${
+                            className={`flex flex-col items-center gap-1 rounded-chip border-[1.5px] pt-2 pb-[9px] ${TOGGLE_MOTION} ${FOCUS} ${
                               empty
                                 ? "cursor-not-allowed border-dashed border-neutral-300 text-neutral-400"
                                 : on
@@ -1469,14 +1482,7 @@ export function ExportDialog({
                           type="button"
                           aria-pressed={on}
                           onClick={flip(set, on)}
-                          /* Pressed, it sinks to 95 percent, as a quick search
-                             does on the map, and comes back as it is let go;
-                             turned on or off, its ground, edge and words go
-                             from one colour to the other over the 250ms on
-                             the curve a phone's switch is thrown on, so the
-                             choice is seen to be made rather than the pill
-                             swapped for another. Neither under reduced motion. */
-                          className={`flex items-center gap-2 rounded-chip border-[1.5px] px-[11px] py-[10px] text-left text-[12.5px]/[1.15] font-semibold transition-[background-color,border-color,color,scale] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:active:scale-95 motion-reduce:transition-none ${FOCUS} ${
+                          className={`flex items-center gap-2 rounded-chip border-[1.5px] px-[11px] py-[10px] text-left text-[12.5px]/[1.15] font-semibold ${TOGGLE_MOTION} ${FOCUS} ${
                             on
                               ? "border-terracotta-300 bg-terracotta-100 text-terracotta-900"
                               : "border-neutral-200 text-neutral-500"
