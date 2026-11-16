@@ -1469,7 +1469,14 @@ export function ExportDialog({
                           type="button"
                           aria-pressed={on}
                           onClick={flip(set, on)}
-                          className={`flex items-center gap-2 rounded-chip border-[1.5px] px-[11px] py-[10px] text-left text-[12.5px]/[1.15] font-semibold ${FOCUS} ${
+                          /* Pressed, it sinks to 95 percent, as a quick search
+                             does on the map, and comes back as it is let go;
+                             turned on or off, its ground, edge and words go
+                             from one colour to the other over the 250ms on
+                             the curve a phone's switch is thrown on, so the
+                             choice is seen to be made rather than the pill
+                             swapped for another. Neither under reduced motion. */
+                          className={`flex items-center gap-2 rounded-chip border-[1.5px] px-[11px] py-[10px] text-left text-[12.5px]/[1.15] font-semibold transition-[background-color,border-color,color,scale] duration-[250ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:active:scale-95 motion-reduce:transition-none ${FOCUS} ${
                             on
                               ? "border-terracotta-300 bg-terracotta-100 text-terracotta-900"
                               : "border-neutral-200 text-neutral-500"

@@ -1276,7 +1276,7 @@ and it is the product's own.
 
 ## Motion
 
-Seventeen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
+Eighteen things animate: reordering a stop, the trip's actions unfolding, a place's sheet
 arriving and leaving, the chosen day's pill moving along the strip, on a phone its card
 and the chosen fill of the map's row of days, with the day sliding across under them on
 a desk and a phone, the pill of a phone's
@@ -1285,7 +1285,7 @@ pills of the export's switch and of its page setup's choices moving to the one c
 the export's page setup unfolding and folding, a leg's ways unfolding and folding on a
 desk, the months of a calendar moving along, the trip's menu on a desk turning to a page
 and back, the switches of a phone's export being
-thrown, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
+thrown and the toggles of a desk's export being pressed, the export's bar while its file is drawn, the export's preview on a phone coming in and going back, a phone's sheets coming up from the foot of the window and going back down, and the search on the
 map, whose movement is its design file's and is written out under Components and in
 `place-search.css`: its glow on and off, a quick search sinking a little as it is
 pressed and gliding along when an arrow moves the row, the pill's colours and chevron turning, its
@@ -1371,6 +1371,13 @@ The switches of a phone's export, what the file includes: thrown, the knob slide
 track's other end, `translate` over the sliding pills' 250ms on their curve, as the track
 goes from one colour to the other, `background-color` over the same, so a switch is seen
 to be thrown rather than swapped for another switch the other way.
+
+The toggles of a desk's export, the same choices under **Include**: pressed, a toggle
+sinks to 95 percent, `scale`, as a quick search on the map does, and comes back as it is
+let go; turned on or off, its ground, edge and words go from one colour to the other,
+`background-color`, `border-color` and `color`, over the 250ms on the curve a phone's
+switch is thrown on, so the choice is seen to be made rather than the toggle swapped for
+another. Nothing else on it moves.
 
 The export's page setup, on a desk and on a phone: its rows unfold from the line or card
 that holds them, the height from nothing to all of it over 200ms `ease-out`, by the grid
@@ -1459,7 +1466,7 @@ Under `prefers-reduced-motion: reduce`, reordering, the sheet, the export's prev
 phone's sheets up from its foot, the
 day's pill, a phone's card and the map's row of days with the day under them, the bar of views' pill and the
 views under it, the export's switch, its
-page setup and a phone's switches, a leg's ways on a desk, a calendar's months, the trip's menu turning to a page, a city's dot and everything in the search are instant too, and the empty field's words stay on
+page setup and a phone's switches, a desk's export toggles, which do not sink either, a leg's ways on a desk, a calendar's months, the trip's menu turning to a page, a city's dot and everything in the search are instant too, and the empty field's words stay on
 the first of them rather than turning over. The spinner still turns, since it is what
 says the search is waiting, and so does the export's, for the same reason; the export's
 bar steps rather than slides.
